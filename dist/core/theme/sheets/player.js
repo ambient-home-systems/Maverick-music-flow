@@ -557,6 +557,16 @@ export default function() {
             animation:none;
           }
         }
+        @media (hover: none) and (pointer: coarse) {
+          .card.layout-tablet.background-motion .bg,
+          .card.layout-tablet.background-motion .shade,
+          .card.layout-tablet.background-motion .glow,
+          .card.layout-tablet.background-motion .hero-aura,
+          .card.layout-tablet.background-motion .art-aura {
+            animation:none !important;
+            will-change:auto;
+          }
+        }
         .hero-up-next {
           justify-content:center;
           text-align:center;

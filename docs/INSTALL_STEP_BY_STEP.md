@@ -1,12 +1,12 @@
-# Install HOMEii Flow PUBLIC BETA 1 — beginner walkthrough
+# Install HOMEii Flow 6.0.0 — beginner walkthrough
 
-**This is a BETA, not a stable release. Participation is optional; 5.9.3 remains available for stable users.**
+**HOMEii Flow 6 is a coordinated card and Engine release. Version 5.9.3 remains available for users who are not ready to migrate.**
 
 > [!CAUTION]
 > **STOP: upgrading from 5.9.3 is a breaking change. Do not replace the card first.**
-> Version 6 requires the separate HOMEii Flow Engine integration. Install, configure and verify Engine **1.0.0-beta.1** while keeping card **5.9.3** working. Only then replace the card with **6.0.0-beta.1**. A card-only update will not provide the supported v6 connection.
+> Version 6 requires the separate HOMEii Flow Engine integration. Install, configure and verify Engine **1.0.0** while keeping card **5.9.3** working. Only then replace the card with **6.0.0**. Updating the card alone is unsupported and will break the v6 connection.
 
-These instructions describe the prepared beta packages. If the releases are not visible or the Engine repository returns 404, do not substitute a random development ZIP: public access has not opened for you yet.
+Use only the matching official releases linked below. Do not mix beta, development or older Engine files with the stable card.
 
 ## 1. Understand the three components
 
@@ -39,8 +39,8 @@ A Spotify API key, an HA access token and an MA access token are different crede
 ## 4. Download the matching Engine
 
 1. Open [Engine releases](https://github.com/r11a/homeii-flow-engine/releases).
-2. Select exactly **1.0.0-beta.1**, marked **Pre-release**.
-3. Under Assets, download `homeii-flow-engine-1.0.0-beta.1.zip`.
+2. Select exactly **1.0.0**.
+3. Under Assets, download `homeii-flow-engine-1.0.0.zip`.
 4. Extract it on your computer. Inside it, locate `custom_components/homeii_flow`.
 5. Copy the complete `homeii_flow` directory into HA's `/config/custom_components/`.
 6. Create `custom_components` if it does not exist. If updating an existing Engine, replace the component files as one matching set; do not combine individual Python files from different versions.
@@ -96,24 +96,24 @@ Token instructions are documented in the [official MA API guide](https://www.mus
 6. If an error appears, fix it using the troubleshooting table below. **Do not upgrade the card yet.**
 7. When the integration is created, open its entry and confirm it loads without a setup error.
 
-**Checkpoint:** Engine 1.0.0-beta.1 is installed and loaded, and native MA still plays on your test speaker. Only now continue.
+**Checkpoint:** Engine 1.0.0 is installed and loaded, and native MA still plays on your test speaker. Only now continue.
 
 ## 7. Install or upgrade the card
 
-Manual installation is the explicit beta path here; official HACS catalog inclusion is not required. If HACS already manages your old card, disable its automatic updates while deliberately testing a manual beta, so it cannot overwrite your chosen files.
+Official HACS catalog inclusion is not required. Add the repository as a custom Dashboard repository or install the release assets manually.
 
 1. Open [card releases](https://github.com/r11a/homeii-music-flow/releases).
-2. Select **6.0.0-beta.1**, marked **Pre-release**.
+2. Select **6.0.0**.
 3. Download the card package or the `homeii-music-flow.js`, `homeii-flow-logo-v2.png` and `homeii-flow-icon.png` assets. Use built release assets, not `src/homeii-music-flow.js`.
-4. Create `/config/www/homeii-flow-beta/`.
+4. Create `/config/www/homeii-flow/`.
 5. Copy the built JS and image files there. If using the complete package, extract its contents into that folder, with the JS at its root.
-6. Check this exact file exists: `/config/www/homeii-flow-beta/homeii-music-flow.js`.
+6. Check this exact file exists: `/config/www/homeii-flow/homeii-music-flow.js`.
 7. In HA, open your profile and enable Advanced mode if the Resources controls are hidden. Open **Settings → Dashboards → Resources** (some versions put Resources in the three-dot menu), or navigate directly to `/config/lovelace/resources`.
 8. **Existing users:** edit the existing HOMEii resource. **New users:** choose Add resource.
 9. Enter this URL and resource type:
 
 ```text
-URL: /local/homeii-flow-beta/homeii-music-flow.js?v=6.0.0-beta.1
+URL: /local/homeii-flow/homeii-music-flow.js?v=6.0.0
 Type: JavaScript module
 ```
 
@@ -158,12 +158,12 @@ Use the [tester guide](BETA_TESTING.md) for diagnostics and reporting. Never sha
 
 ## 10. Return to 5.9.3 if needed
 
-1. Stop/remove any beta test schedules and timers you created. Replacing the card does not stop Engine automations.
+1. Stop/remove any Engine schedules and timers you do not want to retain. Replacing the card does not stop Engine automations.
 2. Restore the saved old resource URL and old card file. Remove any duplicate beta resource entry.
 3. Restore your saved dashboard configuration if you changed it incompatibly.
 4. Fully reload all clients and verify 5.9.3 with native MA available.
 5. If you also need to revert the integration/backend, use the matching backup. Do not delete HA `.storage` files manually.
 
-A successful install on one device is not a guarantee for every speaker/browser. This beta is deliberately opt-in; keep a working rollback until you are satisfied.
+Keep a working rollback until you have verified your own speakers, browsers and dashboards.
 
 

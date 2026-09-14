@@ -25,6 +25,23 @@ async function readPackageVersion() {
   return String(pkg.version || "");
 }
 
+it("keeps tablet playback state fresh when realtime Engine events are missed", async () => {
+  const source = await readProjectFile("src", "core", "base-music-card.js");
+  const styles = await readProjectFile("src", "core", "theme", "sheets", "player.js");
+  expect(source).toContain("enginePlayerSnapshotExpired");
+  expect(source).toContain("enginePlayersLastAttemptAt || 0) >= 5000");
+  expect(source).toContain("await this._refreshEnginePlayers({ force: true })");
+  expect(styles).toContain(".card.layout-tablet.background-motion .bg");
+  expect(styles).toContain("@media (hover: none) and (pointer: coarse)");
+});
+
+it("opens current-track actions from the main heart so favorite and playlist destinations stay together", async () => {
+  const source = await readProjectFile("src", "homeii-music-flow.js");
+  expect(source).toContain('bindButton("mobileLikeBtn"');
+  expect(source).toContain("const entry = this._currentMediaLikeMeta()");
+  expect(source).toContain("this._openMobileMediaActionMenu(entry)");
+});
+
 const originalGlobals = {
   CustomEvent: globalThis.CustomEvent,
   customElements: globalThis.customElements,

@@ -1,4 +1,4 @@
-/*! HOMEII_CARD_VERSION = "6.0.0-beta.2"; */
+/*! HOMEII_CARD_VERSION = "6.0.0"; */
 function tl(n, e) {
   for (var t = 0; t < e.length; t++) {
     const r = e[t];
@@ -14672,6 +14672,16 @@ function hm() {
             max-width:100%;
             gap:0;
             animation:none;
+          }
+        }
+        @media (hover: none) and (pointer: coarse) {
+          .card.layout-tablet.background-motion .bg,
+          .card.layout-tablet.background-motion .shade,
+          .card.layout-tablet.background-motion .glow,
+          .card.layout-tablet.background-motion .hero-aura,
+          .card.layout-tablet.background-motion .art-aura {
+            animation:none !important;
+            will-change:auto;
           }
         }
         .hero-up-next {
@@ -45866,14 +45876,14 @@ function vh({
       }
       this._updateNowPlayingInFlight = !0;
       try {
-        this._syncSleepTimerState(), this._syncScheduledStartState(), this._state.selectedPlayer && this._isDirectMaPlayer(this._state.selectedPlayer) && await this._refreshDirectMaPlayers();
-        const o = this._getSelectedPlayer();
-        if (!o) return;
-        this._syncActivePlayerHelper(o);
-        const m = this._queueRenderSignature();
-        await this._ensureQueueSnapshot();
+        this._syncSleepTimerState(), this._syncScheduledStartState(), this._homeiiEngineRequired?.() && Date.now() - Number(this._state?.enginePlayersLastAttemptAt || 0) >= 5e3 && typeof this._refreshEnginePlayers == "function" && await this._refreshEnginePlayers({ force: !0 }), this._state.selectedPlayer && this._isDirectMaPlayer(this._state.selectedPlayer) && await this._refreshDirectMaPlayers();
+        const m = this._getSelectedPlayer();
+        if (!m) return;
+        this._syncActivePlayerHelper(m);
         const g = this._queueRenderSignature();
-        this._refreshGroupingState(), this._loadPlayers(), this._syncNowPlayingUI(), this._state.queueVisible && this._renderQueueItems(), this._state.menuOpen && this._state.menuPage === "queue" && g !== m && this._renderMobileMenu(), this._state.playerModalOpen && (this._state.modalMode === "transfer" ? this._openTransferQueuePicker(!0) : this._renderPlayerModal());
+        await this._ensureQueueSnapshot();
+        const y = this._queueRenderSignature();
+        this._refreshGroupingState(), this._loadPlayers(), this._syncNowPlayingUI(), this._state.queueVisible && this._renderQueueItems(), this._state.menuOpen && this._state.menuPage === "queue" && y !== g && this._renderMobileMenu(), this._state.playerModalOpen && (this._state.modalMode === "transfer" ? this._openTransferQueuePicker(!0) : this._renderPlayerModal());
       } finally {
         this._updateNowPlayingInFlight = !1, this._updateNowPlayingQueued && this.isConnected && (this._updateNowPlayingQueued = !1, this._updateNowPlayingState().catch(() => {
         }));
@@ -48499,7 +48509,7 @@ function Dg() {
   } catch {
   }
 }
-const ea = "6.0.0-beta.2", Kn = "homeii-music-flow-browser-editor-v6002", Lr = "homeii-music-flow-editor-v6002", Lg = "__homeii_ambient_light_pair_player_", Tg = "__homeii_ambient_light_pair_lights_", Bs = Object.freeze({
+const ea = "6.0.0", Kn = "homeii-music-flow-browser-editor-v6000", Lr = "homeii-music-flow-editor-v6000", Lg = "__homeii_ambient_light_pair_player_", Tg = "__homeii_ambient_light_pair_lights_", Bs = Object.freeze({
   isHebrewLanguageTag: wl,
   pickEditorLanguageCandidate: xl,
   detectEditorHebrew: Qm
@@ -51908,7 +51918,13 @@ class ta extends ss {
     e("mobileLyricsBtn", (t) => {
       this._pressUiButton(t.currentTarget), !this._openTabletLyricsScreensaver() && this._openLyricsModal();
     }), e("mobileLikeBtn", (t) => {
-      this._pressUiButton(t.currentTarget), this._toggleLikeCurrentMedia(t.currentTarget);
+      if (!this._pressUiButton(t.currentTarget)) return;
+      const r = this._currentMediaLikeMeta();
+      if (!r?.uri) {
+        this._toastError(this._m("No current track is available.", "אין כרגע שיר זמין."));
+        return;
+      }
+      this._openMobileMediaActionMenu(r);
     }), e("mobileQueueBtn", (t) => {
       this._pressUiButton(t.currentTarget) && (this._state.mobileQueueFlowQuickOpen = !1, this._openMobileMenu("queue"));
     }), e("mobileQueueFlowBtn", (t) => {

@@ -11739,6 +11739,14 @@ export function createHomeiiBaseMusicCard({
       try {
         this._syncSleepTimerState();
         this._syncScheduledStartState();
+        const enginePlayerSnapshotExpired = this._homeiiEngineRequired?.()
+          && Date.now() - Number(this._state?.enginePlayersLastAttemptAt || 0) >= 5000;
+        if (enginePlayerSnapshotExpired && typeof this._refreshEnginePlayers === "function") {
+          // HA Companion/WebView can occasionally miss an Engine event while the
+          // dashboard remains visible. Keep a low-frequency snapshot fallback so
+          // track metadata and artwork recover without leaving the page.
+          await this._refreshEnginePlayers({ force: true });
+        }
         if (this._state.selectedPlayer && this._isDirectMaPlayer(this._state.selectedPlayer)) {
           await this._refreshDirectMaPlayers();
         }
