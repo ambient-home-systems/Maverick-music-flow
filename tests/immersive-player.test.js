@@ -24,7 +24,7 @@ function fixture() {
     _isHotelMode: () => false, _discoveryModeEnabled: () => true,
     _openMobileMenu: vi.fn(), _openTabletLyricsScreensaver: () => false, _openLyricsModal: vi.fn(),
     _toggleShuffle: vi.fn(), _toggleRepeat: vi.fn(),
-    _toggleLikeCurrentMedia: vi.fn(async () => {}), _toast: vi.fn(), _toastError: vi.fn(), _mediaControlFailureMessage: (e) => e.message,
+    _toggleLikeCurrentMedia: vi.fn(async () => {}), _currentMediaLikeMeta: () => ({uri:"library://track/1",media_type:"track",name:"Current track"}), _openMobileMediaActionMenu: vi.fn(), _toast: vi.fn(), _toastError: vi.fn(), _mediaControlFailureMessage: (e) => e.message,
     _getCurrentDuration: () => 200, _fmtDur: (n) => `${n}s`, _seekFromProgress: vi.fn(),
     $: (id) => shadowRoot.getElementById(id),
   };
@@ -167,13 +167,19 @@ describe("optional immersive player", () => {
     expect(card._openMobileMenu).not.toHaveBeenCalled();
     expect(card._toast).toHaveBeenCalledOnce();
   });
-  it("prevents duplicate favorite commands while a request is pending", async () => {
+  it("opens favorite and playlist choices from the wheel heart", async () => {
     const { card, root, open } = fixture();
-    let finish; card._toggleLikeCurrentMedia = vi.fn(() => new Promise((r) => { finish = r; }));
     open(); const button = root.querySelector('[data-immersive-action="like"]');
-    button.click(); button.click();
-    expect(card._toggleLikeCurrentMedia).toHaveBeenCalledOnce();
-    finish(); await Promise.resolve();
+    button.click();
+    expect(card._toggleLikeCurrentMedia).not.toHaveBeenCalled();
+    expect(card._openMobileMediaActionMenu).toHaveBeenCalledWith(expect.objectContaining({uri:"library://track/1"}));
+    expect(card.$("immersiveActionFan").hidden).toBe(true);
+  });
+  it("shows an optional direct Home button in the bottom dock", () => {
+    const {card}=fixture();
+    card._mobileMainBarItems=()=>["home","actions","players","library"];
+    const host=document.createElement("div");host.innerHTML=immersivePlayerDock(card);
+    expect(host.querySelector('[data-mainbar-action="home"]')).not.toBeNull();
   });
   it("suppresses the synthetic click after a horizontal swipe", () => {
     const { card, root, open } = fixture(); open();

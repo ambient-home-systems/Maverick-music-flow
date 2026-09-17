@@ -150,6 +150,10 @@ export function immersiveActionPages(card) {
 
 export function immersivePlayerDock(card, edgeHtml = "") {
   const label = (en, he) => card._esc(card._m(en, he));
+  const showHome = card._mobileMainBarItems?.().includes("home") === true;
+  const homeButton = showHome
+    ? `<button type="button" data-mainbar-action="home" aria-label="${label("Home", "בית")}" title="${label("Home", "בית")}">${actionIconSvg(card, "home")}</button>`
+    : "";
   return `<div class="immersive-dock">
     <div class="immersive-fan" id="immersiveActionFan" role="group" aria-label="${label("Quick actions", "פעולות מהירות")}" hidden>
       <div class="immersive-fan-actions"></div>
@@ -160,7 +164,7 @@ export function immersivePlayerDock(card, edgeHtml = "") {
         <button type="button" data-fan-step="1" aria-label="${label("More actions", "פעולות נוספות")}">›</button>
       </div>
     </div>
-    <div class="immersive-library-shortcuts"><button type="button" data-mainbar-action="library" aria-label="${label("Library", "ספרייה")}" title="${label("Library", "ספרייה")}">${actionIconSvg(card, "library")}</button><button type="button" data-immersive-search aria-label="${label("Quick search", "חיפוש מהיר")}" title="${label("Quick search", "חיפוש מהיר")}">${actionIconSvg(card, "search")}</button></div>
+    <div class="immersive-library-shortcuts">${homeButton}<button type="button" data-mainbar-action="library" aria-label="${label("Library", "ספרייה")}" title="${label("Library", "ספרייה")}">${actionIconSvg(card, "library")}</button><button type="button" data-immersive-search aria-label="${label("Quick search", "חיפוש מהיר")}" title="${label("Quick search", "חיפוש מהיר")}">${actionIconSvg(card, "search")}</button></div>
     <button type="button" id="immersiveActionsToggle" aria-expanded="false" aria-controls="immersiveActionFan" aria-label="${label("Actions", "פעולות")}" title="${label("Actions", "פעולות")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20 2.5 10.5a13.4 13.4 0 0 1 19 0L12 20Z"/><path d="m12 20-5-12.5M12 20V6.6M12 20l5-12.5"/></svg></button>
     ${immersivePlayerChoice(card)}
     ${edgeHtml}
@@ -391,10 +395,13 @@ export function bindImmersivePlayer(card, options = {}) {
   const dispatch = async (action, button) => {
     if (options.onAction) { if (!options.keepOpen?.(action)) close(); try { await options.onAction(action); } catch (error) { card._toastError(card._mediaControlFailureMessage(error)); } return; }
     if (action === "like") {
-      if (button) button.disabled = true;
-      try { await card._toggleLikeCurrentMedia(button); pages = getPages(); page = Math.min(page, pages.length - 1); renderPage(true); }
-      catch (error) { card._toastError(card._mediaControlFailureMessage(error)); }
-      finally { if (button) button.disabled = false; }
+      const entry = card._currentMediaLikeMeta?.();
+      if (!entry?.uri) {
+        card._toastError(card._m("No current track is available.", "אין כרגע שיר זמין."));
+        return;
+      }
+      close();
+      card._openMobileMediaActionMenu?.(entry);
       return;
     }
     if (action === "shuffle" || action === "repeat") {

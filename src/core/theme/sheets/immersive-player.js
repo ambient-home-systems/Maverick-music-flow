@@ -41,7 +41,7 @@ export const immersivePlayerStyles = `
 .immersive-player-symbol svg { width:22px; height:22px; display:block; opacity:.85; }
 .immersive-player-chevron svg { width:14px; height:14px; display:block; opacity:.55; }
 .card.player-design-immersive #historyToggleFab { display:none!important; }
-.card.player-design-immersive #mobileBg { inset:-8%!important; width:116%!important; height:116%!important; background-image:var(--homeii-bg-art-current)!important; background-size:cover!important; background-position:center!important; filter:blur(38px) saturate(1.55)!important; opacity:.95!important; }
+.card.player-design-immersive #mobileBg { inset:-8%!important; width:116%!important; height:116%!important; background-image:none!important; --homeii-bg-layer-opacity:1; background-size:cover!important; background-position:center!important; filter:blur(38px) saturate(1.55)!important; opacity:.95!important; }
 .card.player-design-immersive > .shade { background:linear-gradient(180deg,rgba(9,12,17,.18),rgba(9,12,17,.48))!important; opacity:1!important; }
 .card.player-design-immersive.theme-light > .shade { background:linear-gradient(180deg,rgba(250,251,252,.72),rgba(250,251,252,.88))!important; }
 .card.player-design-immersive > .glow { opacity:.12!important; }
@@ -79,7 +79,14 @@ export const immersivePlayerStyles = `
 .player-choice-symbol { display:grid; place-items:center; width:60px; height:60px; flex:none; border-radius:14px; overflow:hidden; background:color-mix(in srgb,currentColor 5%,transparent); }
 .player-choice-symbol img { width:100%; height:100%; object-fit:cover; }
 .player-choice-summary { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; max-width:760px; margin:8px auto 20px; font-size:13px; color:var(--homeii-surface-muted); }
-.player-choice-summary button { min-height:44px; padding:8px 14px; border-radius:16px; border:1px solid var(--homeii-surface-border); background:transparent; color:var(--homeii-surface-text); font:inherit; cursor:pointer; }
+.player-choice-summary .player-this-device-cta { min-height:58px; padding:8px 12px; border-radius:19px; border:1px solid color-mix(in srgb,var(--homeii-accent) 34%,var(--homeii-surface-border)); background:linear-gradient(135deg,color-mix(in srgb,var(--homeii-accent) 18%,transparent),color-mix(in srgb,var(--homeii-surface-text) 7%,transparent)); color:var(--homeii-surface-text); font:inherit; cursor:pointer; display:grid; grid-template-columns:40px minmax(0,1fr) 18px; align-items:center; gap:10px; text-align:start; box-shadow:0 12px 32px color-mix(in srgb,var(--homeii-accent) 12%,transparent),inset 0 1px 0 color-mix(in srgb,#fff 18%,transparent); backdrop-filter:blur(18px) saturate(135%); -webkit-backdrop-filter:blur(18px) saturate(135%); }
+.player-this-device-icon { inline-size:40px; block-size:40px; border-radius:50%; display:grid; place-items:center; background:color-mix(in srgb,var(--homeii-accent) 24%,transparent); color:var(--homeii-surface-text); }
+.player-this-device-icon .ui-ic { inline-size:22px; block-size:22px; }
+.player-this-device-copy { min-width:0; display:grid; gap:2px; }
+.player-this-device-copy strong { font-size:13px; line-height:1.25; }
+.player-this-device-copy small { color:var(--homeii-surface-muted); font-size:11px; line-height:1.25; white-space:normal; }
+.player-this-device-arrow { color:var(--homeii-surface-muted); font-size:24px; line-height:1; }
+.player-this-device-cta:hover,.player-this-device-cta:focus-visible { border-color:color-mix(in srgb,var(--homeii-accent) 62%,var(--homeii-surface-border)); transform:translateY(-1px); }
 .card.player-design-immersive .player-choice-state { display:flex!important; font-size:13px!important; line-height:1.5; opacity:1!important; }
 .player-choice-symbol svg { width:22px!important; height:22px!important; }
 .player-choice-check { width:18px; height:18px; flex:none; }

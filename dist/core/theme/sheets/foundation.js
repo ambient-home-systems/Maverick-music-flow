@@ -218,29 +218,35 @@ export default function({ hostMinWidth, height, minCardHeight, fontScale, iconSc
           will-change:transform, opacity;
         }
         .bg::before,
-        .bg::after {
+        .compact-backdrop-art::before,
+        .compact-backdrop-art::after,
+        .bg::after, .compact-backdrop-art::after {
           content:"";
           position:absolute;
           inset:-1px;
           background:var(--homeii-bg-art-current, none) center / cover no-repeat;
-          opacity:.72;
+          opacity:var(--homeii-bg-layer-opacity, .72);
           pointer-events:none;
           transition:opacity .52s cubic-bezier(.22,.78,.24,1);
           will-change:opacity;
         }
-        .bg::after {
+        .bg::after, .compact-backdrop-art::after {
           background:var(--homeii-bg-art-next, none) center / cover no-repeat;
           opacity:0;
         }
-        .bg.bg-art-transitioning::before {
+        .bg.bg-art-transitioning::before, .compact-backdrop-art.bg-art-transitioning::before {
           opacity:0;
         }
-        .bg.bg-art-transitioning::after {
-          opacity:.72;
+        .bg.bg-art-transitioning::after, .compact-backdrop-art.bg-art-transitioning::after {
+          opacity:var(--homeii-bg-layer-opacity, .72);
         }
+        .bg-art-settling::before, .bg-art-settling::after { transition:none !important; }
+        .compact-backdrop-art { --homeii-bg-layer-opacity:1; }
         @media (prefers-reduced-motion: reduce) {
           .bg::before,
-          .bg::after {
+        .compact-backdrop-art::before,
+        .compact-backdrop-art::after,
+          .bg::after, .compact-backdrop-art::after {
             transition:none !important;
           }
         }

@@ -113,9 +113,9 @@ function ensureHaEditorComponents() {
   } catch (_) {}
 }
 
-const HOMEII_CARD_VERSION = "6.0.0";
-const HOMEII_BROWSER_EDITOR_TAG = "homeii-music-flow-browser-editor-v6000";
-const HOMEII_MOBILE_EDITOR_TAG = "homeii-music-flow-editor-v6000";
+const HOMEII_CARD_VERSION = "6.0.1";
+const HOMEII_BROWSER_EDITOR_TAG = "homeii-music-flow-browser-editor-v601";
+const HOMEII_MOBILE_EDITOR_TAG = "homeii-music-flow-editor-v601";
 const AMBIENT_LIGHT_PAIR_PLAYER_PREFIX = "__homeii_ambient_light_pair_player_";
 const AMBIENT_LIGHT_PAIR_LIGHTS_PREFIX = "__homeii_ambient_light_pair_lights_";
 
@@ -837,6 +837,9 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       discovery_mode_enabled: true,
       pinned_player_entity: "",
       pinned_player_entities: [],
+      pinned_player_master: "",
+      entity_sticky: false,
+      pinned_players_exclusive: false,
       excluded_player_entities: [],
       player_sort_mode: "default",
       player_order_entities: [],
@@ -4912,12 +4915,24 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
 
   _pinnedPlayerPreferences() {
     const next = HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._state.pinnedPlayerEntities);
+    const master = String(this._config?.pinned_player_master || "").trim();
+    if (master && !next.includes(master)) next.unshift(master);
     this._state.pinnedPlayerEntities = next;
     return next;
   }
 
   _pinnedPlayerPreference() {
     return this._pinnedPlayerPreferences()[0] || "";
+  }
+
+  _pinnedPlayerMasterPreference() {
+    const configured = String(this._config?.pinned_player_master || "").trim();
+    if (configured) return configured;
+    return String(this._config?.entity || "").trim() || this._pinnedPlayerPreferences()[0] || "";
+  }
+
+  _pinnedPlayersExclusive() {
+    return this._config?.pinned_players_exclusive === true;
   }
 
   _excludedPlayerPreferences() {
@@ -5028,7 +5043,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     const until = Number(this._state.manualFrontPlayerUntil || 0);
     if (!entityId || !until || until <= Date.now()) {
       const player = this._playerByEntityId(entityId);
-      if (player?.state === "playing" && !this._isPlayerExcluded(entityId)) {
+      if (this._config?.entity_sticky !== true && player?.state === "playing" && !this._isPlayerExcluded(entityId)) {
         this._setManualFrontPlayer(entityId, this._manualFrontDefaultHoldMs());
         return entityId;
       }
@@ -5044,11 +5059,11 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
   }
 
   _manualFrontDefaultHoldMs() {
-    return 5 * 60 * 1000;
+    return this._config?.entity_sticky === true ? 10000 : 5 * 60 * 1000;
   }
 
   _manualFrontContentHoldMs() {
-    return 5 * 60 * 1000;
+    return this._config?.entity_sticky === true ? 10000 : 5 * 60 * 1000;
   }
 
   _isManualFrontContentSelectionPage(page = this._state?.menuPage || "") {
@@ -5111,11 +5126,11 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       if (String(this._state.manualFrontPlayerEntity || "") !== scheduledEntityId) return;
       if (Number(this._state.manualFrontPlayerUntil || 0) > Date.now()) return;
       const scheduledPlayer = this._playerByEntityId(scheduledEntityId);
-      if (scheduledPlayer?.state === "playing") {
+      if (this._config?.entity_sticky !== true && scheduledPlayer?.state === "playing") {
         this._setManualFrontPlayer(scheduledEntityId, this._manualFrontDefaultHoldMs());
         return;
       }
-      if (this._shouldHoldManualFrontForContentSelection() && this._playerByEntityId(scheduledEntityId)) {
+      if (this._config?.entity_sticky !== true && this._shouldHoldManualFrontForContentSelection() && this._playerByEntityId(scheduledEntityId)) {
         this._setManualFrontPlayer(scheduledEntityId, this._manualFrontContentHoldMs());
         return;
       }
@@ -5132,6 +5147,12 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     this._manualFrontLocationKey = "";
     this._stopManualFrontRouteTracking();
     if (!hadManualFront || options.sync === false) return;
+    if (this._config?.entity_sticky === true) {
+      const masterEntityId = this._pinnedPlayerMasterPreference();
+      if (masterEntityId && this._playerByEntityId(masterEntityId)) {
+        this._state.selectedPlayer = masterEntityId;
+      }
+    }
     this._loadPlayers();
     this._syncNowPlayingUI();
     this._renderPlayerSummary();
@@ -5431,7 +5452,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
   _mobileNavigableActivePlayers() {
     return HomeiiPlayersFoundation.mobileNavigableActivePlayers(
       this._state.players || [],
-      this._resolvedPinnedPlayerEntities(),
+      this._pinnedPlayersExclusive() ? this._resolvedPinnedPlayerEntities() : [],
       (player) => this._isPlayerActive(player),
     );
   }
@@ -6168,10 +6189,13 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
   }
 
   _displayArtworkForQueueItem(player = null, item = null, { pending = false, size = 420 } = {}) {
+    const queueArt = item ? this._queueItemArtworkUrl(item, size, player) : "";
+    const mediaType = String(item?.media_item?.media_type || item?.media_type || "").toLowerCase();
+    const preferLivePlayerArt = mediaType === "radio";
+    if (queueArt && (pending || !preferLivePlayerArt)) return queueArt;
     const playerArt = this._currentArtworkUrl(player, item || null, size, { preferPlayerArtwork: true });
     if (!item) return playerArt;
     if (!pending && playerArt) return playerArt;
-    const queueArt = this._queueItemArtworkUrl(item, size, player);
     if (queueArt) return queueArt;
     return playerArt || this._currentArtworkUrl(player, item, size, { preferPlayerArtwork: !pending });
   }
@@ -6645,10 +6669,14 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         el.classList.add("bg-art-transitioning");
         const settleTimer = setTimeout(() => {
           if (!el.isConnected || el.dataset.homeiiBgArtSrc !== nextUrl) return;
+          el.classList.add("bg-art-settling");
           el.style.setProperty("--homeii-bg-art-current", displayValue());
           el.style.removeProperty("--homeii-bg-art-next");
           el.classList.remove("bg-art-transitioning");
           el.dataset.homeiiBgArtReady = "1";
+          // Commit the identical final frame without fading through an empty layer.
+          void el.offsetWidth;
+          el.classList.remove("bg-art-settling");
           this._backgroundCrossfadeTimers?.delete(el);
         }, 560);
         this._backgroundCrossfadeTimers?.set(el, settleTimer);
@@ -6673,7 +6701,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       if (token !== this._currentArtworkBackgroundToken) return;
       this._setDecodedBackgroundImage(this.$("mobileArtAura"), effectiveArt);
       this._setDecodedBackgroundImage(this.$("mobileHeroAura"), effectiveArt);
-      this._setDecodedBackgroundImage(this.$("compactBackdropArt"), effectiveArt);
+      this._setDecodedBackgroundCrossfade(this.$("compactBackdropArt"), effectiveArt);
       this._setDecodedBackgroundImage(this.$("compactCoverAura"), effectiveArt);
       this._setDecodedBackgroundCrossfade(this.$("mobileBg"), effectiveArt, overlay);
     };
@@ -6700,7 +6728,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       return this._displayArtworkForQueueItem(selectedPlayer, item, { pending: true, size });
     }
     const currentArtwork = isCenter && isPlayingItem
-      ? this._currentArtworkUrl(selectedPlayer, item, size, { preferPlayerArtwork: true })
+      ? this._displayArtworkForQueueItem(selectedPlayer, item, { pending: false, size })
       : "";
     return this._bestArtworkUrl([
       currentArtwork,
@@ -6823,9 +6851,17 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
 
   _scheduleMobileArtBrowseReset() {
     clearTimeout(this._mobileArtBrowseResetTimer);
-    this._mobileArtBrowseResetTimer = null;
-    // Browsing is a user selection, not a temporary animation. Keep the chosen
-    // cover until playback, a player change or an actual queue anchor change.
+    if (!Number(this._state.mobileArtBrowseOffset || 0)) {
+      this._mobileArtBrowseResetTimer = null;
+      return;
+    }
+    this._mobileArtBrowseResetTimer = setTimeout(() => {
+      this._mobileArtBrowseResetTimer = null;
+      if (!Number(this._state.mobileArtBrowseOffset || 0)) return;
+      this._state.mobileArtBrowseOffset = 0;
+      this._clearArtDragOffset();
+      this._refreshMobileArtStack(true);
+    }, 10000);
   }
 
   _bindMobileArtFallbackGestures() {
@@ -7073,8 +7109,8 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       this._commitArtSwipe(dx < 0 ? "next" : "prev", () => {
         this._state.mobileArtBrowseOffset += dx < 0 ? 1 : -1;
         this._refreshMobileArtStack();
+        this._scheduleMobileArtBrowseReset();
       });
-      this._scheduleMobileArtBrowseReset();
       this._hapticTap([8]);
       return;
     }
@@ -7141,7 +7177,6 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       const browseAlbum = stack.current?.media_item?.album?.name || player?.attributes?.media_album_name || "";
       if (this.$("npTitle")) this.$("npTitle").textContent = browseTitle;
       this._setNowPlayingSubtitle([browseArtist, browseAlbum].filter(Boolean).join(" · ") || "—");
-      this._scheduleMobileArtBrowseReset();
     } else {
       if (this.$("npTitle")) this.$("npTitle").textContent = displaySource.title || this._i18n("ui.nothing_playing");
       this._setNowPlayingSubtitle([displaySource.artist, displaySource.album].filter(Boolean).join(" · ") || "—");
@@ -7402,6 +7437,9 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     }
     if (mainBarItems.includes("search")) {
       mainBarButtons.push(`<button class="footer-btn" data-mainbar-action="search" title="${this._i18n("ui.search")}">${this._mobileFooterButtonInner("search", this._i18n("ui.search"))}</button>`);
+    }
+    if (mainBarItems.includes("home")) {
+      mainBarButtons.push(`<button class="footer-btn" data-mainbar-action="home" title="${this._i18n("ui.home")}">${this._mobileFooterButtonInner("home", this._i18n("ui.home"))}</button>`);
     }
     if (mainBarItems.includes("settings")) {
       mainBarButtons.push(`<button class="footer-btn accent" data-mainbar-action="settings" title="${this._i18n("ui.settings")}">${this._mobileFooterButtonInner("settings", this._i18n("ui.settings"))}</button>`);
@@ -8541,7 +8579,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       e.stopImmediatePropagation?.();
       e.stopPropagation();
       if (Number(this._state.activePlayerSwipeLockUntil || 0) > Date.now()) return;
-      if (!this._isHotelMode() && this._hasPinnedPlayer() && this._pinnedPlayerCount() <= 1) {
+      if (!this._isHotelMode() && this._pinnedPlayersExclusive() && this._hasPinnedPlayer() && this._pinnedPlayerCount() <= 1) {
         this._toast(this._i18n("ui.player_is_pinned_from_settings"));
         return;
       }
@@ -8703,7 +8741,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     if (sub) sub.textContent = "";
     if (tags) {
       const groupCount = this._playerGroupCount(player);
-      const pinned = this._hasPinnedPlayer() || this._frontPinnedPlayerEntity() === player?.entity_id;
+      const pinned = this._resolvedPinnedPlayerEntities().includes(player?.entity_id) || this._frontPinnedPlayerEntity() === player?.entity_id;
       const nightMode = this._mobileNightMode();
       const nightActive = this._isNightModeActive();
       tags.innerHTML = [
@@ -9283,7 +9321,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     this._syncRecentHistoryUi();
     this._setDecodedBackgroundImage(this.$("mobileArtAura"), !this._isHotelMode() ? displayArt : "");
     this._setDecodedBackgroundImage(this.$("mobileHeroAura"), !this._isHotelMode() ? displayArt : "");
-    this._setDecodedBackgroundImage(this.$("compactBackdropArt"), !this._isHotelMode() ? displayArt : "");
+    this._setDecodedBackgroundCrossfade(this.$("compactBackdropArt"), !this._isHotelMode() ? displayArt : "");
     this._setDecodedBackgroundImage(this.$("compactCoverAura"), !this._isHotelMode() ? displayArt : "");
     if (disableShelf) {
       this._state.emptyQuickShelfItems = [];
@@ -9503,7 +9541,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         this._setDecodedArtworkImage(artImage, displayArt, displayTitle || this._i18n("ui.artwork"));
       }
       this._syncDynamicThemeArtwork(displayArt || effectiveArt || "").catch(() => {});
-      this._setDecodedBackgroundImage(compactBackdrop, !this._isHotelMode() ? displayArt : "");
+      this._setDecodedBackgroundCrossfade(compactBackdrop, !this._isHotelMode() ? displayArt : "");
       this._setDecodedBackgroundImage(compactCoverAura, !this._isHotelMode() ? displayArt : "");
       this._setDecodedBackgroundCrossfade(bg, !this._isHotelMode() ? displayArt : "", overlay);
       if (this.$("npTitle")) this.$("npTitle").textContent = displayTitle || this._i18n("ui.nothing_playing");
@@ -10166,7 +10204,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       .filter((player) => player?.entity_id)
       .filter(HomeiiPlayersFoundation.isPlayerAvailable)
       .filter((player) => !(typeof this._isLikelyBrowserPlayer === "function" && this._isLikelyBrowserPlayer(player)))
-      .filter((player) => !pinnedEntities.size || pinnedEntities.has(player.entity_id) || this._isLocalSendspinPlayer(player));
+      .filter((player) => !this._pinnedPlayersExclusive() || !pinnedEntities.size || pinnedEntities.has(player.entity_id));
   }
 
   _simpleWizardDefaultPlayerIds(players = this._simpleWizardPlayerPool()) {
@@ -11211,7 +11249,8 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       const players = (this._state.players || []).filter(HomeiiPlayersFoundation.isPlayerAvailable);
       const playing = players.filter((p) => p.state === "playing").length;
       const available = players.length;
-      return `<div class="player-choice-summary"><div class="player-choice-counts" dir="${this._isHebrew() ? "rtl" : "ltr"}"><span>${this._m("Available", "זמינים")}: <bdi>${available}</bdi></span><span>${this._m("Playing now", "מנגנים כעת")}: <bdi>${playing}</bdi></span></div><button data-menu-action="${this._esc(options.thisDeviceActionName || "connect_this_device")}">${this._esc(options.thisDeviceTitle || this._i18n("ui.player_on_this_device"))}</button></div>`;
+      const thisDeviceTitle = options.thisDeviceTitle || this._i18n("ui.player_on_this_device");
+      return `<div class="player-choice-summary"><div class="player-choice-counts" dir="${this._isHebrew() ? "rtl" : "ltr"}"><span>${this._m("Available", "זמינים")}: <bdi>${available}</bdi></span><span>${this._m("Playing now", "מנגנים כעת")}: <bdi>${playing}</bdi></span></div><button class="player-this-device-cta" data-menu-action="${this._esc(options.thisDeviceActionName || "connect_this_device")}" title="${this._esc(thisDeviceTitle)}" aria-label="${this._esc(thisDeviceTitle)}"><span class="player-this-device-icon">${this._iconSvg("this_device")}</span><span class="player-this-device-copy"><strong>${this._esc(thisDeviceTitle)}</strong><small>${this._esc(this._m("Listen through this phone, tablet or browser", "האזנה דרך הטלפון, הטאבלט או הדפדפן הזה"))}</small></span><span class="player-this-device-arrow" aria-hidden="true">${this._isHebrew() ? "‹" : "›"}</span></button></div>`;
     }
     const queueCount = this._getNowPlayingQueueItems().length || Number(this._state.maQueueState?.items || 0) || 0;
     return `
@@ -11798,12 +11837,9 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       : ``;
     const frontPinnedEntityId = this._frontPinnedPlayerEntity(players);
     const visiblePlayers = players.filter((p) => (options.activeOnly || hotelMode || p.entity_id !== rememberedThisDevice?.entity_id) && !this._isLikelyBrowserPlayer(p) && (
-      !pinnedEntities.size
+      !this._pinnedPlayersExclusive()
+      || !pinnedEntities.size
       || pinnedEntities.has(p.entity_id)
-      || p.entity_id === frontPinnedEntityId
-      || p.entity_id === selected
-      || p.state === "playing"
-      || this._isPlayerActive(p)
     ));
     const filteredPlayers = options.activeOnly ? visiblePlayers.filter((p) => p.state === "playing") : visiblePlayers;
     if (options.activeOnly && !filteredPlayers.length) return `<div class="notice open">${this._i18n("ui.no_active_players")}</div>`;
@@ -11824,7 +11860,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       .map((entry) => entry.player);
     const otherPlayersHtml = orderedPlayers.map((p) => this._playerRowHtml(p, `data-menu-player="${this._esc(p.entity_id)}"`, p.entity_id === selected, { controls: !hotelMode, pin: true })).join("");
     const browserPlayersHtml = browserPlayers
-      .filter((player) => !pinnedEntities.size || pinnedEntities.has(player.entity_id))
+      .filter((player) => !this._pinnedPlayersExclusive() || !pinnedEntities.size || pinnedEntities.has(player.entity_id))
       .filter((player) => player.entity_id !== rememberedThisDevice?.entity_id)
       .map((p) => this._playerRowHtml(p, `data-menu-player="${this._esc(p.entity_id)}"`, p.entity_id === selected, { controls: !hotelMode, pin: true }))
       .join("");
@@ -11841,9 +11877,6 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
   }
 
   _transferMenuHtml() {
-    if (this._hasPinnedPlayer()) {
-      return `<div class="notice open">${this._i18n("ui.transfer_is_unavailable_while_a_pinned_player_is_configured")}</div>`;
-    }
     const current = this._getSelectedPlayer();
     const others = (this._state.players || []).filter((p) => HomeiiPlayersFoundation.isPlayerAvailable(p) && p.entity_id !== current?.entity_id);
     if (!others.length) return `<div class="notice open">${this._i18n("ui.no_target_players_available_2")}</div>`;
@@ -12142,6 +12175,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     const quickActions = this._mobileQuickActions();
     const selectedQuickActions = new Set(quickActions);
     const mainBarOptions = [
+      ["home", this._i18n("ui.home")],
       ["search", this._i18n("ui.search")],
       ["library", this._i18n("ui.library")],
       ["players", this._i18n("ui.players")],
@@ -13421,19 +13455,28 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
 
   async _copyDiagnosticsReport() {
     const report = this._diagnosticsReportText();
+    const copyWithTextarea = () => {
+      if (typeof document === "undefined" || !document.createElement) return false;
+      const textarea = document.createElement("textarea");
+      textarea.value = report;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      return copied;
+    };
     try {
       if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(report);
+        try {
+          await navigator.clipboard.writeText(report);
+        } catch (_) {
+          if (!copyWithTextarea()) throw _;
+        }
       } else {
-        const textarea = document.createElement("textarea");
-        textarea.value = report;
-        textarea.setAttribute("readonly", "");
-        textarea.style.position = "fixed";
-        textarea.style.left = "-9999px";
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand("copy");
-        textarea.remove();
+        if (!copyWithTextarea()) throw new Error(this._m("Clipboard is unavailable", "הלוח אינו זמין"));
       }
       this._toastSuccess(this._m("Diagnostics report copied", "דוח האבחון הועתק"));
     } catch (error) {
@@ -18832,7 +18875,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       this._state.pinnedPlayerEntities = Array.from(next);
       this._persistMobileAppearance();
       this._loadPlayers();
-      if (this._state.selectedPlayer && !this._resolvedPinnedPlayerEntities().includes(this._state.selectedPlayer)) {
+      if (this._pinnedPlayersExclusive() && this._state.selectedPlayer && !this._resolvedPinnedPlayerEntities().includes(this._state.selectedPlayer)) {
         this._state.selectedPlayer = this._resolvedPinnedPlayerEntity() || this._state.selectedPlayer;
       }
       this._refreshAfterSettingsChange({ playerListChanged: true, pinnedChanged: true });

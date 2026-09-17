@@ -164,6 +164,8 @@ export function resolvePreferredFrontPlayerEntity(players = [], {
   pinnedEntityIds = [],
   orderedEntityIds = [],
   defaultEntityId = "",
+  stickyEntityId = "",
+  stickyDefault = false,
   isPlayerActiveFn = (player) => player?.state === "playing",
   isExternalBrowserPlayerFn = isLikelyBrowserPlayer,
 } = {}) {
@@ -187,18 +189,23 @@ export function resolvePreferredFrontPlayerEntity(players = [], {
   const manualFrontCandidate = usableById(manualFrontEntityId);
   const manualFront = manualFrontCandidate && (
     Number(manualFrontUntil || 0) > Number(now || 0)
-    || manualFrontCandidate.state === "playing"
+    || (!stickyDefault && manualFrontCandidate.state === "playing")
   )
     ? manualFrontCandidate
     : null;
   if (manualFront) return manualFront.entity_id;
+  const defaultPlayer = usableById(defaultEntityId);
+  if (stickyDefault) {
+    const stickyPlayer = usableById(stickyEntityId);
+    if (stickyPlayer) return stickyPlayer.entity_id;
+    if (defaultPlayer) return defaultPlayer.entity_id;
+  }
   const frontPinned = usableById(frontPinnedEntityId);
   if (frontPinned) return frontPinned.entity_id;
   const playing = pickPreferred(sourcePlayers.filter((player) => player?.state === "playing"));
   if (playing) return playing.entity_id;
   const active = pickPreferred(sourcePlayers.filter((player) => isPlayerActiveFn(player)));
   if (active) return active.entity_id;
-  const defaultPlayer = usableById(defaultEntityId);
   if (defaultPlayer) return defaultPlayer.entity_id;
   for (const entityId of Array.isArray(pinnedEntityIds) ? pinnedEntityIds : []) {
     const pinned = usableById(entityId);

@@ -167,6 +167,32 @@ describe("players foundation", () => {
       pinnedEntityIds: ["media_player.kitchen"],
     })).toBe("media_player.living_room");
     expect(resolvePreferredFrontPlayerEntity([livingRoom, kitchen], {
+      defaultEntityId: "media_player.kitchen",
+      stickyDefault: true,
+    })).toBe("media_player.kitchen");
+    expect(resolvePreferredFrontPlayerEntity([livingRoom, kitchen], {
+      pinnedEntityIds: ["media_player.kitchen"],
+      stickyEntityId: "media_player.kitchen",
+      stickyDefault: true,
+    })).toBe("media_player.kitchen");
+    expect(resolvePreferredFrontPlayerEntity([livingRoom, kitchen], {
+      frontPinnedEntityId: "media_player.living_room",
+      stickyEntityId: "media_player.kitchen",
+      stickyDefault: true,
+    })).toBe("media_player.kitchen");
+    expect(resolvePreferredFrontPlayerEntity([livingRoom, kitchen], {
+      manualFrontEntityId: "media_player.living_room",
+      manualFrontUntil: 900,
+      now: 1000,
+      pinnedEntityIds: ["media_player.kitchen"],
+      stickyEntityId: "media_player.kitchen",
+      stickyDefault: true,
+    })).toBe("media_player.kitchen");
+    expect(resolvePreferredFrontPlayerEntity([livingRoom, kitchen], {
+      defaultEntityId: "media_player.kitchen",
+      stickyDefault: false,
+    })).toBe("media_player.living_room");
+    expect(resolvePreferredFrontPlayerEntity([livingRoom, kitchen], {
       manualFrontEntityId: "media_player.kitchen",
       manualFrontUntil: 2000,
       now: 1000,

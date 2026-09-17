@@ -4,14 +4,28 @@ import "../src/homeii-music-flow.js";
 const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
 afterEach(()=>vi.useRealTimers());
 describe("visible queue synchronization", () => {
-  it("keeps the browsed cover selected instead of returning to playback after seven seconds", async () => {
+  it("returns a browsed cover to the playing track after ten idle seconds", async () => {
     vi.useFakeTimers();
-    const card={_state:{mobileArtBrowseOffset:2},_refreshMobileArtStack:vi.fn()};
-    card._mobileArtBrowseResetTimer=setTimeout(()=>{card._state.mobileArtBrowseOffset=0;},7000);
+    const card={_state:{mobileArtBrowseOffset:2},_clearArtDragOffset:vi.fn(),_refreshMobileArtStack:vi.fn()};
     prototype._scheduleMobileArtBrowseReset.call(card);
-    await vi.advanceTimersByTimeAsync(10000);
+    await vi.advanceTimersByTimeAsync(9999);
     expect(card._state.mobileArtBrowseOffset).toBe(2);
-    expect(card._refreshMobileArtStack).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(card._state.mobileArtBrowseOffset).toBe(0);
+    expect(card._clearArtDragOffset).toHaveBeenCalledOnce();
+    expect(card._refreshMobileArtStack).toHaveBeenCalledWith(true);
+  });
+  it("restarts the ten-second return countdown after more browsing", async () => {
+    vi.useFakeTimers();
+    const card={_state:{mobileArtBrowseOffset:1},_clearArtDragOffset:vi.fn(),_refreshMobileArtStack:vi.fn()};
+    prototype._scheduleMobileArtBrowseReset.call(card);
+    await vi.advanceTimersByTimeAsync(7000);
+    card._state.mobileArtBrowseOffset=2;
+    prototype._scheduleMobileArtBrowseReset.call(card);
+    await vi.advanceTimersByTimeAsync(9999);
+    expect(card._state.mobileArtBrowseOffset).toBe(2);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(card._state.mobileArtBrowseOffset).toBe(0);
   });
   it("refreshes an outdated rendered queue even when in-memory data was already updated", async () => {
     vi.useFakeTimers();

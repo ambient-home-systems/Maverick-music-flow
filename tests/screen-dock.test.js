@@ -41,18 +41,15 @@ describe("context screen wheel", () => {
     syncScreenDock(card,sheet,'transfer');expect(screenActions(card,'transfer')).toHaveLength(1);
     await sheet.querySelector('.screen-dock')._dispatchAction('control:transfer:kitchen');expect(transfer).toHaveBeenCalledOnce();sheet.remove();
   });
-  it("uses drawer tabs and round media artwork without leaking other screen actions", async () => {
-    const sheet=document.createElement("div"); document.body.append(sheet);
+  it("keeps the side drawer light and avoids duplicating the persistent player dock", () => {
+    const sheet=document.createElement("div"); sheet.className="history-drawer"; document.body.append(sheet);
     sheet.innerHTML='<button data-history-tab="recent">Recent</button><button data-history-tab="recommendations">Recommendations</button><button data-history-index="0" data-history-key="recent:track1"><img src="cover.jpg"><span class="history-chip-title">Song name</span><span>Artist</span></button>';
     const card={_m:a=>a,_esc:String,_iconSvg:()=>"<svg></svg>",_imgHtml:src=>`<img src="${src}">`,shadowRoot:sheet,$:id=>id==="historyDrawer"?sheet:null,_state:{},_config:{action_menu_labels:false}};
-    const select=vi.fn();sheet.querySelector('[data-history-index]').onclick=select;
-    syncScreenDock(card,sheet,"history");sheet.querySelector('[data-screen-wheel]').click();
+    syncScreenDock(card,sheet,"history");
     expect(screenActions(card,"history").map(a=>a.label)).toEqual(['Recent','Recommendations','Song name']);
-    const item=sheet.querySelector('[data-immersive-action="control:history:recent:track1"]');
-    expect(item.querySelector('.fan-player-art img').getAttribute('src')).toBe('cover.jpg');
-    expect(item.textContent).toBe('Song name');item.click();await Promise.resolve();expect(select).toHaveBeenCalledOnce();
-    sheet.querySelector('[data-history-index]').remove();
-    await sheet.querySelector('.screen-dock')._dispatchAction('control:history:recent:track1');expect(select).toHaveBeenCalledOnce();
+    expect(screenActions(card,"history")[2]).toMatchObject({image:'cover.jpg',artwork:true});
+    expect(sheet.querySelector('.screen-dock')).toBeNull();
+    expect(sheet.classList.contains('has-screen-dock')).toBe(false);
     sheet.remove();
   });
   it("hides karaoke without timed lyrics and keeps its microphone symbol when available", () => {

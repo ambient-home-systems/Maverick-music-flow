@@ -76,6 +76,8 @@ export function validateBaseCardEditorConfig(config) {
   assertValueInList(config.theme_mode, "theme_mode", ["auto", "dark", "light", "custom"]);
   assertBooleanIfDefined(config.rtl, "rtl");
   assertBooleanIfDefined(config.hotel_mode, "hotel_mode");
+  assertBooleanIfDefined(config.entity_sticky, "entity_sticky");
+  assertBooleanIfDefined(config.pinned_players_exclusive, "pinned_players_exclusive");
   assertBooleanIfDefined(config.performance_mode, "performance_mode");
   assertValueInList(config.performance_profile, "performance_profile", ["full", "high", "low", "ultra_lite"]);
   assertBooleanIfDefined(config.show_ma_button, "show_ma_button");
@@ -171,6 +173,7 @@ export function validateMobileCardEditorConfig(config) {
   assertBooleanIfDefined(config.mobile_show_up_next, "mobile_show_up_next");
   assertStringIfDefined(config.pinned_player_entity, "pinned_player_entity");
   assertStringArrayIfDefined(config.pinned_player_entities, "pinned_player_entities");
+  assertStringIfDefined(config.pinned_player_master, "pinned_player_master");
   assertStringArrayIfDefined(config.excluded_player_entities, "excluded_player_entities");
   assertValueInList(config.player_sort_mode, "player_sort_mode", ["default", "alphabetical", "custom"]);
   assertStringArrayIfDefined(config.player_order_entities, "player_order_entities");

@@ -11,6 +11,10 @@ describe("config validators", () => {
     expect(()=>validateBaseCardEditorConfig({search_result_order:['artists','albums']})).not.toThrow();
     expect(()=>validateBaseCardEditorConfig({search_result_order:['invalid']})).toThrow('search_result_order');
     expect(()=>validateBaseCardEditorConfig({search_result_order:'artists'})).toThrow('array of strings');
+    expect(()=>validateBaseCardEditorConfig({entity_sticky:true})).not.toThrow();
+    expect(()=>validateBaseCardEditorConfig({entity_sticky:'yes'})).toThrow('entity_sticky');
+    expect(()=>validateBaseCardEditorConfig({pinned_player_master:'media_player.kitchen',pinned_players_exclusive:true})).not.toThrow();
+    expect(()=>validateBaseCardEditorConfig({pinned_players_exclusive:'yes'})).toThrow('pinned_players_exclusive');
   });
   it("accepts a valid base editor config", () => {
     expect(() =>
@@ -147,7 +151,7 @@ describe("config validators", () => {
         mobile_swipe_mode: "browse",
         mobile_library_tabs: ["library", "queue"],
         mobile_library_default_layout: "grid",
-        mobile_main_bar_items: ["actions", "settings"],
+        mobile_main_bar_items: ["home", "actions", "settings"],
         mobile_quick_actions: ["timer", "voice", "queue_flow"],
         mobile_quick_action_1: "voice",
         mobile_quick_action_2: "timer",

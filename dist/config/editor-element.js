@@ -1262,6 +1262,11 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
           },
         };
       }
+      if (item.name === "pinned_player_master") {
+        const pinnedIds = new Set(HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities));
+        const masterOptions = pinnedIds.size ? pinnedOptions.filter((option) => pinnedIds.has(option.value)) : pinnedOptions;
+        next.selector = { select: { multiple: false, mode: "dropdown", options: masterOptions } };
+      }
       if (item.name === "ambient_light_entities") {
         next.selector = this._ambientLightEntitySelector({
           multiple: true,
@@ -1277,7 +1282,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     const general = result.find(item => item.name === "general_section");
     const generalGrid = general?.schema?.find(item => item.name === "general_grid");
     if (generalGrid) {
-      const names = new Set(["pinned_player_entities", "excluded_player_entities", "player_sort_mode"]);
+      const names = new Set(["pinned_player_entities", "pinned_player_master", "entity_sticky", "pinned_players_exclusive", "excluded_player_entities", "player_sort_mode"]);
       const players = generalGrid.schema.filter(item => names.has(item.name));
       generalGrid.schema = generalGrid.schema.filter(item => !names.has(item.name));
       const order = general.schema.find(item => item.name === "player_order_grid");

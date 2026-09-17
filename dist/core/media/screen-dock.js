@@ -106,6 +106,15 @@ export function screenActions(card, page) {
 
 export function syncScreenDock(card, sheet, page, closeScreen) {
   if (!sheet) return;
+  // The history/recommendations drawer already sits beside the persistent player dock.
+  // A second full dock inside the drawer wastes space and reads as duplicate navigation.
+  if (page === "history" && sheet.classList.contains("history-drawer")) {
+    sheet.querySelector(":scope > .screen-dock")?.remove();
+    sheet.querySelector(":scope > .screen-all-actions")?.remove();
+    sheet.classList.remove("has-screen-dock");
+    delete sheet.dataset.dockPage;
+    return;
+  }
   let dock = sheet.querySelector(":scope > .screen-dock");
   if (!dock) {
     dock = document.createElement("nav"); dock.className = "immersive-dock screen-dock";

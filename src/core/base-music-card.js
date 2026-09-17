@@ -3044,7 +3044,8 @@ export function createHomeiiBaseMusicCard({
     _selectPlayer(entityId, manual = false) {
       const pinnedEntities = typeof this._resolvedPinnedPlayerEntities === "function" ? this._resolvedPinnedPlayerEntities() : [];
       const requestedEntityId = String(entityId || "").trim();
-      const nextEntityId = manual ? requestedEntityId : (pinnedEntities.length
+      const constrainToPinned = typeof this._pinnedPlayersExclusive === "function" && this._pinnedPlayersExclusive();
+      const nextEntityId = manual ? requestedEntityId : (constrainToPinned && pinnedEntities.length
         ? (pinnedEntities.includes(requestedEntityId) ? requestedEntityId : pinnedEntities[0])
         : requestedEntityId);
       if (!nextEntityId) return;
@@ -10786,18 +10787,9 @@ export function createHomeiiBaseMusicCard({
         entities = entities.filter((entity) => !excludedSet.has(entity.entity_id));
       }
       const pinnedPrefs = typeof this._pinnedPlayerPreferences === "function" ? this._pinnedPlayerPreferences() : [];
-      if (pinnedPrefs.length) {
+      if (pinnedPrefs.length && typeof this._pinnedPlayersExclusive === "function" && this._pinnedPlayersExclusive()) {
         const pinnedSet = new Set(pinnedPrefs);
-        const frontPinnedEntityId = String(this._state.frontPinnedPlayerEntity || "").trim();
-        const manualFrontEntityId = String(this._state.manualFrontPlayerEntity || "").trim();
-        const manualFrontActive = manualFrontEntityId && Number(this._state.manualFrontPlayerUntil || 0) > Date.now();
-        entities = entities.filter((entity) => (
-          pinnedSet.has(entity.entity_id)
-          || entity.entity_id === frontPinnedEntityId
-          || (manualFrontActive && entity.entity_id === manualFrontEntityId)
-          || entity.state === "playing"
-          || this._isLocalSendspinPlayer(entity)
-        ));
+        entities = entities.filter((entity) => pinnedSet.has(entity.entity_id));
       }
       entities = entities.map((entity) => this._applyOptimisticPlayerVolumeState(entity));
       entities = typeof this._sortPlayerList === "function" ? this._sortPlayerList(entities) : entities;
@@ -10865,6 +10857,8 @@ export function createHomeiiBaseMusicCard({
           ? this._playerOrderPreferences()
           : [],
         defaultEntityId: configuredDefaultPlayer?.entity_id || "",
+        stickyEntityId: typeof this._pinnedPlayerMasterPreference === "function" ? this._pinnedPlayerMasterPreference() : "",
+        stickyDefault: this._config?.entity_sticky === true,
         isPlayerActiveFn: (player) => this._isPlayerActive(player),
         isExternalBrowserPlayerFn: (player) => this._isExternalBrowserPlayer(player),
       });

@@ -215,6 +215,74 @@ describe.skip("legacy frontend Music Assistant player filtering", () => {
     card._clearManualFrontPlayer({ sync: false });
   });
 
+  it("returns to the configured MASTER after ten idle seconds even when the temporary player is playing", () => {
+    const card = createCard();
+    card._syncActivePlayerHelper = () => {};
+    card._syncNowPlayingUI = () => {};
+    card._renderPlayerSummary = () => {};
+    card._syncBrandPlayingState = () => {};
+    const master = {
+      entity_id: "media_player.bathroom",
+      state: "idle",
+      attributes: { friendly_name: "Bathroom", app_id: "music_assistant" },
+    };
+    const temporary = {
+      entity_id: "media_player.kitchen",
+      state: "playing",
+      attributes: { friendly_name: "Kitchen", app_id: "music_assistant" },
+    };
+    card._config = {
+      ...(card._config || {}),
+      entity_sticky: true,
+      pinned_player_master: master.entity_id,
+      pinned_players_exclusive: true,
+    };
+    card._hass = { states: { [master.entity_id]: master, [temporary.entity_id]: temporary } };
+    // MASTER remains authoritative even if an older per-device pinned list did not contain it yet.
+    card._state.pinnedPlayerEntities = [temporary.entity_id];
+
+    card._loadPlayers();
+    expect(card._state.players.map((player) => player.entity_id)).toContain(master.entity_id);
+    expect(card._state.selectedPlayer).toBe(master.entity_id);
+    card._selectPlayer(temporary.entity_id, true);
+    expect(card._state.selectedPlayer).toBe(temporary.entity_id);
+    expect(card._state.manualFrontPlayerUntil - Date.now()).toBeGreaterThan(9000);
+
+    card._state.manualFrontPlayerUntil = Date.now() - 1;
+    card._loadPlayers();
+    expect(card._state.manualFrontPlayerEntity).toBe("");
+    expect(card._state.selectedPlayer).toBe(master.entity_id);
+  });
+
+  it("shows all available players outside Exclusive mode and only pinned players inside it", () => {
+    const card = createCard();
+    card._syncActivePlayerHelper = () => {};
+    card._syncBrandPlayingState = () => {};
+    const master = { entity_id: "media_player.bathroom", state: "idle", attributes: { app_id: "music_assistant" } };
+    const other = { entity_id: "media_player.kitchen", state: "playing", attributes: { app_id: "music_assistant" } };
+    card._hass = { states: { [master.entity_id]: master, [other.entity_id]: other } };
+    card._state.pinnedPlayerEntities = [master.entity_id];
+    card._config = { ...(card._config || {}), pinned_players_exclusive: false };
+    card._loadPlayers();
+    expect(card._state.players.map((player) => player.entity_id)).toEqual([master.entity_id, other.entity_id]);
+
+    card._config.pinned_players_exclusive = true;
+    card._loadPlayers();
+    expect(card._state.players.map((player) => player.entity_id)).toEqual([master.entity_id]);
+  });
+
+  it("uses configured entity as sticky fallback when no explicit MASTER is set", () => {
+    const card = createCard();
+    card._config = {
+      ...(card._config || {}),
+      entity: "media_player.bathroom",
+      entity_sticky: true,
+      pinned_player_master: "",
+    };
+    card._state.pinnedPlayerEntities = ["media_player.bedroom"];
+    expect(card._pinnedPlayerMasterPreference()).toBe("media_player.bathroom");
+  });
+
   it("lets music_assistant.play_media replace playback without manually clearing first", async () => {
     const card = createCard();
     const calls = [];

@@ -634,6 +634,12 @@ describe("runtime baseline", () => {
     const editor = new Editor(); editor.connectedCallback();
     editor.setConfig({type:"custom:homeii-music-flow", language:"he", fan_theme:"adaptive"});
     const full = editor._withDynamicEditorSchema(editor._currentBaseEditorSchema());
+    const playersSection = full.find((item) => item.name === "players_section");
+    expect(playersSection?.schema?.map((item) => item.name)).toContain("entity_sticky");
+    expect(playersSection?.schema?.map((item) => item.name)).toContain("pinned_player_master");
+    expect(playersSection?.schema?.map((item) => item.name)).toContain("pinned_players_exclusive");
+    const generalSection = full.find((item) => item.name === "general_section");
+    expect(JSON.stringify(generalSection)).not.toContain('"entity_sticky"');
     for (const section of full.filter(item => item.type === "expandable")) {
       editor._editorSection = section.name;
       editor._editorLastSchemaKey = "";
@@ -2580,7 +2586,7 @@ describe("runtime baseline", () => {
     expect(stableSource.art).toBe(source.art);
   });
 
-  it("prefers Home Assistant player artwork for current now playing outside pending transitions", async () => {
+  it("keeps queue track artwork stable when delayed player artwork differs", async () => {
     vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
     await import("../src/homeii-music-flow.js?runtime-current-player-art-baseline");
     await Promise.resolve();
@@ -2620,9 +2626,9 @@ describe("runtime baseline", () => {
     card._state.maQueueState = { current_index: 2, current_item: currentItem };
 
     const source = card._mobileNowPlayingDisplaySource(player, currentItem, { current: currentItem });
-    expect(source.art).toContain("/api/media_player_proxy/media_player.main");
-    expect(source.art).not.toContain("/imageproxy");
-    expect(card._mobileStackItemArtwork(currentItem, "center")).toContain("/api/media_player_proxy/media_player.main");
+    expect(source.art).toContain("/imageproxy");
+    expect(source.art).not.toContain("/api/media_player_proxy/media_player.main");
+    expect(card._mobileStackItemArtwork(currentItem, "center")).toContain("/imageproxy");
 
     card._state.mobileQueuePlayPendingUntil = Date.now() + 8500;
     card._state.mobileQueuePlayPendingKey = card._getQueueItemPlaybackId(currentItem) || card._getQueueItemStableId(currentItem) || card._getQueueItemKey(currentItem);
