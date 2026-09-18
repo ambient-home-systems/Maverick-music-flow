@@ -790,17 +790,22 @@ function Yo(n = "") {
 function Ma(n = null) {
   if (!n) return !1;
   const e = n.attributes || {}, t = [
+    e.mass_player_type,
+    e.player_type,
+    e.type,
+    e.device_class
+  ].filter(Boolean).join(" ").toLowerCase();
+  if (/\b(browser|web[ _-]?player|web[ _-]?client)\b/.test(t)) return !0;
+  const r = [
     n.entity_id,
     e.friendly_name,
-    e.mass_player_type,
-    e.mass_player_id,
     e.app_id,
     e.provider,
     e.provider_name,
     e.source,
     e.model
   ].filter(Boolean).join(" ").toLowerCase();
-  return t.includes("sendspin") || t.includes("browser") || t.includes("web player") || t.includes("this device");
+  return r.includes("browser") || r.includes("web player") || r.includes("web_player") || r.includes("this device");
 }
 function uA(n = null, e = null) {
   if (!n?.entity_id?.startsWith("media_player.")) return !1;
@@ -48964,8 +48969,11 @@ class ta extends ss {
     } catch {
     }
     try {
-      const e = JSON.parse(localStorage.getItem(this._lsKey("homeii_music_flow_mobile_pinned_players")) || "[]");
-      Array.isArray(e) && (this._state.pinnedPlayerEntities = e.filter(Boolean));
+      const e = localStorage.getItem(this._lsKey("homeii_music_flow_mobile_pinned_players"));
+      if (e !== null) {
+        const t = JSON.parse(e);
+        Array.isArray(t) && (this._state.pinnedPlayerEntities = t.filter(Boolean));
+      }
     } catch {
     }
     if (!Array.isArray(this._state.pinnedPlayerEntities) || !this._state.pinnedPlayerEntities.length)
@@ -49092,7 +49100,8 @@ class ta extends ss {
     } catch {
     }
     try {
-      this._state.excludedPlayerEntities = Ge.normalizePinnedPlayerEntityList(JSON.parse(localStorage.getItem(this._lsKey("homeii_music_flow_excluded_players")) || "[]"));
+      const e = localStorage.getItem(this._lsKey("homeii_music_flow_excluded_players"));
+      e !== null && (this._state.excludedPlayerEntities = Ge.normalizePinnedPlayerEntityList(JSON.parse(e)));
     } catch {
     }
     try {

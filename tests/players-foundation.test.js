@@ -100,6 +100,30 @@ describe("players foundation", () => {
     expect(getBrowserPlayers([livingRoom, browserPlayer])).toEqual([browserPlayer]);
   });
 
+  it("does not classify a physical Sendspin speaker as a browser client", () => {
+    const physicalSendspin = {
+      entity_id: "media_player.sendspinzero_technics_media_player_2",
+      state: "idle",
+      attributes: {
+        friendly_name: "SendspinZero Technics Media Player",
+        mass_player_type: "player",
+        mass_player_id: "media_player.sendspinzero_technics_media_player",
+        available: true,
+      },
+    };
+    expect(isLikelyBrowserPlayer(physicalSendspin)).toBe(false);
+    expect(resolvePreferredFrontPlayerEntity([livingRoom, physicalSendspin], {
+      manualFrontEntityId: physicalSendspin.entity_id,
+      manualFrontUntil: 20_000,
+      now: 10_000,
+    })).toBe(physicalSendspin.entity_id);
+    expect(resolvePreferredFrontPlayerEntity([livingRoom, physicalSendspin], {
+      pinnedEntityIds: [physicalSendspin.entity_id],
+      stickyEntityId: physicalSendspin.entity_id,
+      stickyDefault: true,
+    })).toBe(physicalSendspin.entity_id);
+  });
+
   it("detects Music Assistant players from HA state attributes", () => {
     expect(isMusicAssistantPlayer({
       entity_id: "media_player.ma_living_room",

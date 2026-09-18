@@ -96,21 +96,28 @@ export function entityMatchTokens(value = "") {
 export function isLikelyBrowserPlayer(player = null) {
   if (!player) return false;
   const attrs = player.attributes || {};
-  const haystack = [
+  const explicitType = [
+    attrs.mass_player_type,
+    attrs.player_type,
+    attrs.type,
+    attrs.device_class,
+  ].filter(Boolean).join(" ").toLowerCase();
+  if (/\b(browser|web[ _-]?player|web[ _-]?client)\b/.test(explicitType)) return true;
+  const identity = [
     player.entity_id,
     attrs.friendly_name,
-    attrs.mass_player_type,
-    attrs.mass_player_id,
     attrs.app_id,
     attrs.provider,
     attrs.provider_name,
     attrs.source,
     attrs.model,
   ].filter(Boolean).join(" ").toLowerCase();
-  return haystack.includes("sendspin")
-    || haystack.includes("browser")
-    || haystack.includes("web player")
-    || haystack.includes("this device");
+  // Sendspin is a transport used by physical ESPHome speakers as well as browser
+  // clients. Its presence in a name or entity ID is therefore not browser identity.
+  return identity.includes("browser")
+    || identity.includes("web player")
+    || identity.includes("web_player")
+    || identity.includes("this device");
 }
 
 export function isMusicAssistantPlayer(player = null, registryEntry = null) {
