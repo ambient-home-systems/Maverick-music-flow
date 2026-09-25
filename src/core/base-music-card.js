@@ -9,6 +9,7 @@ import * as MaverickSendspinModule from "../sendspin-js/index.js";
 import { ensureInterfaceFont, interfaceStyles } from "./theme/interface.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_SENDSPIN_PATH, normalizeEngineConfigKeys } from "./engine-client.js";
 import { isSafeInterfaceUrl } from "../config/validators.js";
+import { cssUrl } from "./theme/css-url.js";
 
 const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
 const ENGINE_ARTWORK_ITEM_PATH = `${ENGINE_ARTWORK_PATH}item/`;
@@ -4841,7 +4842,7 @@ export function createMaverickBaseMusicCard({
       const queueCount = this._controlRoomQueueCount(player, snapshot);
       const protocolLabel = this._controlRoomProtocolLabel(player);
       const muted = this._isMuted(player);
-      const tileStyle = art ? `style="--control-room-tile-art:url('${this._esc(art)}')"` : "";
+      const tileStyle = art ? `style="--control-room-tile-art:${this._esc(cssUrl(art))}"` : "";
       return `
         <article class="control-room-tile ${art ? "has-art" : "no-art"} ${isSelected ? "selected" : ""} ${isPrimary ? "primary" : ""} ${playing ? "is-playing" : ""} ${groupCount ? "grouped" : ""}" data-room-tile="${this._esc(player.entity_id)}" ${tileStyle}>
           <div class="control-room-tile-bg"></div>
@@ -5337,7 +5338,7 @@ export function createMaverickBaseMusicCard({
       const primary = this._controlRoomPrimaryPlayer();
       const primaryArt = this._playerArtworkUrl(primary, 320);
       const roomStyleVars = this._controlRoomGridStyle(players.length);
-      const sceneStyle = `style="${primaryArt ? `--control-room-scene-art:url('${this._esc(primaryArt)}');` : ""}${roomStyleVars}"`;
+      const sceneStyle = `style="${primaryArt ? `--control-room-scene-art:${this._esc(cssUrl(primaryArt))};` : ""}${roomStyleVars}"`;
       const focusTarget = this._controlRoomFocusTarget();
       const focusArt = focusTarget.art || primaryArt;
       const targetIds = this._controlRoomActionTargetIds();
@@ -5426,7 +5427,6 @@ export function createMaverickBaseMusicCard({
           el.dataset.liveHtml = html;
         }
       };
-      const cssUrl = (url) => `url("${String(url || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
       host.querySelectorAll("[data-room-tile]").forEach((tile) => {
         const entityId = tile.dataset.roomTile || "";
         const player = playerMap.get(entityId);
@@ -5776,7 +5776,7 @@ export function createMaverickBaseMusicCard({
       const offsetLabel = this._lyricsSyncOffsetLabel();
       const lyricsArt = this._currentArtworkUrl(this._getSelectedPlayer(), this._state.maQueueState?.current_item || null, 920, { preferPlayerArtwork: true });
       if (lyricsArt) {
-        backdrop.style.setProperty("--lyrics-dynamic-art", `url(${JSON.stringify(lyricsArt)})`);
+        backdrop.style.setProperty("--lyrics-dynamic-art", cssUrl(lyricsArt));
         backdrop.classList.add("has-lyrics-art");
       } else {
         backdrop.style.removeProperty("--lyrics-dynamic-art");
@@ -6863,8 +6863,8 @@ export function createMaverickBaseMusicCard({
       const repeat = player.attributes.repeat || "off";
       backdrop.innerHTML = `
         <div class="immersive-shell">
-          <div class="immersive-bg" ${art ? `style="background-image:url('${this._esc(art)}')"` : ""}></div>
-          <div class="immersive-cover-glow" ${art ? `style="background-image:url('${this._esc(art)}')"` : ""}></div>
+          <div class="immersive-bg" ${art ? `style="background-image:${this._esc(cssUrl(art))}"` : ""}></div>
+          <div class="immersive-cover-glow" ${art ? `style="background-image:${this._esc(cssUrl(art))}"` : ""}></div>
           <div class="immersive-frost"></div>
           <div class="immersive-vignette"></div>
           <div class="immersive-header">
@@ -6977,9 +6977,9 @@ export function createMaverickBaseMusicCard({
       const artBox = backdrop.querySelector("#immersiveArt");
       if (artBox) artBox.innerHTML = art ? this._imgHtml(art, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album");
       const bg = backdrop.querySelector(".immersive-bg");
-      if (bg) bg.style.backgroundImage = art ? `url("${art}")` : "";
+      if (bg) bg.style.backgroundImage = art ? cssUrl(art) : "";
       const glow = backdrop.querySelector(".immersive-cover-glow");
-      if (glow) glow.style.backgroundImage = art ? `url("${art}")` : "";
+      if (glow) glow.style.backgroundImage = art ? cssUrl(art) : "";
     }
 
     _handleWindowResize() {
@@ -12339,7 +12339,7 @@ export function createMaverickBaseMusicCard({
       return MaverickMediaPresentationFoundation.formatDuration(sec);
     }
     _esc(value) {
-      return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
 
     _imgHtml(src = "", alt = "", options = {}) {

@@ -20,6 +20,7 @@ import {
 } from "./localization/index.js";
 import MaverickEmblaCarousel from "./vendor/embla-carousel.js";
 import { buildCardStyles } from "./core/theme/card-styles.js";
+import { cssUrl } from "./core/theme/css-url.js";
 import {
   assertBooleanIfDefined as maverickAssertBooleanIfDefined,
   assertNumberIfDefined as maverickAssertNumberIfDefined,
@@ -1292,7 +1293,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const accent = this._activeAccentColor();
     const palette = this._dynamicThemePalette();
     const artworkUrl = String(this._state.mobileDynamicThemeArtworkUrl || "").trim();
-    const artworkCssUrl = artworkUrl ? `url(${JSON.stringify(artworkUrl)})` : "";
+    const artworkCssUrl = artworkUrl ? cssUrl(artworkUrl) : "";
     host.style?.setProperty("--accent-color", accent);
     host.style?.setProperty("--ma-accent", accent);
     if (artworkCssUrl) {
@@ -1498,7 +1499,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!menu) return;
     const playingArt = this._currentArtworkUrl(this._getSelectedPlayer(), this._state.maQueueState?.current_item || null, 960);
     if (playingArt) {
-      menu.style.setProperty("--menu-dynamic-art", `url(${JSON.stringify(playingArt)})`);
+      menu.style.setProperty("--menu-dynamic-art", cssUrl(playingArt));
       menu.classList.add("has-menu-art");
       this._clearMenuDetailTheme(menu);
       return;
@@ -1506,7 +1507,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const item = (Array.isArray(items) ? items : []).find((entry) => this._artUrl(entry, { size: 960 }));
     const art = item ? this._artUrl(item, { size: 960 }) : "";
     if (!item || !art) return;
-    menu.style.setProperty("--menu-dynamic-art", `url(${JSON.stringify(art)})`);
+    menu.style.setProperty("--menu-dynamic-art", cssUrl(art));
     menu.classList.add("has-menu-art");
     this._applyMenuDetailTheme(menu, art, { ...item, media_type: item.media_type || item.type || mediaType });
   }
@@ -4553,7 +4554,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     img.decoding = "async";
     const applyImage = () => {
       if (!overlay.isConnected || overlay.dataset.bgArtUrl !== nextUrl) return;
-      overlay.style.setProperty("--screensaver-art-url", `url(${JSON.stringify(nextUrl)})`);
+      overlay.style.setProperty("--screensaver-art-url", cssUrl(nextUrl));
     };
     img.addEventListener("load", applyImage, { once: true });
     img.addEventListener("error", () => {
@@ -6582,7 +6583,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const displayUrl = this._artworkDisplayUrl?.(nextUrl) || nextUrl;
       return typeof valueForUrl === "function"
         ? valueForUrl(displayUrl)
-        : `url(${JSON.stringify(displayUrl)})`;
+        : cssUrl(displayUrl);
     };
     const nextValue = displayValue();
     if (el.dataset.maverickBgArtSrc === nextUrl && el.dataset.maverickBgArtValue === nextValue) return;
@@ -6624,7 +6625,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       el.style.removeProperty("--maverick-bg-art-next");
       return;
     }
-    const displayValue = () => `url(${JSON.stringify(this._artworkDisplayUrl?.(nextUrl) || nextUrl)})`;
+    const displayValue = () => cssUrl(this._artworkDisplayUrl?.(nextUrl) || nextUrl);
     const nextValue = displayValue();
     if (el.dataset.maverickBgArtSrc === nextUrl && el.dataset.maverickBgArtValue === nextValue) return;
     el.dataset.maverickBgArtSrc = nextUrl;
@@ -8742,7 +8743,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       thumb.classList.toggle("placeholder", !art);
       thumb.classList.remove("brand-logo");
       if (art) {
-        thumb.style.backgroundImage = `url("${art}")`;
+        thumb.style.backgroundImage = cssUrl(art);
         thumb.innerHTML = "";
       } else {
         thumb.style.backgroundImage = "";
@@ -16620,7 +16621,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const menuArt = detailArt || this._currentArtworkUrl(this._getSelectedPlayer(), this._state.maQueueState?.current_item || null, 720);
     if (menu) {
       if (menuArt) {
-        menu.style.setProperty("--menu-dynamic-art", `url(${JSON.stringify(menuArt)})`);
+        menu.style.setProperty("--menu-dynamic-art", cssUrl(menuArt));
         menu.classList.add("has-menu-art");
       } else {
         menu.style.removeProperty("--menu-dynamic-art");
