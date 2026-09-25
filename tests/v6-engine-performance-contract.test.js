@@ -19,7 +19,7 @@ describe("Maverick Music 6 Engine performance contract", () => {
   });
 
   it("requires the MA 2.10 Engine 0.7 contract and healthy backend connections", async () => {
-    const source = await readSource("src/homeii-music-flow.js");
+    const source = await readSource("src/maverick-music.js");
     const validators = await readSource("src/config/validators.js");
 
     expect(source).toContain('_homeiiEngineVersionAtLeast("0.7.6")');
@@ -34,7 +34,7 @@ describe("Maverick Music 6 Engine performance contract", () => {
   });
 
   it("keeps queue and library DOM work inside a recycled scroll window", async () => {
-    const source = await readSource("src/homeii-music-flow.js");
+    const source = await readSource("src/maverick-music.js");
 
     expect(source).toContain("this._queueVirtualStart = 0");
     expect(source).toContain("this._mediaVirtualStarts");
@@ -47,7 +47,7 @@ describe("Maverick Music 6 Engine performance contract", () => {
 
   it("coalesces duplicate detail loads and records menu render cost", async () => {
     const baseSource = await readSource("src/core/base-music-card.js");
-    const cardSource = await readSource("src/homeii-music-flow.js");
+    const cardSource = await readSource("src/maverick-music.js");
 
     expect(baseSource).toContain("this._libraryDetailLoadPromises");
     expect(baseSource).toContain("this._artistDetailLoadPromises");
@@ -57,7 +57,7 @@ describe("Maverick Music 6 Engine performance contract", () => {
 
   it("orders Engine snapshots and preserves stale library rows during revalidation", async () => {
     const baseSource = await readSource("src/core/base-music-card.js");
-    const cardSource = await readSource("src/homeii-music-flow.js");
+    const cardSource = await readSource("src/maverick-music.js");
     const revisionSource = await readSource("src/core/state/revisioned-snapshots.js");
 
     expect(baseSource).toContain("acceptEngineSnapshot");
@@ -69,7 +69,7 @@ describe("Maverick Music 6 Engine performance contract", () => {
 
   it("routes aggregated favorites and mutations through the Engine", async () => {
     const baseSource = await readSource("src/core/base-music-card.js");
-    const cardSource = await readSource("src/homeii-music-flow.js");
+    const cardSource = await readSource("src/maverick-music.js");
 
     expect(baseSource).toContain("_homeiiEngineGetFavorites");
     expect(baseSource).toContain("_homeiiEngineSetFavorite");
@@ -101,7 +101,7 @@ describe("Maverick Music 6 Engine performance contract", () => {
   });
 
   it("allows the Engine bootstrap enough time for authenticated contract probes", async () => {
-    const source = await readSource("src/homeii-music-flow.js");
+    const source = await readSource("src/maverick-music.js");
     const bootstrap = source.slice(
       source.indexOf("async _refreshHomeiiEngineContext"),
       source.indexOf("_subscribeHomeiiEngineMusicAssistantEvents"),

@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 const originalSocket = globalThis.window.WebSocket;
 let socket;
 class FakeSocket {

@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
 
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 function context(command = vi.fn(async () => {})) {
   return {
     _playerByEntityId: () => ({ entity_id: "computer", attributes: { volume_level: 0.49 } }),

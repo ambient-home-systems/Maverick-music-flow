@@ -29,11 +29,11 @@ beforeAll(async () => {
   };
   globalThis.setTimeout = () => 0;
   try {
-    await import("../src/homeii-music-flow.js");
+    await import("../src/maverick-music.js");
   } finally {
     globalThis.setTimeout = realSetTimeout;
   }
-  HomeiiMusicFlowCard = globalThis.customElements.get("homeii-music-flow");
+  HomeiiMusicFlowCard = globalThis.customElements.get("maverick-music");
 });
 
 afterAll(() => {

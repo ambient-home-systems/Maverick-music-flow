@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 const state = () => ({ mobileSleepTimerEndsAt: Date.now() + 600000, mobileSleepTimerPlayer: "media_player.computer", mobileSleepTimerOrigin: "night" });
 function context() {
   return {

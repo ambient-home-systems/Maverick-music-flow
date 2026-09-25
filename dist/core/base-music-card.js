@@ -7,9 +7,10 @@ import { bindProgressSeek } from "./media/progress-seek.js";
 import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
 import * as HomeiiSendspinModule from "../sendspin-js/index.js";
 import { ensureInterfaceFont, interfaceStyles } from "./theme/interface.js";
+import { normalizeEngineConfigKeys } from "./engine-client.js";
 
 export function createHomeiiBaseMusicCard({
-  HOMEII_CARD_VERSION,
+  MAVERICK_CARD_VERSION,
   HOMEII_VISIBLE_LANGUAGE_OPTIONS,
   HomeiiStateFoundation,
   HomeiiConfigValidators,
@@ -142,15 +143,16 @@ export function createHomeiiBaseMusicCard({
     }
 
     setConfig(config) {
+      const engineConfig = normalizeEngineConfigKeys(config);
       const nextConfig = {
         rtl: true,
         language: "en",
         cache_ttl: 300000,
         music_assistant_timeout_ms: 12000,
-        homeii_engine_mode: "required",
-        homeii_engine_instance_id: "",
-        homeii_engine_profile_id: "",
-        homeii_engine_timeout_ms: 3500,
+        engine_mode: "required",
+        engine_instance_id: "",
+        engine_profile_id: "",
+        engine_timeout_ms: 3500,
         active_player_helper_entity: "",
         show_ma_button: true,
         ma_interface_url: "/music-assistant",
@@ -163,7 +165,7 @@ export function createHomeiiBaseMusicCard({
         lrclib_lyrics_enabled: false,
         main_opacity: 0.66,
         popup_opacity: 0.92,
-        ...config,
+        ...engineConfig,
       };
       delete nextConfig.ma_url;
       delete nextConfig.ma_token;
@@ -179,7 +181,7 @@ export function createHomeiiBaseMusicCard({
 
       try {
         const configuredLanguage = this._config.language || "en";
-        const storedLanguage = localStorage.getItem(this._lsKey("homeii_music_flow_lang"));
+        const storedLanguage = localStorage.getItem(this._lsKey("maverick_music_lang"));
         const configControlsLanguage = typeof this._usesVisualSettings === "function" && this._usesVisualSettings();
         const configuredLanguageBase = String(configuredLanguage || "")
           .trim()
@@ -195,12 +197,12 @@ export function createHomeiiBaseMusicCard({
       }
 
       try {
-        this._state.cardTheme = localStorage.getItem(this._lsKey("homeii_music_flow_theme")) || this._config.theme_mode || "auto";
+        this._state.cardTheme = localStorage.getItem(this._lsKey("maverick_music_theme")) || this._config.theme_mode || "auto";
       } catch (_) {
         this._state.cardTheme = this._config.theme_mode || "auto";
       }
       try {
-        this._state.tracksLayout = localStorage.getItem(this._lsKey("homeii_music_flow_tracks_layout")) || "list";
+        this._state.tracksLayout = localStorage.getItem(this._lsKey("maverick_music_tracks_layout")) || "list";
       } catch (_) {
         this._state.tracksLayout = "list";
       }
@@ -594,10 +596,10 @@ export function createHomeiiBaseMusicCard({
         ma_interface_url: "/music-assistant",
         ma_interface_target: "_self",
         music_assistant_timeout_ms: 12000,
-        homeii_engine_mode: "required",
-        homeii_engine_instance_id: "",
-        homeii_engine_profile_id: "",
-        homeii_engine_timeout_ms: 3500,
+        engine_mode: "required",
+        engine_instance_id: "",
+        engine_profile_id: "",
+        engine_timeout_ms: 3500,
         theme_mode: "auto",
         show_theme_toggle: true,
         hotel_mode: false,
@@ -1300,7 +1302,7 @@ export function createHomeiiBaseMusicCard({
     _versionedAssetUrl(url) {
       const value = String(url || "").trim();
       if (!value || /^data:/i.test(value) || /[?&]v=/.test(value)) return value;
-      const version = typeof HOMEII_CARD_VERSION === "string" ? HOMEII_CARD_VERSION : "5.9.3";
+      const version = typeof MAVERICK_CARD_VERSION === "string" ? MAVERICK_CARD_VERSION : "5.9.3";
       return `${value}${value.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
     }
 
@@ -1330,19 +1332,23 @@ export function createHomeiiBaseMusicCard({
       push(this._moduleAssetUrl("homeii-flow-logo-v2.png"), true);
       push(this._moduleAssetUrl("homeii-flow-logo.png"), true);
       push(this._moduleAssetUrl("homeii-flow-logo.svg"), true);
+      push("/local/community/maverick-music-flow/homeii-flow-logo.png", true);
+      push("/local/community/maverick-music-flow/homeii-flow-logo.svg", true);
+      push("/hacsfiles/maverick-music-flow/homeii-flow-logo.png", true);
+      push("/hacsfiles/maverick-music-flow/homeii-flow-logo.svg", true);
       push("/local/community/homeii-music-flow/homeii-flow-logo.png", true);
       push("/local/community/homeii-music-flow/homeii-flow-logo.svg", true);
       push("/hacsfiles/homeii-music-flow/homeii-flow-logo.png", true);
       push("/hacsfiles/homeii-music-flow/homeii-flow-logo.svg", true);
       push("/local/homeii-flow-logo.png", true);
       push("/local/homeii-flow-logo.svg", true);
-      this._homeiiBrandLogoCandidates = urls.length ? urls : ["/local/community/homeii-music-flow/homeii-flow-logo.svg"];
+      this._homeiiBrandLogoCandidates = urls.length ? urls : ["/local/community/maverick-music-flow/homeii-flow-logo.svg"];
       return this._homeiiBrandLogoCandidates;
     }
 
     _brandLogoUrl() {
       if (typeof this._homeiiBrandLogoUrl === "string" && this._homeiiBrandLogoUrl) return this._homeiiBrandLogoUrl;
-      this._homeiiBrandLogoUrl = this._brandLogoCandidates()[0] || "/local/community/homeii-music-flow/homeii-flow-logo.svg";
+      this._homeiiBrandLogoUrl = this._brandLogoCandidates()[0] || "/local/community/maverick-music-flow/homeii-flow-logo.svg";
       return this._homeiiBrandLogoUrl;
     }
 
@@ -1543,7 +1549,7 @@ export function createHomeiiBaseMusicCard({
             <div class="brand">
               <button class="brand-icon" id="brandPlayersBtn" title="${this._i18n("ui.open_music_assistant")}">▶</button>
               <div>
-        <div class="brand-title">homeii-music-flow</div>
+        <div class="brand-title">maverick-music</div>
                 <div class="brand-sub">Music Assistant</div>
               </div>
             </div>
@@ -1799,7 +1805,7 @@ export function createHomeiiBaseMusicCard({
 
     _toggleLanguage() {
       this._state.lang = this._nextLanguageCode();
-      try { localStorage.setItem(this._lsKey("homeii_music_flow_lang"), this._state.lang); } catch (_) {}
+      try { localStorage.setItem(this._lsKey("maverick_music_lang"), this._state.lang); } catch (_) {}
 
       const currentTheme = this._state.cardTheme;
       const currentPlayer = this._state.selectedPlayer;
@@ -1850,7 +1856,7 @@ export function createHomeiiBaseMusicCard({
     _toggleCardTheme() {
       const effective = this._effectiveTheme();
       this._state.cardTheme = effective === "dark" ? "light" : "dark";
-      try { localStorage.setItem(this._lsKey("homeii_music_flow_theme"), this._state.cardTheme); } catch (_) {}
+      try { localStorage.setItem(this._lsKey("maverick_music_theme"), this._state.cardTheme); } catch (_) {}
       const card = this.shadowRoot.querySelector(".card");
       if (card) {
         card.classList.remove("theme-dark", "theme-light");
@@ -1884,9 +1890,9 @@ export function createHomeiiBaseMusicCard({
     }
 
     _thisDeviceStorageKey() {
-      const instanceId = String(this._state?.engineInstanceId || this._config?.homeii_engine_instance_id || "default").trim();
-      const profileId = String(this._state?.engineProfileId || this._config?.homeii_engine_profile_id || "default").trim();
-      return `homeii-this-device-player::${instanceId || "default"}:${profileId || "default"}`;
+      const instanceId = String(this._state?.engineInstanceId || this._config?.engine_instance_id || "default").trim();
+      const profileId = String(this._state?.engineProfileId || this._config?.engine_profile_id || "default").trim();
+      return `maverick_music_this_device_player::${instanceId || "default"}:${profileId || "default"}`;
     }
 
     _getRememberedThisDevicePlayerId() {
@@ -1909,7 +1915,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _localSendspinIdStorageKey() {
-      return "homeii_sendspin_webplayer_id";
+      return "maverick_music_sendspin_webplayer_id";
     }
 
     _legacySendspinIdStorageKey() {
@@ -1917,7 +1923,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _localSendspinDesiredStorageKey() {
-      return "homeii_local_sendspin_desired";
+      return "maverick_music_local_sendspin_desired";
     }
 
     _isLocalSendspinDesired() {
@@ -2059,7 +2065,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _localSendspinSyncDelayStorageKey() {
-      return "homeii_local_sendspin_sync_delay_ms";
+      return "maverick_music_local_sendspin_sync_delay_ms";
     }
 
     _localSendspinWsUrl() {
@@ -2609,7 +2615,7 @@ export function createHomeiiBaseMusicCard({
         const audioElement = this._ensureLocalSendspinAudioElement();
         let syncDelay = 0;
         try { syncDelay = Number(localStorage.getItem(this._localSendspinSyncDelayStorageKey()) || 0) || 0; } catch (_) {}
-        const volumeStorageKey = `homeii_local_sendspin_volume_${playerId}`;
+        const volumeStorageKey = `maverick_music_local_sendspin_volume_${playerId}`;
         let savedVolume = null;
         try {
           const storedVolume = localStorage.getItem(volumeStorageKey);
@@ -3303,7 +3309,7 @@ export function createHomeiiBaseMusicCard({
 
     _saveMobileRecentHistory() {
       try {
-        localStorage.setItem(this._lsKey("homeii_music_flow_mobile_recent_history"), JSON.stringify((this._state.mobileRecentHistory || []).slice(0, 10)));
+        localStorage.setItem(this._lsKey("maverick_music_mobile_recent_history"), JSON.stringify((this._state.mobileRecentHistory || []).slice(0, 10)));
       } catch (_) {}
     }
 
@@ -4527,7 +4533,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _controlRoomScenesStorageKey() {
-      return this._lsKey("homeii_music_flow_control_room_scenes_v1");
+      return this._lsKey("maverick_music_control_room_scenes_v1");
     }
 
     _normalizeControlRoomScene(scene = {}, index = 0) {
@@ -6107,11 +6113,11 @@ export function createHomeiiBaseMusicCard({
     }
 
     _likedStorageKey() {
-      return this._lsKey("homeii_music_flow_likes_v2");
+      return this._lsKey("maverick_music_likes_v2");
     }
 
     _likedMetaStorageKey() {
-      return this._lsKey("homeii_music_flow_like_meta_v2");
+      return this._lsKey("maverick_music_like_meta_v2");
     }
 
     _loadLikedUris() {
@@ -6121,7 +6127,7 @@ export function createHomeiiBaseMusicCard({
           const raw = JSON.parse(localStorage.getItem(this._likedStorageKey()) || "[]");
           if (Array.isArray(raw)) raw.filter(Boolean).forEach((uri) => liked.add(String(uri)));
         } catch (_) {}
-        ["homeii_music_flow_likes", "homeii_music_flow_mobile_likes"].forEach((key) => {
+        ["maverick_music_likes", "maverick_music_mobile_likes"].forEach((key) => {
           try {
             const raw = JSON.parse(localStorage.getItem(key) || "[]");
             if (Array.isArray(raw)) raw.filter(Boolean).forEach((uri) => liked.add(String(uri)));
@@ -6881,7 +6887,7 @@ export function createHomeiiBaseMusicCard({
           <div class="immersive-header">
             <button class="close-btn" id="immersiveCloseBtn">✕</button>
             <div class="immersive-meta">
-        <div class="immersive-kicker">homeii-music-flow</div>
+        <div class="immersive-kicker">maverick-music</div>
               <div class="immersive-title">${this._esc(title)}</div>
               <div class="immersive-subtitle">${this._esc([artist, album].filter(Boolean).join(" · "))}</div>
               <div class="immersive-player-pill" id="immersivePlayerName">${this._esc(`${this._i18n("ui.playing_on")}: ${playerName}`)}</div>
@@ -7164,7 +7170,7 @@ export function createHomeiiBaseMusicCard({
 
     _setTracksLayout(layout) {
       this._state.tracksLayout = layout === "grid" ? "grid" : "list";
-      try { localStorage.setItem(this._lsKey("homeii_music_flow_tracks_layout"), this._state.tracksLayout); } catch (_) {}
+      try { localStorage.setItem(this._lsKey("maverick_music_tracks_layout"), this._state.tracksLayout); } catch (_) {}
       if (this._state.view === "tracks") this._renderTracks();
     }
 
@@ -7973,7 +7979,7 @@ export function createHomeiiBaseMusicCard({
       const scope = [entityId || "unknown", resolvedQueueId || "default"]
         .map((part) => String(part || "").replace(/[^a-z0-9_.:-]+/gi, "_"))
         .join("::");
-      return this._lsKey(`homeii_music_flow_queue_snapshot_v1::${scope}`);
+      return this._lsKey(`maverick_music_queue_snapshot_v1::${scope}`);
     }
 
     _queueSnapshotUsefulForCache(queueState = null, items = []) {
@@ -10438,7 +10444,7 @@ export function createHomeiiBaseMusicCard({
         hash ^= raw.charCodeAt(index);
         hash = Math.imul(hash, 16777619);
       }
-      return this._lsKey(`homeii_music_flow_card_issue_ack_${safeKey}_${(hash >>> 0).toString(36)}`);
+      return this._lsKey(`maverick_music_card_issue_ack_${safeKey}_${(hash >>> 0).toString(36)}`);
     }
 
     _isCardIssueAcknowledged(key = "issue", message = "") {

@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
-import '../src/homeii-music-flow.js';
+import '../src/maverick-music.js';
 vi.hoisted(()=>{vi.useFakeTimers();});
 afterEach(()=>vi.clearAllTimers());
 afterAll(()=>vi.useRealTimers());
-const prototype=globalThis.customElements.get('homeii-music-flow').prototype;
+const prototype=globalThis.customElements.get('maverick-music').prototype;
 const results=name=>({tracks:name ? [{name,uri:`library://track/${name}`}]:[]});
 function fixture(search) {
   const body=globalThis.document.createElement('div');

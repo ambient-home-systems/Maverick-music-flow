@@ -8,7 +8,7 @@
   - `README.md`
   - `LICENSE`
   - `hacs.json`
-  - `dist/homeii-music-flow.js`
+  - `dist/maverick-music.js`
   - `dist/localization/`
   - `dist/sendspin-js/`
   - `dist/vendor/embla-carousel.umd.js`
@@ -35,8 +35,8 @@
 
 ## 3. Verify repository files after publishing
 
-- Confirm `hacs.json` still points to `homeii-music-flow.js`.
-- Confirm `dist/homeii-music-flow.js` matches the released runtime.
+- Confirm `hacs.json` still points to `maverick-music.js`.
+- Confirm `dist/maverick-music.js` matches the released runtime.
 - Confirm `dist/localization/` includes English, Hebrew, Spanish, French, Italian, Lithuanian, and Simplified Chinese dictionaries.
 - Confirm `dist/sendspin-js/` exists for the local Sendspin browser player.
 - Confirm `dist/vendor/embla-carousel.umd.js` exists for mobile swipe support.
@@ -62,12 +62,12 @@
 
 If HACS does not add the resource automatically, add:
 
-`/hacsfiles/homeii-music-flow/homeii-music-flow.js`
+`/hacsfiles/maverick-music-flow/maverick-music.js`
 
 Then use the card with:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 ## 6. Manual fallback
@@ -78,11 +78,11 @@ If you need a manual fallback release path, copy the full contents of:
 
 to:
 
-`/config/www/community/homeii-music-flow/`
+`/config/www/community/maverick-music-flow/`
 
 Then load:
 
-`/local/community/homeii-music-flow/homeii-music-flow.js?v=5.9.2`
+`/local/community/maverick-music-flow/maverick-music.js?v=5.9.2`
 
 ## 7. Final pre-release smoke test
 

@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 import { extractCurrentLyricsRawText, parseLrcLyrics, stripLyricsTimestamps } from "../src/core/media/presentation.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 function context() {
   const track = { uri: "spotify://track/1", name: "Song", media_type: "track" };
   return {

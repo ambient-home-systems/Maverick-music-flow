@@ -16,13 +16,13 @@ Use the visual editor for structural options such as helper entities, card id, a
 ## Minimal YAML
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 ## Common YAML
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 entity: media_player.living_room
 language: auto
 theme_mode: auto
@@ -64,16 +64,18 @@ The card is now the visual interface only. Playback, players, queue, library, se
 Supported card options:
 
 ```yaml
-type: custom:homeii-music-flow
-homeii_engine_mode: required
-homeii_engine_timeout_ms: 3500
-homeii_engine_instance_id: ""
-homeii_engine_profile_id: ""
+type: custom:maverick-music
+engine_mode: required
+engine_timeout_ms: 3500
+engine_instance_id: ""
+engine_profile_id: ""
 ```
 
-`homeii_engine_mode` supports:
+`engine_mode` supports:
 
 - `required`: the only supported Maverick Music 6 mode. The card will not run without the Engine.
+
+The pre-rename keys `homeii_engine_mode`, `homeii_engine_instance_id`, `homeii_engine_profile_id`, and `homeii_engine_timeout_ms` are still accepted as aliases. When both spellings are present the `engine_*` key wins, and the visual editor rewrites the old spelling to the new one on save.
 
 Users who want to keep the previous frontend/Home Assistant/Music Assistant behavior should stay on Maverick Music 5.9.x.
 
@@ -101,7 +103,7 @@ Use them when:
 Use `card_id` when you run more than one Maverick Music card in the same browser and want separate local settings.
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: kitchen-flow
 entity: media_player.kitchen
 ```
@@ -157,7 +159,7 @@ You can also use:
 If the dashboard contains more than one Maverick Music card, use a card-scoped parameter:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: kitchen-flow
 ```
 
@@ -213,7 +215,7 @@ Maverick Music can publish the currently selected player to an `input_text` help
 Create a text helper in Home Assistant, then configure:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 active_player_helper_entity: input_text.homeii_flow_active_player
 ```
 
@@ -238,7 +240,7 @@ sequence:
 For most users:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 language: auto
 theme_mode: auto
 phone_display_mode: auto
@@ -247,7 +249,7 @@ phone_display_mode: auto
 For wall tablets:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 language: auto
 theme_mode: auto
 phone_display_mode: full
@@ -256,7 +258,7 @@ phone_display_mode: full
 For multiple cards in one browser:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: living-room-flow
 entity: media_player.living_room
 ```

@@ -4,14 +4,14 @@ import { extractCardVersion } from "../src/core/version-utils.js";
 
 describe("version utils", () => {
   it("extracts the runtime version from source text", () => {
-    const version = extractCardVersion('const HOMEII_CARD_VERSION = "4.9.0";');
+    const version = extractCardVersion('const MAVERICK_CARD_VERSION = "4.9.0";');
     expect(version).toBe("4.9.0");
-    expect(extractCardVersion('/*! HOMEII_CARD_VERSION = "6.0.0"; */')).toBe("6.0.0");
+    expect(extractCardVersion('/*! MAVERICK_CARD_VERSION = "6.0.0"; */')).toBe("6.0.0");
   });
 
   it("throws when the version constant is missing", () => {
     expect(() => extractCardVersion("const SOMETHING_ELSE = true;")).toThrow(
-      "Unable to locate HOMEII_CARD_VERSION in source."
+      "Unable to locate MAVERICK_CARD_VERSION in source."
     );
   });
 });

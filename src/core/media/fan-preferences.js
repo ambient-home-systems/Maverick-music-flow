@@ -1,6 +1,6 @@
 import { actionSymbolHtml, actionIconSvg } from "./action-menu.js";
 
-const storageKey = card => card._lsKey?.("homeii_music_flow_fan_preferences") || "homeii_music_flow_fan_preferences";
+const storageKey = card => card._lsKey?.("maverick_music_fan_preferences") || "maverick_music_fan_preferences";
 const sharedKey = card => `${card._state?.engineInstanceId || ""}:${card._state?.engineProfileId || ""}:${card._hass?.user?.id || ""}`;
 export function fanPreference(card, context) {
   const shared = card._fanSharedPreferences || {};

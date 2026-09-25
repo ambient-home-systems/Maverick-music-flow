@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 describe("screensaver inactivity delay", () => {
   it("uses the configured delay when no explicit override is supplied", async () => {
     const card={_screensaverSuppressedByEditor:()=>false,_screensaverEnabled:()=>true,isConnected:true,
@@ -60,7 +60,7 @@ describe("group disconnect failure", () => {
     expect(card._callHaMediaPlayerService).not.toHaveBeenCalled();
   });
   it("retains cached players for display but rejects them as command confirmation", async () => {
-    const card=new (globalThis.customElements.get("homeii-music-flow"))();
+    const card=new (globalThis.customElements.get("maverick-music"))();
     const cached=[{entity_id:'media_player.computer',state:'idle'}];
     card._state.enginePlayers=cached; card._state.engineAvailable=true;
     card._homeiiEngineRequired=()=>true;
@@ -70,7 +70,7 @@ describe("group disconnect failure", () => {
     expect(card._state.enginePlayers).toBe(cached);
   });
   it("hides disconnected players and restores choices when they become available", () => {
-    const card = new (globalThis.customElements.get("homeii-music-flow"))();
+    const card = new (globalThis.customElements.get("maverick-music"))();
     card._state.selectedPlayer="media_player.computer";
     card._state.players=[
       {entity_id:"media_player.computer",state:"idle",attributes:{friendly_name:"Computer",group_members:["media_player.computer","media_player.kitchen"]}},

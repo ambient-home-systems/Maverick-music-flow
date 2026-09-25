@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 import { toggleQueueCrossfade } from "../src/core/media/queue-options.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 function context() {
   return {
     _state: { selectedPlayer: "computer", engineCapabilities: { queue_autoplay: true }, maQueueState: { queue_id: "queue", autoplay_enabled: false }, menuOpen: true },

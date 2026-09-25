@@ -1,6 +1,43 @@
 export const HOMEII_ENGINE_COMMAND_PREFIX = "homeii_flow";
 export const HOMEII_ENGINE_MODES = Object.freeze(["required"]);
 
+// Documented config key -> legacy HOMEii config key. Both are accepted; the
+// documented name wins when a config carries both.
+export const ENGINE_CONFIG_KEY_ALIASES = Object.freeze([
+  Object.freeze({ key: "engine_mode", legacy: "homeii_engine_mode" }),
+  Object.freeze({ key: "engine_instance_id", legacy: "homeii_engine_instance_id" }),
+  Object.freeze({ key: "engine_profile_id", legacy: "homeii_engine_profile_id" }),
+  Object.freeze({ key: "engine_timeout_ms", legacy: "homeii_engine_timeout_ms" }),
+]);
+
+export function readEngineConfigValue(config, key) {
+  const alias = ENGINE_CONFIG_KEY_ALIASES.find((entry) => entry.key === key);
+  if (!config || typeof config !== "object") return undefined;
+  if (config[key] !== undefined) return config[key];
+  return alias ? config[alias.legacy] : undefined;
+}
+
+/**
+ * Returns a shallow copy of `config` where every engine setting is available
+ * under its documented key. When only the legacy homeii_engine_* key is set,
+ * its value is copied to the new key. With `dropLegacy`, the legacy keys are
+ * removed from the result (used by the editor so saved YAML is migrated).
+ */
+export function normalizeEngineConfigKeys(config, { dropLegacy = false } = {}) {
+  if (!config || typeof config !== "object" || Array.isArray(config)) return config;
+  const next = { ...config };
+  for (const { key, legacy } of ENGINE_CONFIG_KEY_ALIASES) {
+    const hasCurrent = next[key] !== undefined;
+    const hasLegacy = next[legacy] !== undefined;
+    if (!hasCurrent && hasLegacy) next[key] = next[legacy];
+    if (hasLegacy) {
+      if (dropLegacy) delete next[legacy];
+      else next[legacy] = next[key];
+    }
+  }
+  return next;
+}
+
 export function normalizeHomeiiEngineMode(value = "required") {
   const mode = String(value || "").trim().toLowerCase();
   return HOMEII_ENGINE_MODES.includes(mode) ? mode : "required";

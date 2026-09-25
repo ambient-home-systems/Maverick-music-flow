@@ -16,12 +16,12 @@ export default defineConfig({
     lib: {
       entry: path.resolve("src/index.js"),
       formats: ["es"],
-      fileName: () => "homeii-music-flow.js",
+      fileName: () => "maverick-music.js",
     },
     rollupOptions: {
       output: {
         inlineDynamicImports: true,
-        banner: `/*! HOMEII_CARD_VERSION = "${packageVersion}"; */`,
+        banner: `/*! MAVERICK_CARD_VERSION = "${packageVersion}"; */`,
       },
     },
   },

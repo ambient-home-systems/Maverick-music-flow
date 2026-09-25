@@ -104,16 +104,16 @@ Official HACS catalog inclusion is not required. Add the repository as a custom 
 
 1. Open [card releases](https://github.com/ambient-home-systems/maverick-music-flow/releases).
 2. Select **6.0.0**.
-3. Download the card package or the `homeii-music-flow.js`, `homeii-flow-logo-v2.png` and `homeii-flow-icon.png` assets. Use built release assets, not `src/homeii-music-flow.js`.
-4. Create `/config/www/homeii-flow/`.
+3. Download the card package or the `maverick-music.js`, `homeii-flow-logo-v2.png` and `homeii-flow-icon.png` assets. Use built release assets, not `src/maverick-music.js`.
+4. Create `/config/www/maverick-music/`.
 5. Copy the built JS and image files there. If using the complete package, extract its contents into that folder, with the JS at its root.
-6. Check this exact file exists: `/config/www/homeii-flow/homeii-music-flow.js`.
+6. Check this exact file exists: `/config/www/maverick-music/maverick-music.js`.
 7. In HA, open your profile and enable Advanced mode if the Resources controls are hidden. Open **Settings → Dashboards → Resources** (some versions put Resources in the three-dot menu), or navigate directly to `/config/lovelace/resources`.
 8. **Existing users:** edit the existing Maverick Music resource. **New users:** choose Add resource.
 9. Enter this URL and resource type:
 
 ```text
-URL: /local/homeii-flow/homeii-music-flow.js?v=6.0.0
+URL: /local/maverick-music/maverick-music.js?v=6.0.0
 Type: JavaScript module
 ```
 
@@ -130,8 +130,8 @@ YAML-managed resource users should update their existing resource declaration in
 2. Select Maverick Music if listed, or use Manual with:
 
 ```yaml
-type: custom:homeii-music-flow
-homeii_engine_mode: required
+type: custom:maverick-music
+engine_mode: required
 ```
 
 3. For a normal single Engine, leave instance/profile overrides blank/default. Do not copy old browser-direct MA credentials into v6.

@@ -7,7 +7,7 @@ import { scopeStorageKey } from "../src/core/state/card-id.js";
  *
  * The bug: every Maverick Music card stores user settings (theme, layout,
  * excluded players, pinned players, etc.) under globally scoped
- * localStorage keys like `homeii_music_flow_excluded_players`. Two cards
+ * localStorage keys like `maverick_music_excluded_players`. Two cards
  * on different dashboards in the same browser therefore overwrite each
  * other's settings.
  *
@@ -44,14 +44,14 @@ function simulateCardRead(storage, cardId, baseKey) {
 
 describe("per-card state isolation", () => {
   const KEYS_TO_ISOLATE = [
-    "homeii_music_flow_excluded_players",
-    "homeii_music_flow_front_pinned_player",
-    "homeii_music_flow_theme",
-    "homeii_music_flow_lang",
-    "homeii_music_flow_tracks_layout",
-    "homeii_music_flow_mobile_volume_mode",
-    "homeii_music_flow_player_sort_mode",
-    "homeii_music_flow_likes_v2",
+    "maverick_music_excluded_players",
+    "maverick_music_front_pinned_player",
+    "maverick_music_theme",
+    "maverick_music_lang",
+    "maverick_music_tracks_layout",
+    "maverick_music_mobile_volume_mode",
+    "maverick_music_player_sort_mode",
+    "maverick_music_likes_v2",
   ];
 
   it("keeps two scoped card instances fully disjoint", () => {
@@ -75,7 +75,7 @@ describe("per-card state isolation", () => {
 
   it("keeps an unscoped card disjoint from scoped cards (backward compat)", () => {
     const storage = createFakeStorage();
-    const baseKey = "homeii_music_flow_excluded_players";
+    const baseKey = "maverick_music_excluded_players";
 
     // Existing user: no card_id → keys stay unsuffixed.
     simulateCardWrite(storage, "", baseKey, "legacy-global");
@@ -98,7 +98,7 @@ describe("per-card state isolation", () => {
 
   it("treats invalid card ids as unscoped (defensive)", () => {
     const storage = createFakeStorage();
-    const baseKey = "homeii_music_flow_excluded_players";
+    const baseKey = "maverick_music_excluded_players";
 
     // Spaces and slashes are invalid → fall back to unsuffixed key.
     simulateCardWrite(storage, "with space", baseKey, "fallback-1");
@@ -110,7 +110,7 @@ describe("per-card state isolation", () => {
 
   it("cleanly removes a scoped key without touching other scopes", () => {
     const storage = createFakeStorage();
-    const baseKey = "homeii_music_flow_front_pinned_player";
+    const baseKey = "maverick_music_front_pinned_player";
 
     simulateCardWrite(storage, "ida-music", baseKey, "ida_speaker");
     simulateCardWrite(storage, "toke-music", baseKey, "toke_speaker");

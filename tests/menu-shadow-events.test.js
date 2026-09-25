@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
 
@@ -10,7 +10,7 @@ afterEach(() => document.body.replaceChildren());
 
 describe("menu actions across a real shadow event boundary", () => {
   it.each([['library_albums', 'mobileLibraryFlowPage', 'library_albums'], ['queue', 'mobileQueueFlowQuickOpen', true]])('returns from the %s wheel without leaving its screen', (page, key, value) => {
-    const card = document.createElement('homeii-music-flow');
+    const card = document.createElement('maverick-music');
     card._state.menuPage = page;
     card._state.menuStack = ['main'];
     card._state[key] = value;
@@ -22,7 +22,7 @@ describe("menu actions across a real shadow event boundary", () => {
     expect(card._renderMobileMenu).toHaveBeenCalledOnce();
   });
   it("advances virtualization from the inner media scroller and remembers its position", () => {
-    const card = document.createElement("homeii-music-flow");
+    const card = document.createElement("maverick-music");
     const body = document.createElement("div");
     body.innerHTML = '<div class="media-items-list" data-homeii-virtual-total="200" data-virtual-columns="2" data-virtual-row-height="250"></div>';
     const list = body.firstElementChild;
@@ -38,7 +38,7 @@ describe("menu actions across a real shadow event boundary", () => {
     expect(body.scrollTop).toBe(0);
   });
   it("opens a populated media action sheet using the real card renderer", async () => {
-    const card = document.createElement("homeii-music-flow");
+    const card = document.createElement("maverick-music");
     const host = document.createElement("div");
     document.body.append(host);
     const shadow = host.attachShadow({ mode: "open" });
@@ -77,7 +77,7 @@ describe("menu actions across a real shadow event boundary", () => {
       _closeMobileMenu: vi.fn(),
     };
     let task;
-    const handler = customElements.get("homeii-music-flow").prototype._handleMobileMenuClick;
+    const handler = customElements.get("maverick-music").prototype._handleMobileMenuClick;
     body.addEventListener("click", (event) => { task = handler.call(card, event); });
     const event = new MouseEvent("click", { bubbles: true, composed: true });
     body.querySelector("span").dispatchEvent(event);

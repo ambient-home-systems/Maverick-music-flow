@@ -34,13 +34,13 @@ https://github.com/ambient-home-systems/maverick-music-flow
 Add the card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 If HACS does not add the resource automatically, add:
 
 ```text
-/hacsfiles/homeii-music-flow/homeii-music-flow.js
+/hacsfiles/maverick-music-flow/maverick-music.js
 ```
 
 ## Manual Install
@@ -48,20 +48,20 @@ If HACS does not add the resource automatically, add:
 1. Create this folder:
 
 ```text
-/config/www/community/homeii-music-flow/
+/config/www/community/maverick-music-flow/
 ```
 
 2. Copy the full contents of `dist/` into that folder.
 3. Add this Dashboard resource:
 
 ```text
-/local/community/homeii-music-flow/homeii-music-flow.js?v=6.0.0
+/local/community/maverick-music-flow/maverick-music.js?v=6.0.0
 ```
 
 4. Add the card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 ## First Card
@@ -69,13 +69,13 @@ type: custom:homeii-music-flow
 Minimal configuration:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 Recommended first configuration:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 language: auto
 theme_mode: auto
 phone_display_mode: auto
@@ -84,7 +84,7 @@ phone_display_mode: auto
 If you want the card to start on a specific player:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 entity: media_player.living_room
 ```
 
@@ -124,7 +124,7 @@ Maverick Music includes two tools that make shared dashboards easier:
 Example card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: house-music
 ```
 

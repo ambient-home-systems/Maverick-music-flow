@@ -17,8 +17,8 @@
 After installing and configuring the Engine, add a Manual card and paste:
 
 ```yaml
-type: custom:homeii-music-flow
-homeii_engine_mode: required
+type: custom:maverick-music
+engine_mode: required
 player_design: immersive
 layout_mode: auto
 mobile_layout_mode: auto
@@ -114,7 +114,7 @@ Release focus:
 After updating, hard-refresh with:
 
 ```text
-/local/community/homeii-music-flow/homeii-music-flow.js?v=5.9.3
+/local/community/maverick-music-flow/maverick-music.js?v=5.9.3
 ```
 
 
@@ -145,13 +145,13 @@ https://github.com/r11a/homeii-music-flow
 7. Add the card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 If HACS does not add the resource automatically, add:
 
 ```text
-/hacsfiles/homeii-music-flow/homeii-music-flow.js
+/hacsfiles/maverick-music-flow/maverick-music.js
 ```
 
 ### Manual Install
@@ -159,21 +159,49 @@ If HACS does not add the resource automatically, add:
 1. Create:
 
 ```text
-/config/www/community/homeii-music-flow/
+/config/www/community/maverick-music-flow/
 ```
 
 2. Copy the full contents of `dist/` into that folder.
 3. Add this Dashboard resource:
 
 ```text
-/local/community/homeii-music-flow/homeii-music-flow.js?v=5.9.3
+/local/community/maverick-music-flow/maverick-music.js?v=5.9.3
 ```
 
 4. Add the card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
+
+## Upgrading from HOMEii Music Flow
+
+The card was renamed from HOMEii Music Flow to Maverick Music. Existing dashboards keep working through compatibility aliases, but the old names are deprecated and the browser console logs a warning once per legacy element tag.
+
+1. Update the dashboard resource to the new bundle filename:
+
+```text
+/hacsfiles/maverick-music-flow/maverick-music.js
+```
+
+2. Update the card type in each card configuration:
+
+```yaml
+# before
+type: custom:homeii-music-flow
+homeii_engine_mode: required
+homeii_engine_timeout_ms: 3500
+
+# after
+type: custom:maverick-music
+engine_mode: required
+engine_timeout_ms: 3500
+```
+
+The same applies to `custom:homeii-music-mobile` (now `custom:maverick-music-mobile`) and to `homeii_engine_instance_id` / `homeii_engine_profile_id` (now `engine_instance_id` / `engine_profile_id`). When both an old and a new key are present, the new key wins. Opening the visual editor and saving rewrites the old keys to the new names.
+
+Browser-local settings (theme, language, pinned players, timers, and so on) are copied from the old `homeii_music_flow_*` storage keys to the new `maverick_music_*` keys the first time the renamed card loads; nothing needs to be reconfigured.
 
 ## Requirements
 
@@ -191,7 +219,7 @@ type: custom:homeii-music-flow
 If the card loads but feels incomplete, check these first:
 
 - Music Assistant is installed, running, and exposes at least one player as a Home Assistant `media_player`.
-- The Dashboard resource points to `/hacsfiles/homeii-music-flow/homeii-music-flow.js` for HACS, or to the copied `/local/community/...` file for manual installs.
+- The Dashboard resource points to `/hacsfiles/maverick-music-flow/maverick-music.js` for HACS, or to the copied `/local/community/...` file for manual installs.
 - If you use Maverick Music remotely, confirm Home Assistant external/internal URLs are correct. The browser communicates only with Home Assistant; the Engine communicates with Music Assistant.
 - If artwork is missing only when away from home, verify the Engine artwork proxy in Diagnostics. The browser should not need direct access to Music Assistant.
 - If no players are shown, check Music Assistant player exposure and remove overly strict pinned-player filters from the card settings.
@@ -218,7 +246,7 @@ input_text.homeii_flow_active_player
 6. Add it to the Maverick Music card configuration:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 active_player_helper_entity: input_text.homeii_flow_active_player
 ```
 
@@ -281,13 +309,13 @@ By default, every Maverick Music card in the same browser shares its in-card cus
 If you want **separate** dashboards — for example one card per kid's bedroom, or a kitchen wall tablet showing one player and a living-room phone view showing another — give each card its own `card_id`:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: ida-music
 entity: media_player.ida_vaerelse
 ```
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: toke-music
 entity: media_player.toke_vaerelse
 ```
@@ -795,7 +823,7 @@ If you explicitly enable `lrclib_lyrics_enabled: true`, and Music Assistant has 
 ## Basic Configuration
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 language: auto
 rtl: true
 theme_mode: auto
@@ -809,13 +837,13 @@ Use the visual editor or in-card settings whenever possible.
 ## Project Structure
 
 ```text
-dist/homeii-music-flow.js             self-contained HACS/manual runtime (includes Sendspin and Embla)
+dist/maverick-music.js             self-contained HACS/manual runtime (includes Sendspin and Embla)
 dist/sendspin-js/                     source/license copy; not loaded by the production bundle
 dist/vendor/embla-carousel.umd.js     source/license copy; not loaded by the production bundle
 dist/homeii-flow-logo.svg             packaged legacy brand asset
 dist/homeii-flow-logo.png             packaged transparent Maverick Music logo
 dist/homeii-flow-icon.png             packaged Maverick Music app icon
-src/homeii-music-flow.js              source snapshot for the card
+src/maverick-music.js              source snapshot for the card
 src/sendspin-js/                      source copy of Sendspin browser player files
 vendor/embla-carousel.umd.js          source copy of Embla used by the release package
 src/core/                             extracted foundation helpers
@@ -829,7 +857,7 @@ docs/media/                           GitHub/HACS README screenshots and GIF
 docs/qa-matrix.md                     viewport/theme/interaction release gate
 ```
 
-HACS installs the single `dist/homeii-music-flow.js` dashboard resource. The production bundle inlines the Sendspin browser player and Embla carousel, does not load sibling JavaScript files, and does not fetch external web fonts. The extra files in `dist/` support manual inspection, licensing, and legacy manual installs; they are not runtime dependencies for HACS.
+HACS installs the single `dist/maverick-music.js` dashboard resource. The production bundle inlines the Sendspin browser player and Embla carousel, does not load sibling JavaScript files, and does not fetch external web fonts. The extra files in `dist/` support manual inspection, licensing, and legacy manual installs; they are not runtime dependencies for HACS.
 
 ## Development
 
@@ -849,7 +877,7 @@ Before publishing a release:
 - Run `npm run build`.
 - Run `npm run lint`.
 - Run `npm test`.
-- Confirm `dist/homeii-music-flow.js` exists.
+- Confirm `dist/maverick-music.js` exists.
 - Confirm the built file contains no runtime references to `./sendspin-js/`, `./vendor/`, or `fonts.googleapis.com`.
 - Confirm `dist/homeii-flow-logo.svg`, `dist/homeii-flow-logo.png`, and `dist/homeii-flow-icon.png` exist.
 - Confirm the README renders all screenshots.

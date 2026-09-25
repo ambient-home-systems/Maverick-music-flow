@@ -51,7 +51,7 @@ npm run build
 
 ## Main Files
 
-- `src/homeii-music-flow.js` is the main card implementation.
+- `src/maverick-music.js` is the main card implementation.
 - `src/core/` contains shared helpers for state, media, layout, theme, and validation.
 - `src/sendspin-js/` contains the local browser player support.
 - `tests/` contains Vitest coverage for shared logic.
@@ -90,15 +90,15 @@ HACS installs the package from `dist/`, so release safety matters.
 Before a release-oriented pull request is merged, confirm:
 
 - `npm run build` completes successfully.
-- `dist/homeii-music-flow.js` exists.
+- `dist/maverick-music.js` exists.
 - `dist/sendspin-js/` exists when the local browser player is enabled.
 - `dist/vendor/embla-carousel.umd.js` exists when swipe browsing is enabled.
 - `dist/homeii-flow-logo.svg` exists.
-- `hacs.json` still points to `homeii-music-flow.js`.
+- `hacs.json` still points to `maverick-music.js`.
 - The card type remains:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 ## Testing
@@ -113,7 +113,7 @@ npm run build
 
 For UI changes, also smoke test in Home Assistant:
 
-- Add the resource through HACS or `/local/community/homeii-music-flow/homeii-music-flow.js`.
+- Add the resource through HACS or `/local/community/maverick-music-flow/maverick-music.js`.
 - Add the card from the dashboard picker when possible.
 - Verify manual YAML still works.
 - Test main player, compact player, FLOW, Studio, queue, library, actions, timers, settings, lyrics, history, and recommendations.

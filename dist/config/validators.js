@@ -59,6 +59,11 @@ export function validateBaseCardEditorConfig(config) {
 
   assertCardIdIfDefined(config.card_id, "card_id");
   assertStringArrayValuesIfDefined(config.search_result_order, "search_result_order", ["artists", "albums", "tracks", "playlists", "radio", "podcasts"]);
+  assertValueInList(config.engine_mode, "engine_mode", ["required"]);
+  assertStringIfDefined(config.engine_instance_id, "engine_instance_id");
+  assertStringIfDefined(config.engine_profile_id, "engine_profile_id");
+  assertNumberIfDefined(config.engine_timeout_ms, "engine_timeout_ms");
+  // Legacy HOMEii key names remain accepted; engine_* wins when both are set.
   assertValueInList(config.homeii_engine_mode, "homeii_engine_mode", ["required"]);
   assertStringIfDefined(config.homeii_engine_instance_id, "homeii_engine_instance_id");
   assertStringIfDefined(config.homeii_engine_profile_id, "homeii_engine_profile_id");

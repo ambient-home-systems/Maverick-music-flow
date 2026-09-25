@@ -13,7 +13,7 @@ export function createHomeiiBaseMusicEditor(deps = {}) {
     homeiiEditorI18n,
     homeiiEditorLabelFor,
     homeiiEditorHelperFor,
-    HOMEII_CARD_VERSION,
+    MAVERICK_CARD_VERSION,
     AMBIENT_LIGHT_PAIR_PLAYER_PREFIX,
     AMBIENT_LIGHT_PAIR_LIGHTS_PREFIX,
   } = deps;
@@ -67,7 +67,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
   setConfig(config) {
     const nextConfig = {
       ...this._getCardCtor().getStubConfig(),
-      ...config,
+      ...HomeiiEngineFoundation.normalizeEngineConfigKeys(config, { dropLegacy: true }),
     };
     const validator = this._getConfigValidator?.();
     if (typeof validator === "function") {
@@ -268,11 +268,11 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
   }
 
   _editorHomeiiEngineMode() {
-    return HomeiiEngineFoundation.normalizeHomeiiEngineMode(this._config?.homeii_engine_mode);
+    return HomeiiEngineFoundation.normalizeHomeiiEngineMode(this._config?.engine_mode);
   }
 
   _editorHomeiiEngineTimeoutMs() {
-    return HomeiiEngineFoundation.clampHomeiiEngineTimeoutMs(this._config?.homeii_engine_timeout_ms, 3500);
+    return HomeiiEngineFoundation.clampHomeiiEngineTimeoutMs(this._config?.engine_timeout_ms, 3500);
   }
 
   _editorHomeiiEngineMessage(command = "get_context", payload = {}) {
@@ -280,8 +280,8 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
       ...(payload && typeof payload === "object" && !Array.isArray(payload) ? payload : { payload }),
       type: HomeiiEngineFoundation.homeiiEngineCommandType(command),
       card_id: String(this._config?.card_id || "").trim(),
-      instance_id: HomeiiEngineFoundation.normalizeHomeiiEngineId(this._config?.homeii_engine_instance_id),
-      profile_id: HomeiiEngineFoundation.normalizeHomeiiEngineId(this._config?.homeii_engine_profile_id),
+      instance_id: HomeiiEngineFoundation.normalizeHomeiiEngineId(this._config?.engine_instance_id),
+      profile_id: HomeiiEngineFoundation.normalizeHomeiiEngineId(this._config?.engine_profile_id),
     };
     ["card_id", "instance_id", "profile_id"].forEach((key) => {
       if (message[key] === "") delete message[key];
@@ -309,7 +309,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     }
     try {
       const result = await this._editorCallHomeiiEngine("get_context", {
-        card_version: HOMEII_CARD_VERSION,
+        card_version: MAVERICK_CARD_VERSION,
         source: "visual_editor",
       });
       if (!result) throw new Error("Maverick Music Engine returned an empty response.");
@@ -336,7 +336,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     const lines = [
       "Maverick Music Editor Diagnostics",
       "Diagnostics: v7",
-      `Version: ${HOMEII_CARD_VERSION}`,
+      `Version: ${MAVERICK_CARD_VERSION}`,
       `Generated: ${new Date().toISOString()}`,
       "Source: visual editor",
       `Browser: ${this._editorBrowserSummary()}`,
@@ -346,9 +346,9 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
       `HA URL detail: ${this._editorDiagnosticUrlDescription(this._editorCurrentOrigin())}`,
       "music_assistant_transport: Maverick Music Engine",
       `config_entry_id configured: ${String(this._config?.config_entry_id || "").trim() ? "yes" : "no"}`,
-      `homeii_engine_mode: ${this._editorHomeiiEngineMode()}`,
-      `homeii_engine_instance_id configured: ${this._config?.homeii_engine_instance_id ? "yes" : "no"}`,
-      `homeii_engine_profile_id configured: ${this._config?.homeii_engine_profile_id ? "yes" : "no"}`,
+      `engine_mode: ${this._editorHomeiiEngineMode()}`,
+      `engine_instance_id configured: ${this._config?.engine_instance_id ? "yes" : "no"}`,
+      `engine_profile_id configured: ${this._config?.engine_profile_id ? "yes" : "no"}`,
       "",
       "Checks:",
       ...items.map((item) => `- [${String(item.status || "info").toUpperCase()}] ${item.title}${item.value ? `: ${item.value}` : ""}${item.detail ? ` - ${item.detail}` : ""}`),
@@ -410,7 +410,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     const pinned = HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities);
     const excluded = HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities);
 
-    add("ok", "Editor version", "Visual editor runtime is loaded.", HOMEII_CARD_VERSION);
+    add("ok", "Editor version", "Visual editor runtime is loaded.", MAVERICK_CARD_VERSION);
     add("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7");
     add("info", "Browser", this._editorBrowserSummary());
     add("info", "Viewport", this._editorViewportSummary());
@@ -713,10 +713,10 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
       </style>
       <div class="editor-shell">
         <div class="editor-header">
-          <div class="editor-title">homeii-music-flow</div>
+          <div class="editor-title">maverick-music</div>
           <div class="editor-actions">
             <button class="editor-diagnostics" type="button" title="Run and copy diagnostics report" aria-label="Run and copy diagnostics report">Diagnostics</button>
-            <div class="editor-version">v${HOMEII_CARD_VERSION}</div>
+            <div class="editor-version">v${MAVERICK_CARD_VERSION}</div>
           </div>
         </div>
         <div class="editor-diagnostics-panel" id="editorDiagnosticsPanel" hidden>

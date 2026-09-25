@@ -72,8 +72,8 @@ The Engine is a **custom integration**, not an add-on, not a replacement for Mus
 Minimal card YAML remains:
 
 ```yaml
-type: custom:homeii-music-flow
-homeii_engine_mode: required
+type: custom:maverick-music
+engine_mode: required
 ```
 
 An existing `entity` can remain as the preferred player. Preserve `card_id` values when already used. Configure MA connection secrets in the **Engine**, not dashboard YAML. Remove obsolete card connection secrets from the updated dashboard after securely recording the prior configuration for rollback. Backend timers/schedules and browser visual preferences are different stores; do not assume all old frontend-only settings migrate automatically.
@@ -82,7 +82,7 @@ An existing `entity` can remain as the preferred player. Preserve `card_id` valu
 
 **Engine manual installation:** copy the package's `custom_components/homeii_flow` directory into `/config/custom_components/homeii_flow`. The `manifest.json` must be directly inside that directory, not inside a second nested `homeii_flow` folder. Restart HA and add/configure the integration. See the [Engine repository](https://github.com/r11a/homeii-flow-engine) for its installation and automation guide.
 
-**Card manual installation:** use the built `homeii-music-flow.js`, not the unbundled file in `src`. Put it under `/config/www/community/homeii-music-flow/` (or another deliberately chosen `www` directory) and register the corresponding `/local/...` URL as a JavaScript module. Update the existing resource to avoid duplicate registration.
+**Card manual installation:** use the built `maverick-music.js`, not the unbundled file in `src`. Put it under `/config/www/community/maverick-music-flow/` (or another deliberately chosen `www` directory) and register the corresponding `/local/...` URL as a JavaScript module. Update the existing resource to avoid duplicate registration.
 
 **HACS:** once a published beta and accessible repositories exist, use the card repository as a Dashboard repository and the Engine repository as an Integration repository. Select the exact beta deliberately. HACS UI wording varies by version. Do not select the moving development branch if you want a reproducible beta installation.
 
