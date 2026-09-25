@@ -42,7 +42,7 @@ function homeiiRadioBrowserCountrySelectorOptions(translateFn = null, language =
 export function getBaseCardConfigForm() {
   const labels = {
     card_id: homeiiEditorI18n("ui.card_id", {}, "Card ID"),
-    homeii_engine_mode: "HOMEii Flow Engine",
+    homeii_engine_mode: "Maverick Music Engine",
     homeii_engine_instance_id: "Engine instance ID",
     homeii_engine_profile_id: "Engine profile ID",
     homeii_engine_timeout_ms: "Engine timeout",
@@ -68,11 +68,11 @@ export function getBaseCardConfigForm() {
     popup_opacity: homeiiEditorI18n("ui.popup_opacity"),
   };
   const helpers = {
-    card_id: homeiiEditorI18n("ui.card_id_helper", {}, "Unique slug (letters, digits, '-', '_'). Set this when running multiple HOMEii Flow dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other HOMEii Flow card in this browser (the original behaviour)."),
-    homeii_engine_mode: "HOMEii Flow 6 requires the HOMEii Flow Engine integration. The card will not run without a loaded Engine.",
+    card_id: homeiiEditorI18n("ui.card_id_helper", {}, "Unique slug (letters, digits, '-', '_'). Set this when running multiple Maverick Music dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other Maverick Music card in this browser (the original behaviour)."),
+    homeii_engine_mode: "Maverick Music 6 requires the Maverick Music Engine integration. The card will not run without a loaded Engine.",
     homeii_engine_instance_id: "Optional instance identifier for multi-engine setups. Leave blank for the default integration instance.",
     homeii_engine_profile_id: "Optional profile identifier for future per-room, per-user, or per-dashboard Engine policies.",
-    homeii_engine_timeout_ms: "Maximum milliseconds to wait for HOMEii Flow Engine responses during explicit Engine checks.",
+    homeii_engine_timeout_ms: "Maximum milliseconds to wait for Maverick Music Engine responses during explicit Engine checks.",
     config_entry_id: homeiiEditorI18n("ui.music_assistant_config_entry_id_if_you_want_direct_integration_lookup_th"),
     active_player_helper_entity: homeiiEditorI18n("ui.optional_input_text_helper_updated_with_the_active_player_entity_id_for"),
     ma_interface_url: homeiiEditorI18n("ui.path_used_when_opening_the_music_assistant_interface"),
@@ -314,7 +314,7 @@ export function getMobileEditorTexts() {
       player_order_entities: homeiiEditorI18n("ui.player_order"),
       ...playerOrderSlotLabels,
       card_id: homeiiEditorI18n("ui.card_id", {}, "Card ID"),
-      homeii_engine_mode: "HOMEii Flow Engine",
+      homeii_engine_mode: "Maverick Music Engine",
       homeii_engine_instance_id: "Engine instance ID",
       homeii_engine_profile_id: "Engine profile ID",
       homeii_engine_timeout_ms: "Engine timeout",
@@ -328,11 +328,11 @@ export function getMobileEditorTexts() {
       music_assistant_timeout_ms: "Music Assistant timeout",
     },
     helpers: {
-      card_id: homeiiEditorI18n("ui.card_id_helper", {}, "Unique slug (letters, digits, '-', '_'). Set this when running multiple HOMEii Flow dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other HOMEii Flow card in this browser (the original behaviour)."),
-      homeii_engine_mode: "HOMEii Flow 6 requires the HOMEii Flow Engine integration. The card will not run without a loaded Engine.",
+      card_id: homeiiEditorI18n("ui.card_id_helper", {}, "Unique slug (letters, digits, '-', '_'). Set this when running multiple Maverick Music dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other Maverick Music card in this browser (the original behaviour)."),
+      homeii_engine_mode: "Maverick Music 6 requires the Maverick Music Engine integration. The card will not run without a loaded Engine.",
       homeii_engine_instance_id: "Optional instance identifier for multi-engine setups. Leave blank for the default integration instance.",
       homeii_engine_profile_id: "Optional profile identifier for future per-room, per-user, or per-dashboard Engine policies.",
-      homeii_engine_timeout_ms: "Maximum milliseconds to wait for HOMEii Flow Engine responses during explicit Engine checks.",
+      homeii_engine_timeout_ms: "Maximum milliseconds to wait for Maverick Music Engine responses during explicit Engine checks.",
       settings_source: homeiiEditorI18n("ui.choose_whether_settings_are_controlled_from_the_in_card_ui_or_from_the_c"),
       layout_mode: homeiiEditorI18n("ui.auto_chooses_mobile_or_tablet_based_on_actual_width"),
       height: homeiiEditorI18n("ui.card_height_in_pixels"),

@@ -1859,7 +1859,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     const ready = await this._homeiiEngineReadyForPersistence();
     if (!ready) {
       if (this._homeiiEngineRequired() || options.toast) {
-        this._toastError(this._m("Saved locally, but HOMEii Flow Engine did not confirm the schedule.", "נשמר מקומית, אבל HOMEii Flow Engine לא אישר את התזמון."));
+        this._toastError(this._m("Saved locally, but Maverick Music Engine did not confirm the schedule.", "נשמר מקומית, אבל Maverick Music Engine לא אישר את התזמון."));
       }
       return false;
     }
@@ -1868,11 +1868,11 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       if (!result) return false;
       const confirmed = await this._confirmScheduleInHomeiiEngine(payload.schedule_id);
       if (!confirmed && (this._homeiiEngineRequired() || options.toast)) {
-        this._toastError("HOMEii Flow Engine accepted the schedule write, but it was not found when reading it back.");
+        this._toastError("Maverick Music Engine accepted the schedule write, but it was not found when reading it back.");
       }
       return confirmed;
     } catch (error) {
-      if (this._homeiiEngineRequired() || options.toast) this._toastError(error?.message || "HOMEii Flow Engine schedule sync failed");
+      if (this._homeiiEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine schedule sync failed");
       return false;
     }
   }
@@ -1898,7 +1898,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       const result = await this._homeiiEngineDeleteSchedule({ schedule_id: scheduleId }, { required: true });
       return !!result;
     } catch (error) {
-      if (this._homeiiEngineRequired() || options.toast) this._toastError(error?.message || "HOMEii Flow Engine schedule delete failed");
+      if (this._homeiiEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine schedule delete failed");
       return false;
     }
   }
@@ -2097,7 +2097,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     this._persistMobileAppearance();
     const engineSaved = await this._syncScheduleToHomeiiEngine(schedule, { toast: true });
     this._toastSuccess(engineSaved
-      ? this._m("Schedule saved to HOMEii Flow Engine", "התזמון נשמר ב-HOMEii Flow Engine")
+      ? this._m("Schedule saved to Maverick Music Engine", "התזמון נשמר ב-Maverick Music Engine")
       : this._i18n("ui.scheduled_start_saved"));
     return true;
   }
@@ -2314,11 +2314,11 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       }
       const confirmed = await this._confirmSleepTimerInHomeiiEngine(this._homeiiSleepTimerId(playerId), playerId, target);
       if (!confirmed && (this._homeiiEngineRequired() || options.toast)) {
-        this._toastError("HOMEii Flow Engine accepted the timer write, but it was not found when reading it back.");
+        this._toastError("Maverick Music Engine accepted the timer write, but it was not found when reading it back.");
       }
       return confirmed;
     } catch (error) {
-      if (this._homeiiEngineRequired() || options.toast) this._toastError(error?.message || "HOMEii Flow Engine timer sync failed");
+      if (this._homeiiEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine timer sync failed");
       return false;
     }
   }
@@ -2366,7 +2366,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       if (remains) throw new Error("The timer is still present in the Engine");
       return true;
     } catch (error) {
-      if (this._homeiiEngineRequired() || options.toast) this._toastError(error?.message || "HOMEii Flow Engine timer delete failed");
+      if (this._homeiiEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine timer delete failed");
       return false;
     }
   }
@@ -2896,7 +2896,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
   async _ensureHomeiiEngineHandshake() {
     if (!this._homeiiEngineRequired()) return true;
     const context = await this._refreshHomeiiEngineContext({ force: true }).catch((error) => {
-      this._state.engineLastError = error?.message || String(error || "HOMEii Flow Engine is not available.");
+      this._state.engineLastError = error?.message || String(error || "Maverick Music Engine is not available.");
       return null;
     });
     const missingCapabilities = this._homeiiEngineHandshakeMissingCapabilities();
@@ -2928,13 +2928,13 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       : null;
     const status = this._state?.engineStatus || "missing";
     const subtitle = version
-      ? `Detected Engine ${version}, but it is missing required HOMEii Flow 6 capabilities.`
-      : "HOMEii Flow Engine was not detected by Home Assistant.";
+      ? `Detected Engine ${version}, but it is missing required Maverick Music 6 capabilities.`
+      : "Maverick Music Engine was not detected by Home Assistant.";
     const missingHtml = missingCapabilities.length
       ? `<div class="engine-gate-list"><strong>Missing capabilities</strong><span>${this._esc(missingCapabilities.join(", "))}</span></div>`
       : "";
     const connectionsHtml = requiredConnections && requiredConnections.ok !== true
-      ? `<div class="engine-gate-list"><strong>Required connections</strong><span>${this._esc(requiredConnections.summary || "Music Assistant 2.10 API is not ready. Open HOMEii Flow Engine diagnostics for details.")}</span></div>`
+      ? `<div class="engine-gate-list"><strong>Required connections</strong><span>${this._esc(requiredConnections.summary || "Music Assistant 2.10 API is not ready. Open Maverick Music Engine diagnostics for details.")}</span></div>`
       : "";
     this.shadowRoot.innerHTML = `
       <style>
@@ -3068,8 +3068,8 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         <div class="engine-gate">
           <div class="engine-gate-panel">
             <div class="engine-gate-icon">${this._iconSvg("settings")}</div>
-            <h2>HOMEii Flow 6 requires HOMEii Flow Engine</h2>
-            <p>${this._esc(subtitle)} Install or update the HOMEii Flow Engine integration, reload Home Assistant, then refresh this dashboard.</p>
+            <h2>Maverick Music 6 requires Maverick Music Engine</h2>
+            <p>${this._esc(subtitle)} Install or update the Maverick Music Engine integration, reload Home Assistant, then refresh this dashboard.</p>
             ${missingHtml}
             ${connectionsHtml}
             ${error ? `<div class="engine-gate-list"><strong>Last error</strong><span>${this._esc(error)}</span></div>` : ""}
@@ -3092,7 +3092,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     });
     this.$("engineGateDiagnostics")?.addEventListener("click", () => {
       const text = [
-        "HOMEii Flow 6 Engine handshake",
+        "Maverick Music 6 Engine handshake",
         `Card: ${HOMEII_CARD_VERSION}`,
         `Status: ${status}`,
         `Engine version: ${version || "(none)"}`,
@@ -3185,7 +3185,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
 
   async _homeiiEngineHttpCommand(command = "get_context", payload = {}, options = {}) {
     if (!this._homeiiEngineHttpFallbackAllowed(command)) {
-      throw new Error(`HOMEii Flow Engine HTTP fallback does not support ${command}`);
+      throw new Error(`Maverick Music Engine HTTP fallback does not support ${command}`);
     }
     const timeoutMs = HomeiiEngineFoundation.clampHomeiiEngineTimeoutMs(options?.timeoutMs, this._homeiiEngineTimeoutMs());
     const message = this._homeiiEngineMessage(command, payload);
@@ -3194,7 +3194,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       return this._withTimeout(
         this._hass.callApi("POST", path, message),
         timeoutMs,
-        this._timeoutMessage("HOMEii Flow Engine HTTP"),
+        this._timeoutMessage("Maverick Music Engine HTTP"),
       );
     }
     const headers = {
@@ -3211,9 +3211,9 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         body: JSON.stringify(message),
       }),
       timeoutMs,
-      this._timeoutMessage("HOMEii Flow Engine HTTP"),
+      this._timeoutMessage("Maverick Music Engine HTTP"),
     );
-    if (!response.ok) throw new Error(`HOMEii Flow Engine HTTP ${response.status}`);
+    if (!response.ok) throw new Error(`Maverick Music Engine HTTP ${response.status}`);
     return response.json();
   }
 
@@ -3245,10 +3245,10 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
           this._state.engineLastError = "";
           return result;
         } catch (httpError) {
-          this._debugLog?.("debug", "HOMEii Flow Engine HTTP fallback failed", command, httpError?.message || httpError);
+          this._debugLog?.("debug", "Maverick Music Engine HTTP fallback failed", command, httpError?.message || httpError);
         }
       }
-      const message = error?.message || "HOMEii Flow Engine is not available.";
+      const message = error?.message || "Maverick Music Engine is not available.";
       if ((command !== "get_context" && this._state.engineAvailable) || this._state.engineContext) {
         this._state.engineStatus = "degraded";
         this._state.engineAvailable = true;
@@ -3257,7 +3257,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         this._state.engineAvailable = false;
       }
       this._state.engineLastError = message;
-      this._debugLog?.("debug", "HOMEii Flow Engine command failed", command, message);
+      this._debugLog?.("debug", "Maverick Music Engine command failed", command, message);
       if (required) throw error;
       return null;
     }
@@ -3389,7 +3389,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         return typeof unsubscribe === "function" ? unsubscribe : null;
       })
       .catch((error) => {
-        this._debugLog?.("debug", "HOMEii Flow Engine MA event subscription failed", error?.message || error);
+        this._debugLog?.("debug", "Maverick Music Engine MA event subscription failed", error?.message || error);
         return null;
       });
   }
@@ -11908,7 +11908,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
   // Mirrors the namespacing pattern from PR #43 (feat/per-card-state-isolation).
   // When that lands, this helper can be replaced with the global _lsKey() it introduces.
   // Cards without card_id keep the unsuffixed key; cards with card_id get a per-card namespace
-  // so two HOMEii Flow cards on the same dashboard don't share accordion open/closed state.
+  // so two Maverick Music cards on the same dashboard don't share accordion open/closed state.
   _settingsLsKey(base) {
     const cardId = this._config?.card_id;
     if (!cardId) return base;
@@ -12783,7 +12783,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     const configuredEntity = String(this._config?.entity || this.config?.entity || "").trim();
     const urlOverride = this._playerOverrideParamValue?.() || "";
     if (!configuredEntity) {
-      add("info", "Configured entity", "No card entity is configured. HOMEii will choose from query-string override, active players, pinned players, remembered player, and visible player order.", "(none)");
+      add("info", "Configured entity", "No card entity is configured. Maverick Music will choose from query-string override, active players, pinned players, remembered player, and visible player order.", "(none)");
       return;
     }
     const configuredPlayer = hassStates?.[configuredEntity] || null;
@@ -12804,7 +12804,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     let detail = "Configured entity exists and is available as the card default player.";
     if (excluded) {
       status = "warn";
-      detail = "Configured entity exists, but it is excluded in HOMEii settings.";
+      detail = "Configured entity exists, but it is excluded in Maverick Music settings.";
     } else if (!strictMa && !fallbackMa) {
       status = "warn";
       detail = "Configured entity exists, but it does not look like a Music Assistant player.";
@@ -12820,10 +12820,10 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       detail = "Configured entity is the currently selected player.";
     } else if (activeSelected) {
       status = "info";
-      detail = "Another player is currently active, so HOMEii is showing the active player and keeping the configured entity as the fallback default.";
+      detail = "Another player is currently active, so Maverick Music is showing the active player and keeping the configured entity as the fallback default.";
     } else {
       status = "warn";
-      detail = "Configured entity exists, but HOMEii selected a different player. This usually means manual/front selection, pinned order, or remembered state is taking priority.";
+      detail = "Configured entity exists, but Maverick Music selected a different player. This usually means manual/front selection, pinned order, or remembered state is taking priority.";
     }
     add(status, "Configured entity", `${detail} Selected now: ${selectedName}.`, `${configuredName} | ${configuredEntity} | ${this._diagnosticPlayerMarkerSummary(configuredPlayer, hassEntities)}`);
   }
@@ -12835,11 +12835,11 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     add(
       this._state.engineAvailable ? "ok" : "fail",
       "Search providers",
-      `Engine search ${this._state.engineAvailable ? "yes" : "no"}; HA search ${hasHaSearch ? "available to Engine" : "not exposed"}; Direct browser search disabled for HOMEii Flow 6; library cache entries ${cacheSize}.`,
+      `Engine search ${this._state.engineAvailable ? "yes" : "no"}; HA search ${hasHaSearch ? "available to Engine" : "not exposed"}; Direct browser search disabled for Maverick Music 6; library cache entries ${cacheSize}.`,
       query ? `query="${query}"` : "(no active query)",
     );
     if (!query || query.length < 2) {
-      add("info", "Search provider sample", "Open the affected Search screen, run the exact search term, then run diagnostics. HOMEii will measure that active query without guessing.", "skipped");
+      add("info", "Search provider sample", "Open the affected Search screen, run the exact search term, then run diagnostics. Maverick Music will measure that active query without guessing.", "skipped");
       return;
     }
     const timedSearch = async (label, searchOptions, timeoutMs) => {
@@ -12873,7 +12873,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       add(
         provider.count ? "ok" : "warn",
         "Search provider sample",
-        `${provider.count ? "Provider search returned results." : "Provider search returned no results for this query. HOMEii should still keep showing library results and should not stop provider search just because library results exist."} ${provider.breakdown}`,
+        `${provider.count ? "Provider search returned results." : "Provider search returned no results for this query. Maverick Music should still keep showing library results and should not stop provider search just because library results exist."} ${provider.breakdown}`,
         `${provider.count} result(s), ${provider.elapsed}ms`,
       );
     } catch (error) {
@@ -12902,7 +12902,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         playerProxyArt ? `HA proxy ${this._sanitizeDiagnosticUrl(playerProxyArt)}` : "HA proxy unavailable",
         playerRawArt ? `MA current_media ${this._sanitizeDiagnosticUrl(playerRawArt)}` : "MA current_media unavailable",
       ].join("; ");
-      add("info", "Current artwork sources", "HOMEii now prefers the Home Assistant media-player proxy for the current item and only then tries the raw Music Assistant artwork URL.", sourceDetail);
+      add("info", "Current artwork sources", "Maverick Music now prefers the Home Assistant media-player proxy for the current item and only then tries the raw Music Assistant artwork URL.", sourceDetail);
       if (playerProxyArt) {
         const playerProxyLoad = await this._diagnosticProbeArtworkLoad(playerProxyArt);
         add(
@@ -12919,7 +12919,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     }
     const queueId = this._queueIdForPlayer?.(selectedPlayer) || this._directMaQueueId?.(selectedPlayer) || "";
     add(queueId ? "ok" : "warn", "Queue identity", queueId ? "Selected player exposes an active queue id." : "Selected player does not expose active_queue/queue_id. Some queue APIs may still infer it from the entity.", queueId || "(none)");
-    add("info", "Queue providers", `Engine queue ${this._state.engineAvailable ? "yes" : "no"}; HA get_queue ${this._hasService?.("music_assistant", "get_queue") ? "available to Engine" : "not exposed"}; Direct browser queue disabled for HOMEii Flow 6.`);
+    add("info", "Queue providers", `Engine queue ${this._state.engineAvailable ? "yes" : "no"}; HA get_queue ${this._hasService?.("music_assistant", "get_queue") ? "available to Engine" : "not exposed"}; Direct browser queue disabled for Maverick Music 6.`);
     const uiQueueCount = Array.isArray(this._state.queueItems) ? this._state.queueItems.length : 0;
     const uiQueueStateCount = Number(this._state.maQueueState?.items);
     const uiLooksPartial = Number.isFinite(uiQueueStateCount) && uiQueueStateCount > uiQueueCount && uiQueueCount > 0;
@@ -12948,7 +12948,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       }
     };
 
-    await runAttempt("HOMEii Flow Engine queue", () => this._fetchMusicAssistantQueueSnapshot(selectedPlayer));
+    await runAttempt("Maverick Music Engine queue", () => this._fetchMusicAssistantQueueSnapshot(selectedPlayer));
 
     const best = snapshots.sort((left, right) => right.count - left.count)[0];
     const detail = attempts.join("; ") || "No queue providers were available.";
@@ -12990,7 +12990,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       }))
       .find((entry) => entry.art);
     if (!artEntry) {
-      add("warn", "Queue artwork sample", "Queue items were returned, but HOMEii could not infer artwork from the sample window.", `${best.label}: ${queueItems.length} item(s)`);
+      add("warn", "Queue artwork sample", "Queue items were returned, but Maverick Music could not infer artwork from the sample window.", `${best.label}: ${queueItems.length} item(s)`);
       return;
     }
     const media = artEntry.item?.media_item || artEntry.item;
@@ -13014,10 +13014,10 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
 
   async _diagnosticLibraryRows(add, musicAssistantServices = []) {
     if (!this._state.engineAvailable) {
-      add("fail", "Library coverage", "Skipped because HOMEii Flow Engine is not available.");
+      add("fail", "Library coverage", "Skipped because Maverick Music Engine is not available.");
       return;
     }
-    add("info", "Library providers", `Engine library yes; HA get_library ${musicAssistantServices.includes("get_library") ? "available to Engine" : "not exposed"}; Direct browser library disabled for HOMEii Flow 6.`);
+    add("info", "Library providers", `Engine library yes; HA get_library ${musicAssistantServices.includes("get_library") ? "available to Engine" : "not exposed"}; Direct browser library disabled for Maverick Music 6.`);
 
     const types = ["playlist", "artist", "album", "track", "radio"];
     const results = await Promise.all(types.map(async (type) => {
@@ -13045,7 +13045,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     const art = this._artUrl(sample, { size: 300 });
     const sampleName = sample.name || sample.title || sample.media_item?.name || sampleResult.type;
     if (!art) {
-      add("warn", "Library artwork sample", "A library item was returned, but HOMEii could not infer an artwork URL from it.", `${sampleResult.type}: ${sampleName}`);
+      add("warn", "Library artwork sample", "A library item was returned, but Maverick Music could not infer an artwork URL from it.", `${sampleResult.type}: ${sampleName}`);
       return;
     }
     const mixed = this._diagnosticUrlHasMixedContentRisk(art);
@@ -13097,8 +13097,8 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     return `
       <div class="settings-shell diagnostics-shell">
         <div class="settings-group diagnostics-card">
-          <div class="settings-label">${this._esc(this._m("HOMEii Diagnostics", "אבחון HOMEii"))}</div>
-          <div class="settings-hint">${this._esc(this._m("Diagnostic v7 checks HOMEii Flow Engine, browser context, configured entity, player selection, search providers, group state, queue UI/API alignment, authenticated artwork loading, rendered artwork DOM, and Engine cache performance.", "Diagnostic v7 בודק את HOMEii Flow Engine, דפדפן, ישות מוגדרת, בחירת נגן, ספקי חיפוש, מצב קבוצה, התאמת תור UI/API, טעינת עטיפות מאומתת, מצב תמונות ב-DOM וביצועי מטמון Engine."))}</div>
+          <div class="settings-label">${this._esc(this._m("Maverick Music Diagnostics", "אבחון Maverick Music"))}</div>
+          <div class="settings-hint">${this._esc(this._m("Diagnostic v7 checks Maverick Music Engine, browser context, configured entity, player selection, search providers, group state, queue UI/API alignment, authenticated artwork loading, rendered artwork DOM, and Engine cache performance.", "Diagnostic v7 בודק את Maverick Music Engine, דפדפן, ישות מוגדרת, בחירת נגן, ספקי חיפוש, מצב קבוצה, התאמת תור UI/API, טעינת עטיפות מאומתת, מצב תמונות ב-DOM וביצועי מטמון Engine."))}</div>
           <div class="settings-actions diagnostics-actions">
             <button class="settings-pill active" data-menu-action="run_diagnostics" ${running ? "disabled" : ""}>${this._esc(running ? this._m("Running...", "מריץ...") : this._m("Run diagnostics", "הרץ אבחון"))}</button>
             <button class="settings-pill" data-menu-action="copy_diagnostics" ${items.length ? "" : "disabled"}>${this._esc(this._m("Copy report", "העתק דוח"))}</button>
@@ -13114,14 +13114,14 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
   async _diagnosticEngineRows(add) {
     const mode = this._homeiiEngineMode();
     if (!this._homeiiEngineEnabled()) {
-      add("fail", "HOMEii Flow Engine", "HOMEii Flow 6 requires the HOMEii Flow Engine integration. There is no frontend-only compatibility path.", mode);
+      add("fail", "Maverick Music Engine", "Maverick Music 6 requires the Maverick Music Engine integration. There is no frontend-only compatibility path.", mode);
       return;
     }
     const context = await this._refreshHomeiiEngineContext({ force: true });
     if (context?.available) {
       const capabilitySummary = HomeiiEngineFoundation.summarizeHomeiiEngineCapabilities(context.capabilities);
       const version = context.version || "unknown version";
-      add("ok", "HOMEii Flow Engine", `Connected to HOMEii Flow Engine ${version}. Capabilities: ${capabilitySummary}.`, mode);
+      add("ok", "Maverick Music Engine", `Connected to Maverick Music Engine ${version}. Capabilities: ${capabilitySummary}.`, mode);
       add("info", "Engine routing", "Card writes will use the resolved Engine instance/profile unless explicitly overridden in the card config.", `instance=${context.instanceId || "default"}; profile=${context.profileId || "default"}; transport=${this._state.engineLastTransport || "websocket"}`);
       const requiredConnections = context.raw?.required_connections || context.raw?.connections || this._state.engineRequiredConnections;
       if (requiredConnections && typeof requiredConnections === "object") {
@@ -13150,7 +13150,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         "Engine item artwork proxy",
         context.capabilities?.item_artwork_proxy
           ? "Queue and Library artwork can be served through short-lived Home Assistant capability URLs without direct browser access to Music Assistant."
-          : "This Engine version does not expose the item artwork proxy. Update HOMEii Flow Engine before using the 6.x card.",
+          : "This Engine version does not expose the item artwork proxy. Update Maverick Music Engine before using the 6.x card.",
       );
       const mediaCache = context.raw?.media_cache;
       if (mediaCache && typeof mediaCache === "object") {
@@ -13172,7 +13172,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         `renders=${Number(cardPerformance.menuRenders || 0)}; slowest=${Number(cardPerformance.slowestMenuRenderMs || 0)}ms`,
       );
       if (context.capabilities?.schedule_calendar) {
-        add("ok", "Engine schedule calendar", "HOMEii Flow Engine reports a Home Assistant calendar entity for stored schedules.");
+        add("ok", "Engine schedule calendar", "Maverick Music Engine reports a Home Assistant calendar entity for stored schedules.");
       }
       const [playersResult, statsResult, schedulesResult, timersResult, volumeRulesResult, announcementsResult, activityResult, orchestrationResult, playbackStatsResult, screensaverResult] = await Promise.allSettled([
         this._homeiiEngineGetPlayers(),
@@ -13247,9 +13247,9 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       if (schedulesResult.status === "fulfilled" || timersResult.status === "fulfilled" || volumeRulesResult.status === "fulfilled" || announcementsResult.status === "fulfilled" || activityResult.status === "fulfilled") {
         const localSchedules = this._scheduledStartSchedules();
         const localSleepTimerActive = this._sleepTimerRemainingMs() > 0;
-        add("info", "Engine orchestration store", `${schedules.length} schedule(s), ${timers.length} timer(s), ${volumeRules.length} volume rule(s), ${announcements.length} announcement record(s), ${activity.length} activity event(s) stored in HOMEii Flow Engine. Card state has ${localSchedules.length} schedule(s) and ${localSleepTimerActive ? 1 : 0} active sleep timer(s).`);
+        add("info", "Engine orchestration store", `${schedules.length} schedule(s), ${timers.length} timer(s), ${volumeRules.length} volume rule(s), ${announcements.length} announcement record(s), ${activity.length} activity event(s) stored in Maverick Music Engine. Card state has ${localSchedules.length} schedule(s) and ${localSleepTimerActive ? 1 : 0} active sleep timer(s).`);
         if (schedules.length) {
-          add("info", "Engine schedule controls", `${schedules.length} per-schedule Run now button(s) should be available on the HOMEii Flow Engine device page after HA reloads the integration.`);
+          add("info", "Engine schedule controls", `${schedules.length} per-schedule Run now button(s) should be available on the Maverick Music Engine device page after HA reloads the integration.`);
         }
         const lastActivity = activityResult.value?.last_activity || activity[0] || {};
         if (lastActivity?.message) {
@@ -13300,9 +13300,9 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       }
       return;
     }
-    const detail = "Engine mode is Required, but the Home Assistant integration did not answer. HOMEii Flow 6 will not run until the integration is installed, loaded, and refreshed.";
+    const detail = "Engine mode is Required, but the Home Assistant integration did not answer. Maverick Music 6 will not run until the integration is installed, loaded, and refreshed.";
     const lastError = this._state.engineLastError ? ` Last error: ${this._state.engineLastError}` : "";
-    add("fail", "HOMEii Flow Engine", `${detail}${lastError}`, mode);
+    add("fail", "Maverick Music Engine", `${detail}${lastError}`, mode);
   }
 
   async _runDiagnostics() {
@@ -13327,7 +13327,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     let configEntryState = "";
     let configEntryFound = false;
 
-    add("ok", "Card version", "HOMEii Flow runtime is loaded.", HOMEII_CARD_VERSION);
+    add("ok", "Card version", "Maverick Music runtime is loaded.", HOMEII_CARD_VERSION);
     add("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7");
     add("info", "Browser", this._diagnosticBrowserSummary());
     add("info", "Viewport", this._diagnosticViewportSummary());
@@ -13335,14 +13335,14 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     add(this._diagnosticCurrentOrigin() ? "ok" : "warn", "Home Assistant URL", this._diagnosticCurrentOrigin() ? this._diagnosticUrlDescription(this._diagnosticCurrentOrigin()) : "Could not read current Home Assistant origin.", this._diagnosticCurrentOrigin() ? this._sanitizeDiagnosticUrl(this._diagnosticCurrentOrigin()) : "");
     add(hassReady ? "ok" : "fail", "Home Assistant frontend", hassReady ? "The card can read Home Assistant state and services." : "The card does not have a usable Home Assistant frontend object.");
     add(musicAssistantServices.length ? "ok" : "fail", "Music Assistant services", musicAssistantServices.length ? `${musicAssistantServices.length} service(s) are exposed by Home Assistant.` : "No music_assistant services are exposed by Home Assistant.");
-    add(hasIntegrationServices ? "ok" : "warn", "Music Assistant dependency", hasIntegrationServices ? "Home Assistant exposes Music Assistant services for the Engine to use." : "Home Assistant does not expose music_assistant services. HOMEii Flow Engine will not be able to provide full playback, queue, search and library data.");
+    add(hasIntegrationServices ? "ok" : "warn", "Music Assistant dependency", hasIntegrationServices ? "Home Assistant exposes Music Assistant services for the Engine to use." : "Home Assistant does not expose music_assistant services. Maverick Music Engine will not be able to provide full playback, queue, search and library data.");
     await this._diagnosticEngineRows(add);
     if (this._homeiiEngineRequired?.() && typeof this._refreshEnginePlayers === "function") {
       await this._refreshEnginePlayers({ force: true }).catch(() => []);
       enginePlayers = Array.isArray(this._state.enginePlayers) ? this._state.enginePlayers : [];
       selectedPlayer = this._getSelectedPlayer();
     }
-    add("info", "Engine source of truth", "HOMEii Flow 6 uses HOMEii Flow Engine exclusively for players, queue, library, search, artwork and playback. Music Assistant credentials are not stored in the card.");
+    add("info", "Engine source of truth", "Maverick Music 6 uses Maverick Music Engine exclusively for players, queue, library, search, artwork and playback. Music Assistant credentials are not stored in the card.");
 
     if (this._hass?.connection?.sendMessagePromise) {
       try {
@@ -13388,7 +13388,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       const selectedName = selectedPlayer.attributes?.friendly_name || selectedPlayer.entity_id || "";
       const excluded = this._isPlayerExcluded?.(selectedPlayer);
       const selectedFromEngine = enginePlayers.some((player) => player?.entity_id === selectedPlayer.entity_id);
-      add(selectedFromEngine && !excluded ? "ok" : "warn", "Selected player", excluded ? "The selected player is currently excluded in HOMEii settings." : (selectedFromEngine ? "Selected player was provided by HOMEii Flow Engine." : "Selected player was not found in the Engine player list."), `${selectedName} | ${this._diagnosticPlayerMarkerSummary(selectedPlayer, hassEntities)}`);
+      add(selectedFromEngine && !excluded ? "ok" : "warn", "Selected player", excluded ? "The selected player is currently excluded in Maverick Music settings." : (selectedFromEngine ? "Selected player was provided by Maverick Music Engine." : "Selected player was not found in the Engine player list."), `${selectedName} | ${this._diagnosticPlayerMarkerSummary(selectedPlayer, hassEntities)}`);
       const urlOverride = this._playerOverrideParamValue?.() || "";
       const configuredEntity = String(this._config?.entity || this.config?.entity || "").trim();
       const selectionSource = urlOverride
@@ -13408,11 +13408,11 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       add(joinAvailable && unjoinAvailable ? "ok" : "warn", "Group service path", `media_player.join ${joinAvailable ? "yes" : "no"}, media_player.unjoin ${unjoinAvailable ? "yes" : "no"}`, `owner=${groupOwnerName}; selected_is_owner=${groupOwnerId === selectedPlayer.entity_id ? "yes" : "no"}; members=${groupIds.join(", ") || "(none)"}`);
     }
 
-    add(hasIntegrationServices ? "ok" : "info", "Music Assistant credentials", "The internal URL, external URL and API token are owned only by HOMEii Flow Engine and are intentionally absent from the card.", "Engine only");
-    add("ok", "Music Assistant transport", "Commands, realtime events and artwork are proxied through HOMEii Flow Engine. The card opens no authenticated MA REST or WebSocket connection.", "Engine only");
+    add(hasIntegrationServices ? "ok" : "info", "Music Assistant credentials", "The internal URL, external URL and API token are owned only by Maverick Music Engine and are intentionally absent from the card.", "Engine only");
+    add("ok", "Music Assistant transport", "Commands, realtime events and artwork are proxied through Maverick Music Engine. The card opens no authenticated MA REST or WebSocket connection.", "Engine only");
     if (this._state.maServerVersion) {
       const schema = this._state.maSchemaVersion ? `schema ${this._state.maSchemaVersion}` : "schema unavailable";
-      add("info", "Music Assistant server version", "Version reported by the authenticated HOMEii Flow Engine event connection.", `${this._state.maServerVersion}; ${schema}`);
+      add("info", "Music Assistant server version", "Version reported by the authenticated Maverick Music Engine event connection.", `${this._state.maServerVersion}; ${schema}`);
     }
 
     await this._diagnosticSearchRows(add, musicAssistantServices);
@@ -13429,7 +13429,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
   _diagnosticsReportText() {
     const items = Array.isArray(this._state.diagnosticsItems) ? this._state.diagnosticsItems : [];
     const lines = [
-      "HOMEii Music Flow Diagnostics",
+      "Maverick Music Diagnostics",
       "Diagnostics: v7",
       `Version: ${HOMEII_CARD_VERSION}`,
       `Generated: ${new Date(this._state.diagnosticsRunAt || Date.now()).toISOString()}`,
@@ -14360,7 +14360,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       try {
         results = await this._search(safeQuery);
       } catch (error) {
-        this._debugLog?.("warn", "[HOMEii Voice] Music search failed", { query: safeQuery, error });
+        this._debugLog?.("warn", "[Maverick Music Voice] Music search failed", { query: safeQuery, error });
       }
       const requested = this._voiceAssistantRequestedMediaType(safeQuery);
       const focusedQuery = this._voiceAssistantFocusedMusicQuery(safeQuery);
@@ -15718,7 +15718,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         );
       })().catch((error) => {
         providerError = error;
-        this._debugLog("warn", "[HOMEii Flow] provider search failed", error);
+        this._debugLog("warn", "[Maverick Music] provider search failed", error);
         return this._emptySearchResults();
       });
       const libraryResults = await this._search(query, { fastOnly: true, limit: 25, strict: true });
@@ -16767,7 +16767,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
         if (isCurrentRender()) this._discoveryLastView = discovery;
       } catch (error) {
         discovery = { providers: this._discoveryLastView?.providers || [], sections: [], error: this._m("Unable to load this source. Please retry.", "לא ניתן לטעון את המקור. נסה שוב.") };
-        this._debugLog("warn", "[HOMEii Flow] Discovery source failed", error);
+        this._debugLog("warn", "[Maverick Music] Discovery source failed", error);
       }
       if (!isCurrentRender()) return;
       this._updateDiscoveryMenuBody(body, discovery);
@@ -19045,7 +19045,7 @@ function registerHomeiiDashboardCard() {
   }
   customCardsRegistry.push({
     type: "homeii-music-flow",
-    name: "HOMEii Flow",
+    name: "Maverick Music",
     description: `Premium Music Assistant dashboard card v${HOMEII_CARD_VERSION}`,
     preview: false,
     documentationURL: "https://github.com/ambient-home-systems/maverick-music-flow",

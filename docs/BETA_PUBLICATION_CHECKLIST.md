@@ -1,7 +1,7 @@
 # Beta 1 publication checklist
 
 Prepared pair: Card `6.0.0-beta.1`, Engine `1.0.0-beta.1`.
-Campaign: **HOMEii Flow 6 — Your music. Within reach.**
+Campaign: **Maverick Music 6 — Your music. Within reach.**
 
 ## Prepared locally
 

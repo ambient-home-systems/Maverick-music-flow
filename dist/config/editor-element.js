@@ -293,10 +293,10 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     if (!HomeiiEngineFoundation.homeiiEngineModeAllowsCalls(this._editorHomeiiEngineMode())) return null;
     const message = this._editorHomeiiEngineMessage(command, payload);
     if (typeof this._hass?.callWS === "function") {
-      return this._editorWithTimeout(this._hass.callWS(message), this._editorHomeiiEngineTimeoutMs(), "HOMEii Flow Engine timed out.");
+      return this._editorWithTimeout(this._hass.callWS(message), this._editorHomeiiEngineTimeoutMs(), "Maverick Music Engine timed out.");
     }
     if (typeof this._hass?.connection?.sendMessagePromise === "function") {
-      return this._editorWithTimeout(this._hass.connection.sendMessagePromise(message), this._editorHomeiiEngineTimeoutMs(), "HOMEii Flow Engine timed out.");
+      return this._editorWithTimeout(this._hass.connection.sendMessagePromise(message), this._editorHomeiiEngineTimeoutMs(), "Maverick Music Engine timed out.");
     }
     throw new Error("Home Assistant WebSocket API is unavailable in the visual editor.");
   }
@@ -304,7 +304,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
   async _editorDiagnosticEngineRow(add) {
     const mode = this._editorHomeiiEngineMode();
     if (!HomeiiEngineFoundation.homeiiEngineModeAllowsCalls(mode)) {
-      add("fail", "HOMEii Flow Engine", "HOMEii Flow 6 requires the HOMEii Flow Engine integration. There is no frontend-only compatibility path.", mode);
+      add("fail", "Maverick Music Engine", "Maverick Music 6 requires the Maverick Music Engine integration. There is no frontend-only compatibility path.", mode);
       return;
     }
     try {
@@ -312,9 +312,9 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
         card_version: HOMEII_CARD_VERSION,
         source: "visual_editor",
       });
-      if (!result) throw new Error("HOMEii Flow Engine returned an empty response.");
+      if (!result) throw new Error("Maverick Music Engine returned an empty response.");
       const context = HomeiiEngineFoundation.normalizeHomeiiEngineContext(result);
-      add("ok", "HOMEii Flow Engine", `Connected to HOMEii Flow Engine ${context.version || "unknown version"}. Capabilities: ${HomeiiEngineFoundation.summarizeHomeiiEngineCapabilities(context.capabilities)}.`, mode);
+      add("ok", "Maverick Music Engine", `Connected to Maverick Music Engine ${context.version || "unknown version"}. Capabilities: ${HomeiiEngineFoundation.summarizeHomeiiEngineCapabilities(context.capabilities)}.`, mode);
       const [playersResult, statsResult] = await Promise.allSettled([
         this._editorCallHomeiiEngine("players/get", { source: "visual_editor" }),
         this._editorCallHomeiiEngine("stats/get", { source: "visual_editor" }),
@@ -326,15 +326,15 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
         add(playerCount ? "ok" : "warn", "Engine player state", `${playerCount} Music Assistant player(s), ${playingCount} playing, ${groupedCount} grouped.`);
       }
     } catch (error) {
-      const detail = "Engine mode is Required, but the Home Assistant integration did not answer. HOMEii Flow 6 will not run until the integration is installed, loaded, and refreshed.";
+      const detail = "Engine mode is Required, but the Home Assistant integration did not answer. Maverick Music 6 will not run until the integration is installed, loaded, and refreshed.";
       const suffix = error?.message ? ` Last error: ${error.message}` : "";
-      add("fail", "HOMEii Flow Engine", `${detail}${suffix}`, mode);
+      add("fail", "Maverick Music Engine", `${detail}${suffix}`, mode);
     }
   }
 
   _editorDiagnosticsReportText(items = []) {
     const lines = [
-      "HOMEii Music Flow Editor Diagnostics",
+      "Maverick Music Editor Diagnostics",
       "Diagnostics: v7",
       `Version: ${HOMEII_CARD_VERSION}`,
       `Generated: ${new Date().toISOString()}`,
@@ -344,7 +344,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
       "Privacy: external/private hostnames are redacted by default.",
       `HA URL: ${this._editorCurrentOrigin() ? this._editorSanitizeDiagnosticUrl(this._editorCurrentOrigin()) : ""}`,
       `HA URL detail: ${this._editorDiagnosticUrlDescription(this._editorCurrentOrigin())}`,
-      "music_assistant_transport: HOMEii Flow Engine",
+      "music_assistant_transport: Maverick Music Engine",
       `config_entry_id configured: ${String(this._config?.config_entry_id || "").trim() ? "yes" : "no"}`,
       `homeii_engine_mode: ${this._editorHomeiiEngineMode()}`,
       `homeii_engine_instance_id configured: ${this._config?.homeii_engine_instance_id ? "yes" : "no"}`,
@@ -360,7 +360,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     const list = Array.isArray(items) ? items : [];
     const failures = list.filter((item) => item.status === "fail").length;
     const warnings = list.filter((item) => item.status === "warn").length;
-    if (!list.length) return "Run diagnostics to check the current browser, Home Assistant integration, and HOMEii Flow Engine readiness.";
+    if (!list.length) return "Run diagnostics to check the current browser, Home Assistant integration, and Maverick Music Engine readiness.";
     if (failures) return `${failures} check${failures === 1 ? "" : "s"} need attention.`;
     if (warnings) return `${warnings} check${warnings === 1 ? "" : "s"} need review.`;
     return "All visible setup checks passed.";
@@ -417,9 +417,9 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     add("info", "Diagnostic privacy", "External/private hostnames are redacted in visible and copied diagnostic output.");
     add(this._hass ? "ok" : "fail", "Home Assistant frontend", this._hass ? "Editor has a Home Assistant frontend object." : "Editor does not have a Home Assistant frontend object.");
     add(services.length ? "ok" : "fail", "Music Assistant services", services.length ? `${services.length} service(s) are exposed by Home Assistant.` : "No music_assistant services are exposed by Home Assistant.");
-    add(services.length ? "ok" : "warn", "Engine backend mode", services.length ? "HOMEii Flow 6 uses HOMEii Flow Engine as the required backend. Browser-direct Music Assistant access is not used for core card routing." : "Home Assistant does not expose music_assistant services for HOMEii Flow Engine.");
+    add(services.length ? "ok" : "warn", "Engine backend mode", services.length ? "Maverick Music 6 uses Maverick Music Engine as the required backend. Browser-direct Music Assistant access is not used for core card routing." : "Home Assistant does not expose music_assistant services for Maverick Music Engine.");
     await this._editorDiagnosticEngineRow(add);
-    add(services.length ? "ok" : "fail", "Integration signal", `services ${services.length ? "yes" : "no"}, authenticated transport HOMEii Flow Engine`);
+    add(services.length ? "ok" : "fail", "Integration signal", `services ${services.length ? "yes" : "no"}, authenticated transport Maverick Music Engine`);
     add(players.length ? "ok" : (services.length && genericPlayers.length ? "warn" : "fail"), "Music Assistant players", players.length ? `${players.length} strict MA player(s), ${genericPlayers.length} generic HA media_player(s).` : `${genericPlayers.length} generic HA media_player(s), but no strict Music Assistant player markers were detected.`);
     add("info", "Player filters", `${pinned.length} pinned, ${excluded.length} excluded.`);
 
@@ -442,7 +442,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
       add("warn", "Music Assistant config entry", "Home Assistant connection API is not available in this editor context.");
     }
 
-    add("ok", "Music Assistant transport", "URL selection, authentication, event streaming, caching, and artwork proxying are owned by HOMEii Flow Engine. No MA token or server URL is stored in the card.");
+    add("ok", "Music Assistant transport", "URL selection, authentication, event streaming, caching, and artwork proxying are owned by Maverick Music Engine. No MA token or server URL is stored in the card.");
 
     this._editorDiagnosticsItems = items;
     this._editorDiagnosticsReport = this._editorDiagnosticsReportText(items);

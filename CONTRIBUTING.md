@@ -1,8 +1,8 @@
-# Contributing To HOMEii Flow
+# Contributing To Maverick Music
 
-Thank you for wanting to help improve HOMEii Flow.
+Thank you for wanting to help improve Maverick Music.
 
-HOMEii Flow is not meant to be just another Home Assistant card. The goal is to make Music Assistant feel like a polished, visual, app-like music experience inside Home Assistant, especially for wall tablets, phones, multi-room homes, and Hebrew/RTL users. Contributions are welcome when they protect that direction.
+Maverick Music is not meant to be just another Home Assistant card. The goal is to make Music Assistant feel like a polished, visual, app-like music experience inside Home Assistant, especially for wall tablets, phones, multi-room homes, and Hebrew/RTL users. Contributions are welcome when they protect that direction.
 
 ## Good Contributions
 
@@ -69,11 +69,11 @@ Most feature work should start in `src/`. Do not hand-edit generated release out
 - Do not add telemetry, tracking, analytics, or external network calls unrelated to Home Assistant or Music Assistant functionality.
 - Do not include personal Home Assistant URLs, tokens, player IDs, screenshots with private data, or local credentials.
 - Keep the card usable without a complicated setup path.
-- Keep visual changes consistent with the premium, app-like HOMEii Flow style.
+- Keep visual changes consistent with the premium, app-like Maverick Music style.
 
 ## UI And UX Guidelines
 
-HOMEii Flow is designed for everyday touch use. When changing the interface:
+Maverick Music is designed for everyday touch use. When changing the interface:
 
 - Prioritize clarity over feature density.
 - Keep the current queue, player state, and selected action visible whenever possible.
@@ -137,7 +137,7 @@ Before opening a pull request:
 
 Please include:
 
-- HOMEii Flow version.
+- Maverick Music version.
 - Home Assistant version.
 - Music Assistant version.
 - Browser and device type.
@@ -155,7 +155,7 @@ Helpful details:
 - Who is using it: phone user, wall tablet, guest, child, multi-room listener, etc.
 - What they are trying to do.
 - What currently feels confusing, slow, or missing.
-- Why this belongs inside HOMEii Flow instead of Home Assistant core, Music Assistant, or another card.
+- Why this belongs inside Maverick Music instead of Home Assistant core, Music Assistant, or another card.
 
 ## Release Ownership
 

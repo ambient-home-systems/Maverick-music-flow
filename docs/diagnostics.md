@@ -1,6 +1,6 @@
 # Diagnostics
 
-Diagnostics helps users and maintainers understand whether HOMEii Music Flow, Home Assistant, Music Assistant, the browser, and optional direct features are working together correctly.
+Diagnostics helps users and maintainers understand whether Maverick Music, Home Assistant, Music Assistant, the browser, and optional direct features are working together correctly.
 
 ## Where To Open Diagnostics
 
@@ -15,7 +15,7 @@ For support issues, prefer running Diagnostics from the card itself after select
 
 Diagnostics v7 includes:
 
-- HOMEii Music Flow version
+- Maverick Music version
 - diagnostics version
 - browser and platform
 - viewport size, DPR, touch points, and language
@@ -23,7 +23,7 @@ Diagnostics v7 includes:
 - privacy-safe Music Assistant URL details
 - Home Assistant frontend availability
 - Music Assistant services
-- required HOMEii Flow Engine bridge status
+- required Maverick Music Engine bridge status
 - Music Assistant config entry state
 - integration signal
 - strict Music Assistant player count
@@ -75,23 +75,23 @@ The most important checks are:
 - queue providers
 - library providers
 
-If Music Assistant services are exposed, HOMEii Flow Engine can use the Home Assistant integration path even when direct browser access is unavailable. The card still requires the Engine; this is not a frontend-only fallback path.
+If Music Assistant services are exposed, Maverick Music Engine can use the Home Assistant integration path even when direct browser access is unavailable. The card still requires the Engine; this is not a frontend-only fallback path.
 
-## HOMEii Flow Engine
+## Maverick Music Engine
 
-The HOMEii Flow Engine check reports the required HOMEii Flow 6 backend integration.
+The Maverick Music Engine check reports the required Maverick Music 6 backend integration.
 
 Possible outcomes:
 
 - **OK:** the Engine integration answered the card and reported its version/capabilities.
 - **INFO:** informational Engine details such as version, browser context, or capability notes.
-- **FAIL:** the Engine did not answer, is too old, or is missing a required capability. The HOMEii Flow 6 card will not use legacy frontend-only paths.
+- **FAIL:** the Engine did not answer, is too old, or is missing a required capability. The Maverick Music 6 card will not use legacy frontend-only paths.
 
 This check does not replace Music Assistant diagnostics. It adds backend visibility for Engine-owned features such as player state, schedules, timers, statistics, policies, playback proxying, queue transfer, grouping orchestration, Sendspin state, the server-side Music Assistant command bridge, and smarter recommendations.
 
 ## Music Assistant transport
 
-HOMEii Flow 6 does not call the authenticated Music Assistant API from the browser. The Engine selects the configured internal/external URL, holds the token, maintains the event stream, and proxies commands and artwork through Home Assistant. This removes browser CORS, mixed-content, and duplicate-handshake failures from the card path.
+Maverick Music 6 does not call the authenticated Music Assistant API from the browser. The Engine selects the configured internal/external URL, holds the token, maintains the event stream, and proxies commands and artwork through Home Assistant. This removes browser CORS, mixed-content, and duplicate-handshake failures from the card path.
 
 ## Queue Diagnostics
 
@@ -105,7 +105,7 @@ Queue checks show:
 - whether queue artwork can be inferred
 - whether the current browser can actually load the sampled artwork
 
-If the selected player is not returned by HOMEii Flow Engine as a Music Assistant player, the 6.x card treats that as an Engine/player mapping problem rather than falling back to generic Home Assistant player behavior.
+If the selected player is not returned by Maverick Music Engine as a Music Assistant player, the 6.x card treats that as an Engine/player mapping problem rather than falling back to generic Home Assistant player behavior.
 
 If queue APIs return items but the rendered Queue UI is empty, Diagnostics reports that mismatch directly. That is the strongest signal for a card-side queue rendering/state issue.
 
@@ -145,13 +145,13 @@ Sendspin checks show:
 - computed WebSocket endpoint
 - access mode
 
-Sendspin requires direct Music Assistant browser access. HOMEii Flow Engine remains required for the card, but the browser still needs a direct Music Assistant URL/token when the browser itself should become a Sendspin player.
+Sendspin requires direct Music Assistant browser access. Maverick Music Engine remains required for the card, but the browser still needs a direct Music Assistant URL/token when the browser itself should become a Sendspin player.
 
 ## What To Share In An Issue
 
 When opening an issue, include:
 
-- HOMEii Music Flow version
+- Maverick Music version
 - Home Assistant version
 - Music Assistant version
 - browser or Companion app

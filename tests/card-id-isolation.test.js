@@ -5,7 +5,7 @@ import { scopeStorageKey } from "../src/core/state/card-id.js";
 /**
  * Integration-style test for the per-card-instance state isolation fix.
  *
- * The bug: every HOMEii Flow card stores user settings (theme, layout,
+ * The bug: every Maverick Music card stores user settings (theme, layout,
  * excluded players, pinned players, etc.) under globally scoped
  * localStorage keys like `homeii_music_flow_excluded_players`. Two cards
  * on different dashboards in the same browser therefore overwrite each

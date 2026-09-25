@@ -12,8 +12,8 @@ import {
   summarizeHomeiiEngineCapabilities,
 } from "../src/core/engine-client.js";
 
-describe("HOMEii Flow Engine client foundation", () => {
-  it("normalizes Engine modes with required defaults for HOMEii Flow 6", () => {
+describe("Maverick Music Engine client foundation", () => {
+  it("normalizes Engine modes with required defaults for Maverick Music 6", () => {
     expect(normalizeHomeiiEngineMode()).toBe("required");
     expect(normalizeHomeiiEngineMode("required")).toBe("required");
     expect(normalizeHomeiiEngineMode("OFF")).toBe("required");

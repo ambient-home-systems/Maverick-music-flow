@@ -663,7 +663,7 @@ export function createHomeiiBaseMusicCard({
 
     _directMaIngressMessage() {
       return this._localText(
-        "The configured ma_url points to the Home Assistant Music Assistant ingress page, not the direct Music Assistant API. HOMEii Flow 6 uses HOMEii Flow Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
+        "The configured ma_url points to the Home Assistant Music Assistant ingress page, not the direct Music Assistant API. Maverick Music 6 uses Maverick Music Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
         "כתובת ma_url שהוגדרה מצביעה למסך ה-ingress של Music Assistant בתוך Home Assistant, ולא ל-API הישיר של Music Assistant. השאר ma_url ריק לשימוש רגיל דרך Home Assistant, או השתמש בכתובת Web Server ישירה, למשל http://host:8095."
       );
     }
@@ -671,7 +671,7 @@ export function createHomeiiBaseMusicCard({
     _directMaUnavailableMessage(status = 0, error = null) {
       if (status === 404 || status === 405) {
         return this._localText(
-          "The configured ma_url does not expose the Music Assistant direct API. HOMEii Flow 6 uses HOMEii Flow Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
+          "The configured ma_url does not expose the Music Assistant direct API. Maverick Music 6 uses Maverick Music Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
           "כתובת ma_url שהוגדרה לא חושפת את ה-API הישיר של Music Assistant. השאר ma_url ריק לשימוש רגיל דרך Home Assistant, או השתמש בכתובת Web Server ישירה, למשל http://host:8095."
         );
       }
@@ -679,8 +679,8 @@ export function createHomeiiBaseMusicCard({
       const lower = detail.toLowerCase();
       if (!status && (lower.includes("failed to fetch") || lower.includes("networkerror") || lower.includes("cors") || lower.includes("preflight"))) {
         return this._localText(
-          "Direct Music Assistant API is blocked by the browser before HOMEii receives a response. This is usually CORS/preflight or local-network browser access. HOMEii Flow 6 routes core playback through HOMEii Flow Engine; leave ma_url empty unless you need Sendspin/local-device browser playback.",
-          "Direct Music Assistant API is blocked by the browser before HOMEii receives a response. This is usually CORS/preflight or local-network browser access. HOMEii Flow 6 routes core playback through HOMEii Flow Engine; leave ma_url empty unless you need Sendspin/local-device browser playback."
+          "Direct Music Assistant API is blocked by the browser before Maverick Music receives a response. This is usually CORS/preflight or local-network browser access. Maverick Music 6 routes core playback through Maverick Music Engine; leave ma_url empty unless you need Sendspin/local-device browser playback.",
+          "Direct Music Assistant API is blocked by the browser before Maverick Music receives a response. This is usually CORS/preflight or local-network browser access. Maverick Music 6 routes core playback through Maverick Music Engine; leave ma_url empty unless you need Sendspin/local-device browser playback."
         );
       }
       return this._localText(
@@ -1350,7 +1350,7 @@ export function createHomeiiBaseMusicCard({
       const candidates = this._brandLogoCandidates();
       const primary = candidates[0] || this._brandLogoUrl();
       const fallbacks = candidates.slice(1).join("|");
-      return `<img class="${this._esc(className)}" data-homeii-brand-logo="1" data-homeii-logo-fallbacks="${this._esc(fallbacks)}" src="${this._esc(primary)}" alt="HOMEii Flow" loading="lazy" decoding="async">`;
+      return `<img class="${this._esc(className)}" data-homeii-brand-logo="1" data-homeii-logo-fallbacks="${this._esc(fallbacks)}" src="${this._esc(primary)}" alt="Maverick Music" loading="lazy" decoding="async">`;
     }
 
     _tabletBrandSignatureHtml(className = "tablet-brand-logo") {
@@ -1479,14 +1479,14 @@ export function createHomeiiBaseMusicCard({
         && this._homeiiEngineRequired?.()
         && this._state?.engineAvailable;
       if (!canUseHomeiiEngineCommand) {
-        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
+        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
       }
       const result = await this._homeiiEnginePlayerCommand({
         player: targetId,
         command: action,
         ...payload,
       });
-      if (!result?.ok) throw new Error(result?.error || `HOMEii Flow Engine could not run ${action}.`);
+      if (!result?.ok) throw new Error(result?.error || `Maverick Music Engine could not run ${action}.`);
       this._schedulePlayerStateRefresh();
       return true;
     }
@@ -2621,7 +2621,7 @@ export function createHomeiiBaseMusicCard({
           playerId,
           webSocket,
           audioElement,
-          clientName: "HOMEii Flow",
+          clientName: "Maverick Music",
           codecs: ["flac", "pcm"],
           syncDelay: syncDelay || undefined,
           correctionMode: "quality-local",
@@ -2941,7 +2941,7 @@ export function createHomeiiBaseMusicCard({
 
     async _playMediaOnDirectMaPlayer(entityId, uri, mediaType = "album", enqueue = "play", options = {}) {
       if (this._homeiiEngineRequired?.()) {
-        throw new Error("Direct Music Assistant playback is disabled in HOMEii Flow 6. Use HOMEii Flow Engine.");
+        throw new Error("Direct Music Assistant playback is disabled in Maverick Music 6. Use Maverick Music Engine.");
       }
       const player = this._playerByEntityId(entityId);
       const queueId = this._directMaQueueId(player || entityId);
@@ -5221,7 +5221,7 @@ export function createHomeiiBaseMusicCard({
             <div class="control-room-diagnostics">
               <div class="control-room-diagnostic-row"><span>Target player</span><strong>${this._esc(primary?.attributes?.friendly_name || this._i18n("ui.none"))}</strong></div>
               <div class="control-room-diagnostic-row"><span>Protocol</span><strong>${this._esc(protocol || this._i18n("ui.unknown"))}</strong></div>
-              <div class="control-room-diagnostic-row"><span>Music Assistant</span><strong>HOMEii Flow Engine</strong></div>
+              <div class="control-room-diagnostic-row"><span>Music Assistant</span><strong>Maverick Music Engine</strong></div>
               <div class="control-room-diagnostic-row"><span>Players</span><strong>${this._esc(String(players.length))}</strong></div>
               <div class="control-room-pro-actions">
                 <button class="control-room-panel-action" data-room-selection-action="open_ma">${this._iconSvg("library_music")}<span>${this._esc(this._i18n("ui.open_music_assistant"))}</span></button>
@@ -8292,7 +8292,7 @@ export function createHomeiiBaseMusicCard({
         if (service === "get_queue" && typeof this._homeiiEngineGetQueue === "function") {
           return this._homeiiEngineGetQueue(data || {});
         }
-        throw new Error(`Music Assistant frontend service ${service} is disabled in HOMEii Flow 6. Use HOMEii Flow Engine.`);
+        throw new Error(`Music Assistant frontend service ${service} is disabled in Maverick Music 6. Use Maverick Music Engine.`);
       }
       const includeConfigEntryId = options.includeConfigEntryId !== false;
       let serviceData = { ...data };
@@ -8428,7 +8428,7 @@ export function createHomeiiBaseMusicCard({
         raw,
         entityId,
       )) {
-        this._debugLog?.("debug", "[HOMEii Flow] Ignored stale Engine queue snapshot", {
+        this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine queue snapshot", {
           entityId,
           snapshot: HomeiiRevisionedSnapshotsFoundation.engineSnapshotMeta(raw),
         });
@@ -8564,7 +8564,7 @@ export function createHomeiiBaseMusicCard({
       }
       if (typeof this._refreshHomeiiEngineContext === "function") {
         const context = await this._refreshHomeiiEngineContext({ force: true }).catch((error) => {
-          this._state.engineLastError = error?.message || String(error || "HOMEii Flow Engine is not available.");
+          this._state.engineLastError = error?.message || String(error || "Maverick Music Engine is not available.");
           return null;
         });
         return !!(context && this._state?.engineAvailable);
@@ -8604,7 +8604,7 @@ export function createHomeiiBaseMusicCard({
         });
         return this._normalizeQueueSnapshot(engineResult, player.entity_id);
       } catch (error) {
-        this._debugLog("warn", "[HOMEii Flow] Engine queue source failed", error);
+        this._debugLog("warn", "[Maverick Music] Engine queue source failed", error);
         return null;
       }
     }
@@ -8647,7 +8647,7 @@ export function createHomeiiBaseMusicCard({
         && engineReady
         && typeof this._homeiiEngineGetLibrary === "function";
       if (!canUseEngineLibrary) {
-        this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.";
+        this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.";
         throw new Error(this._state.musicAssistantIssueMessage);
       }
       try {
@@ -8676,7 +8676,7 @@ export function createHomeiiBaseMusicCard({
           libraryIdentity,
         )) {
           if (options.strict) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
-          this._debugLog?.("debug", "[HOMEii Flow] Ignored stale Engine library snapshot", {
+          this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine library snapshot", {
             libraryIdentity,
             snapshot: HomeiiRevisionedSnapshotsFoundation.engineSnapshotMeta(engineResult),
           });
@@ -8695,7 +8695,7 @@ export function createHomeiiBaseMusicCard({
           : (raw?.items ?? (Array.isArray(raw) ? raw : []));
         return (Array.isArray(items) ? items : []).map((item) => this._normalizeSearchItem(item, mediaType));
       } catch (error) {
-        this._debugLog("warn", "[HOMEii Flow] Engine library proxy failed", error);
+        this._debugLog("warn", "[Maverick Music] Engine library proxy failed", error);
         this._handleMusicAssistantIssue?.(error);
         throw error;
       }
@@ -10283,7 +10283,7 @@ export function createHomeiiBaseMusicCard({
         && await this._ensureHomeiiEngineReadyForAction()
         && typeof this._homeiiEngineSearch === "function";
       if (!canUseEngineSearch) {
-        this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.";
+        this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.";
         if (options.strict) throw new Error(this._state.musicAssistantIssueMessage);
         return this._emptySearchResults();
       }
@@ -10303,7 +10303,7 @@ export function createHomeiiBaseMusicCard({
         this._state.musicAssistantIssueMessage = "";
         return engineResults;
       } catch (error) {
-        this._debugLog("warn", "[HOMEii Flow] Engine search failed", error);
+        this._debugLog("warn", "[Maverick Music] Engine search failed", error);
         this._handleMusicAssistantIssue?.(error);
         if (options.strict) throw error;
         return this._emptySearchResults();
@@ -10318,11 +10318,11 @@ export function createHomeiiBaseMusicCard({
     async _callEngineMaCommand(command, args = {}) {
       const engineReady = await this._ensureHomeiiEngineReadyForAction();
       if (typeof this._homeiiEngineMaCommand !== "function" || !engineReady) {
-        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
+        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
       }
       const response = await this._homeiiEngineMaCommand?.(command, args);
       if (response === undefined || response === null) {
-        throw new Error(`HOMEii Flow Engine did not return a response for ${command}.`);
+        throw new Error(`Maverick Music Engine did not return a response for ${command}.`);
       }
       return response?.data ?? response?.result ?? response;
     }
@@ -10385,14 +10385,14 @@ export function createHomeiiBaseMusicCard({
         && this._homeiiEngineRequired?.()
         && engineReady;
       if (!canUseHomeiiEngineTransfer) {
-        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
+        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
       }
       const result = await this._homeiiEngineTransferQueue({
         source_player: sourceId,
         target_player: targetId,
         auto_play: true,
       });
-      if (!result?.ok) throw new Error(result?.error || "HOMEii Flow Engine could not transfer the queue.");
+      if (!result?.ok) throw new Error(result?.error || "Maverick Music Engine could not transfer the queue.");
       return true;
     }
 
@@ -10510,8 +10510,8 @@ export function createHomeiiBaseMusicCard({
         this._state.engineAvailable = true;
         this._state.musicAssistantIssueMessage = "";
         return rawMessage || this._m(
-          "HOMEii Flow Engine is reconnecting.",
-          "HOMEii Flow Engine מתחבר מחדש.",
+          "Maverick Music Engine is reconnecting.",
+          "Maverick Music Engine מתחבר מחדש.",
         );
       }
       const message = this._isMusicAssistantAvailabilityError(error)
@@ -10539,14 +10539,14 @@ export function createHomeiiBaseMusicCard({
       const detail = String(connection.message || snapshot.summary || "").trim();
       if (connection.ok === true && playerCount > 0) {
         return this._m(
-          "HOMEii Flow Engine reports Music Assistant is connected, but the card did not receive the player list yet. Open HOMEii Flow Engine in Home Assistant and check Required connections, then reload the dashboard.",
-          "HOMEii Flow Engine מדווח ש-Music Assistant מחובר, אבל הכרטיס עדיין לא קיבל את רשימת הנגנים. פתח את אינטגרציית HOMEii Flow Engine ובדוק Required connections ואז רענן את הדשבורד.",
+          "Maverick Music Engine reports Music Assistant is connected, but the card did not receive the player list yet. Open Maverick Music Engine in Home Assistant and check Required connections, then reload the dashboard.",
+          "Maverick Music Engine מדווח ש-Music Assistant מחובר, אבל הכרטיס עדיין לא קיבל את רשימת הנגנים. פתח את אינטגרציית Maverick Music Engine ובדוק Required connections ואז רענן את הדשבורד.",
         );
       }
       if (!detail) return "";
       return this._m(
-        `HOMEii Flow Engine reports: ${detail} Open the HOMEii Flow Engine integration page and check Required connections.`,
-        `HOMEii Flow Engine מדווח: ${detail} פתח את דף אינטגרציית HOMEii Flow Engine ובדוק Required connections.`,
+        `Maverick Music Engine reports: ${detail} Open the Maverick Music Engine integration page and check Required connections.`,
+        `Maverick Music Engine מדווח: ${detail} פתח את דף אינטגרציית Maverick Music Engine ובדוק Required connections.`,
       );
     }
 
@@ -10556,8 +10556,8 @@ export function createHomeiiBaseMusicCard({
       const engineError = String(this._state?.engineLastError || "").trim();
       const suffix = engineError ? ` Last Engine error: ${engineError}` : "";
       return this._m(
-        `HOMEii Flow 6 requires HOMEii Flow Engine 0.7.6 with a healthy Music Assistant required connection snapshot.${suffix}`,
-        `HOMEii Flow 6 דורש HOMEii Flow Engine 0.7.6 עם תמונת חיבורים נדרשים תקינה של Music Assistant.${suffix}`,
+        `Maverick Music 6 requires Maverick Music Engine 0.7.6 with a healthy Music Assistant required connection snapshot.${suffix}`,
+        `Maverick Music 6 דורש Maverick Music Engine 0.7.6 עם תמונת חיבורים נדרשים תקינה של Music Assistant.${suffix}`,
       );
     }
 
@@ -10702,12 +10702,12 @@ export function createHomeiiBaseMusicCard({
             await this._refreshHomeiiEngineContext({ force: true });
           }
           if (!this._state?.engineAvailable) {
-            if (options.requireFresh) throw new Error("HOMEii Flow Engine is unavailable.");
+            if (options.requireFresh) throw new Error("Maverick Music Engine is unavailable.");
             return lastGoodPlayers;
           }
           const result = await this._homeiiEngineGetPlayers({ include_all: false });
           if (!Array.isArray(result?.music_assistant_players) && !Array.isArray(result?.players)) {
-            throw new Error("HOMEii Flow Engine returned an invalid player catalog.");
+            throw new Error("Maverick Music Engine returned an invalid player catalog.");
           }
           if (!HomeiiRevisionedSnapshotsFoundation.acceptEngineSnapshot(
             this._engineSnapshotRevisions,
@@ -10715,10 +10715,10 @@ export function createHomeiiBaseMusicCard({
             result,
             "music_assistant",
           )) {
-            this._debugLog?.("debug", "[HOMEii Flow] Ignored stale Engine player snapshot", {
+            this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine player snapshot", {
               snapshot: HomeiiRevisionedSnapshotsFoundation.engineSnapshotMeta(result),
             });
-            if (options.requireFresh) throw new Error("HOMEii Flow Engine returned a stale player snapshot.");
+            if (options.requireFresh) throw new Error("Maverick Music Engine returned a stale player snapshot.");
             return lastGoodPlayers;
           }
           const source = Array.isArray(result?.music_assistant_players)
@@ -10736,7 +10736,7 @@ export function createHomeiiBaseMusicCard({
             this._state.engineStatus = "degraded";
             this._state.engineAvailable = true;
           }
-          this._debugLog?.("warn", "[HOMEii Flow] Engine player snapshot failed", error);
+          this._debugLog?.("warn", "[Maverick Music] Engine player snapshot failed", error);
           if (options.requireFresh) throw error;
           return lastGoodPlayers;
         } finally {
@@ -10957,7 +10957,7 @@ export function createHomeiiBaseMusicCard({
           && this._homeiiEngineRequired?.()
           && engineReady;
         if (!canUseHomeiiEnginePlayback) {
-          throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
+          throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
         }
         const engineResult = await this._homeiiEnginePlayMedia({
           player: entityId,
@@ -10968,7 +10968,7 @@ export function createHomeiiBaseMusicCard({
           verify_playback: options.verifyPlayback !== false && ["play", "replace", "shuffle"].includes(enqueue),
         });
         if (!engineResult?.ok) {
-          throw new Error(engineResult?.error || "HOMEii Flow Engine did not confirm playback.");
+          throw new Error(engineResult?.error || "Maverick Music Engine did not confirm playback.");
         }
         if (!options.silent) {
           const targetPlayer = this._playerByEntityId(entityId);
@@ -12103,7 +12103,7 @@ export function createHomeiiBaseMusicCard({
         let acted = false;
         const engineReady = await this._ensureHomeiiEngineReadyForAction();
         if (typeof this._homeiiEngineQueueAction !== "function" || !this._homeiiEngineRequired?.() || !engineReady) {
-          throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
+          throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
         }
         if (serviceQueueItemId && (massQueueServiceByAction[action] || action === "move_to")) {
           const result = await this._homeiiEngineQueueAction({

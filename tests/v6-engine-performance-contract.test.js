@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const readSource = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-describe("HOMEii Flow 6 Engine performance contract", () => {
+describe("Maverick Music 6 Engine performance contract", () => {
   it("keeps authenticated Music Assistant commands on the Engine transport", async () => {
     const source = await readSource("src/core/base-music-card.js");
     const commandMethod = source.slice(

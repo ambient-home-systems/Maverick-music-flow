@@ -214,7 +214,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
     expect(html).toContain('data-menu-nav="diagnostics"');
   });
 
-  it("explains that HOMEii Flow 6 requires the Engine before direct browser settings", async () => {
+  it("explains that Maverick Music 6 requires the Engine before direct browser settings", async () => {
     await import("../src/homeii-music-flow.js?settings-direct-ma-without-ha-integration");
     await settleModule();
     const card = newCard();
@@ -227,7 +227,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
 
     const message = card._musicAssistantRequiredMessage();
 
-    expect(message).toContain("HOMEii Flow 6 requires HOMEii Flow Engine");
+    expect(message).toContain("Maverick Music 6 requires Maverick Music Engine");
     expect(message).toContain("required connection snapshot");
   });
 });

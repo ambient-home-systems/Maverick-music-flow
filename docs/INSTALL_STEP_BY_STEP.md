@@ -1,18 +1,18 @@
-# Install HOMEii Flow 6.0.0 — beginner walkthrough
+# Install Maverick Music 6.0.0 — beginner walkthrough
 
-**HOMEii Flow 6 is a coordinated card and Engine release. Version 5.9.3 remains available for users who are not ready to migrate.**
+**Maverick Music 6 is a coordinated card and Engine release. Version 5.9.3 remains available for users who are not ready to migrate.**
 
 > [!CAUTION]
 > **STOP: upgrading from 5.9.3 is a breaking change. Do not replace the card first.**
-> Version 6 requires the separate HOMEii Flow Engine integration. Install, configure and verify Engine **1.0.0** while keeping card **5.9.3** working. Only then replace the card with **6.0.0**. Updating the card alone is unsupported and will break the v6 connection.
+> Version 6 requires the separate Maverick Music Engine integration. Install, configure and verify Engine **1.0.0** while keeping card **5.9.3** working. Only then replace the card with **6.0.0**. Updating the card alone is unsupported and will break the v6 connection.
 
 Use only the matching official releases linked below. Do not mix beta, development or older Engine files with the stable card.
 
 ## 1. Understand the three components
 
 - **Music Assistant (MA)** already manages your providers and speakers. It must work independently first.
-- **HOMEii Flow Engine** is a Home Assistant custom integration installed under `custom_components`. It is not an HA add-on/app.
-- **HOMEii Music Flow** is a JavaScript dashboard card installed under `www` and registered as a dashboard resource.
+- **Maverick Music Engine** is a Home Assistant custom integration installed under `custom_components`. It is not an HA add-on/app.
+- **Maverick Music** is a JavaScript dashboard card installed under `www` and registered as a dashboard resource.
 
 A Spotify API key, an HA access token and an MA access token are different credentials. The Engine needs an **MA access token**.
 
@@ -29,7 +29,7 @@ A Spotify API key, an HA access token and an MA access token are different crede
 
 1. Create a Home Assistant backup using its backup controls and retain a copy you can restore.
 2. Save the dashboard YAML/configuration containing the old card.
-3. Open `/config/lovelace/resources` in your HA browser (append this path to your own HA address). Copy the existing HOMEii resource URL into a note.
+3. Open `/config/lovelace/resources` in your HA browser (append this path to your own HA address). Copy the existing Maverick Music resource URL into a note.
 4. Copy the old card file to a safe backup location outside the active resource path.
 5. If an Engine is already installed, back up its complete component folder and HA backup/storage. Do not delete the existing integration entry merely to update files.
 6. Record current versions. Keep native MA available as your fallback.
@@ -66,7 +66,7 @@ The result must look like this:
 ## 5. Create the MA token and find its address
 
 1. Open **Music Assistant itself**.
-2. Open **Settings → Profile** and create a long-lived access token. Give it a recognizable name such as `HOMEii Flow Engine`.
+2. Open **Settings → Profile** and create a long-lived access token. Give it a recognizable name such as `Maverick Music Engine`.
 3. Copy the token to a private place temporarily. Do not put it in dashboard YAML or a GitHub issue.
 4. Find the direct MA server address reachable from HA. The usual port is **8095**, for example `http://192.168.1.100:8095`. Replace the example with your server's actual address/port.
 5. Do not use the HA address ending in `:8123`, a dashboard URL, or an ingress path such as `/...music_assistant...`.
@@ -77,14 +77,14 @@ Token instructions are documented in the [official MA API guide](https://www.mus
 ## 6. Complete Engine onboarding
 
 1. HA → **Settings → Devices & services → Add integration**.
-2. Search for **HOMEii Flow Engine** and open it.
+2. Search for **Maverick Music Engine** and open it.
 3. Choose a connection method: **Sign in with a Music Assistant username and password** creates a dedicated token, or **Paste a Music Assistant API token** uses the token from step 5. Automatic sign-in requires MA built-in credentials, not an HA login. The password is not stored. The fields below describe the manual route.
 4. Read the setup instructions at the top of the form.
 4. Fill in:
 
 | Field | What a normal single-instance installation should use |
 |---|---|
-| Name | Leave HOMEii Flow Engine, or choose a display name |
+| Name | Leave Maverick Music Engine, or choose a display name |
 | Instance ID | Leave `default` |
 | Default profile ID | Leave `default` |
 | Music Assistant server URL | The direct MA address from step 5 |
@@ -109,7 +109,7 @@ Official HACS catalog inclusion is not required. Add the repository as a custom 
 5. Copy the built JS and image files there. If using the complete package, extract its contents into that folder, with the JS at its root.
 6. Check this exact file exists: `/config/www/homeii-flow/homeii-music-flow.js`.
 7. In HA, open your profile and enable Advanced mode if the Resources controls are hidden. Open **Settings → Dashboards → Resources** (some versions put Resources in the three-dot menu), or navigate directly to `/config/lovelace/resources`.
-8. **Existing users:** edit the existing HOMEii resource. **New users:** choose Add resource.
+8. **Existing users:** edit the existing Maverick Music resource. **New users:** choose Add resource.
 9. Enter this URL and resource type:
 
 ```text
@@ -127,7 +127,7 @@ YAML-managed resource users should update their existing resource declaration in
 ## 8. Add or edit the card
 
 1. Open your dashboard → Edit dashboard → Add card (or edit your existing card).
-2. Select HOMEii Music Flow if listed, or use Manual with:
+2. Select Maverick Music if listed, or use Manual with:
 
 ```yaml
 type: custom:homeii-music-flow
@@ -149,7 +149,7 @@ homeii_engine_mode: required
 | Token rejected | Generate/paste an MA Profile token; remove accidental surrounding whitespace |
 | Unsupported version/schema | Update MA to a compatible API schema; do not bypass validation |
 | Custom element does not exist | Resource URL/type, HTTP file availability and full reload |
-| Already registered/custom element error | Remove duplicate old/new HOMEii resources and reload |
+| Already registered/custom element error | Remove duplicate old/new Maverick Music resources and reload |
 | Old interface/version remains | Confirm edited resource URL and version query; close stale tabs/cache |
 | No players or playback fails | Verify official MA integration and native MA playback first |
 | Optional action missing | Provider/player/server may not support it; unavailable capabilities are hidden |

@@ -2,7 +2,7 @@
 
 > **Preparing 6.0.0 Beta:** install Engine `1.0.0-beta.1` first. Read the [breaking upgrade and beta guide](BETA_GUIDE.md) before replacing 5.9.3. No beta release has been published by this preparation.
 
-HOMEii Music Flow can be configured from the Home Assistant visual editor, the in-card settings screen, or YAML.
+Maverick Music can be configured from the Home Assistant visual editor, the in-card settings screen, or YAML.
 
 ## Configuration Sources
 
@@ -11,7 +11,7 @@ There are two kinds of configuration:
 - **YAML / visual editor config:** saved in the Home Assistant dashboard.
 - **In-card settings:** saved in browser storage for the current browser/device.
 
-Use the visual editor for structural options such as helper entities, card id, and default player. Configure the Music Assistant URL and token only in HOMEii Flow Engine. Use in-card settings for personal UI choices such as theme, layout, pinned players, quick actions, and phone behavior.
+Use the visual editor for structural options such as helper entities, card id, and default player. Configure the Music Assistant URL and token only in Maverick Music Engine. Use in-card settings for personal UI choices such as theme, layout, pinned players, quick actions, and phone behavior.
 
 ## Minimal YAML
 
@@ -49,15 +49,15 @@ Large-library “Load more” controls require Engine 0.7.21 or newer and its `l
 
 ## Music Assistant Connection
 
-HOMEii Music Flow 6 has one supported backend path: **HOMEii Flow Engine**.
+Maverick Music 6 has one supported backend path: **Maverick Music Engine**.
 
 The card is the visual interface. The Engine talks to Home Assistant and Music Assistant, owns the queue/library/search/artwork/playback data path, and returns normalized data to the card. The card does not fall back to the old frontend-only Home Assistant/Music Assistant paths.
 
 The card does not accept or store `ma_url`, `music_assistant_external_url`, or `ma_token` in 6.0.0. Existing legacy values are ignored and removed the next time the visual editor saves the card.
 
-## HOMEii Flow Engine
+## Maverick Music Engine
 
-HOMEii Music Flow 6 requires the HOMEii Flow Engine Home Assistant integration, version `1.0.0-beta.1` for the prepared 6.0.0 beta pair.
+Maverick Music 6 requires the Maverick Music Engine Home Assistant integration, version `1.0.0-beta.1` for the prepared 6.0.0 beta pair.
 
 The card is now the visual interface only. Playback, players, queue, library, search, artwork, grouping, schedules, timers, statistics, announcements, volume rules, and diagnostics are handled by the Engine. If the Engine is not installed and loaded, the 6.x card shows an Engine-required message instead of using old frontend-only paths.
 
@@ -73,9 +73,9 @@ homeii_engine_profile_id: ""
 
 `homeii_engine_mode` supports:
 
-- `required`: the only supported HOMEii Flow 6 mode. The card will not run without the Engine.
+- `required`: the only supported Maverick Music 6 mode. The card will not run without the Engine.
 
-Users who want to keep the previous frontend/Home Assistant/Music Assistant behavior should stay on HOMEii Music Flow 5.9.x.
+Users who want to keep the previous frontend/Home Assistant/Music Assistant behavior should stay on Maverick Music 5.9.x.
 
 ## Sendspin / This Device
 
@@ -83,7 +83,7 @@ The browser-based **This device** player is disabled in 6.0.0 Engine-only mode. 
 
 ## Reusable Dashboards
 
-HOMEii Music Flow makes reusable dashboards easier with two related features:
+Maverick Music makes reusable dashboards easier with two related features:
 
 - `card_id` separates local settings for different card instances.
 - URL player overrides open the same dashboard directly to a specific player.
@@ -93,12 +93,12 @@ Use them when:
 - one YAML/dashboard include is reused for many rooms
 - one tablet should open directly to the kitchen player
 - another dashboard should open directly to the bedroom player
-- multiple HOMEii cards run in the same browser
+- multiple Maverick Music cards run in the same browser
 - different users need different default players without duplicating the whole card configuration
 
 ## `card_id`
 
-Use `card_id` when you run more than one HOMEii Music Flow card in the same browser and want separate local settings.
+Use `card_id` when you run more than one Maverick Music card in the same browser and want separate local settings.
 
 ```yaml
 type: custom:homeii-music-flow
@@ -117,7 +117,7 @@ Adding `card_id` to an existing card may make it look like settings were reset o
 
 ## Query-String Player Override
 
-HOMEii Music Flow can read the selected player from the dashboard URL. This is useful for reusable dashboards and included YAML.
+Maverick Music can read the selected player from the dashboard URL. This is useful for reusable dashboards and included YAML.
 
 Supported examples:
 
@@ -154,7 +154,7 @@ You can also use:
 ?homeii_player=kitchen_sonos
 ```
 
-If the dashboard contains more than one HOMEii Music Flow card, use a card-scoped parameter:
+If the dashboard contains more than one Maverick Music card, use a card-scoped parameter:
 
 ```yaml
 type: custom:homeii-music-flow
@@ -169,7 +169,7 @@ This tells only the card with `card_id: kitchen-flow` to use `kitchen_sonos`.
 
 ### Matching Rules
 
-HOMEii Music Flow tries to match the URL value against available players.
+Maverick Music tries to match the URL value against available players.
 
 Recommended values:
 
@@ -203,12 +203,12 @@ https://homeassistant.example.com/lovelace/music?homeii_player_kitchen-flow=kitc
 
 - URL player overrides do not permanently rewrite the dashboard YAML.
 - They only affect the browser session/card state.
-- `card_id` is recommended when more than one HOMEii card can appear in the same browser.
-- If the URL parameter points to a missing player, HOMEii Flow keeps using the normal selected player.
+- `card_id` is recommended when more than one Maverick Music card can appear in the same browser.
+- If the URL parameter points to a missing player, Maverick Music keeps using the normal selected player.
 
 ## Active Player Helper
 
-HOMEii Music Flow can publish the currently selected player to an `input_text` helper.
+Maverick Music can publish the currently selected player to an `input_text` helper.
 
 Create a text helper in Home Assistant, then configure:
 
@@ -226,7 +226,7 @@ media_player.kitchen
 Use it in automations:
 
 ```yaml
-alias: HOMEii Flow - Toggle active player
+alias: Maverick Music - Toggle active player
 sequence:
   - service: media_player.media_play_pause
     target:

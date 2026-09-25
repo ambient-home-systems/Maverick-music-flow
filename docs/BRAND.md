@@ -1,9 +1,9 @@
-# HOMEii Flow visual identity
+# Maverick Music visual identity
 
-The card and Engine share one visual identity: the HOMEii Flow gold wave mark. Product names distinguish the roles without introducing competing logos:
+The card and Engine share one visual identity: the Maverick Music gold wave mark. Product names distinguish the roles without introducing competing logos:
 
-- **HOMEii Music Flow** — the dashboard card.
-- **HOMEii Flow Engine** — the Home Assistant integration.
+- **Maverick Music** — the dashboard card.
+- **Maverick Music Engine** — the Home Assistant integration.
 
 | Asset | Native size | Use |
 |---|---|---|

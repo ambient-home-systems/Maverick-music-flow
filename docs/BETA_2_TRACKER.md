@@ -22,8 +22,8 @@ Baseline: card 6.0.0-beta.1 and Engine 1.0.0-beta.1. Preserve published tags/ass
   - User-confirmed path: fan → all settings → Smart → Diagnostics; also available in visual editor. English label may be System health; verify exact released labels before further instructions.
   - Navigation reply posted: https://github.com/ambient-home-systems/maverick-music-flow/issues/74#issuecomment-5630300970
   - Await fresh beta diagnostics/screenshots and current MA/Engine versions. Existing diagnostic report is 5.9.3 and cannot validate the beta backend. Attached beta images still need visual inspection. Keep issue open; no fix claimed.
-- [ ] **Community Home shortcut request:** existing return-to-player routes already exist. Clarify whether requester means HOMEii main player or HA dashboard before adding duplicate navigation. No implementation/product decision yet.
-- [ ] **Engine explanation:** clarify prominently that HOMEii Flow Engine is a custom HA integration, not an App/add-on; Engine is branding. Explain why v6 requires it and MA remains responsible for providers/playback. User-facing reply drafted in conversation; no new documentation edit or publication performed for this item.
+- [ ] **Community Home shortcut request:** existing return-to-player routes already exist. Clarify whether requester means Maverick Music main player or HA dashboard before adding duplicate navigation. No implementation/product decision yet.
+- [ ] **Engine explanation:** clarify prominently that Maverick Music Engine is a custom HA integration, not an App/add-on; Engine is branding. Explain why v6 requires it and MA remains responsible for providers/playback. User-facing reply drafted in conversation; no new documentation edit or publication performed for this item.
 
 ## Release discipline
 

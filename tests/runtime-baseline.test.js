@@ -240,7 +240,7 @@ function expectHomeiiRuntimeRegistered(packageVersion) {
   expect(globalThis.window.customCards).toEqual([
     expect.objectContaining({
       type: "homeii-music-flow",
-      name: "HOMEii Flow",
+      name: "Maverick Music",
       description: expect.stringContaining(`v${packageVersion}`),
     }),
   ]);
@@ -795,9 +795,9 @@ describe("runtime baseline", () => {
 
     const report = await editor._runEditorDiagnostics();
 
-    expect(report).toContain("HOMEii Music Flow Editor Diagnostics");
+    expect(report).toContain("Maverick Music Editor Diagnostics");
     expect(report).toContain("Diagnostics: v7");
-    expect(report).toContain("music_assistant_transport: HOMEii Flow Engine");
+    expect(report).toContain("music_assistant_transport: Maverick Music Engine");
     expect(report).toContain("Music Assistant transport");
     expect(report).toContain("Integration signal");
     expect(editor._editorDiagnosticsItems.length).toBeGreaterThan(0);

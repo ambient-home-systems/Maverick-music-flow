@@ -51,7 +51,7 @@ describe("editor forms", () => {
     expect(connectionSchema).not.toContain("music_assistant_external_url");
     expect(connectionSchema).toContain("lrclib_lyrics_enabled");
     expect(form.computeHelper({ name: "lrclib_lyrics_enabled" })).toContain("https://lrclib.net");
-    expect(form.computeLabel({ name: "homeii_engine_mode" })).toBe("HOMEii Flow Engine");
+    expect(form.computeLabel({ name: "homeii_engine_mode" })).toBe("Maverick Music Engine");
     expect(() => form.assertConfig(null)).toThrow("Card config must be an object");
   });
 
@@ -95,7 +95,7 @@ describe("editor forms", () => {
     expect(form.computeHelper({ name: "voice_assistant_enabled" })).toBe("ui.show_a_push_to_talk_button_for_music_and_assist_commands");
     expect(form.computeHelper({ name: "mobile_layout_mode" })).toContain("Edge to edge opens");
     expect(form.computeHelper({ name: "mobile_cover_flow" })).toContain("main artwork area");
-    expect(form.computeHelper({ name: "homeii_engine_mode" })).toContain("HOMEii Flow Engine");
+    expect(form.computeHelper({ name: "homeii_engine_mode" })).toContain("Maverick Music Engine");
     expect(form.computeHelper({ name: "lrclib_lyrics_enabled" })).toContain("Disabled by default");
   });
 

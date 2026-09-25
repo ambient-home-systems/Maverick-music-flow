@@ -277,7 +277,7 @@ async function applySpeakerGroupFor(entityId, groupMembers = []) {
       }, 650);
       return true;
     } catch (engineError) {
-      this._debugLog?.("warn", "[HOMEii Flow] HOMEii Flow Engine group fallback failed", engineError);
+      this._debugLog?.("warn", "[Maverick Music] Maverick Music Engine group fallback failed", engineError);
       if (this._homeiiEngineRequired?.()) throw engineError;
     }
   }

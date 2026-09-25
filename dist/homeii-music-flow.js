@@ -268,13 +268,13 @@ function Bn(n) {
   const e = String(n.id || "").startsWith("control:") ? n.id.split(":")[1] : "";
   return ["players", "players_active", "group", "group_volume", "transfer"].includes(e) ? "players" : ["sleep_timer", "announcements", "lighting", "smart", "playback_stats", "volume_rules", "night_preferences", "system_screensaver"].includes(e) ? "smart" : e.startsWith("library_") || ["discovery", "recommendations", "favorite_radios", "saved_playlists"].includes(e) ? "library" : n.player || /^(control:players:|players$|group$|group_volume$|transfer$|this_device$|local_device$|player_preferences$)/.test(n.id) ? "players" : /^(timer(?::|$)|sleep_timer$|announcements$|lighting$|smart$|playback_stats$|volume_rules$|night_preferences$|system_screensaver$)/.test(n.id) ? "smart" : n.genre || /^(genre:|library_|discovery$|favorite_radios$|quick_search$|recommendations$|history$|music_flow$|saved_playlists$)/.test(n.id) ? "library" : /settings|preferences|edit|theme|diagnostics|studio|home/.test(n.id) ? "settings" : "playback";
 }
-const En = {
+const In = {
   playback: ["Playback & queue", "ניגון ותור"],
   players: ["Players & groups", "נגנים וקבוצות"],
   library: ["Browse music", "ספריית מוזיקה"],
   smart: ["Smart listening", "האזנה חכמה"],
   settings: ["Settings & display", "הגדרות ותצוגה"]
-}, In = [
+}, En = [
   "play",
   "pause",
   "queue",
@@ -318,8 +318,8 @@ const En = {
   "settings"
 ];
 function Pn(n) {
-  if (n.player) return In.indexOf("players") + 0.5;
-  const e = In.indexOf(n.id);
+  if (n.player) return En.indexOf("players") + 0.5;
+  const e = En.indexOf(n.id);
   return e < 0 ? 50 : e;
 }
 function hr(n, e = {}, t = !1) {
@@ -339,19 +339,19 @@ function Jd(n, e, t, r, c, p = () => {
   const U = (ne) => n._esc(ne), J = (ne, ge) => U(n._m(ne, ge)), j = () => {
     v.remove(), _ && n._setCompactExpanded(!1);
   }, V = () => {
-    const ne = C || jo(n, t), ge = hr(r(), ne), o = k ? ge : Object.keys(En).flatMap((B) => ge.filter((E) => Bn(E) === B));
+    const ne = C || jo(n, t), ge = hr(r(), ne), o = k ? ge : Object.keys(In).flatMap((B) => ge.filter((I) => Bn(I) === B));
     let m = null;
     const g = (B) => {
       if (k) return "";
-      const E = Bn(B);
-      return m === E ? "" : (m = E, `<h3 class="fan-catalogue-category">${J(...En[E])}</h3>`);
+      const I = Bn(B);
+      return m === I ? "" : (m = I, `<h3 class="fan-catalogue-category">${J(...In[I])}</h3>`);
     }, y = v.querySelector("[data-catalogue-action]:focus")?.closest("[data-catalogue-id]")?.dataset.catalogueId, S = `<header><button data-catalogue-back aria-label="${J("Back", "חזרה")}">${Lt(n, "back")}</button><h2>${J("All actions", "כל האפשרויות")}</h2><button data-catalogue-edit>${k ? J("Save", "אישור") : J("Edit wheel", "עריכת המניפה")}</button></header>${k ? `<p>${J("Choose wheel shortcuts. Drag the handle to reorder, or use the arrow buttons.", "בחר מה יופיע במניפה. גרור את הידית לסידור, או השתמש בכפתורי החצים.")}</p>` : ""}<div class="fan-catalogue-list">${o.map((B) => `${g(B)}<article data-catalogue-id="${U(B.id)}">${k ? `<input type="checkbox" data-catalogue-check aria-label="${U(B.label)}" ${ne.hidden?.includes(B.id) ? "" : "checked"}>` : ""}<button data-catalogue-action ${k ? "disabled" : ""}>${il(n, B)}<span>${U(B.label)}</span></button>${k ? `<button draggable="true" data-catalogue-drag aria-label="${J("Drag", "גרירה")}: ${U(B.label)}">⠿</button><button data-catalogue-move="-1" aria-label="${J("Move up", "העבר למעלה")}">↑</button><button data-catalogue-move="1" aria-label="${J("Move down", "העבר למטה")}">↓</button>` : ""}</article>`).join("")}</div>`;
     if (S !== z) {
       if (v.innerHTML = S, z = S, k && n._state?.engineCapabilities?.wheel_preferences) {
         const B = document.createElement("label");
         B.className = "fan-preference-scope", B.innerHTML = `${J("Save for", "שמירה עבור")} <select data-catalogue-scope><option value="device">${J("This device", "מכשיר זה")}</option><option value="user">${J("My user on all devices", "המשתמש שלי בכל המכשירים")}</option>${n._hass?.user?.is_admin ? `<option value="global">${J("Everyone (default)", "כולם (ברירת מחדל)")}</option>` : ""}</select>`, v.querySelector("header").after(B), B.querySelector("select").value = q;
       }
-      y && ([...v.querySelectorAll("[data-catalogue-id]")].find((E) => E.dataset.catalogueId === y)?.querySelector("[data-catalogue-action]") || v.querySelector("[data-catalogue-back]"))?.focus({ preventScroll: !0 });
+      y && ([...v.querySelectorAll("[data-catalogue-id]")].find((I) => I.dataset.catalogueId === y)?.querySelector("[data-catalogue-action]") || v.querySelector("[data-catalogue-back]"))?.focus({ preventScroll: !0 });
     }
     v.classList.toggle("is-editing", k);
   }, X = (ne, ge) => {
@@ -766,7 +766,7 @@ const ll = /* @__PURE__ */ new Set([
   "רמקול",
   "רמקולים"
 ]);
-function Ea(n = "") {
+function Ia(n = "") {
   return String(n || "").trim().toLowerCase().replace(/^media_player\./, "").replace(/[_\-.]+/g, " ").replace(/[^\p{L}\p{N}]+/gu, " ").replace(/\s+/g, " ").trim();
 }
 function cl(n = "") {
@@ -774,15 +774,15 @@ function cl(n = "") {
   return e ? e.replace(/\b([a-z])([a-z0-9]*)/gi, (t, r, c) => `${r.toUpperCase()}${c}`) : "";
 }
 function ul(n = "") {
-  const e = Ea(n);
+  const e = Ia(n);
   return e ? lA.has(e) || /^media player \d+$/.test(e) || /^player \d+$/.test(e) || /^speaker \d+$/.test(e) : !0;
 }
 function cA(n = null, { players: e = [], includeEntityId: t = !0 } = {}) {
   const r = String(n?.entity_id || "").trim(), c = String(n?.attributes?.friendly_name || "").trim(), p = cl(r), _ = c || p || r;
   if (!_) return "";
   if (!t || !r) return _;
-  const v = Array.isArray(e) ? e : [], k = Ea(c), C = !!k && v.filter((U) => Ea(U?.attributes?.friendly_name || "") === k).length > 1, Q = c ? ul(c) : !1, z = Ea(_), q = Ea(p || r), G = p && q !== z ? p : r;
-  return (Q || C) && G && Ea(G) !== z ? `${_} (${G})` : _;
+  const v = Array.isArray(e) ? e : [], k = Ia(c), C = !!k && v.filter((U) => Ia(U?.attributes?.friendly_name || "") === k).length > 1, Q = c ? ul(c) : !1, z = Ia(_), q = Ia(p || r), G = p && q !== z ? p : r;
+  return (Q || C) && G && Ia(G) !== z ? `${_} (${G})` : _;
 }
 function Yo(n = "") {
   return String(n || "").toLowerCase().replace(/^media_player\./, "").replace(/^button\./, "").replace(/[_\-.]+/g, " ").split(/\s+/).map((e) => e.trim()).filter((e) => e && e.length > 1);
@@ -849,31 +849,31 @@ function pA(n = [], {
   isPlayerActiveFn: z = (G) => G?.state === "playing",
   isExternalBrowserPlayerFn: q = Ma
 } = {}) {
-  const G = Array.isArray(n) ? n : [], U = new Map(G.map((E) => [E?.entity_id, E]).filter(([E]) => !!E)), J = new Map(G.map((E, I) => [E?.entity_id, I]).filter(([E]) => !!E)), j = new Map((Array.isArray(v) ? v : []).map((E, I) => [String(E || "").trim(), I]).filter(([E]) => !!E)), V = (E) => !!E?.entity_id && ra(E) && !q(E), X = (E) => {
-    const I = U.get(String(E || "").trim());
-    return V(I) ? I : null;
-  }, K = (E) => j.has(E?.entity_id) ? j.get(E.entity_id) : 1e5 + (J.get(E?.entity_id) ?? 1e5), ne = (E = []) => E.filter(V).sort((I, F) => K(I) - K(F))[0] || null, ge = X(r), o = ge && (Number(c || 0) > Number(p || 0) || !Q && ge.state === "playing") ? ge : null;
+  const G = Array.isArray(n) ? n : [], U = new Map(G.map((I) => [I?.entity_id, I]).filter(([I]) => !!I)), J = new Map(G.map((I, E) => [I?.entity_id, E]).filter(([I]) => !!I)), j = new Map((Array.isArray(v) ? v : []).map((I, E) => [String(I || "").trim(), E]).filter(([I]) => !!I)), V = (I) => !!I?.entity_id && ra(I) && !q(I), X = (I) => {
+    const E = U.get(String(I || "").trim());
+    return V(E) ? E : null;
+  }, K = (I) => j.has(I?.entity_id) ? j.get(I.entity_id) : 1e5 + (J.get(I?.entity_id) ?? 1e5), ne = (I = []) => I.filter(V).sort((E, F) => K(E) - K(F))[0] || null, ge = X(r), o = ge && (Number(c || 0) > Number(p || 0) || !Q && ge.state === "playing") ? ge : null;
   if (o) return o.entity_id;
   const m = X(k);
   if (Q) {
-    const E = X(C);
-    if (E) return E.entity_id;
+    const I = X(C);
+    if (I) return I.entity_id;
     if (m) return m.entity_id;
   }
   const g = X(t);
   if (g) return g.entity_id;
-  const y = ne(G.filter((E) => E?.state === "playing"));
+  const y = ne(G.filter((I) => I?.state === "playing"));
   if (y) return y.entity_id;
-  const S = ne(G.filter((E) => z(E)));
+  const S = ne(G.filter((I) => z(I)));
   if (S) return S.entity_id;
   if (m) return m.entity_id;
-  for (const E of Array.isArray(_) ? _ : []) {
-    const I = X(E);
-    if (I) return I.entity_id;
+  for (const I of Array.isArray(_) ? _ : []) {
+    const E = X(I);
+    if (E) return E.entity_id;
   }
-  for (const E of Array.isArray(v) ? v : []) {
-    const I = X(E);
-    if (I) return I.entity_id;
+  for (const I of Array.isArray(v) ? v : []) {
+    const E = X(I);
+    if (E) return E.entity_id;
   }
   const B = X(e);
   return B ? B.entity_id : (G.find(V) || G[0])?.entity_id || "";
@@ -1064,7 +1064,7 @@ function dl(n) {
   const _ = n.$("immersiveLiveStatus");
   _ && (_.hidden = c !== "radio" || r > 0);
 }
-function EA(n) {
+function IA(n) {
   const e = n._getSelectedPlayer(), t = ra(e), c = (n._state.maQueueState?.current_item?.media_item || {}).media_type || e?.attributes?.media_content_type, p = n._getCurrentMediaUri?.(), _ = t && (Number(n._state.maQueueState?.items || 0) > 0 || !!p), v = n._isHotelMode?.(), k = (U, J, j, V) => ({ id: U, icon: J, label: n._m(j, V) }), C = [
     _ && k("queue", "queue", "Queue", "תור"),
     t && c === "track" && k("lyrics", "lyrics", "Lyrics", "מילים"),
@@ -1112,7 +1112,7 @@ function Al(n, e = "") {
     ${e}
   </div>`;
 }
-function IA(n) {
+function EA(n) {
   return (n._state.players || []).filter(ra).map((e) => ({
     id: `control:players:${e.entity_id}`,
     player: !0,
@@ -1126,12 +1126,12 @@ function cs(n, e = {}) {
   const t = e.toggle || n.$("immersiveActionsToggle"), r = e.fan || n.$("immersiveActionFan");
   if (!t || !r) return;
   e.fan || n.shadowRoot.querySelector("[data-immersive-search]")?.addEventListener("click", () => n._openMobileMenu("quick_search")), e.fan || n.shadowRoot.querySelector(".card")?.classList.add("player-design-immersive");
-  const c = () => e.pages ? e.pages() : EA(n), p = () => e.context?.() || "main", _ = () => Od(n, p(), c());
+  const c = () => e.pages ? e.pages() : IA(n), p = () => e.context?.() || "main", _ = () => Od(n, p(), c());
   if (!e.fan) {
     const o = document.createElement("div");
     o.className = "immersive-fan player-picker-fan", o.hidden = !0, o.innerHTML = `<div class="immersive-fan-actions"></div><div class="immersive-fan-navigation"><button data-fan-step="-1" aria-label="${n._esc(n._m("Previous", "הקודם"))}">‹</button><span class="immersive-page-status"></span><button data-immersive-action="more">${n._esc(n._m("All players / Edit", "כל הנגנים / עריכה"))}</button><button data-fan-step="1" aria-label="${n._esc(n._m("Next", "הבא"))}">›</button><button data-player-screen aria-label="${n._esc(n._m("Players screen", "מסך נגנים"))}">${Lt(n, "speaker_group")}</button></div>`, r.parentElement.append(o);
     const m = document.createElement("button");
-    cs(n, { fan: o, toggle: m, context: () => "player_picker", pages: () => [[...IA(n), { id: "group", icon: "speaker_group", label: n._m("Group", "קבוצה") }]], onAction: (g) => g === "group" ? n._openMobileMenu("group") : n._selectPlayer(g.slice(16), !0) }), n._openPlayerFan = () => {
+    cs(n, { fan: o, toggle: m, context: () => "player_picker", pages: () => [[...EA(n), { id: "group", icon: "speaker_group", label: n._m("Group", "קבוצה") }]], onAction: (g) => g === "group" ? n._openMobileMenu("group") : n._selectPlayer(g.slice(16), !0) }), n._openPlayerFan = () => {
       r.hidden = !0, t.setAttribute("aria-expanded", "false"), m.click();
     }, o.querySelector("[data-player-screen]").onclick = (g) => {
       g.stopPropagation(), o.hidden = !0, n._openMobileMenu("players");
@@ -1152,8 +1152,8 @@ function cs(n, e = {}) {
       }
       const B = v.getBoundingClientRect();
       if (!B.width) return;
-      const E = Math.max(0, Math.min(1, (y.clientX - B.left) / B.width));
-      o.textContent = n._fmtDur(Math.round(S * E)), o.style.left = `${Math.max(8, Math.min(92, E * 100))}%`, o.hidden = !1;
+      const I = Math.max(0, Math.min(1, (y.clientX - B.left) / B.width));
+      o.textContent = n._fmtDur(Math.round(S * I)), o.style.left = `${Math.max(8, Math.min(92, I * 100))}%`, o.hidden = !1;
     };
     v.addEventListener("pointermove", g), v.addEventListener("pointerdown", (y) => {
       v.classList.add("immersive-seeking"), g(y);
@@ -1165,8 +1165,8 @@ function cs(n, e = {}) {
       const S = { ArrowLeft: -5, ArrowRight: 5, Home: -1 / 0, End: 1 / 0 }[y.key], B = n._getCurrentDuration();
       if (S === void 0 || !B) return;
       y.preventDefault(), y.stopPropagation();
-      const E = B * (parseFloat(n.$("progressFill")?.style.width) || 0) / 100, I = Math.max(0, Math.min(B, E + S)), F = v.getBoundingClientRect();
-      n._seekFromProgress({ currentTarget: v, clientX: F.left + F.width * I / B }, { immediate: !0 });
+      const I = B * (parseFloat(n.$("progressFill")?.style.width) || 0) / 100, E = Math.max(0, Math.min(B, I + S)), F = v.getBoundingClientRect();
+      n._seekFromProgress({ currentTarget: v, clientX: F.left + F.width * E / B }, { immediate: !0 });
     }), dl(n);
   }
   let k = [], C = 0, Q = 0, z = 2, q;
@@ -1181,8 +1181,8 @@ function cs(n, e = {}) {
   }, U = (o) => {
     const m = [...r.querySelectorAll(".immersive-fan-actions button")], g = m.length;
     m.forEach((y, S) => {
-      const B = ((S - o + g / 2) % g + g) % g - g / 2, E = B * Math.PI / 5, I = n._isCompactTileMode?.() === !0, F = Math.abs(B) < (I ? 1.65 : 2.65);
-      y.style.setProperty("--fan-x", `${50 + 43 * Math.sin(E)}%`), y.style.setProperty("--fan-y", `${I ? 58 - 48 * Math.cos(E) : 112 - 100 * Math.cos(E)}px`), y.style.opacity = F ? String(Math.min(1, (2.65 - Math.abs(B)) * 3)) : "0", y.style.visibility = F ? "visible" : "hidden", y.tabIndex = F ? 0 : -1;
+      const B = ((S - o + g / 2) % g + g) % g - g / 2, I = B * Math.PI / 5, E = n._isCompactTileMode?.() === !0, F = Math.abs(B) < (E ? 1.65 : 2.65);
+      y.style.setProperty("--fan-x", `${50 + 43 * Math.sin(I)}%`), y.style.setProperty("--fan-y", `${E ? 58 - 48 * Math.cos(I) : 112 - 100 * Math.cos(I)}px`), y.style.opacity = F ? String(Math.min(1, (2.65 - Math.abs(B)) * 3)) : "0", y.style.visibility = F ? "visible" : "hidden", y.tabIndex = F ? 0 : -1;
     });
   }, J = (o) => {
     const m = k.flat().length;
@@ -1208,7 +1208,7 @@ function cs(n, e = {}) {
   };
   r._refreshAvailableActions = () => {
     if (r.hidden || q) return;
-    const o = _(), m = (E) => JSON.stringify(E.flat().map(({ id: I, label: F, icon: O, image: Z, selected: $, value: ce }) => [I, F, O, Z, $, ce]));
+    const o = _(), m = (I) => JSON.stringify(I.flat().map(({ id: E, label: F, icon: O, image: Z, selected: $, value: ce }) => [E, F, O, Z, $, ce]));
     if (m(o) === m(k)) return;
     const g = k.flat(), y = g[(Math.round(z) % g.length + g.length) % g.length]?.id, S = r.querySelector(".immersive-fan-actions button:focus")?.dataset.immersiveAction;
     if (k = o, C = 0, !k.flat().length) {
@@ -1216,8 +1216,8 @@ function cs(n, e = {}) {
       return;
     }
     j();
-    const B = k.flat().findIndex((E) => E.id === y);
-    B >= 0 && (z = B, J(0)), S && ([...r.querySelectorAll(".immersive-fan-actions button")].find((I) => I.dataset.immersiveAction === S) || t).focus({ preventScroll: !0 });
+    const B = k.flat().findIndex((I) => I.id === y);
+    B >= 0 && (z = B, J(0)), S && ([...r.querySelectorAll(".immersive-fan-actions button")].find((E) => E.dataset.immersiveAction === S) || t).focus({ preventScroll: !0 });
   }, t.addEventListener("click", (o) => {
     r.hidden && r.parentElement?.querySelectorAll(".immersive-fan").forEach((m) => {
       m !== r && (m.hidden = !0);
@@ -2984,7 +2984,7 @@ const Sr = Object.freeze({
   "ui.recently_added": "Recently Added",
   "ui.recently_played": "Recently Played",
   "ui.recently_played_2": "Recently played",
-  "ui.recommendations_will_appear_once_homeii_flow_sees_your_queue_or_recent_l": "Recommendations will appear once HOMEii Flow sees your queue or recent listening.",
+  "ui.recommendations_will_appear_once_homeii_flow_sees_your_queue_or_recent_l": "Recommendations will appear once Maverick Music sees your queue or recent listening.",
   "ui.recommended": "Recommended",
   "ui.recommended_format_hh_mm_such_as_06_00_crossing_midnight_is_supported": "Recommended format: HH:MM such as 06:00. Crossing midnight is supported.",
   "ui.recommended_format_hh_mm_such_as_22_00": "Recommended format: HH:MM such as 22:00.",
@@ -3355,7 +3355,7 @@ const Sr = Object.freeze({
   "ui.hotel_mode_helper": "Minimal hotel-safe UI: player controls, volume, search, artwork browsing, and player selection only.",
   "ui.style_and_genres": "Style and genres",
   "ui.card_id": "Card ID",
-  "ui.card_id_helper": "Unique slug (letters, digits, '-', '_'). Set this when running multiple HOMEii Flow dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other HOMEii Flow card in this browser (the original behaviour)."
+  "ui.card_id_helper": "Unique slug (letters, digits, '-', '_'). Set this when running multiple Maverick Music dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other Maverick Music card in this browser (the original behaviour)."
 }), tm = Object.freeze({
   "ui.action_menu_labels": "Handlingsnavne under ikoner",
   "ui.a_guided_music_wizard": "En guidet musikguide",
@@ -10961,12 +10961,12 @@ function yl(n, e, t = {}, r = e) {
   function j(ue, de, me, he) {
     const ve = J(), xe = 1e3 / 60;
     let ke = null, Me = 0, Be = 0;
-    function Ee(Oe) {
+    function Ie(Oe) {
       if (!Be) return;
       ke || (ke = Oe, me(), me());
       const Ke = Oe - ke;
       for (ke = Oe, Me += Ke; Me >= xe; ) me(), Me -= xe;
-      he(Me / xe), Be && (Be = de.requestAnimationFrame(Ee));
+      he(Me / xe), Be && (Be = de.requestAnimationFrame(Ie));
     }
     function De() {
       de.cancelAnimationFrame(Be), ke = null, Me = 0, Be = 0;
@@ -10978,7 +10978,7 @@ function yl(n, e, t = {}, r = e) {
     }, destroy: function() {
       De(), ve.clear();
     }, start: function() {
-      Be || (Be = de.requestAnimationFrame(Ee));
+      Be || (Be = de.requestAnimationFrame(Ie));
     }, stop: De, update: me, render: he };
   }
   function V(ue = 0, de = 0) {
@@ -11010,14 +11010,14 @@ function yl(n, e, t = {}, r = e) {
     function Be() {
       return X(ue, Me(), me);
     }
-    const Ee = { get: Me, set: function(De) {
-      return xe = ke(De), Ee;
+    const Ie = { get: Me, set: function(De) {
+      return xe = ke(De), Ie;
     }, add: function(De) {
       return Be().set(Me() + De);
     }, clone: Be };
-    return Ee;
+    return Ie;
   }
-  function K(ue, de, me, he, ve, xe, ke, Me, Be, Ee, De, Oe, Ke, tt, Ve, Xe, Te, Je, Ze) {
+  function K(ue, de, me, he, ve, xe, ke, Me, Be, Ie, De, Oe, Ke, tt, Ve, Xe, Te, Je, Ze) {
     const { cross: st, direction: ct } = ue, ut = ["INPUT", "SELECT", "TEXTAREA"], pt = { passive: !1 }, St = J(), xt = J(), ri = V(50, 225).constrain(tt.measure(20)), Yt = { mouse: 300, touch: 400 }, ui = { mouse: 500, touch: 600 }, Xt = Ve ? 43 : 25;
     let oi = !1, Kt = 0, lt = 0, kt = !1, vt = !1, Mt = !1, At = !1;
     function Gt(Pt) {
@@ -11026,7 +11026,7 @@ function yl(n, e, t = {}, r = e) {
       if (!vt && !At && (!Pt.cancelable || (vt = He > ot, !vt)))
         return Zt(Pt);
       const _t = xe.pointerMove(Pt);
-      He > Xe && (Mt = !0), Ee.useFriction(0.3).useDuration(0.75), Me.start(), ve.add(ct(_t)), Pt.preventDefault();
+      He > Xe && (Mt = !0), Ie.useFriction(0.3).useDuration(0.75), Me.start(), ve.add(ct(_t)), Pt.preventDefault();
     }
     function Zt(Pt) {
       const Ce = De.byDistance(0, !1).index !== Oe.get(), Pe = xe.pointerUp(Pt) * (Ve ? ui : Yt)[At ? "mouse" : "touch"], He = (function(dt, Ct) {
@@ -11037,7 +11037,7 @@ function yl(n, e, t = {}, r = e) {
         const Ue = _(c(dt), c(Ct));
         return c(Ue / dt);
       })(Pe, He), _t = Xt - 10 * ot, Fe = Je + ot / 50;
-      vt = !1, kt = !1, xt.clear(), Ee.useDuration(_t).useFriction(Fe), Be.distance(He, !Ve), At = !1, Ke.emit("pointerUp");
+      vt = !1, kt = !1, xt.clear(), Ie.useDuration(_t).useFriction(Fe), Be.distance(He, !Ve), At = !1, Ke.emit("pointerUp");
     }
     function Li(Pt) {
       Mt && (Pt.stopPropagation(), Pt.preventDefault(), Mt = !1);
@@ -11050,7 +11050,7 @@ function yl(n, e, t = {}, r = e) {
           At = _t, Mt = Ve && _t && !ot.buttons && oi, oi = _(ve.get(), ke.get()) >= 2, !(_t && ot.button !== 0) && ((function(Fe) {
             const dt = Fe.nodeName || "";
             return ut.includes(dt);
-          })(ot.target) || (kt = !0, xe.pointerDown(ot), Ee.useFriction(0).useDuration(0), ve.set(ke), (function() {
+          })(ot.target) || (kt = !0, xe.pointerDown(ot), Ie.useFriction(0).useDuration(0), ve.set(ke), (function() {
             const Fe = At ? me : de;
             xt.add(Fe, "touchmove", Gt, pt).add(Fe, "touchend", Zt).add(Fe, "mousemove", Gt, pt).add(Fe, "mouseup", Zt);
           })(), Kt = xe.readPoint(ot), lt = xe.readPoint(ot, st), Ke.emit("pointerDown")));
@@ -11082,22 +11082,22 @@ function yl(n, e, t = {}, r = e) {
       return he = ke, Be && (me = ke), Me;
     }, pointerUp: function(ke) {
       if (!me || !he) return 0;
-      const Me = xe(he) - xe(me), Be = ve(ke) - ve(me), Ee = ve(ke) - ve(he) > 170, De = Me / Be;
-      return Be && !Ee && c(De) > 0.1 ? De : 0;
+      const Me = xe(he) - xe(me), Be = ve(ke) - ve(me), Ie = ve(ke) - ve(he) > 170, De = Me / Be;
+      return Be && !Ie && c(De) > 0.1 ? De : 0;
     }, readPoint: xe };
   }
   function ge(ue, de, me, he, ve, xe, ke) {
     const Me = [ue].concat(he);
-    let Be, Ee, De = [], Oe = !1;
+    let Be, Ie, De = [], Oe = !1;
     function Ke(tt) {
       return ve.measureSize(ke.measure(tt));
     }
     return { init: function(tt) {
-      xe && (Ee = Ke(ue), De = he.map(Ke), Be = new ResizeObserver(((Ve) => {
+      xe && (Ie = Ke(ue), De = he.map(Ke), Be = new ResizeObserver(((Ve) => {
         (t(xe) || xe(tt, Ve)) && (function(Xe) {
           for (const Te of Xe) {
             if (Oe) return;
-            const Je = Te.target === ue, Ze = he.indexOf(Te.target), st = Je ? Ee : De[Ze];
+            const Je = Te.target === ue, Ze = he.indexOf(Te.target), st = Je ? Ie : De[Ze];
             if (c(Ke(Je ? ue : he[Ze]) - st) >= 0.5) {
               tt.reInit(), de.emit("resize");
               break;
@@ -11114,11 +11114,11 @@ function yl(n, e, t = {}, r = e) {
   function o(ue, de, me, he, ve) {
     const xe = ve.measure(10), ke = ve.measure(50), Me = V(0.1, 0.99);
     let Be = !1;
-    function Ee() {
+    function Ie() {
       return !Be && !!ue.reachedAny(me.get()) && !!ue.reachedAny(de.get());
     }
-    return { shouldConstrain: Ee, constrain: function(De) {
-      if (!Ee()) return;
+    return { shouldConstrain: Ie, constrain: function(De) {
+      if (!Ie()) return;
       const Oe = ue.reachedMin(de.get()) ? "min" : "max", Ke = c(ue[Oe] - de.get()), tt = me.get() - de.get(), Ve = Me.constrain(Ke / ke);
       me.subtract(tt * Ve), !De && c(tt) < xe && (me.set(ue.constrain(me.get())), he.useDuration(25).useBaseFriction());
     }, toggleActive: function(De) {
@@ -11131,8 +11131,8 @@ function yl(n, e, t = {}, r = e) {
       if (!(function(De) {
         return De === 1 ? Me(me.get()) : De === -1 && ke(me.get());
       })(Be)) return;
-      const Ee = ue * (-1 * Be);
-      he.forEach(((De) => De.add(Ee)));
+      const Ie = ue * (-1 * Be);
+      he.forEach(((De) => De.add(Ie)));
     } };
   }
   function g(ue, de, me, he, ve) {
@@ -11140,7 +11140,7 @@ function yl(n, e, t = {}, r = e) {
     function Be(De) {
       return De.concat().sort(((Oe, Ke) => c(Oe) - c(Ke)))[0];
     }
-    function Ee(De, Oe) {
+    function Ie(De, Oe) {
       const Ke = [De, De + me, De - me];
       if (!ue) return De;
       if (!Oe) return Be(Ke);
@@ -11149,25 +11149,25 @@ function yl(n, e, t = {}, r = e) {
     }
     return { byDistance: function(De, Oe) {
       const Ke = ve.get() + De, { index: tt, distance: Ve } = (function(Te) {
-        const Je = ue ? ke(Te) : Me(Te), Ze = de.map(((ct, ut) => ({ diff: Ee(ct - Je, 0), index: ut }))).sort(((ct, ut) => c(ct.diff) - c(ut.diff))), { index: st } = Ze[0];
+        const Je = ue ? ke(Te) : Me(Te), Ze = de.map(((ct, ut) => ({ diff: Ie(ct - Je, 0), index: ut }))).sort(((ct, ut) => c(ct.diff) - c(ut.diff))), { index: st } = Ze[0];
         return { index: st, distance: Je };
       })(Ke), Xe = !ue && xe(Ke);
-      return !Oe || Xe ? { index: tt, distance: De } : { index: tt, distance: De + Ee(de[tt] - Ve, 0) };
+      return !Oe || Xe ? { index: tt, distance: De } : { index: tt, distance: De + Ie(de[tt] - Ve, 0) };
     }, byIndex: function(De, Oe) {
-      return { index: De, distance: Ee(de[De] - ve.get(), Oe) };
-    }, shortcut: Ee };
+      return { index: De, distance: Ie(de[De] - ve.get(), Oe) };
+    }, shortcut: Ie };
   }
   function y(ue, de, me, he, ve, xe, ke, Me) {
     const Be = { passive: !0, capture: !0 };
-    let Ee = 0;
+    let Ie = 0;
     function De(Oe) {
-      Oe.code === "Tab" && (Ee = (/* @__PURE__ */ new Date()).getTime());
+      Oe.code === "Tab" && (Ie = (/* @__PURE__ */ new Date()).getTime());
     }
     return { init: function(Oe) {
       Me && (xe.add(document, "keydown", De, !1), de.forEach(((Ke, tt) => {
         xe.add(Ke, "focus", ((Ve) => {
           (t(Me) || Me(Oe, Ve)) && (function(Xe) {
-            if ((/* @__PURE__ */ new Date()).getTime() - Ee > 10) return;
+            if ((/* @__PURE__ */ new Date()).getTime() - Ie > 10) return;
             ke.emit("slideFocusStart"), ue.scrollLeft = 0;
             const Te = me.findIndex(((Je) => Je.includes(Xe)));
             n(Te) && (ve.useDuration(0), he.index(Te, 0), ke.emit("slideFocus"));
@@ -11209,7 +11209,7 @@ function yl(n, e, t = {}, r = e) {
       xe = !ke;
     } };
   }
-  function E(ue, de, me, he, ve, xe, ke, Me, Be) {
+  function I(ue, de, me, he, ve, xe, ke, Me, Be) {
     const De = v(ve), Oe = v(ve).reverse(), Ke = (function() {
       const Te = ke[0];
       return Xe(Ve(Oe, Te), me, !1);
@@ -11243,7 +11243,7 @@ function yl(n, e, t = {}, r = e) {
       }));
     }, loopPoints: Ke };
   }
-  function I(ue, de, me) {
+  function E(ue, de, me) {
     let he, ve = !1;
     return { init: function(xe) {
       me && (he = new MutationObserver(((ke) => {
@@ -11262,34 +11262,34 @@ function yl(n, e, t = {}, r = e) {
     const ve = {};
     let xe, ke = null, Me = null, Be = !1;
     return { init: function() {
-      xe = new IntersectionObserver(((Ee) => {
-        Be || (Ee.forEach(((De) => {
+      xe = new IntersectionObserver(((Ie) => {
+        Be || (Ie.forEach(((De) => {
           const Oe = de.indexOf(De.target);
           ve[Oe] = De;
         })), ke = null, Me = null, me.emit("slidesInView"));
-      }), { root: ue.parentElement, threshold: he }), de.forEach(((Ee) => xe.observe(Ee)));
+      }), { root: ue.parentElement, threshold: he }), de.forEach(((Ie) => xe.observe(Ie)));
     }, destroy: function() {
       xe && xe.disconnect(), Be = !0;
-    }, get: function(Ee = !0) {
-      if (Ee && ke) return ke;
-      if (!Ee && Me) return Me;
+    }, get: function(Ie = !0) {
+      if (Ie && ke) return ke;
+      if (!Ie && Me) return Me;
       const De = (function(Oe) {
         return q(ve).reduce(((Ke, tt) => {
           const Ve = parseInt(tt), { isIntersecting: Xe } = ve[Ve];
           return (Oe && Xe || !Oe && !Xe) && Ke.push(Ve), Ke;
         }), []);
-      })(Ee);
-      return Ee && (ke = De), Ee || (Me = De), De;
+      })(Ie);
+      return Ie && (ke = De), Ie || (Me = De), De;
     } };
   }
   function O(ue, de, me, he, ve, xe, ke, Me, Be) {
-    const { startEdge: Ee, endEdge: De, direction: Oe } = ue, Ke = n(me);
+    const { startEdge: Ie, endEdge: De, direction: Oe } = ue, Ke = n(me);
     return { groupSlides: function(tt) {
       return Ke ? (function(Ve, Xe) {
         return v(Ve).filter(((Te) => Te % Xe == 0)).map(((Te) => Ve.slice(Te, Te + Xe)));
       })(tt, me) : (function(Ve) {
         return Ve.length ? v(Ve).reduce(((Xe, Te, Je) => {
-          const Ze = k(Xe) || 0, st = Ze === 0, ct = Te === C(Ve), ut = ve[Ee] - xe[Ze][Ee], pt = ve[Ee] - xe[Te][De], St = !he && st ? Oe(ke) : 0, xt = c(pt - (!he && ct ? Oe(Me) : 0) - (ut + St));
+          const Ze = k(Xe) || 0, st = Ze === 0, ct = Te === C(Ve), ut = ve[Ie] - xe[Ze][Ie], pt = ve[Ie] - xe[Te][De], St = !he && st ? Oe(ke) : 0, xt = c(pt - (!he && ct ? Oe(Me) : 0) - (ut + St));
           return Je && xt > de + Be && Xe.push(Te), ct && Xe.push(Ve.length), Xe;
         }), []).map(((Xe, Te, Je) => {
           const Ze = Math.max(Je[Te - 1] || 0);
@@ -11299,18 +11299,18 @@ function yl(n, e, t = {}, r = e) {
     } };
   }
   function Z(ue, de, me, he, ve, xe, ke) {
-    const { align: Me, axis: Be, direction: Ee, startIndex: De, loop: Oe, duration: Ke, dragFree: tt, dragThreshold: Ve, inViewThreshold: Xe, slidesToScroll: Te, skipSnaps: Je, containScroll: Ze, watchResize: st, watchSlides: ct, watchDrag: ut, watchFocus: pt } = xe, St = { measure: function(at) {
+    const { align: Me, axis: Be, direction: Ie, startIndex: De, loop: Oe, duration: Ke, dragFree: tt, dragThreshold: Ve, inViewThreshold: Xe, slidesToScroll: Te, skipSnaps: Je, containScroll: Ze, watchResize: st, watchSlides: ct, watchDrag: ut, watchFocus: pt } = xe, St = { measure: function(at) {
       const { offsetTop: it, offsetLeft: W, offsetWidth: N, offsetHeight: i } = at;
       return { top: it, right: W + N, bottom: it + i, left: W, width: N, height: i };
     } }, xt = St.measure(de), ri = me.map(St.measure), Yt = /* @__PURE__ */ (function(at, it) {
       const W = it === "rtl", N = at === "y", i = !N && W ? -1 : 1;
       return { scroll: N ? "y" : "x", cross: N ? "x" : "y", startEdge: N ? "top" : W ? "right" : "left", endEdge: N ? "bottom" : W ? "left" : "right", measureSize: function(le) {
-        const { height: Ie, width: je } = le;
-        return N ? Ie : je;
+        const { height: Ee, width: je } = le;
+        return N ? Ee : je;
       }, direction: function(le) {
         return le * i;
       } };
-    })(Be, Ee), ui = Yt.measureSize(xt), Xt = /* @__PURE__ */ (function(at) {
+    })(Be, Ie), ui = Yt.measureSize(xt), Xt = /* @__PURE__ */ (function(at) {
       return { measure: function(it) {
         return at * (it / 100);
       } };
@@ -11327,7 +11327,7 @@ function yl(n, e, t = {}, r = e) {
         return e(at) ? W[at](i) : at(it, i, le);
       } };
     })(Me, ui), Kt = !Oe && !!Ze, lt = Oe || !!Ze, { slideSizes: kt, slideSizesWithGaps: vt, startGap: Mt, endGap: At } = (function(at, it, W, N, i, le) {
-      const { measureSize: Ie, startEdge: je, endEdge: L } = at, we = W[0] && i, D = (function() {
+      const { measureSize: Ee, startEdge: je, endEdge: L } = at, we = W[0] && i, D = (function() {
         if (!we) return 0;
         const Ht = W[0];
         return c(it[je] - Ht[je]);
@@ -11335,43 +11335,43 @@ function yl(n, e, t = {}, r = e) {
         if (!we) return 0;
         const Ht = le.getComputedStyle(k(N));
         return parseFloat(Ht.getPropertyValue(`margin-${L}`));
-      })(), ft = W.map(Ie), $e = W.map(((Ht, Qt, gi) => {
+      })(), ft = W.map(Ee), $e = W.map(((Ht, Qt, gi) => {
         const si = !Qt, oa = Q(gi, Qt);
         return si ? ft[Qt] + D : oa ? ft[Qt] + x : gi[Qt + 1][je] - Ht[je];
       })).map(c);
       return { slideSizes: ft, slideSizesWithGaps: $e, startGap: D, endGap: x };
     })(Yt, xt, ri, me, lt, ve), Gt = O(Yt, ui, Te, Oe, xt, ri, Mt, At, 2), { snaps: Zt, snapsAligned: Li } = (function(at, it, W, N, i) {
-      const { startEdge: le, endEdge: Ie } = at, { groupSlides: je } = i, L = je(N).map(((x) => k(x)[Ie] - x[0][le])).map(c).map(it.measure), we = N.map(((x) => W[le] - x[le])).map(((x) => -c(x))), D = je(we).map(((x) => x[0])).map(((x, ft) => x + L[ft]));
+      const { startEdge: le, endEdge: Ee } = at, { groupSlides: je } = i, L = je(N).map(((x) => k(x)[Ee] - x[0][le])).map(c).map(it.measure), we = N.map(((x) => W[le] - x[le])).map(((x) => -c(x))), D = je(we).map(((x) => x[0])).map(((x, ft) => x + L[ft]));
       return { snaps: we, snapsAligned: D };
     })(Yt, oi, xt, ri, Gt), Pt = -k(Zt) + k(vt), { snapsContained: Ce, scrollContainLimit: Pe } = (function(at, it, W, N, i) {
-      const le = V(-it + at, 0), Ie = W.map(((we, D) => {
+      const le = V(-it + at, 0), Ee = W.map(((we, D) => {
         const { min: x, max: ft } = le, $e = le.constrain(we), Ht = !D, Qt = Q(W, D);
         return Ht ? ft : Qt || L(x, $e) ? x : L(ft, $e) ? ft : $e;
       })).map(((we) => parseFloat(we.toFixed(3)))), je = (function() {
-        const we = Ie[0], D = k(Ie);
-        return V(Ie.lastIndexOf(we), Ie.indexOf(D) + 1);
+        const we = Ee[0], D = k(Ee);
+        return V(Ee.lastIndexOf(we), Ee.indexOf(D) + 1);
       })();
       function L(we, D) {
         return _(we, D) <= 1;
       }
       return { snapsContained: (function() {
         if (it <= at + i) return [le.max];
-        if (N === "keepSnaps") return Ie;
+        if (N === "keepSnaps") return Ee;
         const { min: we, max: D } = je;
-        return Ie.slice(we, D);
+        return Ee.slice(we, D);
       })(), scrollContainLimit: je };
     })(ui, Pt, Li, Ze, 2), He = Kt ? Ce : Li, { limit: ot } = (function(at, it, W) {
       const N = it[0];
       return { limit: V(W ? N - at : k(it), N) };
     })(Pt, He, Oe), _t = X(C(He), De, Oe), Fe = _t.clone(), dt = v(me), Ct = j(he, ve, (() => (({ dragHandler: at, scrollBody: it, scrollBounds: W, options: { loop: N } }) => {
       N || W.constrain(at.pointerDown()), it.seek();
-    })(Bt)), ((at) => (({ scrollBody: it, translate: W, location: N, offsetLocation: i, previousLocation: le, scrollLooper: Ie, slideLooper: je, dragHandler: L, animation: we, eventHandler: D, scrollBounds: x, options: { loop: ft } }, $e) => {
+    })(Bt)), ((at) => (({ scrollBody: it, translate: W, location: N, offsetLocation: i, previousLocation: le, scrollLooper: Ee, slideLooper: je, dragHandler: L, animation: we, eventHandler: D, scrollBounds: x, options: { loop: ft } }, $e) => {
       const Ht = it.settled(), Qt = !x.shouldConstrain(), gi = ft ? Ht : Ht && Qt, si = gi && !L.pointerDown();
       si && we.stop();
       const oa = N.get() * $e + le.get() * (1 - $e);
-      i.set(oa), ft && (Ie.loop(it.direction()), je.loop()), W.to(i.get()), si && D.emit("settle"), gi || D.emit("scroll");
+      i.set(oa), ft && (Ee.loop(it.direction()), je.loop()), W.to(i.get()), si && D.emit("settle"), gi || D.emit("scroll");
     })(Bt, at))), Ue = He[_t.get()], di = S(Ue), hi = S(Ue), wi = S(Ue), xi = S(Ue), Fi = (function(at, it, W, N, i, le) {
-      let Ie = 0, je = 0, L = i, we = le, D = at.get(), x = 0;
+      let Ee = 0, je = 0, L = i, we = le, D = at.get(), x = 0;
       function ft(Qt) {
         return L = Qt, Ht;
       }
@@ -11383,11 +11383,11 @@ function yl(n, e, t = {}, r = e) {
       }, duration: function() {
         return L;
       }, velocity: function() {
-        return Ie;
+        return Ee;
       }, seek: function() {
         const Qt = N.get() - at.get();
         let gi = 0;
-        return L ? (W.set(at), Ie += Qt / L, Ie *= we, D += Ie, at.add(Ie), gi = D - x) : (Ie = 0, W.set(N), at.set(N), gi = Qt), je = p(gi), x = D, Ht;
+        return L ? (W.set(at), Ee += Qt / L, Ee *= we, D += Ee, at.add(Ee), gi = D - x) : (Ee = 0, W.set(N), at.set(N), gi = Qt), je = p(gi), x = D, Ht;
       }, settled: function() {
         return c(N.get() - it.get()) < 1e-3;
       }, useBaseFriction: function() {
@@ -11396,10 +11396,10 @@ function yl(n, e, t = {}, r = e) {
         return ft(i);
       }, useFriction: $e, useDuration: ft };
       return Ht;
-    })(di, wi, hi, xi, Ke, 0.68), wt = g(Oe, He, Pt, ot, xi), jt = /* @__PURE__ */ (function(at, it, W, N, i, le, Ie) {
+    })(di, wi, hi, xi, Ke, 0.68), wt = g(Oe, He, Pt, ot, xi), jt = /* @__PURE__ */ (function(at, it, W, N, i, le, Ee) {
       function je(L) {
         const we = L.distance, D = L.index !== it.get();
-        le.add(we), we && (N.duration() ? at.start() : (at.update(), at.render(1), at.update())), D && (W.set(it.get()), it.set(L.index), Ie.emit("select"));
+        le.add(we), we && (N.duration() ? at.start() : (at.update(), at.render(1), at.update())), D && (W.set(it.get()), it.set(L.index), Ee.emit("select"));
       }
       return { distance: function(L, we) {
         je(i.byDistance(L, we));
@@ -11413,15 +11413,15 @@ function yl(n, e, t = {}, r = e) {
         return W ? (N - it) / -W : 0;
       } };
     })(ot), ti = J(), Nt = F(de, me, ke, Xe), { slideRegistry: Rt } = (function(at, it, W, N, i, le) {
-      const { groupSlides: Ie } = i, { min: je, max: L } = N;
+      const { groupSlides: Ee } = i, { min: je, max: L } = N;
       return { slideRegistry: (function() {
-        const we = Ie(le), D = !at || it === "keepSnaps";
+        const we = Ee(le), D = !at || it === "keepSnaps";
         return W.length === 1 ? [le] : D ? we : we.slice(je, L).map(((x, ft, $e) => {
           const Ht = !ft, Qt = Q($e, ft);
           return Ht ? z(k($e[0]) + 1) : Qt ? z(C(le) - k($e)[0] + 1, k($e)[0]) : x;
         }));
       })() };
-    })(Kt, Ze, He, Pe, Gt, dt), Ti = y(ue, me, Rt, jt, Fi, ti, ke, pt), Bt = { ownerDocument: he, ownerWindow: ve, eventHandler: ke, containerRect: xt, slideRects: ri, animation: Ct, axis: Yt, dragHandler: K(Yt, ue, he, ve, xi, ne(Yt, ve), di, Ct, jt, Fi, wt, _t, ke, Xt, tt, Ve, Je, 0.68, ut), eventStore: ti, percentOfView: Xt, index: _t, indexPrevious: Fe, limit: ot, location: di, offsetLocation: wi, previousLocation: hi, options: xe, resizeHandler: ge(de, ke, ve, me, Yt, st, St), scrollBody: Fi, scrollBounds: o(ot, wi, xi, Fi, Xt), scrollLooper: m(Pt, ot, wi, [di, wi, hi, xi]), scrollProgress: _i, scrollSnapList: He.map(_i.get), scrollSnaps: He, scrollTarget: wt, scrollTo: jt, slideLooper: E(Yt, ui, Pt, kt, vt, Zt, He, wi, me), slideFocus: Ti, slidesHandler: I(de, ke, ct), slidesInView: Nt, slideIndexes: dt, slideRegistry: Rt, slidesToScroll: Gt, target: xi, translate: B(Yt, de) };
+    })(Kt, Ze, He, Pe, Gt, dt), Ti = y(ue, me, Rt, jt, Fi, ti, ke, pt), Bt = { ownerDocument: he, ownerWindow: ve, eventHandler: ke, containerRect: xt, slideRects: ri, animation: Ct, axis: Yt, dragHandler: K(Yt, ue, he, ve, xi, ne(Yt, ve), di, Ct, jt, Fi, wt, _t, ke, Xt, tt, Ve, Je, 0.68, ut), eventStore: ti, percentOfView: Xt, index: _t, indexPrevious: Fe, limit: ot, location: di, offsetLocation: wi, previousLocation: hi, options: xe, resizeHandler: ge(de, ke, ve, me, Yt, st, St), scrollBody: Fi, scrollBounds: o(ot, wi, xi, Fi, Xt), scrollLooper: m(Pt, ot, wi, [di, wi, hi, xi]), scrollProgress: _i, scrollSnapList: He.map(_i.get), scrollSnaps: He, scrollTarget: wt, scrollTo: jt, slideLooper: I(Yt, ui, Pt, kt, vt, Zt, He, wi, me), slideFocus: Ti, slidesHandler: E(de, ke, ct), slidesInView: Nt, slideIndexes: dt, slideRegistry: Rt, slidesToScroll: Gt, target: xi, translate: B(Yt, de) };
     return Bt;
   }
   const $ = { align: "center", axis: "x", container: null, slides: null, containScroll: "trimSnaps", direction: "ltr", slidesToScroll: 1, inViewThreshold: 0, breakpoints: {}, dragFree: !1, dragThreshold: 10, loop: !1, skipSnaps: !1, duration: 25, startIndex: 0, active: !0, watchDrag: !0, watchResize: !0, watchSlides: !0, watchFocus: !0 };
@@ -11461,14 +11461,14 @@ function yl(n, e, t = {}, r = e) {
         kt = {};
       } };
       return Mt;
-    })(), { mergeOptions: Ee, optionsAtMedia: De, optionsMediaQueries: Oe } = xe, { on: Ke, off: tt, emit: Ve } = Be, Xe = Yt;
-    let Te, Je, Ze, st, ct = !1, ut = Ee($, be.globalOptions), pt = Ee(ut), St = [];
+    })(), { mergeOptions: Ie, optionsAtMedia: De, optionsMediaQueries: Oe } = xe, { on: Ke, off: tt, emit: Ve } = Be, Xe = Yt;
+    let Te, Je, Ze, st, ct = !1, ut = Ie($, be.globalOptions), pt = Ie(ut), St = [];
     function xt(lt) {
       const kt = Z(ue, Ze, st, he, ve, lt, Be);
       return lt.loop && !kt.slideLooper.canLoop() ? xt(Object.assign({}, lt, { loop: !1 })) : kt;
     }
     function ri(lt, kt) {
-      ct || (ut = Ee(ut, lt), pt = De(ut), St = kt || St, (function() {
+      ct || (ut = Ie(ut, lt), pt = De(ut), St = kt || St, (function() {
         const { container: vt, slides: Mt } = pt;
         Ze = (e(vt) ? ue.querySelector(vt) : vt) || ue.children[0];
         const Gt = e(Mt) ? Ze.querySelectorAll(Mt) : Mt;
@@ -11477,7 +11477,7 @@ function yl(n, e, t = {}, r = e) {
     }
     function Yt(lt, kt) {
       const vt = oi();
-      ui(), ri(Ee({ startIndex: vt }, lt), kt), Be.emit("reInit");
+      ui(), ri(Ie({ startIndex: vt }, lt), kt), Be.emit("reInit");
     }
     function ui() {
       Te.dragHandler.destroy(), Te.eventStore.clear(), Te.translate.clear(), Te.slideLooper.clear(), Te.resizeHandler.destroy(), Te.slidesHandler.destroy(), Te.slidesInView.destroy(), Te.animation.destroy(), ke.destroy(), Me.clear();
@@ -30485,7 +30485,7 @@ function Cm() {
 
 `;
 }
-const Bm = "data:font/ttf;base64,AAEAAAAUAQAABABAR0RFRv12+3wAALM0AAAGY0dQT1Pp/UdHAAC5mAAARYJHU1VCDHYTWgAA/xwAAAh8SFZBUl4tvEoAAQeYAAAHMk9TLzJ7A0KsAAAByAAAAGBTVEFUgyx9+QABDswAAACeYXZhcjyjQAEAAQ9sAAAALmNtYXB32Lo4AAALZAAABSRmdmFyl81plAABD5wAAABsZ2FzcAAAABAAALMsAAAACGdseWaiyb86AAAVMAAAh4xndmFy655TDwABEAgAAMySaGVhZCX2fYIAAAFMAAAANmhoZWEMUgEWAAABhAAAACRobXR4KZjfAQAAAigAAAk8bG9jYQIRI88AABCQAAAEoG1heHACXwC6AAABqAAAACBuYW1lRAlQVgAAnLwAAAVQcG9zdKcgM0IAAKIMAAARHnByZXBoBoyFAAAQiAAAAAcAAQAAAAMZmm/Cw05fDzz1AAMIAAAAAADhbE4cAAAAAOGDy7b8lP1RB1kHygAAAAYAAgAAAAAAAAABAAAIYvyiAAAHovyU+oIHWQABAAAAAAAAAAAAAAAAAAACTwABAAACTwBhAAYAVwAGAAEAAAAAAAAAAAAAAAAAAwABAAQEPgGQAAUAAAUzBM0AAACaBTMEzQAAAs0AZAKJAAAAAAAAAAAAAAAAoAAI70AAAEsAAAAAAAAAAE5PTkUAwAAg+08IYvyiAAAIYgNeAAAAswAAAAAEOgWwAAAAIAADBRQArQU6ABwFOgAcBToAHAU6ABwFOgAcBToAHAU6ABwFOgAcBToAHAU6ABwHe//wBPwAqQU1AHcFNQB3BTUAdwU1AHcFNQB3BUAAqQVAAKkFQAAHBUAABwSMAKkEjACpBIwAqQSMAKkEjACpBIwAqQSMAKkEjACpBIwAqQRsAKkFcwB6BXMAegVzAHoFcwB6BbUAqQW1ABUCLgC3BpgAtwIuALcCLv/pAi7/0QIuAKkCLv/UAi7/xwIuAC8EagA1BQUAqQUFAKkETwCpBE8AqQRPAKkETwCpBE//twb9AKkFtQCpBbUAqQW1AKkFtQCpBbUAqQW1AKkFggB2BYIAdgWCAHYFggB2BYIAdgWCAHYFggB2BYIAdgWCAHYHogBpBQ0AqQS6AKYFggBtBO0AqQTtAKkE7QCpBO0AqQTAAFEEwABRBMAAUQTAAFEEwABRBSsAjwTGADIExgAyBMYAMgUwAIwFMACMBTAAjAUwAIwFMACMBTAAjAUwAIwFMACMBTAAjAUwAIwFGQAdBxkAPQcZAD0HGQA9BxkAPQcZAD0FBQA6BM4ADwTOAA8EzgAPBM4ADwTOAA8EywBXBMsAVwTLAFcEywBXBSQAsgVMALIFPgCyBYMAfgWUALIFrwB+BeEAfgXkAH4EWwBtBFsAbQRbAG0EWwBtBFsAbQRbAG0EWwBtBFsAbQRbAG0EWwBtBsIATgR+AIwEMQBcBDEAXAQxAFwEMQBcBDEAXASEAF8EhABfBGcAXwSxAH4EPwBdBD8AXQQ/AF0EPwBdBD8AXQQ/AF0EPwBdBD8AXQQ/AF0CyAA9BH4AYAR+AGAEfgBgBH4AYARoAIwEaP/vAgAAkgH8AJwB/ACcAfz/0AH8/7gB/ACQAfz/uwH8/64B/AAMA/cAkgH3/78B9/+/BA8AjQQPAI0B8gCcAfIAnAHyAJwB8gBfArT/hQcDAIsEawCMBGsAjARrAIwEawCMBGsAjARrAIwEkQBcBJEAXASRAFwEkQBcBJEAXASRAFwEkQBcBIkAXASRAFwHQwBhBH4AjASdAJUEjQBfArYAjAK2AIwCtgAsArYATgQhAF8EIQBfBCEAXwQhAF8EIQBfBMIAiwH9AKACngAJAp4ACQKeAAkEaQCIBGkAiARpAIgEaQCIBGkAiARpAIgEaQCIBGkAiARpAIgEaQCIA+EAIQYDACsGAwArBgMAKwYDACsGAwArA/gAKQPJABYDyQAWA8kAFgPJABYDyQAWA/gAWQP4AFkD+ABZA/gAWQQ6AB4EFQCTBBEAkwR+AIwEMwBdBJQAWwSNAFsEnwBaBI4AjASdAFsEPwBdBH4AYAWRAD0G1QA9BtUAPQSMAD0EbwAfBO8APQacAF8EhwAUBIcAFASHABQEhwAUBIcAFASHABQEhwAUBjoACQRRAIoEfABhBHwAYQSAAIoEgP++A+YAigPmAIoD5gCKA+YAigPmAIoDywCKBKwAYwTkAIoB6QCXAekAlwHp/8cB6f+vAen/sgPPACsEVQCKA7UAigYCAIoE4wCKBOMAigS8AGAEvABgBLwAYAS8AGAEvABgBLwAYAS8AGAEXQCKA/kAigS8AFkESgCKBCAAQwRRAIoEJwApBHwAdAR8AHQEfAB0BHwAdAR8AHQEaQAUBhUAMQRVACcEKwAOBCsADgQjAEgDlACTA6QAewSGAGQExABkBSIAmAUiAJgFIgCYBSIAmAQ3AD0ENwA9BDcAPQMYABQDGAAUBCsAPAQrADwEtACUBLQAlAJcAGQCXP/5AlwAZALUAEwC1ABMBNsAtQTvALUE7wC1AmoANwJqAA4D9gBBA/YAQQRNAFEETQBRBE0AUQQcAFMEHABTBRUAtAUTAIQFEwCEAk0AVgLmADwC5gA8BRkAZwUZAGcEoQA9BL8AjwS/AI8FBACOBQQAjgUEAI4ESAA7BF8AOwRfADsE+QCzBPkAswPtADwD7QA8BloAtQZaALUGWgC1BloAtQZaALUGWgC1BP8ACQT/AAkExgA3AnQANwTVADcEwgA9BxQAmAVDADwGXwCUBhsAUQWJAFMG5AByBZsAPAbbAAkDGAAUA+oASgPqAEoD6gBKA+oASgS3AGQE1QA3BKsAUwR/AHMEfwCrBH8AXQR/AF8EfwA1BH8AmgR/AIUEfwBOBH8AcQR/AGQC8ABQAvAANgLwAFsC8ABWAvAAOwLwAE8C8ABJBBAAYwQQAJgEEABOBBAATgQQADAEEACABA8AcgQQAEIEEABhBBAAVgLwAFAC8AB7AvAAQgLwAD8C8AA2AvAAWwLwAFYC8AA7AvAATwLwAEkDowA8BjAAewW6AHsGKAA/AvAAUALwAHsC8ABCAvAAPwLwADYC8ABbAvAAVgLwADsC8ABPAvAASQLwAFAC8AB7AvAAQgLwAD8C8AA2AvAAWwLwAFYC8AA7AvAATwLwAEkB/AAAAfwAAAAA/XwAAP7zAAD80QAA/JQAAAAAAVcADwKgABsCBQA8Ah0AkAGTABwB8gCFAbIAKQVbAJMCEQChAfUAiwPJAEsDygBEAhgAkwKzAIsDcgAcBO8AeANOABIDSQApAcMAbgIdAJACNQAlBUAAeAY/AFgDnQAEAr4AhQLKACcCtgBAArYAFAIhAJICIQAKAZkAJALFACQC1wBpAt4APAGbAGABmwAwA8EAZAPBAGcCZwBsAmcAWgKSAIgBZgBnBGgAPwcuAGgE+gBlA+oAQwTpAFoGSQBbBkkAWgeNAFAC/QCDAfUAsAHtAJME1gBnBGEAaAW0AGkEfwBuBH8AYAa6AJgEpwBbBDQADwQgAEMD5QBDBDUAMQOhAA4DDgASBEwAMwRMAIUETABkBEwAMwRMAIUETAB7BEwAjQRMAFwETACGBRQAVARMALwEaQB6BdwAaQAABOEAAAIHAAABIwAAAS0AAAEsAAACBwAAAZUAAAGVAAABiwAAAZkAAAC2AAAAtgAAAggAAADuAAAA8AAAAKAAAAGZAAAAZAAAADIAAABkAAAAZAAAADIAAABaAAAAZAAAAGQAAABkAAAAeQAAAGQAAACPAAAAkgAAAJYAAAAyAAAAMgNTAGQD6AAyAmsAZAJrAGQD6AAyAyYAZAPoAGQD6ABkA+gAeQOMAGQD6ACPA+gAMgGyADIDmACPAAAAAgAAAAMAAAAUAAMAAQAAABQABAUQAAAAgACAAAYAAAAvADkAfgCsAQcBEwEbASMBJwErATMBNwE+AUgBTQFbAWEBZQF/AhsCNwLHAt0DBAMIAwwDEgMoA7EFvAW/BcIFxwXqBfQehR6eHvMgDyAUIBogHiAiICYgOiBEIHAgeSCJIKogrCEiIhIiFfsB+x37KPs2+zz7PvtB+0T7T///AAAAIAAwADoAoACuAQoBFgEeASYBKgEuATYBOQFBAUoBUAFeAWQBagIYAjcCxgLYAwADBgMKAxIDJgOxBbAFvgXBBccF0AXwHoAenh7yIAwgEyAYIBwgIiAmIDkgRCBwIHQggCCqIKwhIiISIhX7Afsd+x/7Kfs4+z77QPtD+0b//wAAAV0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+c/+AAAAAAAAAAAD/K/8Y/Yv8cQAAAAD8aQAAAAAAAOG2AADhwOHTAAAAAOG84bLhvuFu4VDhUOE24WHhXuDg4ALf/QX9Bl0GXAAAAAAGIAAAAAAAAAABAIAAAACcASQBPAHuAgACCgIUAhYCGAIiAiQCLgI8AkICWAJeAmACigAAAAACjAKWAp4CogAAAAAAAAAAAp4CoAAAAqAC1ALcAAAC5AAAAAAC4gLmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAswC5gAAAuwC7gLwAAABygHZAfkB4AIJAh8B/QH6AekB6gHfAhMB1QHlAdQB4QHWAdcCGQIXAhgB2wH8AAEADAANABIAFgAfACAAJAAmAC8AMAAyADcAOAA+AEgASgBLAE8AVQBYAGIAYwBoAGkAbgHtAeIB7gIdAegCQwB6AIUAhgCLAI8AmACZAJ0AnwCpAKsArQCyALMAuQDDAMUAxgDKANEA1ADeAN8A5ADlAOoB6wIEAewCHAHLAdoCBwIMAggCDQIFAf8CQQIAAToB9QIbAgECSwIDAhoBwgHDAkQCHgH+Ad0CTAHBATsB9gG0AbMBtQHcAAYAAgAEAAoABQAJAAsAEAAcABcAGQAaACwAKAApACoAFQA8AEIAPwBAAEYAQQIVAEUAXQBZAFsAXABqAEkAzwB/AHsAfQCDAH4AggCEAIkAlQCQAJIAkwClAKEAogCjAI4AtwC9ALoAuwDBALwCFgDAANkA1QDXANgA5gDEAOgABwCAAAMAfAAIAIEADgCHABEAigAPAIgAEwCMABQAjQAdAJYAGwCUAB4AlwAYAJEAIQCaACMAnAAiAJsAJQCeAC0ApgAuAKcAKwCgACcAqAAxAKwAMwCuADUAsAA0AK8ANgCxADkAtAA7ALYAOgC1AD0AuABEAL8AQwC+AEcAwgBMAMcATgDJAE0AyABQAMsAUgDNAFEAzABWANIAXwDbAFoA1gBhAN0AXgDaAGAA3ABlAOEAawDnAGwAbwDrAHEA7QBwAOwA0ABTAM4AVwDTAkgCQgJJAk0CSgJFAjMCNAI3AjsCPAI5AjICMQI6AjUCOAHTAi4CIAIvAT4BQgFFAUcBSQFLAU4BUAFRAVMBVQFXAVoBXAFdAV8BYAFiAWQBZQFnAWoBawFtAW8BcQF3AYoBeQGLAdEB0gBnAOMAZADgAGYA4gBtAOkB8wH0Ae8B8QHyAfAB+wFyAXMBdAF1AT8BQAFBAUMBRgFIAUoBTAFPAVIBVAFWAVgBWwFhAWMBZgFoAWwBbgFwAXYBeAFNAUQBWQFpAYy4Af+FsASNAAAAABUAMQA9AEkAVQBhAG0AeQCFAJEAnQDPAREBSAFUAZkBpQGxAd0CGAIgAlUCdwKDArMCvwLLAtcC4wLvAvsDFgNTA18DawN3A5MDtQPBA80D2QPlA/ED/QQJBBUEIARABGIEbgSBBI0EmQSlBMIE6AT+BQoFLwU7BUcFcAWqBbYFwgXOBdoF5gXyBjMGPwaNBrQG4AcjB1QHYAefB6sH9QgBCFkIZQhxCLgIywjtCPkJHgkqCTYJQglOCVoJZglyCX4JigmiCdEJ3QnpCfUKAQogCjcKQwpPClsKZwqECpAKuwrHCucLKQtIC30LrAvsDCoMcAy7DMcM0wzfDOsM9w0C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AOIAAwABBAkBBwAMA1oAAwABBAkBCAAQA2YAAwABBAkBCQAIA3YAAwABBAkBCgASA34AAwABBAkBCwAKA5BXZWlnaHRUaGluRXh0cmFMaWdodExpZ2h0UmVndWxhck1lZGl1bVNlbWlCb2xkQm9sZEV4dHJhQm9sZEJsYWNrAEMAbwBwAHkAcgBpAGcAaAB0ACAAMgAwADEANAAgAFQAaABlACAASABlAGUAYgBvACAAUAByAG8AagBlAGMAdAAgAEEAdQB0AGgAbwByAHMAIAAoAGgAdAB0AHAAcwA6AC8ALwBnAGkAdABoAHUAYgAuAGMAbwBtAC8ATwBkAGUAZABFAHoAZQByAC8AaABlAGUAYgBvACkASABlAGUAYgBvAFIAZQBnAHUAbABhAHIAMwAuADEAMAAwADsATgBPAE4ARQA7AEgAZQBlAGIAbwAtAFIAZQBnAHUAbABhAHIASABlAGUAYgBvACAAUgBlAGcAdQBsAGEAcgBWAGUAcgBzAGkAbwBuACAAMwAuADEAMAAwAEgAZQBlAGIAbwAtAFIAZQBnAHUAbABhAHIARQB6AGUAcgAgAFQAeQBwAGUAIABIAG8AdQBzAGUATwBkAGUAZAAgAEUAegBlAHIAZQB6AGUAcgB0AHkAcABlAGgAbwB1AHMAZQAuAGMAbwBtAFQAaABpAHMAIABGAG8AbgB0ACAAUwBvAGYAdAB3AGEAcgBlACAAaQBzACAAbABpAGMAZQBuAHMAZQBkACAAdQBuAGQAZQByACAAdABoAGUAIABTAEkATAAgAE8AcABlAG4AIABGAG8AbgB0ACAATABpAGMAZQBuAHMAZQAsACAAVgBlAHIAcwBpAG8AbgAgADEALgAxAC4AIABUAGgAaQBzACAAbABpAGMAZQBuAHMAZQAgAGkAcwAgAGEAdgBhAGkAbABhAGIAbABlACAAdwBpAHQAaAAgAGEAIABGAEEAUQAgAGEAdAA6ACAAaAB0AHQAcABzADoALwAvAHMAYwByAGkAcAB0AHMALgBzAGkAbAAuAG8AcgBnAC8ATwBGAEwAaAB0AHQAcABzADoALwAvAHMAYwByAGkAcAB0AHMALgBzAGkAbAAuAG8AcgBnAC8ATwBGAEwAcwBzADAANgBzAHMAMAA3AFcAZQBpAGcAaAB0AFQAaABpAG4ARQB4AHQAcgBhAEwAaQBnAGgAdABMAGkAZwBoAHQATQBlAGQAaQB1AG0AUwBlAG0AaQBCAG8AbABkAEIAbwBsAGQARQB4AHQAcgBhAEIAbwBsAGQAQgBsAGEAYwBrAAIAAAAAAAD/agBkAAAAAAAAAAAAAAAAAAAAAAAAAAACTwAAACQAyQECAMcAYgCtAQMBBABjAK4AkAAlACYA/QD/AGQBBQAnAQYBBwDpACgAZQEIAMgAygEJAMsBCgELACkAKgD4AQwBDQArAQ4ALAEPAMwAzQDOAPoAzwEQAREALQAuARIALwETARQBFQDiADAAMQEWARcBGABmARkAMgDQANEAZwDTARoBGwCRAK8AsAAzAO0ANAA1ARwBHQEeADYBHwDkAPsBIAEhADcBIgEjADgA1AEkANUAaADWASUBJgEnASgAOQA6ASkBKgErASwAOwA8AOsBLQC7AS4APQEvAOYBMAExATIBMwE0ATUBNgE3ATgARABpATkAawBsAGoBOgE7AG4AbQCgAEUARgD+AQAAbwE8AEcBPQEBAOoASABwAT4AcgBzAT8AcQFAAUEASQBKAPkBQgFDAEsBRABMANcAdAB2AHcBRQB1AUYBRwFIAE0BSQBOAUoATwFLAUwBTQDjAFAAUQFOAU8BUAB4AVEAUgB5AHsAfAB6AVIBUwChAH0AsQBTAO4AVABVAVQBVQFWAFYBVwDlAPwBWACJAVkAVwFaAVsAWAB+AVwAgACBAH8BXQFeAV8BYABZAFoBYQFiAWMBZABbAFwA7AFlALoBZgBdAWcA5wFoAWkBagFrAWwBbQFuAW8BcAFxAXIBcwF0AXUBdgF3AXgAwAF5AXoBewF8AX0BfgF/AYABgQGCAYMBhAGFAYYBhwGIAYkBigGLAYwBjQGOAY8BkAGRAZIBkwGUAZUBlgGXAZgBmQGaAZsBnAGdAZ4BnwGgAaEBogGjAaQBpQGmAacBqAGpAaoBqwGsAa0BrgGvAbABsQGyAbMAnQCeAbQBtQG2AbcBuAG5AboBuwG8Ab0BvgG/AcABwQHCAcMBxAHFAcYBxwHIAckBygHLAcwBzQHOAc8B0AHRAdIB0wHUAdUB1gHXAdgB2QHaAdsB3AHdAd4B3wHgAeEB4gHjAeQB5QHmAecB6AHpAeoB6wHsAe0B7gHvAfAB8QHyAfMB9AH1AfYB9wH4AfkB+gH7AfwB/QH+Af8CAAIBAgICAwIEABMAFAAVABYAFwAYABkAGgAbABwCBQIGAgcCCAIJAgoCCwIMAg0CDgIPAhACEQISAhMCFAIVAhYCFwIYAhkCGgIbAhwCHQIeAh8AvAD0APUA9gIgAiECIgIjAiQCJQImAicCKAIpAioCKwIsAi0CLgIvAjACMQIyAjMAAwI0AjUCNgI3AjgAAQI5AjoCOwARAA8AHQAeAKsABACjACIAogDDAIcADQAGABIAPwI8Aj0AEACyALMAQgALAAwAXgBgAD4AQADEAMUAtAC1ALYAtwCpAKoAvgC/AAUACgI+ACMACQCIAIYAiwCKAIwAgwBfAOgCPwCEAL0ABwJAAkEAhQCWAkICQwJEAkUCRgAOAO8A8AC4ACAAIQAfAJMApABhAEECRwAIAkgCSQJKAksCTAJNAk4CTwJQAlECUgJTAlQCVQJWAlcCWAJZAloCWwJcAl0CXgJfAmACYQJiAmMCZAJlAmYCZwJoAI4A3ABDAI0A3wDYAOEA2wDdANkA2gDeAOACaQZBYnJldmUHQW1hY3JvbgdBb2dvbmVrCkNkb3RhY2NlbnQGRGNhcm9uBkRjcm9hdAZFY2Fyb24KRWRvdGFjY2VudAdFbWFjcm9uB0VvZ29uZWsHdW5pMDEyMgpHZG90YWNjZW50BEhiYXICSUoHSW1hY3JvbgdJb2dvbmVrB3VuaTAxMzYGTGFjdXRlBkxjYXJvbgd1bmkwMTNCBk5hY3V0ZQZOY2Fyb24HdW5pMDE0NQNFbmcNT2h1bmdhcnVtbGF1dAdPbWFjcm9uBlJhY3V0ZQZSY2Fyb24HdW5pMDE1NgZTYWN1dGUHdW5pMDIxOAd1bmkxRTlFBlRjYXJvbgd1bmkwMjFBBlVicmV2ZQ1VaHVuZ2FydW1sYXV0B1VtYWNyb24HVW9nb25lawVVcmluZwZXYWN1dGULV2NpcmN1bWZsZXgJV2RpZXJlc2lzBldncmF2ZQtZY2lyY3VtZmxleAZZZ3JhdmUGWmFjdXRlClpkb3RhY2NlbnQFSy5hbHQFUi5hbHQGSy5hbHQyBkMuc3MwNgZELnNzMDYGRy5zczA2Bk8uc3MwNgZRLnNzMDYGYWJyZXZlB2FtYWNyb24HYW9nb25lawpjZG90YWNjZW50BmRjYXJvbgZlY2Fyb24KZWRvdGFjY2VudAdlbWFjcm9uB2VvZ29uZWsHdW5pMDEyMwpnZG90YWNjZW50BGhiYXIJaS5sb2NsVFJLB2ltYWNyb24HaW9nb25lawJpagd1bmkwMjM3B3VuaTAxMzcGbGFjdXRlBmxjYXJvbgd1bmkwMTNDBm5hY3V0ZQZuY2Fyb24HdW5pMDE0NgNlbmcNb2h1bmdhcnVtbGF1dAdvbWFjcm9uBnJhY3V0ZQZyY2Fyb24HdW5pMDE1NwZzYWN1dGUHdW5pMDIxOQVsb25ncwZ0Y2Fyb24HdW5pMDIxQgZ1YnJldmUNdWh1bmdhcnVtbGF1dAd1bWFjcm9uB3VvZ29uZWsFdXJpbmcGd2FjdXRlC3djaXJjdW1mbGV4CXdkaWVyZXNpcwZ3Z3JhdmULeWNpcmN1bWZsZXgGeWdyYXZlBnphY3V0ZQp6ZG90YWNjZW50BWcuYWx0BWsuYWx0BmsuYWx0MgZiLnNzMDYGYy5zczA2BmQuc3MwNgZnLnNzMDYGby5zczA2BnAuc3MwNgZxLnNzMDYGZS5zczA3Bmcuc3MwNwNmX2YFZl9mX2kFZl9mX2wDZl9sB2xvbmdzX3QDc190BkEuc21jcAtBYWN1dGUuc21jcBBBY2lyY3VtZmxleC5zbWNwDkFkaWVyZXNpcy5zbWNwC0FncmF2ZS5zbWNwCkFyaW5nLnNtY3ALQXRpbGRlLnNtY3AHQUUuc21jcAZCLnNtY3AGQy5zbWNwDUNjZWRpbGxhLnNtY3AGRC5zbWNwCEV0aC5zbWNwBkUuc21jcAtFYWN1dGUuc21jcBBFY2lyY3VtZmxleC5zbWNwDkVkaWVyZXNpcy5zbWNwC0VncmF2ZS5zbWNwBkYuc21jcAZHLnNtY3AGSC5zbWNwBkkuc21jcAtJYWN1dGUuc21jcBBJY2lyY3VtZmxleC5zbWNwDklkaWVyZXNpcy5zbWNwC0lncmF2ZS5zbWNwBkouc21jcAZLLnNtY3AGTC5zbWNwBk0uc21jcAZOLnNtY3ALTnRpbGRlLnNtY3AGTy5zbWNwC09hY3V0ZS5zbWNwEE9jaXJjdW1mbGV4LnNtY3AOT2RpZXJlc2lzLnNtY3ALT2dyYXZlLnNtY3ALT3NsYXNoLnNtY3ALT3RpbGRlLnNtY3AGUC5zbWNwClRob3JuLnNtY3AGUS5zbWNwBlIuc21jcAZTLnNtY3AMdW5pMUU5RS5zbWNwBlQuc21jcAZVLnNtY3ALVWFjdXRlLnNtY3AQVWNpcmN1bWZsZXguc21jcA5VZGllcmVzaXMuc21jcAtVZ3JhdmUuc21jcAZWLnNtY3AGVy5zbWNwBlguc21jcAZZLnNtY3ALWWFjdXRlLnNtY3AGWi5zbWNwBWFscGhhCWFscGhhLmFsdAd1bmkwNUQwB3VuaUZCMkUHdW5pRkIyRgd1bmlGQjMwB3VuaTA1RDEHdW5pRkIzMQd1bmlGQjRDB3VuaTA1RDIHdW5pRkIzMgd1bmkwNUQzB3VuaUZCMzMHdW5pMDVENAd1bmlGQjM0B3VuaTA1RDUHdW5pRkIzNQd1bmlGQjRCB3VuaTA1RDYHdW5pRkIzNgd1bmkwNUQ3B3VuaTA1RDgHdW5pRkIzOAd1bmkwNUQ5B3VuaUZCMzkKa2FmRmluYWxoYhBrYWZkYWdlc2hGaW5hbGhiB3VuaTA1REIHdW5pRkIzQgd1bmlGQjREB3VuaTA1REMHdW5pRkIzQwptZW1GaW5hbGhiB3VuaTA1REUHdW5pRkIzRQpudW5GaW5hbGhiB3VuaTA1RTAHdW5pRkI0MAd1bmkwNUUxB3VuaUZCNDEHdW5pMDVFMglwZUZpbmFsaGIPcGVkYWdlc2hGaW5hbGhiB3VuaTA1RTQHdW5pRkI0NAd1bmlGQjRFDHRzYWRpRmluYWxoYgd1bmkwNUU2B3VuaUZCNDYHdW5pMDVFNwd1bmlGQjQ3B3VuaTA1RTgHdW5pRkI0OAd1bmkwNUU5B3VuaUZCMkEHdW5pRkIyQgd1bmlGQjJDB3VuaUZCMkQHdW5pRkI0OQd1bmkwNUVBB3VuaUZCNEEHdW5pMDVGMQd1bmlGQjFEB3VuaUZCMUYHdW5pRkIyMAphbGVmV2lkZWhiC2RhbGV0V2lkZWhiCGhlV2lkZWhiCWthZldpZGVoYgtsYW1lZFdpZGVoYg5tZW1GaW5hbFdpZGVoYgpyZXNoV2lkZWhiCXRhdldpZGVoYgt1bmkwNUQyLjAwMQt1bmkwNUU4LjAwMQt1bmkwNUU4LjAwMgt1bmkwNUU4LjAwMwt1bmkwNUU4LjAwNAd1bmkwNUYwB3VuaTA1RjIHdW5pRkI0Rgl6ZXJvLmZyYWMJZm91ci5mcmFjCWZpdmUuZnJhYwhzaXguZnJhYwpzZXZlbi5mcmFjCmVpZ2h0LmZyYWMJbmluZS5mcmFjCXplcm8uc21jcAhvbmUuc21jcAh0d28uc21jcAp0aHJlZS5zbWNwCWZvdXIuc21jcAlmaXZlLnNtY3AIc2l4LnNtY3AKc2V2ZW4uc21jcAplaWdodC5zbWNwCW5pbmUuc21jcAh6ZXJvLnN1cAdvbmUuc3VwB3R3by5zdXAJdGhyZWUuc3VwCGZvdXIuc3VwCGZpdmUuc3VwB3NpeC5zdXAJc2V2ZW4uc3VwCWVpZ2h0LnN1cAhuaW5lLnN1cAd1bmkyMDgwB3VuaTIwODEHdW5pMjA4Mgd1bmkyMDgzB3VuaTIwODQHdW5pMjA4NQd1bmkyMDg2B3VuaTIwODcHdW5pMjA4OAd1bmkyMDg5B3VuaTIwNzAHdW5pMDBCOQd1bmkwMEIyB3VuaTAwQjMHdW5pMjA3NAd1bmkyMDc1B3VuaTIwNzYHdW5pMjA3Nwd1bmkyMDc4B3VuaTIwNzkHdW5pMDBBMAd1bmkyMDBDB3VuaTIwMEQHdW5pMjAwRQd1bmkyMDBGB3VuaTA1RjMHdW5pMDVGNAd1bmkwNUJFFnBlcmlvZGNlbnRlcmVkLmxvY2xDQVQbcGVyaW9kY2VudGVyZWQubG9jbENBVC5jYXNlB3VuaUZCMjkOYW1wZXJzYW5kLnNtY3AERXVybwd1bmkyMEFBC2RvbGxhci5zbWNwCUV1cm8uc21jcA1zdGVybGluZy5zbWNwCHllbi5zbWNwB3VuaTIyMTUHdW5pMDBCNQd1bmkwNUMxB3VuaTA1QjAHdW5pMDVCMQd1bmkwNUIyB3VuaTA1QjMHdW5pMDVCNAd1bmkwNUI1B3VuaTA1QjYHdW5pMDVCNwd1bmkwNUI4B3VuaTA1QjkHdW5pMDVCQQd1bmkwNUJCB3VuaTA1QkMHdW5pMDVCRgd1bmkwNUMyB3VuaTA1QzcHdW5pMDMwOAd1bmkwMzA3CWdyYXZlY29tYglhY3V0ZWNvbWIHdW5pMDMwQgt1bmkwMzBDLmFsdAd1bmkwMzAyB3VuaTAzMEMHdW5pMDMwNgd1bmkwMzBBCXRpbGRlY29tYgd1bmkwMzA0B3VuaTAzMTIHdW5pMDMyNgd1bmkwMzI3B3VuaTAzMjgIY3Jvc3NiYXIAAAABAAH//wAPAAEAAwASAAAAWAAAAOIAAAE0AAIACwAB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JRwBAf/tF0IBNv/1FyoB1P+IGH4ACgB6/+EYRgCG/+0YTACYABQYUgC5/90YWADRADIAAADeABIYXgDfABEYXgHU/1cYZAH0AA8YagH6ABAYfAALAFUAFAAAAGIAABhEAIb/7RhKAJj/7hhQALn/7RbGANT/7xbGAN7/5hdEAN//6iSgATT/8BbGATX/7RbGATf/8BbGAAsAPv/nGBgAYgAOFnAAhv/mFwAAuf/rF3AA1P/rJFwA3v/hFvQBCv/pJFwBFP/nFwABIf/nFwABKv/pJFwB5f9uGBIADAAB/0IX2gAv/ysX4ABVABQAAABiAAAdXgB6/94X5gCG/+sV/AC5/+sX7ADG/+YWvADU/+okGADe/+gWvAEB/8AX8gHU/vIX+AAMAD7/4SfkAIb/5hZyALP//he0ALn/5RZyANT/6SPOAN7/2BbcAN//wRbiAQr/6BZyART/5hZyASH/5xZyASr/5xZyAeX/ZRe6AAwAAf9SF3YAC/7pF3wAL/9HF4IAaP/PF5oAbv/dF4gAev/1FZIAhv/zFaQAuf/zFaQA0QAOFZgA3gAPFZgBAf+GF44B1P5zF5QADAABAA0VTgA+/+YV3gCG/+sjOgC5/+sjOgDU/+0VYADe/+UV3gDf/+UV3gEBAA0VTgEK/+0VYAEU/+sjOgEh/+wjOgEq/+wjOgABADIAAQAMAA0AFgAfACQAMAAyAD4ASABKAEsAVQBYAGIAYwBoAGkAbgB6AIUAhgCPAJgAnQCrALMAuQDGANEA0gDeAN8A5ADqAQEBDAEcAR0BIQEqASsBLgHKAeUB6QHrAe0B9AH6ABEAAf/VFSYAVQAOFJwAev/fFiAAhv/hKbAAuf/hKbAAxv/rIogA1P/tFK4BAf/LFqQBCv/pIogBFP/nFSwBIf/nFSwBKv/nFSwB1P9zFp4B5f/EFqoB6gAPFJwB7AAOFJwB7gAMFJwAEgAB/7UWSAA+//MU0AB6/9IWYACG/9QWYAC5/9IWYADG/+IpSADU/+QpSADe//UULgEB/7QWTgEK/9kVsgEU/9kVsgEh/9kVsgEq/9kVsgHU/ygWVAHl/24WWgHqABQUcAHsABMVvgHuABEVvgAWAD7/7BYoAFX/hxX4AFj/7xPYAGL/shX+AGP/1hYEAGn/bxYKALP/1BYQALn/9BRcANH/7xPYANT/9RPAAN7/zhYu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AAAAACv+AAAk3AAAAAAk5gAAJPAAACT6JQQlNiVAAAAAACUOJTYlQAAAAAAlGCU2JUAAAAAAJSIlNiVAAAAAACUsJTYlQAAAAAAlSgAAJVQAAAAAJV4AACVoAAAAACVyAAAlfAAAAAAlhgAAJZolpAAAJZAAACWaJaQAACWuAAAluAAAJcIlzAAAJdYAAAAAJeAAACXwJfomBCYOAAAl8CX6JgQmDgAAJfAl+iYEJg4AACXwJfomBCYOAAAmGCYiJiwmNgAAJhgmIiYsJjYAACYYJiImLCY2AAAmQCZKJlQmXgAAJkAmSiZUJl4AACZoJ04mciZ8AAAmaCdOJnImfAAAJoYmkCaaJqQAACaGJpAmmiakAAAmria4JsImzAAAJq4muCbCJswAACauJrgmwibMAAAm1idOJuAm6gAAJtYnTibgJuoAACb0Jv4nCCcSAAAnHCcmJzAnOgAAJxwnJicwJzoAACwcLCYsMCw6AAAsHCwmLDAsOgAAJ0QnTidYJ2IAACdEJ04nWCdiAAAnbCd2J4AnigAAJ2wndieAJ4oAACdsJ3YngCeKAAAnlCeeJ6gnsgAAJ5QnnieoJ7IAACe8J8Yn0CfaAAAn5CfuJ/goAgAAJ+Qn7if4KAIAACgMKBYoICgqAAAoNCg+KEgoUgAAKDQoPihIKFIAAChcKGYocCh6AAAoXChmKHAoegAAKIQojiiYKKIAACisKLYowCjKAAAorCi2KMAoygAAKNQo3ijoKPIAACjUKN4o6CjyAAAo1CjeKOgo8gAAKPwpBikQKRoAACkkKS4pOClCAAApJCkuKTgpQgAAKUwpVilgKWoAAClMKVYpYClqAAApdCl+KYgpkgAAKXQpfimIKZIpnCmmKbApuinEKZwppimwKbopxCmcKaYpsCm6KcQpnCmmKbApuinEKZwppimwKbopxCmcKaYpsCm6KcQAACnOKdgp4insAAApzinYKeIp7AAALBwsJiwwLDoAACu4AAAAAAAAAAAp9ioAKgoqFAAAKh4qKCoyKjwAACpGKlAqWipkAAAqbip4KoIqjAAAKpYqoCqqKrQAACq+Ksgq0ircAAAq5irwKvorBAAAKw4rGCsiKywAACs2K0ArSitUAAArXitoK3IrfAAAK4YrkCuaK6QAACuGK5ArmiukAAArhiuQK5orpAAAK4YrkCuaK6QAACuu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AAYAEAACAYABkgAAAgIACEFaRSACckNBVCACJkNSVCACcktBWiACck1PTCACTFJPTSACTFRBVCACclRSSyACcgAAAAEAEAAAAAEAEgAAAAEAFAAAAAEADQAAAAEAEwAAAAEAFQAAAAEABQAAAAEABwAAAAEABgAAAAEADgAAAAEACwAAAAEAEQIcAAEAFgIaAAEAFwAAAAEACgAAAAEADAAAAAIAAAABAAAAAgACAAQAAAADAAIABAAEAAD//wAPAAAAAQACAAMABQAGAAcACAAMAA0ADgAPABAAEQASAAEDAgAFAAEDAgABAAEC7AAGAAEC5gAHAAEDMAApAAEDKgAzAAECzgABAAECzgABAuYAAQLkAAECzAABAuIAAQMoAAEC5AABAAEDCgACAuYC2gACAwgAAgD4APkAAQLYAAEC3gABAwoAAwLcApoC4AACAwgABAE6ATsBOgE7AAMAAQLKAAEDBgAAAAEAAAAPAAMAAQK4AAEC/AAAAAEAAAAPAAMAAAABAmAAAQL4AAEAAAADAAMAAAABAuAAAQLmAAEAAAADAAIDZgALAHUAdgB4AHkA8QDyAPMA9AD1APYA9wACA2QADwGeAZ8BoAGhAaIBowGkAaUBpgGnAgYCDgIPAhACEQABA1wAEgKkAqoCsALOArYCvALCAtYC3gLmAu4C9gL+AwYDDgMWAx4CyAAA//8ADwAAAAEAAgAEAAUABgAHAAgADAANAA4ADwAQABEAEgAA//8AEAAAAAEAAgADAAUABgAHAAgACgAMAA0ADgAPABAAEQASAAD//wAQAAAAAQACAAMABQAGAAcACAALAAwADQAOAA8AEAARABIAAP//ABAAAAABAAIAAwAFAAYABwAIAAkADAANAA4ADwAQABEAEgAAAQAAAAEBAAICvABEAQIBAwEEAQUBBgEHAQgBCQELAQ0BDgEPARABEQESARMBFAEVARYBFwEYARkBGgEbARwBHQEeAR8BIAEiASMBJAElASYBJwEoASkBKwEsAFMBLQEuAS8BMAExATIBMwE0ATUBNgE3ATgBOQE6APEA8gDzAPgApAD2APcAzgHkAgYCDgIPAhACEQACAroASAEBAQIBAwEEAQUBBgEHAQgBCQEKAQsBDAENAQ4BDwEQAREBEgETARQBFQEWARcBGAEZARoBGwEcAR0BHgEfASABIQEi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AGUAZQCqAGwAZgBmAGYAZgBmAGEAYwCeAIEAQgBCAEIAQgBCAEIAQgBCAEIAMQByAHIAcgByAJcAmAAKAAgACAAIAAgACAAIAAgACAIKADgAOAAuAC4AIwAjAREAIwEAAL4AkQCRAJEAkQCRAJEAUwBTAFMAUwBTAFMAUwBYAFMAxABsADsAUACTAJMAkwCTAFsAWwBbAFsAWwBiABoAfQB9AH0AlQCVAJUAlQCVAJUAlQCVAJUAlQCJALAAsACwALAAsABdAK4ArgCuAK4ArgBdAF0AXQBdAJoAJAABAGoAiwBHAFEAPQBJADkAQgByAhABBAEEAQcBEwAQADcACwALAAsACwALAAsACwBUAFYAlgCWAR0BHQCpAKkAqQCpAKkAuQCyAIoAbgBuAG4AbgBuAJQArABeAHUAnwCfAGAAYABgAGAAYABgAGAAPwA/AGAAwQCIAFYAjwC2ALYAtgC2ALYAKAC6AEQAhwCHAJwAggCEAJIASAAcABwAHAAcAEUARQBFARYBFgEKAQoATgBOABsAGwAbACwALABGADMAMwEQARAALQAtAF8AXwBfAFkAWQAqAC8ALwArAB0AHQAiACIBBgAEAAQAAAAAAAABDAENAQ0ABwAHAGkAaQIMAgwCDAIMAgwCDABKAEoCCwAeAg0BCQAPAQoAnQCvAH8AwAC4ADQBFwBwAHAAcABwAgcCDQApAGsAawBrAGsAawBrAGsAawBrAGsAdwB3AHcAdwB3AHcAdwBrAGsAawBrAGsAawBtAGsAawBrAHcAdwB3AHcAdwB3AHcAdwB3AHcAdAB6AHsAeQB3AHcAdwB3AHcAdwB3AHcAdwB3AHcAdwB3AHcAdwB3AHcAdwB3AHcAgwCDAKQApACkAKQApAEBAgIAJwAJARgCEQESAQICEgEIACQAPAEVAEAAdgIOARQAMgADAAkBHwB+AFoAIQARABUAZABkAAYABgEDAgQCBQIDABcAFgBBADUAjgCNAg8AgAC1AMMAcwA+AGcAwgDFAA4AtAASABMBHgCQAL8AawBrAgYAVQBcAIgAJgELAKgBHAAMAAwADAAMAAwADAAMAAwADACkAAwAlQC3AKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkABQCAAII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", Em = `
+const Bm = "data:font/ttf;base64,AAEAAAAUAQAABABAR0RFRv12+3wAALM0AAAGY0dQT1Pp/UdHAAC5mAAARYJHU1VCDHYTWgAA/xwAAAh8SFZBUl4tvEoAAQeYAAAHMk9TLzJ7A0KsAAAByAAAAGBTVEFUgyx9+QABDswAAACeYXZhcjyjQAEAAQ9sAAAALmNtYXB32Lo4AAALZAAABSRmdmFyl81plAABD5wAAABsZ2FzcAAAABAAALMsAAAACGdseWaiyb86AAAVMAAAh4xndmFy655TDwABEAgAAMySaGVhZCX2fYIAAAFMAAAANmhoZWEMUgEWAAABhAAAACRobXR4KZjfAQAAAigAAAk8bG9jYQIRI88AABCQAAAEoG1heHACXwC6AAABqAAAACBuYW1lRAlQVgAAnLwAAAVQcG9zdKcgM0IAAKIMAAARHnByZXBoBoyFAAAQiAAAAAcAAQAAAAMZmm/Cw05fDzz1AAMIAAAAAADhbE4cAAAAAOGDy7b8lP1RB1kHygAAAAYAAgAAAAAAAAABAAAIYvyiAAAHovyU+oIHWQABAAAAAAAAAAAAAAAAAAACTwABAAACTwBhAAYAVwAGAAEAAAAAAAAAAAAAAAAAAwABAAQEPgGQAAUAAAUzBM0AAACaBTMEzQAAAs0AZAKJAAAAAAAAAAAAAAAAoAAI70AAAEsAAAAAAAAAAE5PTkUAwAAg+08IYvyiAAAIYgNeAAAAswAAAAAEOgWwAAAAIAADBRQArQU6ABwFOgAcBToAHAU6ABwFOgAcBToAHAU6ABwFOgAcBToAHAU6ABwHe//wBPwAqQU1AHcFNQB3BTUAdwU1AHcFNQB3BUAAqQVAAKkFQAAHBUAABwSMAKkEjACpBIwAqQSMAKkEjACpBIwAqQSMAKkEjACpBIwAqQRsAKkFcwB6BXMAegVzAHoFcwB6BbUAqQW1ABUCLgC3BpgAtwIuALcCLv/pAi7/0QIuAKkCLv/UAi7/xwIuAC8EagA1BQUAqQUFAKkETwCpBE8AqQRPAKkETwCpBE//twb9AKkFtQCpBbUAqQW1AKkFtQCpBbUAqQW1AKkFggB2BYIAdgWCAHYFggB2BYIAdgWCAHYFggB2BYIAdgWCAHYHogBpBQ0AqQS6AKYFggBtBO0AqQTtAKkE7QCpBO0AqQTAAFEEwABRBMAAUQTAAFEEwABRBSsAjwTGADIExgAyBMYAMgUwAIwFMACMBTAAjAUwAIwFMACMBTAAjAUwAIwFMACMBTAAjAUwAIwFGQAdBxkAPQcZAD0HGQA9BxkAPQcZAD0FBQA6BM4ADwTOAA8EzgAPBM4ADwTOAA8EywBXBMsAVwTLAFcEywBXBSQAsgVMALIFPgCyBYMAfgWUALIFrwB+BeEAfgXkAH4EWwBtBFsAbQRbAG0EWwBtBFsAbQRbAG0EWwBtBFsAbQRbAG0EWwBtBsIATgR+AIwEMQBcBDEAXAQxAFwEMQBcBDEAXASEAF8EhABfBGcAXwSxAH4EPwBdBD8AXQQ/AF0EPwBdBD8AXQQ/AF0EPwBdBD8AXQQ/AF0CyAA9BH4AYAR+AGAEfgBgBH4AYARoAIwEaP/vAgAAkgH8AJwB/ACcAfz/0AH8/7gB/ACQAfz/uwH8/64B/AAMA/cAkgH3/78B9/+/BA8AjQQPAI0B8gCcAfIAnAHyAJwB8gBfArT/hQcDAIsEawCMBGsAjARrAIwEawCMBGsAjARrAIwEkQBcBJEAXASRAFwEkQBcBJEAXASRAFwEkQBcBIkAXASRAFwHQwBhBH4AjASdAJUEjQBfArYAjAK2AIwCtgAsArYATgQhAF8EIQBfBCEAXwQhAF8EIQBfBMIAiwH9AKACngAJAp4ACQKeAAkEaQCIBGkAiARpAIgEaQCIBGkAiARpAIgEaQCIBGkAiARpAIgEaQCIA+EAIQYDACsGAwArBgMAKwYDACsGAwArA/gAKQPJABYDyQAWA8kAFgPJABYDyQAWA/gAWQP4AFkD+ABZA/gAWQQ6AB4EFQCTBBEAkwR+AIwEMwBdBJQAWwSNAFsEnwBaBI4AjASdAFsEPwBdBH4AYAWRAD0G1QA9BtUAPQSMAD0EbwAfBO8APQacAF8EhwAUBIcAFASHABQEhwAUBIcAFASHABQEhwAUBjoACQRRAIoEfABhBHwAYQSAAIoEgP++A+YAigPmAIoD5gCKA+YAigPmAIoDywCKBKwAYwTkAIoB6QCXAekAlwHp/8cB6f+vAen/sgPPACsEVQCKA7UAigYCAIoE4wCKBOMAigS8AGAEvABgBLwAYAS8AGAEvABgBLwAYAS8AGAEXQCKA/kAigS8AFkESgCKBCAAQwRRAIoEJwApBHwAdAR8AHQEfAB0BHwAdAR8AHQEaQAUBhUAMQRVACcEKwAOBCsADgQjAEgDlACTA6QAewSGAGQExABkBSIAmAUiAJgFIgCYBSIAmAQ3AD0ENwA9BDcAPQMYABQDGAAUBCsAPAQrADwEtACUBLQAlAJcAGQCXP/5AlwAZALUAEwC1ABMBNsAtQTvALUE7wC1AmoANwJqAA4D9gBBA/YAQQRNAFEETQBRBE0AUQQcAFMEHABTBRUAtAUTAIQFEwCEAk0AVgLmADwC5gA8BRkAZwUZAGcEoQA9BL8AjwS/AI8FBACOBQQAjgUEAI4ESAA7BF8AOwRfADsE+QCzBPkAswPtADwD7QA8BloAtQZaALUGWgC1BloAtQZaALUGWgC1BP8ACQT/AAkExgA3AnQANwTVADcEwgA9BxQAmAVDADwGXwCUBhsAUQWJAFMG5AByBZsAPAbbAAkDGAAUA+oASgPqAEoD6gBKA+oASgS3AGQE1QA3BKsAUwR/AHMEfwCrBH8AXQR/AF8EfwA1BH8AmgR/AIUEfwBOBH8AcQR/AGQC8ABQAvAANgLwAFsC8ABWAvAAOwLwAE8C8ABJBBAAYwQQAJgEEABOBBAATgQQADAEEACABA8AcgQQAEIEEABhBBAAVgLwAFAC8AB7AvAAQgLwAD8C8AA2AvAAWwLwAFYC8AA7AvAATwLwAEkDowA8BjAAewW6AHsGKAA/AvAAUALwAHsC8ABCAvAAPwLwADYC8ABbAvAAVgLwADsC8ABPAvAASQLwAFAC8AB7AvAAQgLwAD8C8AA2AvAAWwLwAFYC8AA7AvAATwLwAEkB/AAAAfwAAAAA/XwAAP7zAAD80QAA/JQAAAAAAVcADwKgABsCBQA8Ah0AkAGTABwB8gCFAbIAKQVbAJMCEQChAfUAiwPJAEsDygBEAhgAkwKzAIsDcgAcBO8AeANOABIDSQApAcMAbgIdAJACNQAlBUAAeAY/AFgDnQAEAr4AhQLKACcCtgBAArYAFAIhAJICIQAKAZkAJALFACQC1wBpAt4APAGbAGABmwAwA8EAZAPBAGcCZwBsAmcAWgKSAIgBZgBnBGgAPwcuAGgE+gBlA+oAQwTpAFoGSQBbBkkAWgeNAFAC/QCDAfUAsAHtAJME1gBnBGEAaAW0AGkEfwBuBH8AYAa6AJgEpwBbBDQADwQgAEMD5QBDBDUAMQOhAA4DDgASBEwAMwRMAIUETABkBEwAMwRMAIUETAB7BEwAjQRMAFwETACGBRQAVARMALwEaQB6BdwAaQAABOEAAAIHAAABIwAAAS0AAAEsAAACBwAAAZUAAAGVAAABiwAAAZkAAAC2AAAAtgAAAggAAADuAAAA8AAAAKAAAAGZAAAAZAAAADIAAABkAAAAZAAAADIAAABaAAAAZAAAAGQAAABkAAAAeQAAAGQAAACPAAAAkgAAAJYAAAAyAAAAMgNTAGQD6AAyAmsAZAJrAGQD6AAyAyYAZAPoAGQD6ABkA+gAeQOMAGQD6ACPA+gAMgGyADIDmACPAAAAAgAAAAMAAAAUAAMAAQAAABQABAUQAAAAgACAAAYAAAAvADkAfgCsAQcBEwEbASMBJwErATMBNwE+AUgBTQFbAWEBZQF/AhsCNwLHAt0DBAMIAwwDEgMoA7EFvAW/BcIFxwXqBfQehR6eHvMgDyAUIBogHiAiICYgOiBEIHAgeSCJIKogrCEiIhIiFfsB+x37KPs2+zz7PvtB+0T7T///AAAAIAAwADoAoACuAQoBFgEeASYBKgEuATYBOQFBAUoBUAFeAWQBagIYAjcCxgLYAwADBgMKAxIDJgOxBbAFvgXBBccF0AXwHoAenh7yIAwgEyAYIBwgIiAmIDkgRCBwIHQggCCqIKwhIiISIhX7Afsd+x/7Kfs4+z77QPtD+0b//wAAAV0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+c/+AAAAAAAAAAAD/K/8Y/Yv8cQAAAAD8aQAAAAAAAOG2AADhwOHTAAAAAOG84bLhvuFu4VDhUOE24WHhXuDg4ALf/QX9Bl0GXAAAAAAGIAAAAAAAAAABAIAAAACcASQBPAHuAgACCgIUAhYCGAIiAiQCLgI8AkICWAJeAmACigAAAAACjAKWAp4CogAAAAAAAAAAAp4CoAAAAqAC1ALcAAAC5AAAAAAC4gLmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAswC5gAAAuwC7gLwAAABygHZAfkB4AIJAh8B/QH6AekB6gHfAhMB1QHlAdQB4QHWAdcCGQIXAhgB2wH8AAEADAANABIAFgAfACAAJAAmAC8AMAAyADcAOAA+AEgASgBLAE8AVQBYAGIAYwBoAGkAbgHtAeIB7gIdAegCQwB6AIUAhgCLAI8AmACZAJ0AnwCpAKsArQCyALMAuQDDAMUAxgDKANEA1ADeAN8A5ADlAOoB6wIEAewCHAHLAdoCBwIMAggCDQIFAf8CQQIAAToB9QIbAgECSwIDAhoBwgHDAkQCHgH+Ad0CTAHBATsB9gG0AbMBtQHcAAYAAgAEAAoABQAJAAsAEAAcABcAGQAaACwAKAApACoAFQA8AEIAPwBAAEYAQQIVAEUAXQBZAFsAXABqAEkAzwB/AHsAfQCDAH4AggCEAIkAlQCQAJIAkwClAKEAogCjAI4AtwC9ALoAuwDBALwCFgDAANkA1QDXANgA5gDEAOgABwCAAAMAfAAIAIEADgCHABEAigAPAIgAEwCMABQAjQAdAJYAGwCUAB4AlwAYAJEAIQCaACMAnAAiAJsAJQCeAC0ApgAuAKcAKwCgACcAqAAxAKwAMwCuADUAsAA0AK8ANgCxADkAtAA7ALYAOgC1AD0AuABEAL8AQwC+AEcAwgBMAMcATgDJAE0AyABQAMsAUgDNAFEAzABWANIAXwDbAFoA1gBhAN0AXgDaAGAA3ABlAOEAawDnAGwAbwDrAHEA7QBwAOwA0ABTAM4AVwDTAkgCQgJJAk0CSgJFAjMCNAI3AjsCPAI5AjICMQI6AjUCOAHTAi4CIAIvAT4BQgFFAUcBSQFLAU4BUAFRAVMBVQFXAVoBXAFdAV8BYAFiAWQBZQFnAWoBawFtAW8BcQF3AYoBeQGLAdEB0gBnAOMAZADgAGYA4gBtAOkB8wH0Ae8B8QHyAfAB+wFyAXMBdAF1AT8BQAFBAUMBRgFIAUoBTAFPAVIBVAFWAVgBWwFhAWMBZgFoAWwBbgFwAXYBeAFNAUQBWQFpAYy4Af+FsASNAAAAABUAMQA9AEkAVQBhAG0AeQCFAJEAnQDPAREBSAFUAZkBpQGxAd0CGAIgAlUCdwKDArMCvwLLAtcC4wLvAvsDFgNTA18DawN3A5MDtQPBA80D2QPlA/ED/QQJBBUEIARABGIEbgSBBI0EmQSlBMIE6AT+BQoFLwU7BUcFcAWqBbYFwgXOBdoF5gXyBjMGPwaNBrQG4AcjB1QHYAefB6sH9QgBCFkIZQhxCLgIywjtCPkJHgkqCTYJQglOCVoJZglyCX4JigmiCdEJ3QnpCfUKAQogCjcKQwpPClsKZwqECpAKuwrHCucLKQtIC30LrAvsDCoMcAy7DMcM0wzfDOsM9w0C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AOIAAwABBAkBBwAMA1oAAwABBAkBCAAQA2YAAwABBAkBCQAIA3YAAwABBAkBCgASA34AAwABBAkBCwAKA5BXZWlnaHRUaGluRXh0cmFMaWdodExpZ2h0UmVndWxhck1lZGl1bVNlbWlCb2xkQm9sZEV4dHJhQm9sZEJsYWNrAEMAbwBwAHkAcgBpAGcAaAB0ACAAMgAwADEANAAgAFQAaABlACAASABlAGUAYgBvACAAUAByAG8AagBlAGMAdAAgAEEAdQB0AGgAbwByAHMAIAAoAGgAdAB0AHAAcwA6AC8ALwBnAGkAdABoAHUAYgAuAGMAbwBtAC8ATwBkAGUAZABFAHoAZQByAC8AaABlAGUAYgBvACkASABlAGUAYgBvAFIAZQBnAHUAbABhAHIAMwAuADEAMAAwADsATgBPAE4ARQA7AEgAZQBlAGIAbwAtAFIAZQBnAHUAbABhAHIASABlAGUAYgBvACAAUgBlAGcAdQBsAGEAcgBWAGUAcgBzAGkAbwBuACAAMwAuADEAMAAwAEgAZQBlAGIAbwAtAFIAZQBnAHUAbABhAHIARQB6AGUAcgAgAFQAeQBwAGUAIABIAG8AdQBzAGUATwBkAGUAZAAgAEUAegBlAHIAZQB6AGUAcgB0AHkAcABlAGgAbwB1AHMAZQAuAGMAbwBtAFQAaABpAHMAIABGAG8AbgB0ACAAUwBvAGYAdAB3AGEAcgBlACAAaQBzACAAbABpAGMAZQBuAHMAZQBkACAAdQBuAGQAZQByACAAdABoAGUAIABTAEkATAAgAE8AcABlAG4AIABGAG8AbgB0ACAATABpAGMAZQBuAHMAZQAsACAAVgBlAHIAcwBpAG8AbgAgADEALgAxAC4AIABUAGgAaQBzACAAbABpAGMAZQBuAHMAZQAgAGkAcwAgAGEAdgBhAGkAbABhAGIAbABlACAAdwBpAHQAaAAgAGEAIABGAEEAUQAgAGEAdAA6ACAAaAB0AHQAcABzADoALwAvAHMAYwByAGkAcAB0AHMALgBzAGkAbAAuAG8AcgBnAC8ATwBGAEwAaAB0AHQAcABzADoALwAvAHMAYwByAGkAcAB0AHMALgBzAGkAbAAuAG8AcgBnAC8ATwBGAEwAcwBzADAANgBzAHMAMAA3AFcAZQBpAGcAaAB0AFQAaABpAG4ARQB4AHQAcgBhAEwAaQBnAGgAdABMAGkAZwBoAHQATQBlAGQAaQB1AG0AUwBlAG0AaQBCAG8AbABkAEIAbwBsAGQARQB4AHQAcgBhAEIAbwBsAGQAQgBsAGEAYwBrAAIAAAAAAAD/agBkAAAAAAAAAAAAAAAAAAAAAAAAAAACTwAAACQAyQECAMcAYgCtAQMBBABjAK4AkAAlACYA/QD/AGQBBQAnAQYBBwDpACgAZQEIAMgAygEJAMsBCgELACkAKgD4AQwBDQArAQ4ALAEPAMwAzQDOAPoAzwEQAREALQAuARIALwETARQBFQDiADAAMQEWARcBGABmARkAMgDQANEAZwDTARoBGwCRAK8AsAAzAO0ANAA1ARwBHQEeADYBHwDkAPsBIAEhADcBIgEjADgA1AEkANUAaADWASUBJgEnASgAOQA6ASkBKgErASwAOwA8AOsBLQC7AS4APQEvAOYBMAExATIBMwE0ATUBNgE3ATgARABpATkAawBsAGoBOgE7AG4AbQCgAEUARgD+AQAAbwE8AEcBPQEBAOoASABwAT4AcgBzAT8AcQFAAUEASQBKAPkBQgFDAEsBRABMANcAdAB2AHcBRQB1AUYBRwFIAE0BSQBOAUoATwFLAUwBTQDjAFAAUQFOAU8BUAB4AVEAUgB5AHsAfAB6AVIBUwChAH0AsQBTAO4AVABVAVQBVQFWAFYBVwDlAPwBWACJAVkAVwFaAVsAWAB+AVwAgACBAH8BXQFeAV8BYABZAFoBYQFiAWMBZABbAFwA7AFlALoBZgBdAWcA5wFoAWkBagFrAWwBbQFuAW8BcAFxAXIBcwF0AXUBdgF3AXgAwAF5AXoBewF8AX0BfgF/AYABgQGCAYMBhAGFAYYBhwGIAYkBigGLAYwBjQGOAY8BkAGRAZIBkwGUAZUBlgGXAZgBmQGaAZsBnAGdAZ4BnwGgAaEBogGjAaQBpQGmAacBqAGpAaoBqwGsAa0BrgGvAbABsQGyAbMAnQCeAbQBtQG2AbcBuAG5AboBuwG8Ab0BvgG/AcABwQHCAcMBxAHFAcYBxwHIAckBygHLAcwBzQHOAc8B0AHRAdIB0wHUAdUB1gHXAdgB2QHaAdsB3AHdAd4B3wHgAeEB4gHjAeQB5QHmAecB6AHpAeoB6wHsAe0B7gHvAfAB8QHyAfMB9AH1AfYB9wH4AfkB+gH7AfwB/QH+Af8CAAIBAgICAwIEABMAFAAVABYAFwAYABkAGgAbABwCBQIGAgcCCAIJAgoCCwIMAg0CDgIPAhACEQISAhMCFAIVAhYCFwIYAhkCGgIbAhwCHQIeAh8AvAD0APUA9gIgAiECIgIjAiQCJQImAicCKAIpAioCKwIsAi0CLgIvAjACMQIyAjMAAwI0AjUCNgI3AjgAAQI5AjoCOwARAA8AHQAeAKsABACjACIAogDDAIcADQAGABIAPwI8Aj0AEACyALMAQgALAAwAXgBgAD4AQADEAMUAtAC1ALYAtwCpAKoAvgC/AAUACgI+ACMACQCIAIYAiwCKAIwAgwBfAOgCPwCEAL0ABwJAAkEAhQCWAkICQwJEAkUCRgAOAO8A8AC4ACAAIQAfAJMApABhAEECRwAIAkgCSQJKAksCTAJNAk4CTwJQAlECUgJTAlQCVQJWAlcCWAJZAloCWwJcAl0CXgJfAmACYQJiAmMCZAJlAmYCZwJoAI4A3ABDAI0A3wDYAOEA2wDdANkA2gDeAOACaQZBYnJldmUHQW1hY3JvbgdBb2dvbmVrCkNkb3RhY2NlbnQGRGNhcm9uBkRjcm9hdAZFY2Fyb24KRWRvdGFjY2VudAdFbWFjcm9uB0VvZ29uZWsHdW5pMDEyMgpHZG90YWNjZW50BEhiYXICSUoHSW1hY3JvbgdJb2dvbmVrB3VuaTAxMzYGTGFjdXRlBkxjYXJvbgd1bmkwMTNCBk5hY3V0ZQZOY2Fyb24HdW5pMDE0NQNFbmcNT2h1bmdhcnVtbGF1dAdPbWFjcm9uBlJhY3V0ZQZSY2Fyb24HdW5pMDE1NgZTYWN1dGUHdW5pMDIxOAd1bmkxRTlFBlRjYXJvbgd1bmkwMjFBBlVicmV2ZQ1VaHVuZ2FydW1sYXV0B1VtYWNyb24HVW9nb25lawVVcmluZwZXYWN1dGULV2NpcmN1bWZsZXgJV2RpZXJlc2lzBldncmF2ZQtZY2lyY3VtZmxleAZZZ3JhdmUGWmFjdXRlClpkb3RhY2NlbnQFSy5hbHQFUi5hbHQGSy5hbHQyBkMuc3MwNgZELnNzMDYGRy5zczA2Bk8uc3MwNgZRLnNzMDYGYWJyZXZlB2FtYWNyb24HYW9nb25lawpjZG90YWNjZW50BmRjYXJvbgZlY2Fyb24KZWRvdGFjY2VudAdlbWFjcm9uB2VvZ29uZWsHdW5pMDEyMwpnZG90YWNjZW50BGhiYXIJaS5sb2NsVFJLB2ltYWNyb24HaW9nb25lawJpagd1bmkwMjM3B3VuaTAxMzcGbGFjdXRlBmxjYXJvbgd1bmkwMTNDBm5hY3V0ZQZuY2Fyb24HdW5pMDE0NgNlbmcNb2h1bmdhcnVtbGF1dAdvbWFjcm9uBnJhY3V0ZQZyY2Fyb24HdW5pMDE1NwZzYWN1dGUHdW5pMDIxOQVsb25ncwZ0Y2Fyb24HdW5pMDIxQgZ1YnJldmUNdWh1bmdhcnVtbGF1dAd1bWFjcm9uB3VvZ29uZWsFdXJpbmcGd2FjdXRlC3djaXJjdW1mbGV4CXdkaWVyZXNpcwZ3Z3JhdmULeWNpcmN1bWZsZXgGeWdyYXZlBnphY3V0ZQp6ZG90YWNjZW50BWcuYWx0BWsuYWx0BmsuYWx0MgZiLnNzMDYGYy5zczA2BmQuc3MwNgZnLnNzMDYGby5zczA2BnAuc3MwNgZxLnNzMDYGZS5zczA3Bmcuc3MwNwNmX2YFZl9mX2kFZl9mX2wDZl9sB2xvbmdzX3QDc190BkEuc21jcAtBYWN1dGUuc21jcBBBY2lyY3VtZmxleC5zbWNwDkFkaWVyZXNpcy5zbWNwC0FncmF2ZS5zbWNwCkFyaW5nLnNtY3ALQXRpbGRlLnNtY3AHQUUuc21jcAZCLnNtY3AGQy5zbWNwDUNjZWRpbGxhLnNtY3AGRC5zbWNwCEV0aC5zbWNwBkUuc21jcAtFYWN1dGUuc21jcBBFY2lyY3VtZmxleC5zbWNwDkVkaWVyZXNpcy5zbWNwC0VncmF2ZS5zbWNwBkYuc21jcAZHLnNtY3AGSC5zbWNwBkkuc21jcAtJYWN1dGUuc21jcBBJY2lyY3VtZmxleC5zbWNwDklkaWVyZXNpcy5zbWNwC0lncmF2ZS5zbWNwBkouc21jcAZLLnNtY3AGTC5zbWNwBk0uc21jcAZOLnNtY3ALTnRpbGRlLnNtY3AGTy5zbWNwC09hY3V0ZS5zbWNwEE9jaXJjdW1mbGV4LnNtY3AOT2RpZXJlc2lzLnNtY3ALT2dyYXZlLnNtY3ALT3NsYXNoLnNtY3ALT3RpbGRlLnNtY3AGUC5zbWNwClRob3JuLnNtY3AGUS5zbWNwBlIuc21jcAZTLnNtY3AMdW5pMUU5RS5zbWNwBlQuc21jcAZVLnNtY3ALVWFjdXRlLnNtY3AQVWNpcmN1bWZsZXguc21jcA5VZGllcmVzaXMuc21jcAtVZ3JhdmUuc21jcAZWLnNtY3AGVy5zbWNwBlguc21jcAZZLnNtY3ALWWFjdXRlLnNtY3AGWi5zbWNwBWFscGhhCWFscGhhLmFsdAd1bmkwNUQwB3VuaUZCMkUHdW5pRkIyRgd1bmlGQjMwB3VuaTA1RDEHdW5pRkIzMQd1bmlGQjRDB3VuaTA1RDIHdW5pRkIzMgd1bmkwNUQzB3VuaUZCMzMHdW5pMDVENAd1bmlGQjM0B3VuaTA1RDUHdW5pRkIzNQd1bmlGQjRCB3VuaTA1RDYHdW5pRkIzNgd1bmkwNUQ3B3VuaTA1RDgHdW5pRkIzOAd1bmkwNUQ5B3VuaUZCMzkKa2FmRmluYWxoYhBrYWZkYWdlc2hGaW5hbGhiB3VuaTA1REIHdW5pRkIzQgd1bmlGQjREB3VuaTA1REMHdW5pRkIzQwptZW1GaW5hbGhiB3VuaTA1REUHdW5pRkIzRQpudW5GaW5hbGhiB3VuaTA1RTAHdW5pRkI0MAd1bmkwNUUxB3VuaUZCNDEHdW5pMDVFMglwZUZpbmFsaGIPcGVkYWdlc2hGaW5hbGhiB3VuaTA1RTQHdW5pRkI0NAd1bmlGQjRFDHRzYWRpRmluYWxoYgd1bmkwNUU2B3VuaUZCNDYHdW5pMDVFNwd1bmlGQjQ3B3VuaTA1RTgHdW5pRkI0OAd1bmkwNUU5B3VuaUZCMkEHdW5pRkIyQgd1bmlGQjJDB3VuaUZCMkQHdW5pRkI0OQd1bmkwNUVBB3VuaUZCNEEHdW5pMDVGMQd1bmlGQjFEB3VuaUZCMUYHdW5pRkIyMAphbGVmV2lkZWhiC2RhbGV0V2lkZWhiCGhlV2lkZWhiCWthZldpZGVoYgtsYW1lZFdpZGVoYg5tZW1GaW5hbFdpZGVoYgpyZXNoV2lkZWhiCXRhdldpZGVoYgt1bmkwNUQyLjAwMQt1bmkwNUU4LjAwMQt1bmkwNUU4LjAwMgt1bmkwNUU4LjAwMwt1bmkwNUU4LjAwNAd1bmkwNUYwB3VuaTA1RjIHdW5pRkI0Rgl6ZXJvLmZyYWMJZm91ci5mcmFjCWZpdmUuZnJhYwhzaXguZnJhYwpzZXZlbi5mcmFjCmVpZ2h0LmZyYWMJbmluZS5mcmFjCXplcm8uc21jcAhvbmUuc21jcAh0d28uc21jcAp0aHJlZS5zbWNwCWZvdXIuc21jcAlmaXZlLnNtY3AIc2l4LnNtY3AKc2V2ZW4uc21jcAplaWdodC5zbWNwCW5pbmUuc21jcAh6ZXJvLnN1cAdvbmUuc3VwB3R3by5zdXAJdGhyZWUuc3VwCGZvdXIuc3VwCGZpdmUuc3VwB3NpeC5zdXAJc2V2ZW4uc3VwCWVpZ2h0LnN1cAhuaW5lLnN1cAd1bmkyMDgwB3VuaTIwODEHdW5pMjA4Mgd1bmkyMDgzB3VuaTIwODQHdW5pMjA4NQd1bmkyMDg2B3VuaTIwODcHdW5pMjA4OAd1bmkyMDg5B3VuaTIwNzAHdW5pMDBCOQd1bmkwMEIyB3VuaTAwQjMHdW5pMjA3NAd1bmkyMDc1B3VuaTIwNzYHdW5pMjA3Nwd1bmkyMDc4B3VuaTIwNzkHdW5pMDBBMAd1bmkyMDBDB3VuaTIwMEQHdW5pMjAwRQd1bmkyMDBGB3VuaTA1RjMHdW5pMDVGNAd1bmkwNUJFFnBlcmlvZGNlbnRlcmVkLmxvY2xDQVQbcGVyaW9kY2VudGVyZWQubG9jbENBVC5jYXNlB3VuaUZCMjkOYW1wZXJzYW5kLnNtY3AERXVybwd1bmkyMEFBC2RvbGxhci5zbWNwCUV1cm8uc21jcA1zdGVybGluZy5zbWNwCHllbi5zbWNwB3VuaTIyMTUHdW5pMDBCNQd1bmkwNUMxB3VuaTA1QjAHdW5pMDVCMQd1bmkwNUIyB3VuaTA1QjMHdW5pMDVCNAd1bmkwNUI1B3VuaTA1QjYHdW5pMDVCNwd1bmkwNUI4B3VuaTA1QjkHdW5pMDVCQQd1bmkwNUJCB3VuaTA1QkMHdW5pMDVCRgd1bmkwNUMyB3VuaTA1QzcHdW5pMDMwOAd1bmkwMzA3CWdyYXZlY29tYglhY3V0ZWNvbWIHdW5pMDMwQgt1bmkwMzBDLmFsdAd1bmkwMzAyB3VuaTAzMEMHdW5pMDMwNgd1bmkwMzBBCXRpbGRlY29tYgd1bmkwMzA0B3VuaTAzMTIHdW5pMDMyNgd1bmkwMzI3B3VuaTAzMjgIY3Jvc3NiYXIAAAABAAH//wAPAAEAAwASAAAAWAAAAOIAAAE0AAIACwAB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JRwBAf/tF0IBNv/1FyoB1P+IGH4ACgB6/+EYRgCG/+0YTACYABQYUgC5/90YWADRADIAAADeABIYXgDfABEYXgHU/1cYZAH0AA8YagH6ABAYfAALAFUAFAAAAGIAABhEAIb/7RhKAJj/7hhQALn/7RbGANT/7xbGAN7/5hdEAN//6iSgATT/8BbGATX/7RbGATf/8BbGAAsAPv/nGBgAYgAOFnAAhv/mFwAAuf/rF3AA1P/rJFwA3v/hFvQBCv/pJFwBFP/nFwABIf/nFwABKv/pJFwB5f9uGBIADAAB/0IX2gAv/ysX4ABVABQAAABiAAAdXgB6/94X5gCG/+sV/AC5/+sX7ADG/+YWvADU/+okGADe/+gWvAEB/8AX8gHU/vIX+AAMAD7/4SfkAIb/5hZyALP//he0ALn/5RZyANT/6SPOAN7/2BbcAN//wRbiAQr/6BZyART/5hZyASH/5xZyASr/5xZyAeX/ZRe6AAwAAf9SF3YAC/7pF3wAL/9HF4IAaP/PF5oAbv/dF4gAev/1FZIAhv/zFaQAuf/zFaQA0QAOFZgA3gAPFZgBAf+GF44B1P5zF5QADAABAA0VTgA+/+YV3gCG/+sjOgC5/+sjOgDU/+0VYADe/+UV3gDf/+UV3gEBAA0VTgEK/+0VYAEU/+sjOgEh/+wjOgEq/+wjOgABADIAAQAMAA0AFgAfACQAMAAyAD4ASABKAEsAVQBYAGIAYwBoAGkAbgB6AIUAhgCPAJgAnQCrALMAuQDGANEA0gDeAN8A5ADqAQEBDAEcAR0BIQEqASsBLgHKAeUB6QHrAe0B9AH6ABEAAf/VFSYAVQAOFJwAev/fFiAAhv/hKbAAuf/hKbAAxv/rIogA1P/tFK4BAf/LFqQBCv/pIogBFP/nFSwBIf/nFSwBKv/nFSwB1P9zFp4B5f/EFqoB6gAPFJwB7AAOFJwB7gAMFJwAEgAB/7UWSAA+//MU0AB6/9IWYACG/9QWYAC5/9IWYADG/+IpSADU/+QpSADe//UULgEB/7QWTgEK/9kVsgEU/9kVsgEh/9kVsgEq/9kVsgHU/ygWVAHl/24WWgHqABQUcAHsABMVvgHuABEVvgAWAD7/7BYoAFX/hxX4AFj/7xPYAGL/shX+AGP/1hYEAGn/bxYKALP/1BYQALn/9BRcANH/7xPYANT/9RPAAN7/zhYu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AAAAACv+AAAk3AAAAAAk5gAAJPAAACT6JQQlNiVAAAAAACUOJTYlQAAAAAAlGCU2JUAAAAAAJSIlNiVAAAAAACUsJTYlQAAAAAAlSgAAJVQAAAAAJV4AACVoAAAAACVyAAAlfAAAAAAlhgAAJZolpAAAJZAAACWaJaQAACWuAAAluAAAJcIlzAAAJdYAAAAAJeAAACXwJfomBCYOAAAl8CX6JgQmDgAAJfAl+iYEJg4AACXwJfomBCYOAAAmGCYiJiwmNgAAJhgmIiYsJjYAACYYJiImLCY2AAAmQCZKJlQmXgAAJkAmSiZUJl4AACZoJ04mciZ8AAAmaCdOJnImfAAAJoYmkCaaJqQAACaGJpAmmiakAAAmria4JsImzAAAJq4muCbCJswAACauJrgmwibMAAAm1idOJuAm6gAAJtYnTibgJuoAACb0Jv4nCCcSAAAnHCcmJzAnOgAAJxwnJicwJzoAACwcLCYsMCw6AAAsHCwmLDAsOgAAJ0QnTidYJ2IAACdEJ04nWCdiAAAnbCd2J4AnigAAJ2wndieAJ4oAACdsJ3YngCeKAAAnlCeeJ6gnsgAAJ5QnnieoJ7IAACe8J8Yn0CfaAAAn5CfuJ/goAgAAJ+Qn7if4KAIAACgMKBYoICgqAAAoNCg+KEgoUgAAKDQoPihIKFIAAChcKGYocCh6AAAoXChmKHAoegAAKIQojiiYKKIAACisKLYowCjKAAAorCi2KMAoygAAKNQo3ijoKPIAACjUKN4o6CjyAAAo1CjeKOgo8gAAKPwpBikQKRoAACkkKS4pOClCAAApJCkuKTgpQgAAKUwpVilgKWoAAClMKVYpYClqAAApdCl+KYgpkgAAKXQpfimIKZIpnCmmKbApuinEKZwppimwKbopxCmcKaYpsCm6KcQpnCmmKbApuinEKZwppimwKbopxCmcKaYpsCm6KcQAACnOKdgp4insAAApzinYKeIp7AAALBwsJiwwLDoAACu4AAAAAAAAAAAp9ioAKgoqFAAAKh4qKCoyKjwAACpGKlAqWipkAAAqbip4KoIqjAAAKpYqoCqqKrQAACq+Ksgq0ircAAAq5irwKvorBAAAKw4rGCsiKywAACs2K0ArSitUAAArXitoK3IrfAAAK4YrkCuaK6QAACuGK5ArmiukAAArhiuQK5orpAAAK4YrkCuaK6QAACuu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AAYAEAACAYABkgAAAgIACEFaRSACckNBVCACJkNSVCACcktBWiACck1PTCACTFJPTSACTFRBVCACclRSSyACcgAAAAEAEAAAAAEAEgAAAAEAFAAAAAEADQAAAAEAEwAAAAEAFQAAAAEABQAAAAEABwAAAAEABgAAAAEADgAAAAEACwAAAAEAEQIcAAEAFgIaAAEAFwAAAAEACgAAAAEADAAAAAIAAAABAAAAAgACAAQAAAADAAIABAAEAAD//wAPAAAAAQACAAMABQAGAAcACAAMAA0ADgAPABAAEQASAAEDAgAFAAEDAgABAAEC7AAGAAEC5gAHAAEDMAApAAEDKgAzAAECzgABAAECzgABAuYAAQLkAAECzAABAuIAAQMoAAEC5AABAAEDCgACAuYC2gACAwgAAgD4APkAAQLYAAEC3gABAwoAAwLcApoC4AACAwgABAE6ATsBOgE7AAMAAQLKAAEDBgAAAAEAAAAPAAMAAQK4AAEC/AAAAAEAAAAPAAMAAAABAmAAAQL4AAEAAAADAAMAAAABAuAAAQLmAAEAAAADAAIDZgALAHUAdgB4AHkA8QDyAPMA9AD1APYA9wACA2QADwGeAZ8BoAGhAaIBowGkAaUBpgGnAgYCDgIPAhACEQABA1wAEgKkAqoCsALOArYCvALCAtYC3gLmAu4C9gL+AwYDDgMWAx4CyAAA//8ADwAAAAEAAgAEAAUABgAHAAgADAANAA4ADwAQABEAEgAA//8AEAAAAAEAAgADAAUABgAHAAgACgAMAA0ADgAPABAAEQASAAD//wAQAAAAAQACAAMABQAGAAcACAALAAwADQAOAA8AEAARABIAAP//ABAAAAABAAIAAwAFAAYABwAIAAkADAANAA4ADwAQABEAEgAAAQAAAAEBAAICvABEAQIBAwEEAQUBBgEHAQgBCQELAQ0BDgEPARABEQESARMBFAEVARYBFwEYARkBGgEbARwBHQEeAR8BIAEiASMBJAElASYBJwEoASkBKwEsAFMBLQEuAS8BMAExATIBMwE0ATUBNgE3ATgBOQE6APEA8gDzAPgApAD2APcAzgHkAgYCDgIPAhACEQACAroASAEBAQIBAwEEAQUBBgEHAQgBCQEKAQsBDAENAQ4BDwEQAREBEgETARQBFQEWARcBGAEZARoBGwEcAR0BHgEfASABIQEi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AGUAZQCqAGwAZgBmAGYAZgBmAGEAYwCeAIEAQgBCAEIAQgBCAEIAQgBCAEIAMQByAHIAcgByAJcAmAAKAAgACAAIAAgACAAIAAgACAIKADgAOAAuAC4AIwAjAREAIwEAAL4AkQCRAJEAkQCRAJEAUwBTAFMAUwBTAFMAUwBYAFMAxABsADsAUACTAJMAkwCTAFsAWwBbAFsAWwBiABoAfQB9AH0AlQCVAJUAlQCVAJUAlQCVAJUAlQCJALAAsACwALAAsABdAK4ArgCuAK4ArgBdAF0AXQBdAJoAJAABAGoAiwBHAFEAPQBJADkAQgByAhABBAEEAQcBEwAQADcACwALAAsACwALAAsACwBUAFYAlgCWAR0BHQCpAKkAqQCpAKkAuQCyAIoAbgBuAG4AbgBuAJQArABeAHUAnwCfAGAAYABgAGAAYABgAGAAPwA/AGAAwQCIAFYAjwC2ALYAtgC2ALYAKAC6AEQAhwCHAJwAggCEAJIASAAcABwAHAAcAEUARQBFARYBFgEKAQoATgBOABsAGwAbACwALABGADMAMwEQARAALQAtAF8AXwBfAFkAWQAqAC8ALwArAB0AHQAiACIBBgAEAAQAAAAAAAABDAENAQ0ABwAHAGkAaQIMAgwCDAIMAgwCDABKAEoCCwAeAg0BCQAPAQoAnQCvAH8AwAC4ADQBFwBwAHAAcABwAgcCDQApAGsAawBrAGsAawBrAGsAawBrAGsAdwB3AHcAdwB3AHcAdwBrAGsAawBrAGsAawBtAGsAawBrAHcAdwB3AHcAdwB3AHcAdwB3AHcAdAB6AHsAeQB3AHcAdwB3AHcAdwB3AHcAdwB3AHcAdwB3AHcAdwB3AHcAdwB3AHcAgwCDAKQApACkAKQApAEBAgIAJwAJARgCEQESAQICEgEIACQAPAEVAEAAdgIOARQAMgADAAkBHwB+AFoAIQARABUAZABkAAYABgEDAgQCBQIDABcAFgBBADUAjgCNAg8AgAC1AMMAcwA+AGcAwgDFAA4AtAASABMBHgCQAL8AawBrAgYAVQBcAIgAJgELAKgBHAAMAAwADAAMAAwADAAMAAwADACkAAwAlQC3AKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkAKQApACkABQCAAII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", Im = `
 .card.player-design-immersive .diagnostics-shell { width:100%; max-width:1100px; margin-inline:auto; padding:clamp(12px,3vw,28px); box-sizing:border-box; font-family:var(--homeii-font-family); color:var(--homeii-surface-text); }
 .card.player-design-immersive .diagnostics-shell h2 { margin:0 0 8px; font:500 clamp(20px,3vw,28px)/1.4 var(--homeii-font-family); }
 .card.player-design-immersive .diagnostics-shell > p { color:var(--homeii-surface-muted); font-size:14px; line-height:1.6; }
@@ -30513,7 +30513,7 @@ function vl() {
   }
 }
 const ms = `
-${Em}
+${Im}
   :host, .card {
     --homeii-dialog-layer:2147483203;
     --homeii-font-family:"HOMEii Heebo",Heebo,Arial,sans-serif;
@@ -31334,7 +31334,7 @@ ${Em}
   .card.player-design-immersive.performance-lite *::before,
   .card.player-design-immersive.performance-lite *::after { backdrop-filter:none!important; -webkit-backdrop-filter:none!important; box-shadow:none!important; }
   .card.player-design-immersive.performance-lite :is(.player-group-preview,.group-operation-feedback,.player-group-status,.fan-catalogue,.smart-settings) { background:var(--homeii-surface-solid,var(--card-background-color,#202226)); }
-`, Im = `
+`, Em = `
 .card.player-design-immersive:not(.compact-mode) { container-type:size; overflow:clip!important; }
 :host(.mobile-edge-to-edge-open) .card.mobile-edge-to-edge { overflow:clip!important; }
 :host(.mobile-edge-to-edge-open) .card.mobile-edge-to-edge.player-design-immersive .stage { overflow:clip!important; padding-top:max(12px,env(safe-area-inset-top,0px))!important; padding-bottom:max(12px,env(safe-area-inset-bottom,0px))!important; }
@@ -31625,7 +31625,7 @@ function Pm(n) {
     Mm(),
     Cm(),
     ms,
-    Im
+    Em
   ].join("");
 }
 function wl(n) {
@@ -31738,7 +31738,7 @@ function zm(n = null, e = "en") {
 function Fm() {
   const n = {
     card_id: ae("ui.card_id", {}, "Card ID"),
-    homeii_engine_mode: "HOMEii Flow Engine",
+    homeii_engine_mode: "Maverick Music Engine",
     homeii_engine_instance_id: "Engine instance ID",
     homeii_engine_profile_id: "Engine profile ID",
     homeii_engine_timeout_ms: "Engine timeout",
@@ -31763,11 +31763,11 @@ function Fm() {
     main_opacity: ae("ui.main_opacity"),
     popup_opacity: ae("ui.popup_opacity")
   }, e = {
-    card_id: ae("ui.card_id_helper", {}, "Unique slug (letters, digits, '-', '_'). Set this when running multiple HOMEii Flow dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other HOMEii Flow card in this browser (the original behaviour)."),
-    homeii_engine_mode: "HOMEii Flow 6 requires the HOMEii Flow Engine integration. The card will not run without a loaded Engine.",
+    card_id: ae("ui.card_id_helper", {}, "Unique slug (letters, digits, '-', '_'). Set this when running multiple Maverick Music dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other Maverick Music card in this browser (the original behaviour)."),
+    homeii_engine_mode: "Maverick Music 6 requires the Maverick Music Engine integration. The card will not run without a loaded Engine.",
     homeii_engine_instance_id: "Optional instance identifier for multi-engine setups. Leave blank for the default integration instance.",
     homeii_engine_profile_id: "Optional profile identifier for future per-room, per-user, or per-dashboard Engine policies.",
-    homeii_engine_timeout_ms: "Maximum milliseconds to wait for HOMEii Flow Engine responses during explicit Engine checks.",
+    homeii_engine_timeout_ms: "Maximum milliseconds to wait for Maverick Music Engine responses during explicit Engine checks.",
     config_entry_id: ae("ui.music_assistant_config_entry_id_if_you_want_direct_integration_lookup_th"),
     active_player_helper_entity: ae("ui.optional_input_text_helper_updated_with_the_active_player_entity_id_for"),
     ma_interface_url: ae("ui.path_used_when_opening_the_music_assistant_interface"),
@@ -31995,7 +31995,7 @@ function qm() {
       player_order_entities: ae("ui.player_order"),
       ...t,
       card_id: ae("ui.card_id", {}, "Card ID"),
-      homeii_engine_mode: "HOMEii Flow Engine",
+      homeii_engine_mode: "Maverick Music Engine",
       homeii_engine_instance_id: "Engine instance ID",
       homeii_engine_profile_id: "Engine profile ID",
       homeii_engine_timeout_ms: "Engine timeout",
@@ -32009,11 +32009,11 @@ function qm() {
       music_assistant_timeout_ms: "Music Assistant timeout"
     },
     helpers: {
-      card_id: ae("ui.card_id_helper", {}, "Unique slug (letters, digits, '-', '_'). Set this when running multiple HOMEii Flow dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other HOMEii Flow card in this browser (the original behaviour)."),
-      homeii_engine_mode: "HOMEii Flow 6 requires the HOMEii Flow Engine integration. The card will not run without a loaded Engine.",
+      card_id: ae("ui.card_id_helper", {}, "Unique slug (letters, digits, '-', '_'). Set this when running multiple Maverick Music dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other Maverick Music card in this browser (the original behaviour)."),
+      homeii_engine_mode: "Maverick Music 6 requires the Maverick Music Engine integration. The card will not run without a loaded Engine.",
       homeii_engine_instance_id: "Optional instance identifier for multi-engine setups. Leave blank for the default integration instance.",
       homeii_engine_profile_id: "Optional profile identifier for future per-room, per-user, or per-dashboard Engine policies.",
-      homeii_engine_timeout_ms: "Maximum milliseconds to wait for HOMEii Flow Engine responses during explicit Engine checks.",
+      homeii_engine_timeout_ms: "Maximum milliseconds to wait for Maverick Music Engine responses during explicit Engine checks.",
       settings_source: ae("ui.choose_whether_settings_are_controlled_from_the_in_card_ui_or_from_the_c"),
       layout_mode: ae("ui.auto_chooses_mobile_or_tablet_based_on_actual_width"),
       height: ae("ui.card_height_in_pixels"),
@@ -32610,10 +32610,10 @@ function Nm() {
     }
   };
 }
-const El = "homeii_flow", Il = Object.freeze(["required"]);
+const Il = "homeii_flow", El = Object.freeze(["required"]);
 function Rr(n = "required") {
   const e = String(n || "").trim().toLowerCase();
-  return Il.includes(e) ? e : "required";
+  return El.includes(e) ? e : "required";
 }
 function Wo(n = "required") {
   return Rr(n) !== "off";
@@ -32630,7 +32630,7 @@ function Wa(n = "") {
 }
 function Ql(n = "get_context") {
   const e = String(n || "get_context").trim().replace(/^\/+|\/+$/g, "").replace(/[^a-zA-Z0-9_/-]+/g, "_") || "get_context";
-  return `${El}/${e}`;
+  return `${Il}/${e}`;
 }
 function Dl(n = null) {
   const e = n?.capabilities || n?.data?.capabilities || n;
@@ -32656,8 +32656,8 @@ function Tl(n = {}) {
 }
 const Um = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  HOMEII_ENGINE_COMMAND_PREFIX: El,
-  HOMEII_ENGINE_MODES: Il,
+  HOMEII_ENGINE_COMMAND_PREFIX: Il,
+  HOMEII_ENGINE_MODES: El,
   clampHomeiiEngineTimeoutMs: Pl,
   homeiiEngineCommandType: Ql,
   homeiiEngineModeAllowsCalls: Wo,
@@ -32857,15 +32857,15 @@ function Gm(n = {}) {
       if (!Wo(this._editorHomeiiEngineMode())) return null;
       const V = this._editorHomeiiEngineMessage(J, j);
       if (typeof this._hass?.callWS == "function")
-        return this._editorWithTimeout(this._hass.callWS(V), this._editorHomeiiEngineTimeoutMs(), "HOMEii Flow Engine timed out.");
+        return this._editorWithTimeout(this._hass.callWS(V), this._editorHomeiiEngineTimeoutMs(), "Maverick Music Engine timed out.");
       if (typeof this._hass?.connection?.sendMessagePromise == "function")
-        return this._editorWithTimeout(this._hass.connection.sendMessagePromise(V), this._editorHomeiiEngineTimeoutMs(), "HOMEii Flow Engine timed out.");
+        return this._editorWithTimeout(this._hass.connection.sendMessagePromise(V), this._editorHomeiiEngineTimeoutMs(), "Maverick Music Engine timed out.");
       throw new Error("Home Assistant WebSocket API is unavailable in the visual editor.");
     }
     async _editorDiagnosticEngineRow(J) {
       const j = this._editorHomeiiEngineMode();
       if (!Wo(j)) {
-        J("fail", "HOMEii Flow Engine", "HOMEii Flow 6 requires the HOMEii Flow Engine integration. There is no frontend-only compatibility path.", j);
+        J("fail", "Maverick Music Engine", "Maverick Music 6 requires the Maverick Music Engine integration. There is no frontend-only compatibility path.", j);
         return;
       }
       try {
@@ -32873,9 +32873,9 @@ function Gm(n = {}) {
           card_version: z,
           source: "visual_editor"
         });
-        if (!V) throw new Error("HOMEii Flow Engine returned an empty response.");
+        if (!V) throw new Error("Maverick Music Engine returned an empty response.");
         const X = Ll(V);
-        J("ok", "HOMEii Flow Engine", `Connected to HOMEii Flow Engine ${X.version || "unknown version"}. Capabilities: ${Tl(X.capabilities)}.`, j);
+        J("ok", "Maverick Music Engine", `Connected to Maverick Music Engine ${X.version || "unknown version"}. Capabilities: ${Tl(X.capabilities)}.`, j);
         const [K, ne] = await Promise.allSettled([
           this._editorCallHomeiiEngine("players/get", { source: "visual_editor" }),
           this._editorCallHomeiiEngine("stats/get", { source: "visual_editor" })
@@ -32885,13 +32885,13 @@ function Gm(n = {}) {
           J(ge ? "ok" : "warn", "Engine player state", `${ge} Music Assistant player(s), ${o} playing, ${m} grouped.`);
         }
       } catch (V) {
-        const X = "Engine mode is Required, but the Home Assistant integration did not answer. HOMEii Flow 6 will not run until the integration is installed, loaded, and refreshed.", K = V?.message ? ` Last error: ${V.message}` : "";
-        J("fail", "HOMEii Flow Engine", `${X}${K}`, j);
+        const X = "Engine mode is Required, but the Home Assistant integration did not answer. Maverick Music 6 will not run until the integration is installed, loaded, and refreshed.", K = V?.message ? ` Last error: ${V.message}` : "";
+        J("fail", "Maverick Music Engine", `${X}${K}`, j);
       }
     }
     _editorDiagnosticsReportText(J = []) {
       const j = [
-        "HOMEii Music Flow Editor Diagnostics",
+        "Maverick Music Editor Diagnostics",
         "Diagnostics: v7",
         `Version: ${z}`,
         `Generated: ${(/* @__PURE__ */ new Date()).toISOString()}`,
@@ -32901,7 +32901,7 @@ function Gm(n = {}) {
         "Privacy: external/private hostnames are redacted by default.",
         `HA URL: ${this._editorCurrentOrigin() ? this._editorSanitizeDiagnosticUrl(this._editorCurrentOrigin()) : ""}`,
         `HA URL detail: ${this._editorDiagnosticUrlDescription(this._editorCurrentOrigin())}`,
-        "music_assistant_transport: HOMEii Flow Engine",
+        "music_assistant_transport: Maverick Music Engine",
         `config_entry_id configured: ${String(this._config?.config_entry_id || "").trim() ? "yes" : "no"}`,
         `homeii_engine_mode: ${this._editorHomeiiEngineMode()}`,
         `homeii_engine_instance_id configured: ${this._config?.homeii_engine_instance_id ? "yes" : "no"}`,
@@ -32915,7 +32915,7 @@ function Gm(n = {}) {
     }
     _editorDiagnosticsSummary(J = this._editorDiagnosticsItems || []) {
       const j = Array.isArray(J) ? J : [], V = j.filter((K) => K.status === "fail").length, X = j.filter((K) => K.status === "warn").length;
-      return j.length ? V ? `${V} check${V === 1 ? "" : "s"} need attention.` : X ? `${X} check${X === 1 ? "" : "s"} need review.` : "All visible setup checks passed." : "Run diagnostics to check the current browser, Home Assistant integration, and HOMEii Flow Engine readiness.";
+      return j.length ? V ? `${V} check${V === 1 ? "" : "s"} need attention.` : X ? `${X} check${X === 1 ? "" : "s"} need review.` : "All visible setup checks passed." : "Run diagnostics to check the current browser, Home Assistant integration, and Maverick Music Engine readiness.";
     }
     _editorDiagnosticStatusLabel(J = "info") {
       const j = String(J || "info").toLowerCase();
@@ -32940,7 +32940,7 @@ function Gm(n = {}) {
     }
     async _runEditorDiagnostics() {
       const J = [], j = (g, y, S = "", B = "") => J.push(this._editorDiagnosticItem(g, y, S, B)), V = Object.keys(this._hass?.services?.music_assistant || {}), X = this._hass?.states || {}, K = this._hass?.entities || {}, ne = Object.values(X).filter((g) => _.isMusicAssistantPlayer(g, K?.[g.entity_id])), ge = Object.values(X).filter((g) => g?.entity_id?.startsWith?.("media_player.")), o = v.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities), m = v.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities);
-      if (j("ok", "Editor version", "Visual editor runtime is loaded.", z), j("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7"), j("info", "Browser", this._editorBrowserSummary()), j("info", "Viewport", this._editorViewportSummary()), j("info", "Diagnostic privacy", "External/private hostnames are redacted in visible and copied diagnostic output."), j(this._hass ? "ok" : "fail", "Home Assistant frontend", this._hass ? "Editor has a Home Assistant frontend object." : "Editor does not have a Home Assistant frontend object."), j(V.length ? "ok" : "fail", "Music Assistant services", V.length ? `${V.length} service(s) are exposed by Home Assistant.` : "No music_assistant services are exposed by Home Assistant."), j(V.length ? "ok" : "warn", "Engine backend mode", V.length ? "HOMEii Flow 6 uses HOMEii Flow Engine as the required backend. Browser-direct Music Assistant access is not used for core card routing." : "Home Assistant does not expose music_assistant services for HOMEii Flow Engine."), await this._editorDiagnosticEngineRow(j), j(V.length ? "ok" : "fail", "Integration signal", `services ${V.length ? "yes" : "no"}, authenticated transport HOMEii Flow Engine`), j(ne.length ? "ok" : V.length && ge.length ? "warn" : "fail", "Music Assistant players", ne.length ? `${ne.length} strict MA player(s), ${ge.length} generic HA media_player(s).` : `${ge.length} generic HA media_player(s), but no strict Music Assistant player markers were detected.`), j("info", "Player filters", `${o.length} pinned, ${m.length} excluded.`), this._hass?.connection?.sendMessagePromise)
+      if (j("ok", "Editor version", "Visual editor runtime is loaded.", z), j("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7"), j("info", "Browser", this._editorBrowserSummary()), j("info", "Viewport", this._editorViewportSummary()), j("info", "Diagnostic privacy", "External/private hostnames are redacted in visible and copied diagnostic output."), j(this._hass ? "ok" : "fail", "Home Assistant frontend", this._hass ? "Editor has a Home Assistant frontend object." : "Editor does not have a Home Assistant frontend object."), j(V.length ? "ok" : "fail", "Music Assistant services", V.length ? `${V.length} service(s) are exposed by Home Assistant.` : "No music_assistant services are exposed by Home Assistant."), j(V.length ? "ok" : "warn", "Engine backend mode", V.length ? "Maverick Music 6 uses Maverick Music Engine as the required backend. Browser-direct Music Assistant access is not used for core card routing." : "Home Assistant does not expose music_assistant services for Maverick Music Engine."), await this._editorDiagnosticEngineRow(j), j(V.length ? "ok" : "fail", "Integration signal", `services ${V.length ? "yes" : "no"}, authenticated transport Maverick Music Engine`), j(ne.length ? "ok" : V.length && ge.length ? "warn" : "fail", "Music Assistant players", ne.length ? `${ne.length} strict MA player(s), ${ge.length} generic HA media_player(s).` : `${ge.length} generic HA media_player(s), but no strict Music Assistant player markers were detected.`), j("info", "Player filters", `${o.length} pinned, ${m.length} excluded.`), this._hass?.connection?.sendMessagePromise)
         try {
           const g = await this._editorWithTimeout(this._hass.connection.sendMessagePromise({
             type: "config_entries/get",
@@ -32952,7 +32952,7 @@ function Gm(n = {}) {
         }
       else
         j("warn", "Music Assistant config entry", "Home Assistant connection API is not available in this editor context.");
-      return j("ok", "Music Assistant transport", "URL selection, authentication, event streaming, caching, and artwork proxying are owned by HOMEii Flow Engine. No MA token or server URL is stored in the card."), this._editorDiagnosticsItems = J, this._editorDiagnosticsReport = this._editorDiagnosticsReportText(J), this._renderEditorDiagnosticsResults(), this._editorDiagnosticsReport;
+      return j("ok", "Music Assistant transport", "URL selection, authentication, event streaming, caching, and artwork proxying are owned by Maverick Music Engine. No MA token or server URL is stored in the card."), this._editorDiagnosticsItems = J, this._editorDiagnosticsReport = this._editorDiagnosticsReportText(J), this._renderEditorDiagnosticsResults(), this._editorDiagnosticsReport;
     }
     async _copyEditorDiagnosticsReport() {
       if (this._editorDiagnosticsRunning) return;
@@ -33514,8 +33514,8 @@ function Gm(n = {}) {
             options: j
           }
         }), S.name === "pinned_player_master") {
-          const E = new Set(v.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities)), I = E.size ? j.filter((F) => E.has(F.value)) : j;
-          B.selector = { select: { multiple: !1, mode: "dropdown", options: I } };
+          const I = new Set(v.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities)), E = I.size ? j.filter((F) => I.has(F.value)) : j;
+          B.selector = { select: { multiple: !1, mode: "dropdown", options: E } };
         }
         return S.name === "ambient_light_entities" && (B.selector = this._ambientLightEntitySelector({
           multiple: !0,
@@ -33526,10 +33526,10 @@ function Gm(n = {}) {
       m && (m.title = this._isHebrew() ? "מנוע והגדרות מתקדמות" : "Engine & advanced");
       const g = o.find((S) => S.name === "general_section"), y = g?.schema?.find((S) => S.name === "general_grid");
       if (y) {
-        const S = /* @__PURE__ */ new Set(["pinned_player_entities", "pinned_player_master", "entity_sticky", "pinned_players_exclusive", "excluded_player_entities", "player_sort_mode"]), B = y.schema.filter((I) => S.has(I.name));
-        y.schema = y.schema.filter((I) => !S.has(I.name));
-        const E = g.schema.find((I) => I.name === "player_order_grid");
-        g.schema = g.schema.filter((I) => I.name !== "player_order_grid"), E && B.push(E), B.length && o.splice(o.indexOf(g) + 1, 0, { type: "expandable", name: "players_section", title: this._isHebrew() ? "נגנים" : "Players", flatten: !0, schema: B });
+        const S = /* @__PURE__ */ new Set(["pinned_player_entities", "pinned_player_master", "entity_sticky", "pinned_players_exclusive", "excluded_player_entities", "player_sort_mode"]), B = y.schema.filter((E) => S.has(E.name));
+        y.schema = y.schema.filter((E) => !S.has(E.name));
+        const I = g.schema.find((E) => E.name === "player_order_grid");
+        g.schema = g.schema.filter((E) => E.name !== "player_order_grid"), I && B.push(I), B.length && o.splice(o.indexOf(g) + 1, 0, { type: "expandable", name: "players_section", title: this._isHebrew() ? "נגנים" : "Players", flatten: !0, schema: B });
       }
       return o;
     }
@@ -33548,14 +33548,14 @@ function Gm(n = {}) {
           return this._editorDynamicHelper($) || g(ce) || Q(ce, o);
         };
         this._editorForm.computeLabel = y, this._editorForm.computeHelper = S;
-        const B = JSON.stringify(K), E = K.filter(($) => $.type === "expandable"), I = E.find(($) => $.name === this._editorSection) || E[0];
-        this._editorSection = I?.name || "";
+        const B = JSON.stringify(K), I = K.filter(($) => $.type === "expandable"), E = I.find(($) => $.name === this._editorSection) || I[0];
+        this._editorSection = E?.name || "";
         const F = this._editorRoot.querySelector("#editorSection"), O = this._editorRoot.querySelector("#editorBasics");
         if (F) {
-          const $ = E.map((ce) => `<option value="${this._esc(ce.name)}">${this._esc(ce.title || y(ce))}</option>`).join("");
+          const $ = I.map((ce) => `<option value="${this._esc(ce.name)}">${this._esc(ce.title || y(ce))}</option>`).join("");
           F.innerHTML !== $ && (F.innerHTML = $), F.value = this._editorSection, this._editorRoot.querySelector(".editor-section-nav label").textContent = this._isHebrew() ? "מה תרצה להתאים?" : "What would you like to adjust?";
         }
-        O && (O.hass = this._hass, O.computeLabel = y, O.computeHelper = S, this._editorLastSchemaKey !== B && (O.schema = K.filter(($) => $.type !== "expandable")), O.data = ne), this._editorLastSchemaKey !== B && (this._editorForm.schema = I?.schema || [], this._editorLastSchemaKey = B);
+        O && (O.hass = this._hass, O.computeLabel = y, O.computeHelper = S, this._editorLastSchemaKey !== B && (O.schema = K.filter(($) => $.type !== "expandable")), O.data = ne), this._editorLastSchemaKey !== B && (this._editorForm.schema = E?.schema || [], this._editorLastSchemaKey = B);
         const Z = JSON.stringify(ne);
         this._editorLastConfigKey !== Z && (this._editorForm.data = ne, this._editorLastConfigKey = Z);
       }
@@ -36097,7 +36097,7 @@ async function pp(n, e = []) {
         this._loadPlayers(), this._refreshGroupingState(), this._state.menuOpen && this._renderMobileMenu(), this._state.controlRoomOpen && this._syncControlRoomUi({ force: !0 });
       }, 650), !0;
     } catch (j) {
-      if (this._debugLog?.("warn", "[HOMEii Flow] HOMEii Flow Engine group fallback failed", j), this._homeiiEngineRequired?.()) throw j;
+      if (this._debugLog?.("warn", "[Maverick Music] Maverick Music Engine group fallback failed", j), this._homeiiEngineRequired?.()) throw j;
     }
   const q = v.length ? await Promise.allSettled(v.map((j) => this._callHaMediaPlayerService(j, "unjoin"))) : [];
   _.length && p.length && await this._callHaMediaPlayerService(k, "join", { group_members: p });
@@ -36820,7 +36820,7 @@ function Ko(n, e) {
   }
   return t;
 }
-class Ep {
+class Ip {
   constructor(e) {
     this._volume = 100, this._muted = !1, this._playerState = "synchronized", this._isPlaying = !1, this._currentStreamFormat = null, this._streamStartServerTime = 0, this._streamStartAudioTime = 0, this._streamGeneration = 0, this._serverState = {}, this._groupState = {}, this.timeSyncInterval = null, this.stateUpdateInterval = null, this.onStateChangeCallback = e;
   }
@@ -36926,7 +36926,7 @@ class Ep {
     return this._groupState;
   }
 }
-class Ip {
+class Ep {
   constructor(e) {
     this.ws = null, this.reconnectTimeout = null, this.shouldReconnect = !1, this.isReconnecting = !1, this.reconnectAttempt = 0, this.baseDelayMs = Math.max(0, e?.baseDelayMs ?? 1e3), this.maxDelayMs = Math.max(this.baseDelayMs, e?.maxDelayMs ?? 15e3), this.maxAttempts = e?.maxAttempts === void 0 ? 1 / 0 : Math.max(0, e.maxAttempts), this.onReconnecting = e?.onReconnecting, this.onReconnected = e?.onReconnected, this.onExhausted = e?.onExhausted;
   }
@@ -37180,7 +37180,7 @@ function Qp() {
 class ql {
   constructor(e) {
     const t = Qp(), r = e.playerId ?? `sendspin-js-${t}`, c = e.clientName ?? `Sendspin JS Client (${t})`;
-    this.config = { ...e, playerId: r, clientName: c }, this._syncDelayMs = ka(e.syncDelay ?? 0), this.timeFilter = new Fl(0, 1.1, 2, 1e-12), this.stateManager = new Ep(e.onStateChange), this.decoder = new zl((p) => this._onAudioData?.(p), () => this.stateManager.streamGeneration), this.wsManager = new Ip(e.reconnect), this.protocolHandler = new Bp(
+    this.config = { ...e, playerId: r, clientName: c }, this._syncDelayMs = ka(e.syncDelay ?? 0), this.timeFilter = new Fl(0, 1.1, 2, 1e-12), this.stateManager = new Ip(e.onStateChange), this.decoder = new zl((p) => this._onAudioData?.(p), () => this.stateManager.streamGeneration), this.wsManager = new Ep(e.reconnect), this.protocolHandler = new Bp(
       r,
       this.wsManager,
       this,
@@ -37981,12 +37981,12 @@ class Hl {
             z = this.nextPlaybackTime, q = this.nextScheduleTime, G = 1, this.currentCorrectionMethod = "none", this.lastSamplesAdjusted = 0, Q.buffer = this.copyBuffer(Q.buffer);
           else if (Math.abs(y) <= S.samplesBelowMs) {
             z = this.nextPlaybackTime, q = this.nextScheduleTime, G = 1;
-            const E = y > 0 ? -1 : 1;
-            Q.buffer = this.adjustBufferSamples(Q.buffer, E), this.currentCorrectionMethod = "samples", this.lastSamplesAdjusted = E;
+            const I = y > 0 ? -1 : 1;
+            Q.buffer = this.adjustBufferSamples(Q.buffer, I), this.currentCorrectionMethod = "samples", this.lastSamplesAdjusted = I;
           } else {
             z = this.nextPlaybackTime, q = this.nextScheduleTime;
-            const E = Math.abs(y);
-            y > 0 ? G = E >= S.rate2AboveMs ? 1.02 : E >= S.rate1AboveMs ? 1.01 : 1 : G = E >= S.rate2AboveMs ? 0.98 : E >= S.rate1AboveMs ? 0.99 : 1, this.currentCorrectionMethod = G === 1 ? "none" : "rate", this.lastSamplesAdjusted = 0, Q.buffer = this.copyBuffer(Q.buffer);
+            const I = Math.abs(y);
+            y > 0 ? G = I >= S.rate2AboveMs ? 1.02 : I >= S.rate1AboveMs ? 1.01 : 1 : G = I >= S.rate2AboveMs ? 0.98 : I >= S.rate1AboveMs ? 0.99 : 1, this.currentCorrectionMethod = G === 1 ? "none" : "rate", this.lastSamplesAdjusted = 0, Q.buffer = this.copyBuffer(Q.buffer);
           }
         } else
           this.recorrectionMonitor.canUseHardResync(c, J) && (this.recorrectionMonitor.noteHardResync(c), this.resyncCount++, this._intervalResyncCount++, this.cutScheduledSources(U - v)), z = U, q = z - v, G = 1, this.currentCorrectionMethod = "resync", this.lastSamplesAdjusted = 0, Q.buffer = this.copyBuffer(Q.buffer);
@@ -38302,8 +38302,8 @@ function vh({
       const g = this._getConfigValidator?.();
       typeof g == "function" && g(m), this._config = m, this._homeiiBrandLogoUrl = "", this._homeiiBrandLogoCandidates = null;
       try {
-        const y = this._config.language || "en", S = localStorage.getItem(this._lsKey("homeii_music_flow_lang")), B = typeof this._usesVisualSettings == "function" && this._usesVisualSettings(), E = String(y || "").trim().toLowerCase().replace("_", "-").split("-")[0], I = E && E !== "en" && E !== "auto";
-        this._state.lang = B || I ? y : S || y;
+        const y = this._config.language || "en", S = localStorage.getItem(this._lsKey("homeii_music_flow_lang")), B = typeof this._usesVisualSettings == "function" && this._usesVisualSettings(), I = String(y || "").trim().toLowerCase().replace("_", "-").split("-")[0], E = I && I !== "en" && I !== "auto";
+        this._state.lang = B || E ? y : S || y;
       } catch {
         this._state.lang = this._config.language || "en";
       }
@@ -38356,14 +38356,14 @@ function vh({
       return Number.isFinite(g) && g > 0 ? g : 0;
     }
     _getAllocatedCardHeight(o = 0) {
-      const m = Number(o || 0), g = Number(this._config?.height), y = Number.isFinite(g) && g > 0 ? Math.round(Math.max(280, Math.min(1800, g))) : 0, S = this._getViewportHeight(m), B = this.getBoundingClientRect?.() || null, E = Number(B?.top || 0), I = [
+      const m = Number(o || 0), g = Number(this._config?.height), y = Number.isFinite(g) && g > 0 ? Math.round(Math.max(280, Math.min(1800, g))) : 0, S = this._getViewportHeight(m), B = this.getBoundingClientRect?.() || null, I = Number(B?.top || 0), E = [
         this.parentElement?.getBoundingClientRect?.().height,
         this.parentElement?.parentElement?.getBoundingClientRect?.().height
       ].map((de) => Number(de || 0)).filter((de) => Number.isFinite(de) && de > 240), F = p.panelViewportFillEnabled?.({
         viewportHeight: S,
-        hostTop: E,
-        parentHeights: I
-      }) === !0, O = !F && E > 0 && E <= 160 ? E : 0, Z = F ? 0 : S >= 900 ? 28 : S >= 700 ? 20 : 12, $ = S > 0 ? Math.max(0, S - O - Math.max(0, -E) - Z) : 0, ce = $ > 240 ? $ : S, be = I.filter((de) => !ce || de <= ce + 4), ue = be.length ? Math.max(...be) : 0;
+        hostTop: I,
+        parentHeights: E
+      }) === !0, O = !F && I > 0 && I <= 160 ? I : 0, Z = F ? 0 : S >= 900 ? 28 : S >= 700 ? 20 : 12, $ = S > 0 ? Math.max(0, S - O - Math.max(0, -I) - Z) : 0, ce = $ > 240 ? $ : S, be = E.filter((de) => !ce || de <= ce + 4), ue = be.length ? Math.max(...be) : 0;
       if (ce > 0) {
         if (y > 0)
           return Math.round(Math.max(Math.min(280, ce), Math.min(y, ce)));
@@ -38397,9 +38397,9 @@ function vh({
       typeof requestAnimationFrame == "function" ? this._layoutRecoveryFrame = requestAnimationFrame(() => m(0)) : this._layoutRecoveryTimer = setTimeout(() => m(0), 0);
     }
     _recoverLayoutAfterHostChange(o = "layout", m = 0) {
-      const g = typeof window < "u" ? Number(window.innerWidth || 0) : 0, y = this._getViewportHeight(760), S = !!(this._state?.mobileCompactExpanded && this._mobileCompactModeEnabled?.()), B = S && this._mobileCompactEdgeToEdgeEnabled?.() && this._compactEdgeToEdgeAllowed?.(), E = S && !B, I = g > 0 && g < 760 ? 156 : 112, F = E ? Math.max(320, Math.min(720, Number(g || 0) - 32)) : this._getCardWidth(g), O = B ? y : E ? Math.max(340, Math.min(860, Number(y || 0) - I || y)) : this._getAllocatedCardHeight(y);
+      const g = typeof window < "u" ? Number(window.innerWidth || 0) : 0, y = this._getViewportHeight(760), S = !!(this._state?.mobileCompactExpanded && this._mobileCompactModeEnabled?.()), B = S && this._mobileCompactEdgeToEdgeEnabled?.() && this._compactEdgeToEdgeAllowed?.(), I = S && !B, E = g > 0 && g < 760 ? 156 : 112, F = I ? Math.max(320, Math.min(720, Number(g || 0) - 32)) : this._getCardWidth(g), O = B ? y : I ? Math.max(340, Math.min(860, Number(y || 0) - E || y)) : this._getAllocatedCardHeight(y);
       if (F <= 0 || O <= 0) return;
-      const Z = this._layoutModeConfig({ width: F, compactPopup: S }), $ = this._layoutProfileConfig(Z, { width: F, height: O, compactPopup: S }), ce = this.shadowRoot?.querySelector?.(".card"), be = this._renderedLayoutMode || (ce?.classList?.contains("layout-tablet") ? "tablet" : ce?.classList?.contains("layout-mobile") ? "mobile" : ""), ue = [`layout-${Z}`, ...Array.isArray($?.classes) ? $.classes : []], de = !!ce && ue.some((Ee) => !ce.classList.contains(Ee)), me = Math.abs(F - Number(this._lastCardWidth || 0)), he = Math.abs(O - Number(this._lastCardHeight || 0)), ve = !!be && be !== Z, xe = !!this._state?.screensaverOpen || !!this.shadowRoot?.querySelector?.("#screensaverBackdrop.open"), ke = m === 0 || ve || de || me > 80 || he > 80 || xe;
+      const Z = this._layoutModeConfig({ width: F, compactPopup: S }), $ = this._layoutProfileConfig(Z, { width: F, height: O, compactPopup: S }), ce = this.shadowRoot?.querySelector?.(".card"), be = this._renderedLayoutMode || (ce?.classList?.contains("layout-tablet") ? "tablet" : ce?.classList?.contains("layout-mobile") ? "mobile" : ""), ue = [`layout-${Z}`, ...Array.isArray($?.classes) ? $.classes : []], de = !!ce && ue.some((Ie) => !ce.classList.contains(Ie)), me = Math.abs(F - Number(this._lastCardWidth || 0)), he = Math.abs(O - Number(this._lastCardHeight || 0)), ve = !!be && be !== Z, xe = !!this._state?.screensaverOpen || !!this.shadowRoot?.querySelector?.("#screensaverBackdrop.open"), ke = m === 0 || ve || de || me > 80 || he > 80 || xe;
       if (this._lastCardWidth = Math.round(F), this._lastCardHeight = Math.round(O), this._lastViewportWidth = g, this._lastViewportHeight = y, this._renderedLayoutMode = Z, !ke) return;
       this._closeTransientEditorLayoutState();
       const Me = this._state?.menuOpen ? this._state.menuPage || "settings" : "", Be = !!this._state?.controlRoomOpen;
@@ -38410,9 +38410,9 @@ function vh({
       this._build(), typeof this._init == "function" && this._init();
     }
     _layoutProfileConfig(o = this._layoutModeConfig?.() || "mobile", m = {}) {
-      const g = typeof window < "u" ? Number(window.innerWidth || 0) : 0, y = this._getViewportHeight(this._configuredCardHeightFallback(0)), S = Number(m?.width || 0), B = Number(m?.height || 0), E = m?.compactPopup === !0 || !!(this._state?.mobileCompactExpanded && this._mobileCompactModeEnabled?.()), I = S > 0 ? S : E ? this._getCardWidth(g) : this._getCardWidth(this._lastCardWidth || g), F = B > 0 ? B : E ? y : this._getAllocatedCardHeight(this._lastCardHeight || this._configuredCardHeightFallback(y) || y);
+      const g = typeof window < "u" ? Number(window.innerWidth || 0) : 0, y = this._getViewportHeight(this._configuredCardHeightFallback(0)), S = Number(m?.width || 0), B = Number(m?.height || 0), I = m?.compactPopup === !0 || !!(this._state?.mobileCompactExpanded && this._mobileCompactModeEnabled?.()), E = S > 0 ? S : I ? this._getCardWidth(g) : this._getCardWidth(this._lastCardWidth || g), F = B > 0 ? B : I ? y : this._getAllocatedCardHeight(this._lastCardHeight || this._configuredCardHeightFallback(y) || y);
       return p.resolveLayoutProfile({
-        width: I,
+        width: E,
         height: F,
         layoutMode: o
       });
@@ -38421,15 +38421,15 @@ function vh({
       return (Array.isArray(o?.classes) ? o.classes : []).map((m) => String(m || "").trim()).filter(Boolean).join(" ");
     }
     _layoutProfileStyleVars(o = null) {
-      const m = Math.max(0, Math.round(Number(o?.width || 0))), g = Math.max(0, Math.round(Number(o?.height || 0))), y = String(o?.aspect || ""), S = Math.max(120, Math.round(g * (y === "wide" ? 0.34 : 0.36))), B = Math.max(112, Math.round(g * 0.3)), E = Math.max(104, Math.round(g * 0.25)), I = Math.max(220, Math.round(g * 0.5)), F = Math.max(180, Math.round(g * 0.42));
+      const m = Math.max(0, Math.round(Number(o?.width || 0))), g = Math.max(0, Math.round(Number(o?.height || 0))), y = String(o?.aspect || ""), S = Math.max(120, Math.round(g * (y === "wide" ? 0.34 : 0.36))), B = Math.max(112, Math.round(g * 0.3)), I = Math.max(104, Math.round(g * 0.25)), E = Math.max(220, Math.round(g * 0.5)), F = Math.max(180, Math.round(g * 0.42));
       return [
         `--flow-measured-width:${m}px`,
         `--flow-measured-height:${g}px`,
         `--flow-available-height:${g}px`,
         `--flow-mobile-art-budget:${S}px`,
         `--flow-mobile-short-art-budget:${B}px`,
-        `--flow-mobile-tight-art-budget:${E}px`,
-        `--flow-tablet-art-budget:${I}px`,
+        `--flow-mobile-tight-art-budget:${I}px`,
+        `--flow-tablet-art-budget:${E}px`,
         `--flow-tablet-dense-art-budget:${F}px`
       ].join(";") + ";";
     }
@@ -38469,14 +38469,14 @@ function vh({
       return Math.max(4, Math.ceil(g / 50));
     }
     getGridOptions() {
-      const o = this._configuredCardHeightFallback(this._getViewportHeight(760) || 760), m = this._preferFullMobileGridRows?.() === !0, g = !m && this._isCompactTileMode(), y = this._getCardWidth(this._lastCardWidth || (typeof window < "u" ? Number(window.innerWidth || 0) : 0) || 390), S = g && this._compactMiniWidgetMode({ width: y }), B = Number(this._fullMobileInlineTargetHeight?.() || 0), E = g ? this._compactTileReservedHeight() : m && B > 0 ? Math.max(B, this._getAllocatedCardHeight(o) || o) : this._getAllocatedCardHeight(o) || o, I = 5, F = m ? Math.max(6, this._sectionGridRowsForHeight(B || 760)) : 0, O = {
+      const o = this._configuredCardHeightFallback(this._getViewportHeight(760) || 760), m = this._preferFullMobileGridRows?.() === !0, g = !m && this._isCompactTileMode(), y = this._getCardWidth(this._lastCardWidth || (typeof window < "u" ? Number(window.innerWidth || 0) : 0) || 390), S = g && this._compactMiniWidgetMode({ width: y }), B = Number(this._fullMobileInlineTargetHeight?.() || 0), I = g ? this._compactTileReservedHeight() : m && B > 0 ? Math.max(B, this._getAllocatedCardHeight(o) || o) : this._getAllocatedCardHeight(o) || o, E = 5, F = m ? Math.max(6, this._sectionGridRowsForHeight(B || 760)) : 0, O = {
         columns: g ? S ? 6 : 8 : 12,
-        rows: Math.max(S ? I : 6, F, this._sectionGridRowsForHeight(E)),
+        rows: Math.max(S ? E : 6, F, this._sectionGridRowsForHeight(I)),
         min_columns: g && S ? 3 : 4,
-        min_rows: S ? I : m ? F : 4,
+        min_rows: S ? E : m ? F : 4,
         max_columns: 12
       };
-      return S && (O.max_rows = I), O;
+      return S && (O.max_rows = E), O;
     }
     _sectionGridRowsForHeight(o) {
       const m = Math.max(56, Number(o) || 56);
@@ -38548,20 +38548,20 @@ function vh({
     }
     _directMaIngressMessage() {
       return this._localText(
-        "The configured ma_url points to the Home Assistant Music Assistant ingress page, not the direct Music Assistant API. HOMEii Flow 6 uses HOMEii Flow Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
+        "The configured ma_url points to the Home Assistant Music Assistant ingress page, not the direct Music Assistant API. Maverick Music 6 uses Maverick Music Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
         "כתובת ma_url שהוגדרה מצביעה למסך ה-ingress של Music Assistant בתוך Home Assistant, ולא ל-API הישיר של Music Assistant. השאר ma_url ריק לשימוש רגיל דרך Home Assistant, או השתמש בכתובת Web Server ישירה, למשל http://host:8095."
       );
     }
     _directMaUnavailableMessage(o = 0, m = null) {
       if (o === 404 || o === 405)
         return this._localText(
-          "The configured ma_url does not expose the Music Assistant direct API. HOMEii Flow 6 uses HOMEii Flow Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
+          "The configured ma_url does not expose the Music Assistant direct API. Maverick Music 6 uses Maverick Music Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
           "כתובת ma_url שהוגדרה לא חושפת את ה-API הישיר של Music Assistant. השאר ma_url ריק לשימוש רגיל דרך Home Assistant, או השתמש בכתובת Web Server ישירה, למשל http://host:8095."
         );
       const g = String(m?.message || m || "").trim(), y = g.toLowerCase();
       return !o && (y.includes("failed to fetch") || y.includes("networkerror") || y.includes("cors") || y.includes("preflight")) ? this._localText(
-        "Direct Music Assistant API is blocked by the browser before HOMEii receives a response. This is usually CORS/preflight or local-network browser access. HOMEii Flow 6 routes core playback through HOMEii Flow Engine; leave ma_url empty unless you need Sendspin/local-device browser playback.",
-        "Direct Music Assistant API is blocked by the browser before HOMEii receives a response. This is usually CORS/preflight or local-network browser access. HOMEii Flow 6 routes core playback through HOMEii Flow Engine; leave ma_url empty unless you need Sendspin/local-device browser playback."
+        "Direct Music Assistant API is blocked by the browser before Maverick Music receives a response. This is usually CORS/preflight or local-network browser access. Maverick Music 6 routes core playback through Maverick Music Engine; leave ma_url empty unless you need Sendspin/local-device browser playback.",
+        "Direct Music Assistant API is blocked by the browser before Maverick Music receives a response. This is usually CORS/preflight or local-network browser access. Maverick Music 6 routes core playback through Maverick Music Engine; leave ma_url empty unless you need Sendspin/local-device browser playback."
       ) : this._localText(
         `Direct Music Assistant API is not reachable${g ? `: ${g}` : ""}`,
         `ה-API הישיר של Music Assistant לא זמין${g ? `: ${g}` : ""}`
@@ -38623,14 +38623,14 @@ function vh({
     _withTimeout(o, m = 0, g = "") {
       const y = Number(m || 0);
       return !Number.isFinite(y) || y <= 0 ? Promise.resolve(o) : new Promise((S, B) => {
-        const E = setTimeout(() => {
-          const I = new Error(g || this._timeoutMessage());
-          I.code = "HOMEII_TIMEOUT", B(I);
+        const I = setTimeout(() => {
+          const E = new Error(g || this._timeoutMessage());
+          E.code = "HOMEII_TIMEOUT", B(E);
         }, y);
-        Promise.resolve(o).then((I) => {
-          clearTimeout(E), S(I);
-        }).catch((I) => {
-          clearTimeout(E), B(I);
+        Promise.resolve(o).then((E) => {
+          clearTimeout(I), S(E);
+        }).catch((E) => {
+          clearTimeout(I), B(E);
         });
       });
     }
@@ -38721,14 +38721,14 @@ function vh({
       }
     }
     _rememberArtworkFallback(o = "", m = "") {
-      const g = String(o || "").trim(), y = (Array.isArray(m) ? m : [m]).map((E) => String(E || "").trim()).filter((E, I, F) => E && E !== g && F.indexOf(E) === I);
+      const g = String(o || "").trim(), y = (Array.isArray(m) ? m : [m]).map((I) => String(I || "").trim()).filter((I, E, F) => I && I !== g && F.indexOf(I) === E);
       if (!g || !y.length || !this._isMaImageProxyPath(g)) return g;
       this._artworkFallbackUrls || (this._artworkFallbackUrls = /* @__PURE__ */ new Map());
       const S = this._artworkFallbackUrls.get(g), B = Array.isArray(S) ? S : [S].filter(Boolean);
-      for (this._artworkFallbackUrls.set(g, [...B, ...y].filter((E, I, F) => E && F.indexOf(E) === I)); this._artworkFallbackUrls.size > 600; ) {
-        const E = this._artworkFallbackUrls.keys().next().value;
-        if (!E) break;
-        this._artworkFallbackUrls.delete(E);
+      for (this._artworkFallbackUrls.set(g, [...B, ...y].filter((I, E, F) => I && F.indexOf(I) === E)); this._artworkFallbackUrls.size > 600; ) {
+        const I = this._artworkFallbackUrls.keys().next().value;
+        if (!I) break;
+        this._artworkFallbackUrls.delete(I);
       }
       return g;
     }
@@ -38752,7 +38752,7 @@ function vh({
     }
     _rememberImageBlobUrl(o = [], m = "") {
       const g = String(m || "").trim();
-      return g ? ((Array.isArray(o) ? o : [o]).map((S) => String(S || "").trim()).filter((S, B, E) => S && E.indexOf(S) === B).forEach((S) => {
+      return g ? ((Array.isArray(o) ? o : [o]).map((S) => String(S || "").trim()).filter((S, B, I) => S && I.indexOf(S) === B).forEach((S) => {
         this._imageBlobCache.has(S) || this._imageBlobCacheOrder.push(S), this._imageBlobCache.set(S, g);
       }), this._pruneImageBlobCache(), g) : "";
     }
@@ -38836,12 +38836,12 @@ function vh({
       if (!g || /^(data:|blob:)/i.test(g)) return g;
       if (!this._shouldFetchArtworkUrl(g, { crossOrigin: m.crossOrigin === !0 })) return "";
       if (this._imageBlobCache.has(g)) return this._imageBlobCache.get(g);
-      const y = [g, ...this._artworkFallbackCandidates(g)].filter((B, E, I) => B && I.indexOf(B) === E);
+      const y = [g, ...this._artworkFallbackCandidates(g)].filter((B, I, E) => B && E.indexOf(B) === I);
       let S = null;
       for (const B of y) {
-        const E = !!(this._maToken && this._isDirectMaImageProxyUrl(B));
-        for (let I = 0; I < (E ? 2 : 1); I += 1) {
-          const F = I === 1, O = { Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8" };
+        const I = !!(this._maToken && this._isDirectMaImageProxyUrl(B));
+        for (let E = 0; E < (I ? 2 : 1); E += 1) {
+          const F = E === 1, O = { Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8" };
           F && (O.Authorization = `Bearer ${this._maToken}`);
           const Z = typeof AbortController < "u" ? new AbortController() : null, $ = Z ? setTimeout(() => Z.abort(), Number(m.timeoutMs || 6500)) : null;
           try {
@@ -38852,7 +38852,7 @@ function vh({
               signal: Z?.signal
             });
             if (!ce.ok) {
-              if (S = new Error(`Image load failed: ${ce.status}`), !F && E && [401, 403].includes(Number(ce.status))) continue;
+              if (S = new Error(`Image load failed: ${ce.status}`), !F && I && [401, 403].includes(Number(ce.status))) continue;
               break;
             }
             const be = await ce.blob();
@@ -38879,8 +38879,8 @@ function vh({
         if (S.startsWith("//"))
           S = `${typeof window < "u" && window.location?.protocol || "https:"}${S}`;
         else if (S.startsWith("/api/") || S.startsWith("/local/") || S.startsWith("/hacsfiles/")) {
-          const E = this._currentWindowOrigin();
-          S = E ? new URL(S, E).toString() : S;
+          const I = this._currentWindowOrigin();
+          S = I ? new URL(S, I).toString() : S;
         } else if (S.startsWith("/imageproxy")) {
           if (!B) return "";
           S = B ? new URL(S, B).toString() : S;
@@ -38888,8 +38888,8 @@ function vh({
           if (!B) return "";
           S = B ? new URL(`/${S}`, B).toString() : `/${S}`;
         } else if (S.startsWith("/")) {
-          const E = this._currentWindowOrigin();
-          S = E ? new URL(S, E).toString() : S;
+          const I = this._currentWindowOrigin();
+          S = I ? new URL(S, I).toString() : S;
         } else
           S = v.imageProxyUrl(S, "", m, B) || "";
       return (S.includes("/imageproxy?") || S.includes("/imageproxy/")) && (S = v.normalizeImageProxyUrl(S, m, B)), this._isMaImageProxyPath(S) && !/^https?:\/\//i.test(S) || this._isRemoteUnsafeArtworkUrl(S) ? "" : this._cacheBustedArtworkUrl(S, g);
@@ -38924,7 +38924,7 @@ function vh({
       ].map((y) => String(y || "").trim()).filter(Boolean).join("|");
     }
     _currentArtworkUrl(o = null, m = null, g = 420, y = {}) {
-      const S = o?.attributes || {}, B = m?.media_item || {}, E = this._currentArtworkCacheKey(o, m), I = [
+      const S = o?.attributes || {}, B = m?.media_item || {}, I = this._currentArtworkCacheKey(o, m), E = [
         // Home Assistant exposes inaccessible MA artwork through its signed,
         // same-origin media_player proxy. Keep that proven browser-safe path
         // ahead of the raw current_media URL returned by Direct MA.
@@ -38945,8 +38945,8 @@ function vh({
         B?.image,
         B?.album?.image_url,
         B?.album?.image
-      ], O = !m || typeof this._queueItemMatchesPlayer != "function" || this._queueItemMatchesPlayer(m, o), Z = y?.preferPlayerArtwork === !1, $ = y?.preferPlayerArtwork === !0 || !Z && !O && I.some(Boolean);
-      return this._bestArtworkUrl($ ? [...I, ...F] : [...F, ...I], { size: g, cacheKey: E });
+      ], O = !m || typeof this._queueItemMatchesPlayer != "function" || this._queueItemMatchesPlayer(m, o), Z = y?.preferPlayerArtwork === !1, $ = y?.preferPlayerArtwork === !0 || !Z && !O && E.some(Boolean);
+      return this._bestArtworkUrl($ ? [...E, ...F] : [...F, ...E], { size: g, cacheKey: I });
     }
     _artPlaceholderHtml(o = "album") {
       return `
@@ -39051,8 +39051,8 @@ function vh({
       const o = [], m = (y, S = !1) => {
         const B = String(y || "").trim();
         if (!B) return;
-        const E = S ? this._versionedAssetUrl(B) : B;
-        o.includes(E) || o.push(E);
+        const I = S ? this._versionedAssetUrl(B) : B;
+        o.includes(I) || o.push(I);
       }, g = String(this._config?.brand_logo_url || this._config?.logo_url || "").trim();
       return m(g), m(this._moduleAssetUrl("homeii-flow-logo-v2.png"), !0), m(this._moduleAssetUrl("homeii-flow-logo.png"), !0), m(this._moduleAssetUrl("homeii-flow-logo.svg"), !0), m("/local/community/homeii-music-flow/homeii-flow-logo.png", !0), m("/local/community/homeii-music-flow/homeii-flow-logo.svg", !0), m("/hacsfiles/homeii-music-flow/homeii-flow-logo.png", !0), m("/hacsfiles/homeii-music-flow/homeii-flow-logo.svg", !0), m("/local/homeii-flow-logo.png", !0), m("/local/homeii-flow-logo.svg", !0), this._homeiiBrandLogoCandidates = o.length ? o : ["/local/community/homeii-music-flow/homeii-flow-logo.svg"], this._homeiiBrandLogoCandidates;
     }
@@ -39061,7 +39061,7 @@ function vh({
     }
     _brandLogoImgHtml(o = "homeii-logo-fallback") {
       const m = this._brandLogoCandidates(), g = m[0] || this._brandLogoUrl(), y = m.slice(1).join("|");
-      return `<img class="${this._esc(o)}" data-homeii-brand-logo="1" data-homeii-logo-fallbacks="${this._esc(y)}" src="${this._esc(g)}" alt="HOMEii Flow" loading="lazy" decoding="async">`;
+      return `<img class="${this._esc(o)}" data-homeii-brand-logo="1" data-homeii-logo-fallbacks="${this._esc(y)}" src="${this._esc(g)}" alt="Maverick Music" loading="lazy" decoding="async">`;
     }
     _tabletBrandSignatureHtml(o = "tablet-brand-logo") {
       return this._brandLogoImgHtml(`brand-signature-logo ${o}`);
@@ -39072,14 +39072,14 @@ function vh({
       if (m.dataset.homeiiArtFallback === "1") {
         const S = m.getAttribute("src") || m.dataset.homeiiArtSrc || "";
         S && this._markImageFailed(S);
-        const B = m.dataset.homeiiArtFallbackIcon || "album", E = m.closest?.(".art-stack-card");
-        E && (E.classList.add("placeholder"), E.innerHTML = this._mobileArtFallbackHtml(B), S && this._scheduleImageRetry(S, E, B));
+        const B = m.dataset.homeiiArtFallbackIcon || "album", I = m.closest?.(".art-stack-card");
+        I && (I.classList.add("placeholder"), I.innerHTML = this._mobileArtFallbackHtml(B), S && this._scheduleImageRetry(S, I, B));
         return;
       }
       if (m.dataset.homeiiInlineArt === "1") {
         const S = m.getAttribute("src") || m.dataset.homeiiArtSrc || "";
         S && this._markImageFailed(S);
-        const B = m.dataset.homeiiArtFallbackIcon || "album", E = m.closest?.([
+        const B = m.dataset.homeiiArtFallbackIcon || "album", I = m.closest?.([
           ".player-card-art",
           ".history-chip-art",
           ".control-room-context-art",
@@ -39106,7 +39106,7 @@ function vh({
           ".menu-thumb",
           ".queue-flow-art"
         ].join(","));
-        E && (E.innerHTML = this._artPlaceholderHtml(B), S && this._scheduleImageRetry(S, E, B));
+        I && (I.innerHTML = this._artPlaceholderHtml(B), S && this._scheduleImageRetry(S, I, B));
         return;
       }
       if (m.dataset.homeiiBrandLogo !== "1") return;
@@ -39139,7 +39139,7 @@ function vh({
       const y = o?.attributes?.supported_features ?? o?.supported_features, S = Number(y);
       if (Number.isFinite(S) && m) return (S & m) === m;
       const B = String(g || "").trim().toLowerCase();
-      return !B || !Array.isArray(y) ? !1 : y.some((E) => String(E || "").trim().toLowerCase() === B);
+      return !B || !Array.isArray(y) ? !1 : y.some((I) => String(I || "").trim().toLowerCase() === B);
     }
     _playPauseActionForPlayer(o = null) {
       if (o?.state !== "playing") return "play";
@@ -39153,13 +39153,13 @@ function vh({
       const y = String(o || "").trim(), S = String(m || "").trim();
       if (!y || !S) return !1;
       if (!(typeof this._homeiiEnginePlayerCommand == "function" && this._homeiiEngineRequired?.() && this._state?.engineAvailable))
-        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
-      const E = await this._homeiiEnginePlayerCommand({
+        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
+      const I = await this._homeiiEnginePlayerCommand({
         player: y,
         command: S,
         ...g
       });
-      if (!E?.ok) throw new Error(E?.error || `HOMEii Flow Engine could not run ${S}.`);
+      if (!I?.ok) throw new Error(I?.error || `Maverick Music Engine could not run ${S}.`);
       return this._schedulePlayerStateRefresh(), !0;
     }
     _schedulePlayerStateRefresh(o = 180) {
@@ -39172,13 +39172,13 @@ function vh({
     }
     _build() {
       this._imgObserver && (this._imgObserver.disconnect(), this._imgObserver = null, this._imgObserverRoot = null), this._cache.library.clear(), this._clearImageBlobCache();
-      const o = this._isHebrew(), m = this._effectiveTheme(), g = m, y = Math.max(420, this._configuredCardHeightFallback(760)), S = this._getViewportHeight(y), B = this._getAllocatedCardHeight(y), E = this._layoutProfileConfig("browser", { height: B }), I = this._layoutProfileClassNames(E), F = this._layoutProfileStyleVars(E), O = Math.max(360, Math.min(B || y, S - 24)), Z = Math.max(0.72, Math.min(1.02, O / 820)), $ = Math.max(0.3, Math.min(0.98, Number(this._config.main_opacity ?? 0.66))), ce = Math.max(0.4, Math.min(0.98, Number(this._config.popup_opacity ?? 0.92))), be = Math.max(0.34, Math.min(0.9, $ * 0.92)), ue = Math.max(0.4, Math.min(0.95, $ * 0.98)), de = Math.max(0.42, Math.min(0.97, $ + 0.02)), me = Math.max(0.46, Math.min(0.96, $)), he = Math.max(0.56, Math.min(0.98, $ + 0.06)), ve = m === "dark" ? Math.max(0.32, Math.min(0.7, ce * 0.62)) : Math.max(0.18, Math.min(0.42, ce * 0.28));
+      const o = this._isHebrew(), m = this._effectiveTheme(), g = m, y = Math.max(420, this._configuredCardHeightFallback(760)), S = this._getViewportHeight(y), B = this._getAllocatedCardHeight(y), I = this._layoutProfileConfig("browser", { height: B }), E = this._layoutProfileClassNames(I), F = this._layoutProfileStyleVars(I), O = Math.max(360, Math.min(B || y, S - 24)), Z = Math.max(0.72, Math.min(1.02, O / 820)), $ = Math.max(0.3, Math.min(0.98, Number(this._config.main_opacity ?? 0.66))), ce = Math.max(0.4, Math.min(0.98, Number(this._config.popup_opacity ?? 0.92))), be = Math.max(0.34, Math.min(0.9, $ * 0.92)), ue = Math.max(0.4, Math.min(0.95, $ * 0.98)), de = Math.max(0.42, Math.min(0.97, $ + 0.02)), me = Math.max(0.46, Math.min(0.96, $)), he = Math.max(0.56, Math.min(0.98, $ + 0.06)), ve = m === "dark" ? Math.max(0.32, Math.min(0.7, ce * 0.62)) : Math.max(0.18, Math.min(0.42, ce * 0.28));
       this.shadowRoot.innerHTML = `
         <style>${Wm({ allocatedHeight: B, effectiveHeight: O, uiScale: Z, mainOpacity: $, popupOpacity: ce, darkBgAlpha: be, darkSidebarAlpha: ue, darkPanelAlpha: de, lightBgAlpha: me, lightPanelAlpha: he, modalOverlayAlpha: ve })}
   ${ms}
   </style>
 
-        <div class="card ${o ? "rtl" : ""} theme-${g}${m === "custom" ? " theme-custom" : ""}${this._isHotelMode() ? " hotel-mode" : ""}${I ? ` ${I}` : ""}" style="${F}--v2-custom-text:${this._state.mobileCustomTextTone === "dark" ? "#1f2633" : "#ffffff"};">
+        <div class="card ${o ? "rtl" : ""} theme-${g}${m === "custom" ? " theme-custom" : ""}${this._isHotelMode() ? " hotel-mode" : ""}${E ? ` ${E}` : ""}" style="${F}--v2-custom-text:${this._state.mobileCustomTextTone === "dark" ? "#1f2633" : "#ffffff"};">
           <aside class="sidebar">
             <div class="brand">
               <button class="brand-icon" id="brandPlayersBtn" title="${this._i18n("ui.open_music_assistant")}">▶</button>
@@ -39375,9 +39375,9 @@ function vh({
         localStorage.setItem(this._lsKey("homeii_music_flow_lang"), this._state.lang);
       } catch {
       }
-      const o = this._state.cardTheme, m = this._state.selectedPlayer, g = this._state.hasAutoSelectedPlayer, y = this._state.view, S = this._state.query, B = this._state.nowPlayingQuery, E = this._state.immersiveNowPlayingOpen;
+      const o = this._state.cardTheme, m = this._state.selectedPlayer, g = this._state.hasAutoSelectedPlayer, y = this._state.view, S = this._state.query, B = this._state.nowPlayingQuery, I = this._state.immersiveNowPlayingOpen;
       this._imgObserver && (this._imgObserver.disconnect(), this._imgObserver = null, this._imgObserverRoot = null), clearInterval(this._pollTimer), clearInterval(this._progressTimer), clearTimeout(this._searchTimer), clearTimeout(this._nowPlayingSearchTimer), clearTimeout(this._volumeTimer), clearTimeout(this._bigVolumeTimer), clearTimeout(this._seekTimer), clearTimeout(this._systemMobileStatePersistTimer), clearTimeout(this._resizeTimer), this._built = !1, this._state.view = y, this._state.query = S, this._state.nowPlayingQuery = B, this._state.queueVisible = !1, this._state.playerModalOpen = !1, this._state.maQueueState = null, this._state.queueItems = [], this._state.queueMutationPendingUntil = 0, this._state.queueMutationExpectedSignature = "", this._state.nowPlayingUri = "", this._state.selectedPlayer = m, this._state.hasAutoSelectedPlayer = g, this._state.cardTheme = o, this._state.immersiveNowPlayingOpen = !1, this._clearImageBlobCache(), this._build(), this._init().then(() => {
-        E && this._state.view === "now_playing" && this._openImmersiveNowPlaying();
+        I && this._state.view === "now_playing" && this._openImmersiveNowPlaying();
       });
     }
     _toggleCardTheme() {
@@ -39555,33 +39555,33 @@ function vh({
       } else
         g = this._localSendspinWsUrl();
       return new Promise((y, S) => {
-        let B = !1, E = null, I = null;
+        let B = !1, I = null, E = null;
         const F = window.__homeiiSendspinInterceptorV1?.original || window.WebSocket, O = () => {
-          I && clearTimeout(I), E && (E.onopen = null, E.onmessage = null, E.onerror = null, E.onclose = null);
+          E && clearTimeout(E), I && (I.onopen = null, I.onmessage = null, I.onerror = null, I.onclose = null);
         }, Z = ($) => {
           if (!B) {
             B = !0, O();
             try {
-              E?.close?.();
+              I?.close?.();
             } catch {
             }
             S($ instanceof Error ? $ : new Error(String($ || "Sendspin connection failed")));
           }
         };
         try {
-          this._debugLog("info", "[Homeii Sendspin] opening proxy socket", m ? "Home Assistant" : this._sanitizeDiagnosticUrl?.(g)), E = new F(g), E.binaryType = "arraybuffer";
+          this._debugLog("info", "[Homeii Sendspin] opening proxy socket", m ? "Home Assistant" : this._sanitizeDiagnosticUrl?.(g)), I = new F(g), I.binaryType = "arraybuffer";
         } catch ($) {
           Z($);
           return;
         }
-        I = setTimeout(() => Z(new Error(this._localText("Timed out connecting to Sendspin.", "החיבור ל-Sendspin לקח יותר מדי זמן."))), 1e4), E.onopen = () => {
+        E = setTimeout(() => Z(new Error(this._localText("Timed out connecting to Sendspin.", "החיבור ל-Sendspin לקח יותר מדי זמן."))), 1e4), I.onopen = () => {
           if (!m)
             try {
-              this._debugLog("info", "[Homeii Sendspin] sending auth to proxy"), E.send(JSON.stringify({ type: "auth", token: this._maToken, client_id: o }));
+              this._debugLog("info", "[Homeii Sendspin] sending auth to proxy"), I.send(JSON.stringify({ type: "auth", token: this._maToken, client_id: o }));
             } catch ($) {
               Z($);
             }
-        }, E.onmessage = ($) => {
+        }, I.onmessage = ($) => {
           if (!B) {
             if (typeof $?.data == "string")
               try {
@@ -39597,19 +39597,19 @@ function vh({
               }
             else
               return;
-            B = !0, O(), y(E);
+            B = !0, O(), y(I);
           }
-        }, E.onerror = () => Z(new Error(this._localText("Could not open the Sendspin WebSocket.", "לא הצלחתי לפתוח חיבור WebSocket ל-Sendspin."))), E.onclose = () => Z(new Error(this._localText("Sendspin closed the connection before the player was ready.", "Sendspin סגר את החיבור לפני שהנגן היה מוכן.")));
+        }, I.onerror = () => Z(new Error(this._localText("Could not open the Sendspin WebSocket.", "לא הצלחתי לפתוח חיבור WebSocket ל-Sendspin."))), I.onclose = () => Z(new Error(this._localText("Sendspin closed the connection before the player was ready.", "Sendspin סגר את החיבור לפני שהנגן היה מוכן.")));
       });
     }
     _createLocalSendspinBridge(o) {
-      const m = { open: /* @__PURE__ */ new Set(), message: /* @__PURE__ */ new Set(), error: /* @__PURE__ */ new Set(), close: /* @__PURE__ */ new Set() }, g = { open: null, message: null, error: null, close: null }, y = (E, I) => {
-        const F = g[E];
-        typeof F == "function" && F.call(B, I), m[E]?.forEach((O) => {
-          typeof O == "function" ? O.call(B, I) : O && typeof O.handleEvent == "function" && O.handleEvent(I);
+      const m = { open: /* @__PURE__ */ new Set(), message: /* @__PURE__ */ new Set(), error: /* @__PURE__ */ new Set(), close: /* @__PURE__ */ new Set() }, g = { open: null, message: null, error: null, close: null }, y = (I, E) => {
+        const F = g[I];
+        typeof F == "function" && F.call(B, E), m[I]?.forEach((O) => {
+          typeof O == "function" ? O.call(B, E) : O && typeof O.handleEvent == "function" && O.handleEvent(E);
         });
-      }, S = (E) => {
-        E && B._isOpen && setTimeout(() => E.call(B, new Event("open")), 0);
+      }, S = (I) => {
+        I && B._isOpen && setTimeout(() => I.call(B, new Event("open")), 0);
       }, B = {
         CONNECTING: 0,
         OPEN: 1,
@@ -39619,26 +39619,26 @@ function vh({
         get onopen() {
           return g.open;
         },
-        set onopen(E) {
-          g.open = E, S(E);
+        set onopen(I) {
+          g.open = I, S(I);
         },
         get onmessage() {
           return g.message;
         },
-        set onmessage(E) {
-          g.message = E;
+        set onmessage(I) {
+          g.message = I;
         },
         get onerror() {
           return g.error;
         },
-        set onerror(E) {
-          g.error = E;
+        set onerror(I) {
+          g.error = I;
         },
         get onclose() {
           return g.close;
         },
-        set onclose(E) {
-          g.close = E;
+        set onclose(I) {
+          g.close = I;
         },
         get readyState() {
           return o.readyState;
@@ -39646,9 +39646,9 @@ function vh({
         get binaryType() {
           return o.binaryType || "arraybuffer";
         },
-        set binaryType(E) {
+        set binaryType(I) {
           try {
-            o.binaryType = E;
+            o.binaryType = I;
           } catch {
           }
         },
@@ -39664,46 +39664,46 @@ function vh({
         get url() {
           return o.url || "";
         },
-        send: (E) => {
+        send: (I) => {
           if (o.readyState !== WebSocket.OPEN) {
             this._debugLog("warn", "[Homeii Sendspin] bridge send ignored, socket not open");
             return;
           }
-          if (E instanceof Blob)
-            E.arrayBuffer().then((I) => o.send(I));
+          if (I instanceof Blob)
+            I.arrayBuffer().then((E) => o.send(E));
           else {
-            if (typeof E == "string")
+            if (typeof I == "string")
               try {
-                const I = JSON.parse(E);
-                this._debugLog("info", "[Homeii Sendspin] client message", I?.type || I);
+                const E = JSON.parse(I);
+                this._debugLog("info", "[Homeii Sendspin] client message", E?.type || E);
               } catch {
               }
-            o.send(E);
+            o.send(I);
           }
         },
-        close: (E, I) => o.close(E, I),
-        addEventListener: (E, I) => {
-          m[E] && m[E].add(I), E === "open" && B._isOpen && typeof I == "function" && setTimeout(() => I.call(B, new Event("open")), 0);
+        close: (I, E) => o.close(I, E),
+        addEventListener: (I, E) => {
+          m[I] && m[I].add(E), I === "open" && B._isOpen && typeof E == "function" && setTimeout(() => E.call(B, new Event("open")), 0);
         },
-        removeEventListener: (E, I) => {
-          m[E] && m[E].delete(I);
+        removeEventListener: (I, E) => {
+          m[I] && m[I].delete(E);
         },
         dispatchEvent: () => !1
       };
-      return o.onopen = (E) => {
-        B._isOpen = !0, y("open", E || new Event("open"));
-      }, o.onmessage = (E) => {
-        if (typeof E?.data == "string")
+      return o.onopen = (I) => {
+        B._isOpen = !0, y("open", I || new Event("open"));
+      }, o.onmessage = (I) => {
+        if (typeof I?.data == "string")
           try {
-            const I = JSON.parse(E.data);
-            this._debugLog("info", "[Homeii Sendspin] server message", I?.type || I);
+            const E = JSON.parse(I.data);
+            this._debugLog("info", "[Homeii Sendspin] server message", E?.type || E);
           } catch {
           }
-        y("message", E);
-      }, o.onerror = (E) => {
-        this._debugLog("error", "[Homeii Sendspin] bridge socket error", E), y("error", E || new Event("error"));
-      }, o.onclose = (E) => {
-        B._isOpen = !1, this._debugLog("warn", "[Homeii Sendspin] bridge socket closed", E?.code, E?.reason), y("close", E || new CloseEvent("close")), this._handleLocalSendspinSocketClosed(E || new Event("close"));
+        y("message", I);
+      }, o.onerror = (I) => {
+        this._debugLog("error", "[Homeii Sendspin] bridge socket error", I), y("error", I || new Event("error"));
+      }, o.onclose = (I) => {
+        B._isOpen = !1, this._debugLog("warn", "[Homeii Sendspin] bridge socket closed", I?.code, I?.reason), y("close", I || new CloseEvent("close")), this._handleLocalSendspinSocketClosed(I || new Event("close"));
       }, B;
     }
     _installLocalSendspinInterceptor() {
@@ -39771,17 +39771,17 @@ function vh({
         this._resetLocalSendspinMediaSession();
         return;
       }
-      const y = m?.media_item || {}, S = y?.name || m?.name || o.attributes?.media_title || this._i18n("ui.nothing_playing"), B = Array.isArray(y?.artists) ? y.artists.map((O) => O?.name).filter(Boolean).join(", ") : m?.media_artist || o.attributes?.media_artist || "", E = y?.album?.name || m?.album || o.attributes?.media_album_name || "", I = this._currentArtworkUrl(o, m, 512) || "";
+      const y = m?.media_item || {}, S = y?.name || m?.name || o.attributes?.media_title || this._i18n("ui.nothing_playing"), B = Array.isArray(y?.artists) ? y.artists.map((O) => O?.name).filter(Boolean).join(", ") : m?.media_artist || o.attributes?.media_artist || "", I = y?.album?.name || m?.album || o.attributes?.media_album_name || "", E = this._currentArtworkUrl(o, m, 512) || "";
       try {
         typeof window.MediaMetadata == "function" && (g.metadata = new window.MediaMetadata({
           title: S,
           artist: B,
-          album: E,
-          artwork: I ? [
-            { src: I, sizes: "96x96", type: "image/png" },
-            { src: I, sizes: "192x192", type: "image/png" },
-            { src: I, sizes: "256x256", type: "image/png" },
-            { src: I, sizes: "512x512", type: "image/png" }
+          album: I,
+          artwork: E ? [
+            { src: E, sizes: "96x96", type: "image/png" },
+            { src: E, sizes: "192x192", type: "image/png" },
+            { src: E, sizes: "256x256", type: "image/png" },
+            { src: E, sizes: "512x512", type: "image/png" }
           ] : []
         }));
       } catch {
@@ -39919,9 +39919,9 @@ function vh({
         if (typeof B != "function")
           throw new Error(this._localText("The local Sendspin module is missing SendspinPlayer.", "מודול Sendspin המקומי לא כולל את SendspinPlayer."));
         this._stopLocalSendspinPlayer("restart"), this._restoreLocalSendspinInterceptor();
-        const E = await this._openAuthenticatedSendspinSocket(y);
-        this._localSendspinSocket = E;
-        const I = this._ensureLocalSendspinAudioElement();
+        const I = await this._openAuthenticatedSendspinSocket(y);
+        this._localSendspinSocket = I;
+        const E = this._ensureLocalSendspinAudioElement();
         let F = 0;
         try {
           F = Number(localStorage.getItem(this._localSendspinSyncDelayStorageKey()) || 0) || 0;
@@ -39936,9 +39936,9 @@ function vh({
         }
         this._localSendspinPlayer = new B({
           playerId: y,
-          webSocket: E,
-          audioElement: I,
-          clientName: "HOMEii Flow",
+          webSocket: I,
+          audioElement: E,
+          clientName: "Maverick Music",
           codecs: ["flac", "pcm"],
           syncDelay: F || void 0,
           correctionMode: "quality-local",
@@ -39993,7 +39993,7 @@ function vh({
         m.player_id,
         m.player_id_short,
         m.id
-      ].filter(Boolean).map((O) => String(O || "").trim().toLowerCase()), E = [
+      ].filter(Boolean).map((O) => String(O || "").trim().toLowerCase()), I = [
         m.friendly_name,
         m.name,
         m.display_name,
@@ -40001,8 +40001,8 @@ function vh({
         g.name,
         g.display_name,
         g.friendly_name
-      ].filter(Boolean).join(" ").toLowerCase(), I = E.includes("homeii sendspin") || E.includes("homeii") && E.includes("sendspin"), F = E.includes("homeii flow") || E.includes("homeii") && E.includes("flow");
-      return B.some((O) => O === S || O.endsWith(`_${S}`) || O.endsWith(`.${S}`)) && (I || F);
+      ].filter(Boolean).join(" ").toLowerCase(), E = I.includes("homeii sendspin") || I.includes("homeii") && I.includes("sendspin"), F = I.includes("homeii flow") || I.includes("homeii") && I.includes("flow");
+      return B.some((O) => O === S || O.endsWith(`_${S}`) || O.endsWith(`.${S}`)) && (E || F);
     }
     _isAvailableThisDevicePlayer(o = null) {
       if (!o || this._isLocalSendspinPlayer(o) && (this._adoptLocalSendspinGlobalSession(), !this._isLocalSendspinDesired() && !this._localSendspinConnected && !this._localSendspinConnecting))
@@ -40055,7 +40055,7 @@ function vh({
       if (!m || typeof m != "object") return null;
       const g = String(m.player_id || m.id || m.playerId || "").trim();
       if (!g) return null;
-      const y = m.current_media || m.media || {}, S = m.device_info || {}, B = Number(m.volume_level ?? m.group_volume), E = Number.isFinite(B) ? B > 1 ? B / 100 : B : 0, I = v.playbackPositionPair(m), F = I.updatedAt > 0 ? new Date(I.updatedAt).toISOString() : void 0, O = String(m.active_queue || m.queue_id || y.source_id || g).trim(), Z = m.name || m.display_name || m.friendly_name || y.title || g, $ = {
+      const y = m.current_media || m.media || {}, S = m.device_info || {}, B = Number(m.volume_level ?? m.group_volume), I = Number.isFinite(B) ? B > 1 ? B / 100 : B : 0, E = v.playbackPositionPair(m), F = E.updatedAt > 0 ? new Date(E.updatedAt).toISOString() : void 0, O = String(m.active_queue || m.queue_id || y.source_id || g).trim(), Z = m.name || m.display_name || m.friendly_name || y.title || g, $ = {
         ...m.extra_attributes || {},
         friendly_name: Z,
         app_id: "music_assistant",
@@ -40070,7 +40070,7 @@ function vh({
         player_type: m.type || "",
         model: S.model || "",
         manufacturer: S.manufacturer || "",
-        volume_level: Math.max(0, Math.min(1, E || 0)),
+        volume_level: Math.max(0, Math.min(1, I || 0)),
         is_volume_muted: !!(m.volume_muted || m.group_volume_muted),
         shuffle: !!m.shuffle_enabled,
         repeat: m.repeat_mode || m.repeat || "off",
@@ -40080,7 +40080,7 @@ function vh({
         media_artist: y.artist || "",
         media_album_name: y.album || "",
         media_duration: y.duration || 0,
-        media_position: I.position,
+        media_position: E.position,
         media_position_updated_at: F,
         entity_picture: y.image_url || "",
         entity_picture_local: y.image_url || "",
@@ -40143,17 +40143,17 @@ function vh({
     }
     async _playMediaOnDirectMaPlayer(o, m, g = "album", y = "play", S = {}) {
       if (this._homeiiEngineRequired?.())
-        throw new Error("Direct Music Assistant playback is disabled in HOMEii Flow 6. Use HOMEii Flow Engine.");
-      const B = this._playerByEntityId(o), E = this._directMaQueueId(B || o);
-      if (!E) throw new Error("Direct Music Assistant player is not ready");
-      if (y === "shuffle" && await this._callEngineMaCommand("player_queues/shuffle", { queue_id: E, shuffle_enabled: !0 }), await this._callEngineMaCommand("player_queues/play_media", {
-        queue_id: E,
+        throw new Error("Direct Music Assistant playback is disabled in Maverick Music 6. Use Maverick Music Engine.");
+      const B = this._playerByEntityId(o), I = this._directMaQueueId(B || o);
+      if (!I) throw new Error("Direct Music Assistant player is not ready");
+      if (y === "shuffle" && await this._callEngineMaCommand("player_queues/shuffle", { queue_id: I, shuffle_enabled: !0 }), await this._callEngineMaCommand("player_queues/play_media", {
+        queue_id: I,
         media: m,
         option: this._directMaQueueOption(y),
         radio_mode: !!S.radioMode
       }), !S.silent) {
-        const I = this._mediaFeedbackLabel(m, S.label || "");
-        this._toastMediaQueued(I, B?.attributes?.friendly_name || o);
+        const E = this._mediaFeedbackLabel(m, S.label || "");
+        this._toastMediaQueued(E, B?.attributes?.friendly_name || o);
       }
       return o === this._state.selectedPlayer && (this._refreshDirectMaPlayers().catch(() => {
       }), this._scheduleQueueRefreshAfterMutation(600)), !0;
@@ -40191,14 +40191,14 @@ function vh({
     _selectPlayer(o, m = !1) {
       const g = typeof this._resolvedPinnedPlayerEntities == "function" ? this._resolvedPinnedPlayerEntities() : [], y = String(o || "").trim(), S = typeof this._pinnedPlayersExclusive == "function" && this._pinnedPlayersExclusive(), B = m ? y : S && g.length ? g.includes(y) ? y : g[0] : y;
       if (!B) return;
-      const E = this._playerByEntityId(B);
-      if (!E || !this._isUsableMusicAssistantTarget(E)) {
+      const I = this._playerByEntityId(B);
+      if (!I || !this._isUsableMusicAssistantTarget(I)) {
         this._handleMusicAssistantIssue(this._musicAssistantRequiredMessage()), m && this._toastError(this._musicAssistantRequiredTitle());
         return;
       }
-      this._state.selectedPlayer = B, m && this._setManualFrontPlayer(B, this._manualFrontHoldMsForSelection()), this._syncActivePlayerHelper(E), m && this._isRememberableThisDevicePlayer(E) ? this._rememberThisDevicePlayer(B) : m && E && this._isDirectMaPlayer(E) && !this._isLocalSendspinPlayer(E) && this._rememberThisDevicePlayer(""), m && (this._state.hasAutoSelectedPlayer = !0);
-      const I = this.$("playerSel");
-      I && (I.value = B), this._state.maQueueState = null, this._state.queueItems = [], this._syncNowPlayingUI(), this._renderPlayerSummary(), this._syncBrandPlayingState(), this._state.view === "now_playing" && this._renderNowPlayingPage();
+      this._state.selectedPlayer = B, m && this._setManualFrontPlayer(B, this._manualFrontHoldMsForSelection()), this._syncActivePlayerHelper(I), m && this._isRememberableThisDevicePlayer(I) ? this._rememberThisDevicePlayer(B) : m && I && this._isDirectMaPlayer(I) && !this._isLocalSendspinPlayer(I) && this._rememberThisDevicePlayer(""), m && (this._state.hasAutoSelectedPlayer = !0);
+      const E = this.$("playerSel");
+      E && (E.value = B), this._state.maQueueState = null, this._state.queueItems = [], this._syncNowPlayingUI(), this._renderPlayerSummary(), this._syncBrandPlayingState(), this._state.view === "now_playing" && this._renderNowPlayingPage();
     }
     _renderPlayerSummary() {
       const o = this._getSelectedPlayer(), m = this.$("selectedPlayerTitle"), g = this.$("selectedPlayerSub");
@@ -40238,28 +40238,28 @@ function vh({
       this._state.modalMode = "players", this.$("playerModalTitle").textContent = this._i18n("ui.choose_player"), this._setPlayerModalHeader("players");
       const o = this.$("playerModalBody");
       if (!o) return;
-      const m = this._state.players || [], g = m.filter((B) => this._isPlayerActive(B)), y = m.filter((B) => !this._isPlayerActive(B)), S = (B, E) => E.length ? `
+      const m = this._state.players || [], g = m.filter((B) => this._isPlayerActive(B)), y = m.filter((B) => !this._isPlayerActive(B)), S = (B, I) => I.length ? `
           <div class="modal-section">
             <div class="modal-section-top">
               <div class="modal-section-title">${this._esc(B)}</div>
-              <div class="modal-section-badge">${E.length}</div>
+              <div class="modal-section-badge">${I.length}</div>
             </div>
             <div class="player-list">
-              ${E.map((I) => {
-        const F = I.entity_id === this._state.selectedPlayer, O = I.state === "playing" ? "playing" : I.state === "paused" ? "paused" : "idle", Z = this._playerDisplayName(I, m), $ = I.attributes?.media_title || "", ce = this._bestArtworkUrl([I.attributes?.entity_picture_local, I.attributes?.entity_picture], {
+              ${I.map((E) => {
+        const F = E.entity_id === this._state.selectedPlayer, O = E.state === "playing" ? "playing" : E.state === "paused" ? "paused" : "idle", Z = this._playerDisplayName(E, m), $ = E.attributes?.media_title || "", ce = this._bestArtworkUrl([E.attributes?.entity_picture_local, E.attributes?.entity_picture], {
           size: 120,
-          cacheKey: this._currentArtworkCacheKey(I)
+          cacheKey: this._currentArtworkCacheKey(E)
         });
         return `
-                  <button class="player-card ${O} ${F ? "active" : ""}" data-modal-player="${this._esc(I.entity_id)}">
+                  <button class="player-card ${O} ${F ? "active" : ""}" data-modal-player="${this._esc(E.entity_id)}">
                     <span class="player-card-dot"></span>
                     <span class="player-card-art">${ce ? this._imgHtml(ce, "", { fallbackIcon: "speaker" }) : this._artPlaceholderHtml("speaker")}</span>
                     <span class="player-card-meta">
                       <span class="player-card-top">
                         <span class="player-card-title">${this._esc(Z)}</span>
-                        <span class="player-card-badge">${F ? this._esc(this._i18n("ui.selected_player")) : this._esc(this._playerStateLabel(I))}</span>
+                        <span class="player-card-badge">${F ? this._esc(this._i18n("ui.selected_player")) : this._esc(this._playerStateLabel(E))}</span>
                       </span>
-                      <span class="player-card-sub">${this._esc(this._playerStateLabel(I))}</span>
+                      <span class="player-card-sub">${this._esc(this._playerStateLabel(E))}</span>
                       <span class="player-card-track">${this._esc($ || "—")}</span>
                     </span>
                   </button>
@@ -40429,8 +40429,8 @@ function vh({
         const [S, B] = await Promise.allSettled([
           this._loadScheduledStartPlaylists(o),
           this._loadNativeRecommendationEntries(o, 36)
-        ]), E = S.status === "fulfilled" ? S.value : [];
-        return B.status === "fulfilled" && Array.isArray(B.value) && (this._state.mobileNativeRecommendationItems = B.value.slice(0, 36)), this._state.mobileRecommendationPlaylists = Array.isArray(E) ? E.slice(0, 24) : [], this._state.mobileRecommendationPlaylistsFetchedAt = Date.now(), this._state.mobileHistoryRenderedHtml = "", this._state.mobileHistoryDrawerTab === "recommendations" && this._syncRecentHistoryUi(), this._state.mobileRecommendationPlaylists;
+        ]), I = S.status === "fulfilled" ? S.value : [];
+        return B.status === "fulfilled" && Array.isArray(B.value) && (this._state.mobileNativeRecommendationItems = B.value.slice(0, 36)), this._state.mobileRecommendationPlaylists = Array.isArray(I) ? I.slice(0, 24) : [], this._state.mobileRecommendationPlaylistsFetchedAt = Date.now(), this._state.mobileHistoryRenderedHtml = "", this._state.mobileHistoryDrawerTab === "recommendations" && this._syncRecentHistoryUi(), this._state.mobileRecommendationPlaylists;
       } catch {
         return g;
       } finally {
@@ -40438,24 +40438,24 @@ function vh({
       }
     }
     _historyRecommendationItems(o = 10) {
-      const m = this._state.maQueueState?.current_index ?? -1, g = /* @__PURE__ */ new Set(), y = (I = [], F = []) => ((Array.isArray(I) ? I : []).forEach((O) => {
+      const m = this._state.maQueueState?.current_index ?? -1, g = /* @__PURE__ */ new Set(), y = (E = [], F = []) => ((Array.isArray(E) ? E : []).forEach((O) => {
         const Z = String(O?.uri || "").trim();
         !Z || g.has(Z) || F.length >= o || (g.add(Z), F.push(O));
-      }), F), S = this._getNowPlayingQueueItems().filter((I) => (I?.sort_index ?? -1) !== m).map((I) => {
-        const F = I.media_item || {};
+      }), F), S = this._getNowPlayingQueueItems().filter((E) => (E?.sort_index ?? -1) !== m).map((E) => {
+        const F = E.media_item || {};
         return {
           uri: String(F.uri || "").trim(),
-          media_type: F.media_type || I.media_type || "track",
-          title: F.name || I.name || this._i18n("ui.recommended_track"),
+          media_type: F.media_type || E.media_type || "track",
+          title: F.name || E.name || this._i18n("ui.recommended_track"),
           artist: F.artists?.map((O) => O.name).join(", ") || F.album?.name || "",
           album: F.album?.name || "",
-          image: this._queueItemImageUrl(I, 120) || this._artUrl(F) || ""
+          image: this._queueItemImageUrl(E, 120) || this._artUrl(F) || ""
         };
-      }).filter((I) => I.uri).slice(0, 4), B = (this._state.mobileRecentHistory || []).filter((I) => I?.uri).map((I) => ({
-        ...I,
-        title: I.title || I.name || this._i18n("ui.recommended_track")
-      })), E = [];
-      return y(this._state.quickMixRecommendationItems || [], E), y(this._historyNativeRecommendationItems(8), E), y(S, E), y(this._historyRecommendationPlaylistItems(5), E), y(B, E), E.slice(0, o);
+      }).filter((E) => E.uri).slice(0, 4), B = (this._state.mobileRecentHistory || []).filter((E) => E?.uri).map((E) => ({
+        ...E,
+        title: E.title || E.name || this._i18n("ui.recommended_track")
+      })), I = [];
+      return y(this._state.quickMixRecommendationItems || [], I), y(this._historyNativeRecommendationItems(8), I), y(S, I), y(this._historyRecommendationPlaylistItems(5), I), y(B, I), I.slice(0, o);
     }
     _historyPlayableItems(o = []) {
       return (Array.isArray(o) ? o : []).map((m) => ({
@@ -40493,7 +40493,7 @@ function vh({
         (o || this._state.mobileHistoryRenderedHtml !== O) && (m.innerHTML = O, this._state.mobileHistoryRenderedHtml = O), this._state.mobileHistoryDrawerOpen && Ki(this, g, "history", () => this._setHistoryDrawerOpen(!1));
         return;
       }
-      const E = `
+      const I = `
         <div class="history-actions">
           <button class="chip-btn history-play-all-btn" data-history-play-all title="${this._esc(this._i18n("ui.play_all"))}" aria-label="${this._esc(this._i18n("ui.play_all"))}">
             ${this._iconSvg("play")}
@@ -40509,8 +40509,8 @@ function vh({
             </span>
           </button>
         `).join("")}
-      `, I = o || this._state.mobileHistoryRenderedHtml !== E;
-      I && (m.innerHTML = E, this._state.mobileHistoryRenderedHtml = E), I && m.querySelectorAll("[data-history-index]").forEach((F) => F.addEventListener("click", async (O) => {
+      `, E = o || this._state.mobileHistoryRenderedHtml !== I;
+      E && (m.innerHTML = I, this._state.mobileHistoryRenderedHtml = I), E && m.querySelectorAll("[data-history-index]").forEach((F) => F.addEventListener("click", async (O) => {
         const Z = O.currentTarget, $ = Number(Z.dataset.historyIndex), be = ((this._state.mobileHistoryDrawerTab === "recommendations" ? "recommendations" : "recent") === "recommendations" ? this._historyRecommendationItems() : this._visibleRecentHistoryItems())[$];
         be?.uri && (this._pressUiButton(Z), await this._playMedia(be.uri, be.media_type || "track", "play", {
           label: be.title || "",
@@ -40555,26 +40555,26 @@ function vh({
       return m ? [m] : [];
     }
     _controlRoomFocusTarget() {
-      const o = this._controlRoomSelectedPlayerIds(), m = o.map((I) => this._playerByEntityId(I)).filter(Boolean), g = this._controlRoomPrimaryPlayer(), y = m.length ? m : g ? [g] : [], S = y[0] || null, B = this._bestArtworkUrl([S?.attributes?.entity_picture_local, S?.attributes?.entity_picture], {
+      const o = this._controlRoomSelectedPlayerIds(), m = o.map((E) => this._playerByEntityId(E)).filter(Boolean), g = this._controlRoomPrimaryPlayer(), y = m.length ? m : g ? [g] : [], S = y[0] || null, B = this._bestArtworkUrl([S?.attributes?.entity_picture_local, S?.attributes?.entity_picture], {
         size: 160,
         cacheKey: this._currentArtworkCacheKey(S)
       });
       if (y.length > 1) {
-        const I = y.map((F) => this._playerDisplayName(F, y)).filter(Boolean);
+        const E = y.map((F) => this._playerDisplayName(F, y)).filter(Boolean);
         return {
           art: B,
           count: y.length,
           kicker: this._i18n("ui.controlling"),
           name: this._controlRoomPlayerCountLabel(y.length),
-          track: I.slice(0, 3).join(" · ") + (I.length > 3 ? "..." : "")
+          track: E.slice(0, 3).join(" · ") + (E.length > 3 ? "..." : "")
         };
       }
-      const E = this._playerDisplayName(S, y) || this._i18n("ui.selected_player_2");
+      const I = this._playerDisplayName(S, y) || this._i18n("ui.selected_player_2");
       return {
         art: B,
         count: S ? 1 : 0,
         kicker: o.length ? this._i18n("ui.controlling") : this._i18n("ui.primary_target"),
-        name: E,
+        name: I,
         track: S?.attributes?.media_title || S?.attributes?.media_artist || this._playerStateLabel(S) || this._i18n("ui.idle_2")
       };
     }
@@ -40657,15 +40657,15 @@ function vh({
       const m = this._controlRoomAllPlayers(), g = new Map(m.map((B) => [B?.entity_id, B]).filter(([B]) => !!B));
       let y = this._playerGroupMemberIds(o);
       if (y.length <= 1) {
-        const B = m.find((E) => {
-          const I = this._playerGroupMemberIds(E);
-          return I.length > 1 && I.includes(o.entity_id);
+        const B = m.find((I) => {
+          const E = this._playerGroupMemberIds(I);
+          return E.length > 1 && E.includes(o.entity_id);
         });
         B && (y = this._playerGroupMemberIds(B));
       }
       if (y.length <= 1) {
         const B = this._controlRoomGroupKey(o);
-        B && (y = m.filter((E) => this._controlRoomGroupKey(E) === B).map((E) => E.entity_id));
+        B && (y = m.filter((I) => this._controlRoomGroupKey(I) === B).map((I) => I.entity_id));
       }
       y = [...new Set(y)].filter((B) => B && g.has(B)).filter((B) => !z.isLikelyBrowserPlayer(g.get(B)));
       const S = y.map((B) => g.get(B)?.attributes?.friendly_name || B).filter(Boolean);
@@ -40680,13 +40680,13 @@ function vh({
       return m.forEach((y) => {
         const S = this._controlRoomGroupInfo(y);
         if (!S.count) return;
-        const B = [...S.ids].sort(), E = B.join("|");
-        if (!E || g.has(E)) return;
-        const I = B.map((Z) => this._controlRoomPlayerName(Z)).filter(Boolean), F = B[0] || y.entity_id, O = this._playerByEntityId(F) || y;
-        g.set(E, {
+        const B = [...S.ids].sort(), I = B.join("|");
+        if (!I || g.has(I)) return;
+        const E = B.map((Z) => this._controlRoomPlayerName(Z)).filter(Boolean), F = B[0] || y.entity_id, O = this._playerByEntityId(F) || y;
+        g.set(I, {
           ids: B,
           count: B.length,
-          label: I.join(" · "),
+          label: E.join(" · "),
           art: this._bestArtworkUrl([O?.attributes?.entity_picture_local, O?.attributes?.entity_picture], {
             size: 120,
             cacheKey: this._currentArtworkCacheKey(O)
@@ -40771,15 +40771,15 @@ function vh({
       return `
         <div class="control-room-picker-list" data-control-room-scroll="${this._esc(o)}">
           ${m.map((y) => {
-        const S = y.entity_id, B = g.has(S), E = this._bestArtworkUrl([y.attributes?.entity_picture_local, y.attributes?.entity_picture], {
+        const S = y.entity_id, B = g.has(S), I = this._bestArtworkUrl([y.attributes?.entity_picture_local, y.attributes?.entity_picture], {
           size: 120,
           cacheKey: this._currentArtworkCacheKey(y)
-        }), I = y.attributes?.friendly_name || S, F = y.attributes?.media_title || this._playerStateLabel(y);
+        }), E = y.attributes?.friendly_name || S, F = y.attributes?.media_title || this._playerStateLabel(y);
         return `
               <button class="control-room-picker-row ${B ? "active" : ""}" ${o === "visible" ? "data-room-visible-toggle" : "data-room-selection-toggle"}="${this._esc(S)}">
-                <span class="control-room-picker-art">${E ? this._imgHtml(E, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
+                <span class="control-room-picker-art">${I ? this._imgHtml(I, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
                 <span class="control-room-picker-copy">
-                  <span class="control-room-picker-title">${this._esc(I)}</span>
+                  <span class="control-room-picker-title">${this._esc(E)}</span>
                   <span class="control-room-picker-sub">${this._esc(F || "")}</span>
                 </span>
                 <span class="control-room-picker-check">${this._iconSvg(B ? "check" : "plus")}</span>
@@ -40881,7 +40881,7 @@ function vh({
       }[m] || this._i18n("ui.media");
     }
     _controlRoomNormalizeMediaEntry(o = {}, m = "album", g = {}) {
-      const y = String(o?.media_type || o?.type || o?.media_item?.media_type || m || "album").toLowerCase(), S = Array.isArray(o?.artists) ? o.artists.map((E) => E?.name).filter(Boolean).join(", ") : "", B = o?.uri || o?.media_item?.uri || o?.media_content_id || "";
+      const y = String(o?.media_type || o?.type || o?.media_item?.media_type || m || "album").toLowerCase(), S = Array.isArray(o?.artists) ? o.artists.map((I) => I?.name).filter(Boolean).join(", ") : "", B = o?.uri || o?.media_item?.uri || o?.media_content_id || "";
       return {
         uri: B,
         media_type: y,
@@ -40980,14 +40980,14 @@ function vh({
       }), this._state.controlRoomQueueSnapshots = g, this._state.controlRoomQueueLoading = !1, this._syncControlRoomUi({ force: !0 });
     }
     _controlRoomQueuePreviewHtml(o = "") {
-      const m = this._playerByEntityId(o), g = this._controlRoomQueueCache(o), y = _.sortQueueItems(g?.items || []), S = Number(g?.state?.current_index), B = Number.isFinite(S) && y.find((O) => Number(O?.sort_index) === S) || y[0], E = this._controlRoomQueueCount(m, g), I = (B ? [B, ...y.filter((O) => O !== B)] : y).slice(0, 4), F = m?.attributes?.friendly_name || o || this._i18n("ui.player_2");
+      const m = this._playerByEntityId(o), g = this._controlRoomQueueCache(o), y = _.sortQueueItems(g?.items || []), S = Number(g?.state?.current_index), B = Number.isFinite(S) && y.find((O) => Number(O?.sort_index) === S) || y[0], I = this._controlRoomQueueCount(m, g), E = (B ? [B, ...y.filter((O) => O !== B)] : y).slice(0, 4), F = m?.attributes?.friendly_name || o || this._i18n("ui.player_2");
       return `
         <div class="control-room-queue-preview" data-control-room-scroll="queue-${this._esc(o)}">
           <div class="control-room-queue-preview-head">
             <span class="control-room-queue-player">${this._esc(F)}</span>
-            <span class="control-room-queue-count">${this._esc(E ? `${E}` : this._i18n("ui.no_queue"))}</span>
+            <span class="control-room-queue-count">${this._esc(I ? `${I}` : this._i18n("ui.no_queue"))}</span>
           </div>
-          ${I.length ? I.map((O, Z) => {
+          ${E.length ? E.map((O, Z) => {
         const $ = O.media_item || {}, ce = this._queueItemImageUrl(O, 96) || this._artUrl($) || "", be = $.name || O.name || O.media_title || this._i18n("ui.queue_item"), ue = O.media_artist || ($.artists || []).map((de) => de?.name).filter(Boolean).join(", ") || $.album?.name || "";
         return `
               <div class="control-room-queue-row ${Z === 0 ? "current" : ""}">
@@ -41015,28 +41015,28 @@ function vh({
       ];
     }
     async _controlRoomFindMixEntries(o = "", m = "") {
-      const g = this._controlRoomMixPresets().find((I) => I.id === o) || null, y = String(m || "").trim();
+      const g = this._controlRoomMixPresets().find((E) => E.id === o) || null, y = String(m || "").trim();
       if (g?.favorite)
         return (this._useMaLikedMode() ? await this._loadMaLikedEntries(!0) : this._likedEntries()).filter((F) => F?.uri).slice(0, 24);
       if (g?.random) {
-        const I = await this._nativeMixEntriesForPreset(o, y, 12), F = await this._fetchLibrary("track", "random", 24, !1);
+        const E = await this._nativeMixEntriesForPreset(o, y, 12), F = await this._fetchLibrary("track", "random", 24, !1);
         return this._controlRoomUniqueEntries([
-          ...I,
+          ...E,
           ...F.map((O) => this._controlRoomNormalizeMediaEntry(O, "track")).filter((O) => O.uri)
         ]).slice(0, 24);
       }
       const S = await this._nativeMixEntriesForPreset(o, y, 12);
       if (S.length >= 4) return S;
-      const B = y ? [y] : g?.queries || ["music playlist"], E = [];
-      for (const I of B) {
+      const B = y ? [y] : g?.queries || ["music playlist"], I = [];
+      for (const E of B) {
         try {
-          const F = await this._search(I);
-          E.push(...this._controlRoomSearchEntries(F));
+          const F = await this._search(E);
+          I.push(...this._controlRoomSearchEntries(F));
         } catch {
         }
-        if (E.length >= 12) break;
+        if (I.length >= 12) break;
       }
-      return this._controlRoomUniqueEntries(E).slice(0, 12);
+      return this._controlRoomUniqueEntries(I).slice(0, 12);
     }
     _controlRoomUniqueEntries(o = []) {
       const m = /* @__PURE__ */ new Set();
@@ -41081,10 +41081,10 @@ function vh({
       return g.length ? `
         <div class="control-room-media-grid ${m.large ? "large" : ""}">
           ${g.map((S) => {
-        const B = this._isEntryLiked(S) || !!S.favorite, E = this._supportsMusicAssistantRadioMode(S.media_type), I = this._controlRoomEntryDataAttrs(S);
+        const B = this._isEntryLiked(S) || !!S.favorite, I = this._supportsMusicAssistantRadioMode(S.media_type), E = this._controlRoomEntryDataAttrs(S);
         return `
               <article class="control-room-media-card ${B ? "liked" : ""}">
-                <button class="control-room-media-main" data-room-library-action="play" ${I} title="${this._esc(this._i18n("ui.play_now"))}">
+                <button class="control-room-media-main" data-room-library-action="play" ${E} title="${this._esc(this._i18n("ui.play_now"))}">
                   <span class="control-room-media-art">${S.image ? this._imgHtml(S.image, "", { fallbackIcon: this._controlRoomMediaTypeIcon(S.media_type) }) : this._iconSvg(this._controlRoomMediaTypeIcon(S.media_type))}</span>
                   <span class="control-room-media-copy">
                     <span class="control-room-media-kicker">${this._esc(this._controlRoomMediaTypeLabel(S.media_type))}</span>
@@ -41093,11 +41093,11 @@ function vh({
                   </span>
                 </button>
                 <span class="control-room-media-actions">
-                  <button type="button" class="control-room-media-action primary" data-room-library-action="play" ${I}>${this._esc(this._i18n("ui.play"))}</button>
-                  <button type="button" class="control-room-media-action" data-room-library-action="next" ${I}>${this._esc(this._i18n("ui.next"))}</button>
-                  <button type="button" class="control-room-media-action" data-room-library-action="add" ${I}>${this._esc(this._i18n("ui.add"))}</button>
-                  ${E ? `<button type="button" class="control-room-media-action" data-room-library-action="radio_mode" ${I}>${this._esc(this._i18n("ui.radio"))}</button>` : ""}
-                  <button type="button" class="control-room-media-action icon ${B ? "active" : ""}" data-room-library-action="like" ${I} title="${this._esc(this._i18n("ui.like_2"))}">${this._iconSvg(B ? "heart_filled" : "heart_outline")}</button>
+                  <button type="button" class="control-room-media-action primary" data-room-library-action="play" ${E}>${this._esc(this._i18n("ui.play"))}</button>
+                  <button type="button" class="control-room-media-action" data-room-library-action="next" ${E}>${this._esc(this._i18n("ui.next"))}</button>
+                  <button type="button" class="control-room-media-action" data-room-library-action="add" ${E}>${this._esc(this._i18n("ui.add"))}</button>
+                  ${I ? `<button type="button" class="control-room-media-action" data-room-library-action="radio_mode" ${E}>${this._esc(this._i18n("ui.radio"))}</button>` : ""}
+                  <button type="button" class="control-room-media-action icon ${B ? "active" : ""}" data-room-library-action="like" ${E} title="${this._esc(this._i18n("ui.like_2"))}">${this._iconSvg(B ? "heart_filled" : "heart_outline")}</button>
                 </span>
               </article>
             `;
@@ -41112,7 +41112,7 @@ function vh({
       return g.length && await this._applySpeakerGroupFor(m, g), m;
     }
     async _playControlRoomEntries(o = [], m = {}) {
-      const g = (Array.isArray(o) ? o : []).filter((E) => E?.uri), y = await this._prepareControlRoomPlaybackTargets();
+      const g = (Array.isArray(o) ? o : []).filter((I) => I?.uri), y = await this._prepareControlRoomPlaybackTargets();
       if (!y || !g.length) return !1;
       const S = g[0];
       if (!await this._playMediaOnPlayer(y, S.uri, S.media_type || "track", m.shuffle ? "shuffle" : "play", {
@@ -41120,9 +41120,9 @@ function vh({
         silent: !0,
         radioMode: !!m.radioMode
       })) return !1;
-      for (const E of g.slice(1, 40))
-        await this._playMediaOnPlayer(y, E.uri, E.media_type || "track", "add", {
-          label: E.name || "",
+      for (const I of g.slice(1, 40))
+        await this._playMediaOnPlayer(y, I.uri, I.media_type || "track", "add", {
+          label: I.name || "",
           silent: !0
         });
       return m.silent || this._toastSuccess(this._m(
@@ -41149,8 +41149,8 @@ function vh({
       try {
         const S = await this._fetchControlRoomQueueSnapshot(y.entity_id), B = _.sortQueueItems(S?.items || []);
         if (!B.length) throw new Error(this._i18n("ui.no_queue_to_clone"));
-        const E = y.entity_id === this._state.selectedPlayer ? this._getCurrentPosition() : 0;
-        return await this._rebuildQueue(m, B, E), g.selectTarget !== !1 && this._selectPlayer(m, !0), g.silent || this._toastSuccess(this._i18n("ui.queue_cloned")), this._loadControlRoomQueues([y.entity_id, m]).catch(() => {
+        const I = y.entity_id === this._state.selectedPlayer ? this._getCurrentPosition() : 0;
+        return await this._rebuildQueue(m, B, I), g.selectTarget !== !1 && this._selectPlayer(m, !0), g.silent || this._toastSuccess(this._i18n("ui.queue_cloned")), this._loadControlRoomQueues([y.entity_id, m]).catch(() => {
         }), !0;
       } catch (S) {
         return g.silent || this._toastError(S?.message || this._i18n("ui.could_not_clone_the_queue")), !1;
@@ -41164,7 +41164,7 @@ function vh({
       if (!B.length)
         return this._toastError(this._i18n("ui.select_at_least_one_studio_player")), !1;
       o && this._pressUiButton(o);
-      const E = this._state.mobileAnnouncementText, I = this._state.mobileAnnouncementTarget, F = this._state.mobileAnnouncementVolume;
+      const I = this._state.mobileAnnouncementText, E = this._state.mobileAnnouncementTarget, F = this._state.mobileAnnouncementVolume;
       this._state.mobileAnnouncementText = y, this._state.mobileAnnouncementTarget = B.length === this._announcementEligiblePlayers().length ? "all" : B[0], this._state.mobileAnnouncementVolume = Math.max(20, Math.min(50, Number(g?.value || this._state.controlRoomAnnouncementVolume || 20) || 20));
       try {
         if (B.length === 1)
@@ -41177,19 +41177,19 @@ function vh({
         }
         return !0;
       } finally {
-        this._state.mobileAnnouncementText = E, this._state.mobileAnnouncementTarget = I, this._state.mobileAnnouncementVolume = F;
+        this._state.mobileAnnouncementText = I, this._state.mobileAnnouncementTarget = E, this._state.mobileAnnouncementVolume = F;
       }
     }
     _controlRoomScenesStorageKey() {
       return this._lsKey("homeii_music_flow_control_room_scenes_v1");
     }
     _normalizeControlRoomScene(o = {}, m = 0) {
-      const g = String(o?.id || `custom:${Date.now()}_${m}`).trim(), y = g.startsWith("custom:") ? g : `custom:${g}`, S = Array.isArray(o?.playerIds) ? o.playerIds.map((F) => String(F || "").trim()).filter(Boolean) : [], B = Array.isArray(o?.visibleIds) ? o.visibleIds.map((F) => String(F || "").trim()).filter(Boolean) : [], E = {};
+      const g = String(o?.id || `custom:${Date.now()}_${m}`).trim(), y = g.startsWith("custom:") ? g : `custom:${g}`, S = Array.isArray(o?.playerIds) ? o.playerIds.map((F) => String(F || "").trim()).filter(Boolean) : [], B = Array.isArray(o?.visibleIds) ? o.visibleIds.map((F) => String(F || "").trim()).filter(Boolean) : [], I = {};
       o?.volumes && typeof o.volumes == "object" && Object.entries(o.volumes).forEach(([F, O]) => {
         const Z = Math.max(0, Math.min(1, Number(O)));
-        F && Number.isFinite(Z) && (E[String(F)] = Z);
+        F && Number.isFinite(Z) && (I[String(F)] = Z);
       });
-      const I = o?.media && typeof o.media == "object" ? {
+      const E = o?.media && typeof o.media == "object" ? {
         uri: String(o.media.uri || "").trim(),
         media_type: String(o.media.media_type || o.media.type || "track").trim() || "track",
         name: String(o.media.name || "").trim()
@@ -41200,9 +41200,9 @@ function vh({
         primaryId: String(o?.primaryId || S[0] || "").trim(),
         playerIds: [...new Set(S)],
         visibleIds: [...new Set(B)],
-        volumes: E,
+        volumes: I,
         group: o?.group !== !1,
-        media: I,
+        media: E,
         createdAt: Number(o?.createdAt || Date.now()) || Date.now()
       };
     }
@@ -41226,22 +41226,22 @@ function vh({
     _captureControlRoomScene(o = "") {
       const m = this._controlRoomSelectedPlayerIds(), g = this._controlRoomPrimaryPlayerId(), y = m.length ? m : [g].filter(Boolean);
       if (!y.length) return null;
-      const B = this._playerByEntityId(g || y[0])?.attributes || {}, E = {};
+      const B = this._playerByEntityId(g || y[0])?.attributes || {}, I = {};
       y.forEach((O) => {
         const Z = this._playerByEntityId(O), $ = Number(Z?.attributes?.volume_level);
-        Number.isFinite($) && (E[O] = Math.max(0, Math.min(1, $)));
+        Number.isFinite($) && (I[O] = Math.max(0, Math.min(1, $)));
       });
-      const I = String(B.media_content_id || B.media_uri || B.uri || "").trim(), F = String(B.media_content_type || B.media_type || "track").trim() || "track";
+      const E = String(B.media_content_id || B.media_uri || B.uri || "").trim(), F = String(B.media_content_type || B.media_type || "track").trim() || "track";
       return this._normalizeControlRoomScene({
         id: `custom:${Date.now().toString(36)}`,
         name: String(o || "").trim() || this._i18n("ui.my_studio_scene"),
         primaryId: g || y[0],
         playerIds: y,
         visibleIds: this._controlRoomVisiblePlayerIds(),
-        volumes: E,
+        volumes: I,
         group: y.length > 1,
         media: {
-          uri: I,
+          uri: E,
           media_type: F,
           name: B.media_title || ""
         },
@@ -41264,15 +41264,15 @@ function vh({
       const y = this._controlRoomAllPlayers(), S = new Set(y.map((O) => O.entity_id)), B = g.playerIds.filter((O) => S.has(O));
       if (!B.length)
         return this._toastError(this._i18n("ui.scene_players_are_not_available")), !1;
-      const E = B.includes(g.primaryId) ? g.primaryId : B[0], I = [E, ...B.filter((O) => O !== E)], F = [.../* @__PURE__ */ new Set([
+      const I = B.includes(g.primaryId) ? g.primaryId : B[0], E = [I, ...B.filter((O) => O !== I)], F = [.../* @__PURE__ */ new Set([
         ...this._controlRoomVisiblePlayerIds(),
-        ...I,
+        ...E,
         ...g.visibleIds.filter((O) => S.has(O))
       ])];
-      return this._state.controlRoomVisiblePlayers = F, this._state.controlRoomSelectedPlayers = I, this._syncControlRoomTransferDefaults(), m && this._pressUiButton(m), I.length > 1 && g.group && await this._applySpeakerGroupFor(E, I.slice(1)), await Promise.allSettled(I.map((O) => {
+      return this._state.controlRoomVisiblePlayers = F, this._state.controlRoomSelectedPlayers = E, this._syncControlRoomTransferDefaults(), m && this._pressUiButton(m), E.length > 1 && g.group && await this._applySpeakerGroupFor(I, E.slice(1)), await Promise.allSettled(E.map((O) => {
         const Z = g.volumes?.[O];
         return Number.isFinite(Z) ? this._setPlayerVolumeFor(O, Z) : Promise.resolve();
-      })), g.media?.uri && await this._playMediaOnPlayer(E, g.media.uri, g.media.media_type || "track", "play", {
+      })), g.media?.uri && await this._playMediaOnPlayer(I, g.media.uri, g.media.media_type || "track", "play", {
         label: g.media.name || g.name,
         silent: !0
       }), this._syncControlRoomUi({ force: !0 }), this._toastSuccess(this._m(`Scene "${g.name}" applied`, `הסצנה "${g.name}" הופעלה`)), setTimeout(() => this._updateNowPlayingState(), 350), !0;
@@ -41289,11 +41289,11 @@ function vh({
         return this._toastError(this._i18n("ui.select_at_least_one_studio_player")), !1;
       const B = y.length ? y : [S];
       B.length > 1 && await this._applySpeakerGroupFor(S, B.slice(1));
-      const E = g === "night" ? 0.18 : g === "party" ? 0.55 : 0.35;
-      if (await Promise.allSettled(B.map((F) => this._setPlayerVolumeFor(F, E))), g === "home")
+      const I = g === "night" ? 0.18 : g === "party" ? 0.55 : 0.35;
+      if (await Promise.allSettled(B.map((F) => this._setPlayerVolumeFor(F, I))), g === "home")
         return this._toastSuccess(this._i18n("ui.home_scene_prepared")), !0;
-      const I = g === "party" ? "party" : "night";
-      return this._startControlRoomMix(I, m);
+      const E = g === "party" ? "party" : "night";
+      return this._startControlRoomMix(E, m);
     }
     _controlRoomSearchEntries(o = {}) {
       const m = [
@@ -41380,16 +41380,16 @@ function vh({
       });
     }
     _controlRoomPlayerTileHtml(o) {
-      const m = this._controlRoomSelectedPlayerIds(), g = this._controlRoomPrimaryPlayerId(), y = m.includes(o.entity_id), S = g === o.entity_id, B = o.state === "playing", E = this._playerArtworkUrl(o, 320), I = o.attributes?.friendly_name || o.entity_id, F = o.attributes?.media_title || this._i18n("ui.idle_2"), O = Math.round((o.attributes?.volume_level || 0) * 100), Z = this._controlRoomGroupInfo(o), $ = Z.count, ce = this._playerStateLabel(o), be = this._controlRoomQueueCache(o.entity_id), ue = this._controlRoomQueueCount(o, be), de = this._controlRoomProtocolLabel(o), me = this._isMuted(o), he = E ? `style="--control-room-tile-art:url('${this._esc(E)}')"` : "";
+      const m = this._controlRoomSelectedPlayerIds(), g = this._controlRoomPrimaryPlayerId(), y = m.includes(o.entity_id), S = g === o.entity_id, B = o.state === "playing", I = this._playerArtworkUrl(o, 320), E = o.attributes?.friendly_name || o.entity_id, F = o.attributes?.media_title || this._i18n("ui.idle_2"), O = Math.round((o.attributes?.volume_level || 0) * 100), Z = this._controlRoomGroupInfo(o), $ = Z.count, ce = this._playerStateLabel(o), be = this._controlRoomQueueCache(o.entity_id), ue = this._controlRoomQueueCount(o, be), de = this._controlRoomProtocolLabel(o), me = this._isMuted(o), he = I ? `style="--control-room-tile-art:url('${this._esc(I)}')"` : "";
       return `
-        <article class="control-room-tile ${E ? "has-art" : "no-art"} ${y ? "selected" : ""} ${S ? "primary" : ""} ${B ? "is-playing" : ""} ${$ ? "grouped" : ""}" data-room-tile="${this._esc(o.entity_id)}" ${he}>
+        <article class="control-room-tile ${I ? "has-art" : "no-art"} ${y ? "selected" : ""} ${S ? "primary" : ""} ${B ? "is-playing" : ""} ${$ ? "grouped" : ""}" data-room-tile="${this._esc(o.entity_id)}" ${he}>
           <div class="control-room-tile-bg"></div>
           <div class="control-room-tile-shade"></div>
           <button class="control-room-select-fab ${y ? "active" : ""} ${y && m.length > 1 ? "removable" : ""}" data-room-select="${this._esc(o.entity_id)}" title="${this._esc(y && m.length > 1 ? this._i18n("ui.remove_from_selection") : y ? this._i18n("ui.selected_player_2") : this._i18n("ui.add_to_selection"))}">
             ${this._iconSvg(y && m.length > 1 ? "close" : y ? "check" : "grid")}
             <span class="control-room-select-label">${this._esc(y && m.length > 1 ? this._i18n("ui.remove") : y ? this._i18n("ui.selected") : this._i18n("ui.select"))}</span>
           </button>
-          <button class="control-room-tile-main" data-room-primary="${this._esc(o.entity_id)}" title="${this._esc(I)}">
+          <button class="control-room-tile-main" data-room-primary="${this._esc(o.entity_id)}" title="${this._esc(E)}">
             <span class="control-room-tile-copy">
               <span class="control-room-tile-pills">
                 ${S ? `<span class="control-room-primary-pill">${this._esc(this._i18n("ui.primary"))}</span>` : ""}
@@ -41399,7 +41399,7 @@ function vh({
                 ${B ? `<span class="control-room-float-pill live">${this._esc(this._i18n("ui.playing"))}</span>` : ""}
               </span>
               <span class="control-room-tile-track">${this._esc(F)}</span>
-              <span class="control-room-tile-name">${this._esc(I)}</span>
+              <span class="control-room-tile-name">${this._esc(E)}</span>
               <span class="control-room-tile-state">${this._esc(ce)}</span>
             </span>
           </button>
@@ -41478,7 +41478,7 @@ function vh({
           </div>
         `;
       if (m === "actions") {
-        const S = this._controlRoomActionTargetIds().length, B = this._controlRoomFocusTarget(), E = B.art || "", I = this._controlRoomPrimaryPlayer(), F = I?.state === "playing", O = I ? this._isMuted(I) : !1;
+        const S = this._controlRoomActionTargetIds().length, B = this._controlRoomFocusTarget(), I = B.art || "", E = this._controlRoomPrimaryPlayer(), F = E?.state === "playing", O = E ? this._isMuted(E) : !1;
         return `
           <div class="control-room-tray open wide control-room-hub-panel">
             <div class="control-room-tray-head">
@@ -41487,7 +41487,7 @@ function vh({
             </div>
             <div class="control-room-action-console">
               <div class="control-room-action-now">
-                <span class="control-room-action-art">${E ? this._imgHtml(E, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
+                <span class="control-room-action-art">${I ? this._imgHtml(I, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
                 <span class="control-room-action-copy">
                   <span class="control-room-action-kicker">${this._esc(B.kicker)}</span>
                   <span class="control-room-action-name">${this._esc(B.name)}</span>
@@ -41497,7 +41497,7 @@ function vh({
               <div class="control-room-media-controls">
                 <button class="control-room-media-control primary" data-room-selection-action="playpause" ${S ? "" : "disabled"}>${this._iconSvg(F ? "pause" : "play")}<span>${this._esc(F ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span></button>
                 <button class="control-room-media-control" data-room-selection-action="next" ${S ? "" : "disabled"}>${this._iconSvg("next")}<span>${this._esc(this._i18n("ui.next"))}</span></button>
-                <button class="control-room-media-control ${O ? "active" : ""}" data-room-selection-action="mute" ${S ? "" : "disabled"}>${this._iconSvg(O ? "volume_mute" : I ? this._volumeIconName(I) : "speaker")}<span>${this._esc(this._i18n("ui.mute"))}</span></button>
+                <button class="control-room-media-control ${O ? "active" : ""}" data-room-selection-action="mute" ${S ? "" : "disabled"}>${this._iconSvg(O ? "volume_mute" : E ? this._volumeIconName(E) : "speaker")}<span>${this._esc(this._i18n("ui.mute"))}</span></button>
                 <button class="control-room-media-control danger" data-room-selection-action="clear" ${S ? "" : "disabled"}>${this._iconSvg("trash")}<span>${this._esc(this._i18n("ui.clear_queue"))}</span></button>
               </div>
             </div>
@@ -41516,7 +41516,7 @@ function vh({
         `;
       }
       if (m === "transfer") {
-        const y = this._state.controlRoomTransferSource || "", S = this._state.controlRoomTransferTarget || "", B = this._playerByEntityId(y), E = this._playerByEntityId(S), I = B?.attributes?.friendly_name || y || this._i18n("ui.choose_source"), F = E?.attributes?.friendly_name || S || this._i18n("ui.choose_target"), O = o.filter(($) => $.entity_id !== y), Z = ($, ce, be) => `
+        const y = this._state.controlRoomTransferSource || "", S = this._state.controlRoomTransferTarget || "", B = this._playerByEntityId(y), I = this._playerByEntityId(S), E = B?.attributes?.friendly_name || y || this._i18n("ui.choose_source"), F = I?.attributes?.friendly_name || S || this._i18n("ui.choose_target"), O = o.filter(($) => $.entity_id !== y), Z = ($, ce, be) => `
           <div class="control-room-transfer-list" data-control-room-scroll="transfer-${this._esc($)}">
             ${ce.length ? ce.map((ue) => {
           const de = this._playerArtworkUrl(ue, 120), me = ue.entity_id === be;
@@ -41544,7 +41544,7 @@ function vh({
                 <section class="control-room-queue-lane source">
                   <div class="control-room-queue-lane-head">
                     <span>${this._esc(this._i18n("ui.from"))}</span>
-                    <strong>${this._esc(I)}</strong>
+                    <strong>${this._esc(E)}</strong>
                   </div>
                   ${Z("source", o, y)}
                   <div class="control-room-transfer-label">${this._esc(this._i18n("ui.source_queue"))}</div>
@@ -41658,14 +41658,14 @@ function vh({
             </div>
             <div class="control-room-saved-scenes" data-control-room-scroll="saved-scenes">
               ${y.length ? y.map((S) => {
-          const B = S.playerIds.length, E = S.media?.name || this._i18n("ui.volume_and_player_target");
+          const B = S.playerIds.length, I = S.media?.name || this._i18n("ui.volume_and_player_target");
           return `
                   <article class="control-room-saved-scene-card">
                     <button class="control-room-saved-scene-main" data-room-scene="${this._esc(S.id)}">
                       ${this._iconSvg(B > 1 ? "speaker" : "home")}
                       <span>
                         <strong>${this._esc(S.name)}</strong>
-                        <small>${this._esc(`${this._controlRoomPlayerCountLabel(B)} · ${E}`)}</small>
+                        <small>${this._esc(`${this._controlRoomPlayerCountLabel(B)} · ${I}`)}</small>
                       </span>
                     </button>
                     <button class="control-room-saved-scene-delete" data-room-delete-scene="${this._esc(S.id)}" title="${this._esc(this._i18n("ui.delete_scene"))}">${this._iconSvg("trash")}</button>
@@ -41721,7 +41721,7 @@ function vh({
             <div class="control-room-diagnostics">
               <div class="control-room-diagnostic-row"><span>Target player</span><strong>${this._esc(y?.attributes?.friendly_name || this._i18n("ui.none"))}</strong></div>
               <div class="control-room-diagnostic-row"><span>Protocol</span><strong>${this._esc(S || this._i18n("ui.unknown"))}</strong></div>
-              <div class="control-room-diagnostic-row"><span>Music Assistant</span><strong>HOMEii Flow Engine</strong></div>
+              <div class="control-room-diagnostic-row"><span>Music Assistant</span><strong>Maverick Music Engine</strong></div>
               <div class="control-room-diagnostic-row"><span>Players</span><strong>${this._esc(String(o.length))}</strong></div>
               <div class="control-room-pro-actions">
                 <button class="control-room-panel-action" data-room-selection-action="open_ma">${this._iconSvg("library_music")}<span>${this._esc(this._i18n("ui.open_music_assistant"))}</span></button>
@@ -41741,17 +41741,17 @@ function vh({
       };
     }
     _controlRoomGridStyle(o = 0) {
-      const m = Math.max(1, Number(o) || 0), { width: g, height: y } = this._controlRoomViewportSize(), S = g <= 1280, B = g <= 980, E = y <= 640, I = B ? 10 : S ? 12 : 16, F = B ? 78 : S ? 86 : 96, O = g >= 1560 ? 6 : g >= 1060 || g >= 720 ? 5 : 3, Z = E ? 82 : B ? 92 : S ? 104 : 116, $ = E ? 54 : B ? 64 : 74, ce = Z + $ + (E ? 10 : 18), be = Math.max(220, g - (B ? 20 : S ? 34 : 56)), ue = Math.max(180, y - ce), de = Math.max(1, Math.floor((be + I) / (F + I))), me = Math.max(1, Math.min(m, Math.max(O, de)));
+      const m = Math.max(1, Number(o) || 0), { width: g, height: y } = this._controlRoomViewportSize(), S = g <= 1280, B = g <= 980, I = y <= 640, E = B ? 10 : S ? 12 : 16, F = B ? 78 : S ? 86 : 96, O = g >= 1560 ? 6 : g >= 1060 || g >= 720 ? 5 : 3, Z = I ? 82 : B ? 92 : S ? 104 : 116, $ = I ? 54 : B ? 64 : 74, ce = Z + $ + (I ? 10 : 18), be = Math.max(220, g - (B ? 20 : S ? 34 : 56)), ue = Math.max(180, y - ce), de = Math.max(1, Math.floor((be + E) / (F + E))), me = Math.max(1, Math.min(m, Math.max(O, de)));
       let he = { cols: 1, tileWidth: Math.min(be, ue * 16 / 9), rows: m, score: 0 };
       for (let Me = 1; Me <= me; Me += 1) {
-        const Be = Math.ceil(m / Me), Ee = (be - I * (Me - 1)) / Me, De = (ue - I * (Be - 1)) / Be * 16 / 9, Oe = Math.max(F, Math.min(Ee, De)), Ke = Oe * Oe * Me - Be * 22 + Me * 6;
+        const Be = Math.ceil(m / Me), Ie = (be - E * (Me - 1)) / Me, De = (ue - E * (Be - 1)) / Be * 16 / 9, Oe = Math.max(F, Math.min(Ie, De)), Ke = Oe * Oe * Me - Be * 22 + Me * 6;
         Ke > he.score && (he = { cols: Me, tileWidth: Oe, rows: Be, score: Ke });
       }
-      const ve = Math.max(240, Math.floor(he.tileWidth * he.cols + I * (he.cols - 1))), xe = Math.max(160, Math.floor(he.tileWidth * 9 / 16 * he.rows + I * (he.rows - 1))), ke = Math.max(0.72, Math.min(1, he.tileWidth / 300));
+      const ve = Math.max(240, Math.floor(he.tileWidth * he.cols + E * (he.cols - 1))), xe = Math.max(160, Math.floor(he.tileWidth * 9 / 16 * he.rows + E * (he.rows - 1))), ke = Math.max(0.72, Math.min(1, he.tileWidth / 300));
       return [
         `--control-room-cols:${he.cols}`,
         `--control-room-rows:${he.rows}`,
-        `--control-room-gap:${I}px`,
+        `--control-room-gap:${E}px`,
         `--control-room-player-count:${m}`,
         `--control-room-grid-max-width:${ve}px`,
         `--control-room-grid-max-height:${xe}px`,
@@ -41772,11 +41772,11 @@ function vh({
         subtitle: B?.subtitle || "",
         type: B?.media_type || "",
         image: B?.image || ""
-      })) : [], g = this._state.controlRoomQueueSnapshots || {}, y = Object.fromEntries(Object.entries(g).map(([B, E]) => [
+      })) : [], g = this._state.controlRoomQueueSnapshots || {}, y = Object.fromEntries(Object.entries(g).map(([B, I]) => [
         B,
         {
-          count: Number(E?.snapshot?.state?.items || 0) || (Array.isArray(E?.snapshot?.items) ? E.snapshot.items.length : 0),
-          current: E?.snapshot?.state?.current_index ?? ""
+          count: Number(I?.snapshot?.state?.items || 0) || (Array.isArray(I?.snapshot?.items) ? I.snapshot.items.length : 0),
+          current: I?.snapshot?.state?.current_index ?? ""
         }
       ])), S = this._controlRoomViewportSize();
       return JSON.stringify({
@@ -41811,7 +41811,7 @@ function vh({
     }
     _controlRoomHtml() {
       if (!this._controlRoomEnabled()) return "";
-      const o = this._controlRoomPlayers(), m = this._controlRoomPrimaryPlayer(), g = this._playerArtworkUrl(m, 320), y = this._controlRoomGridStyle(o.length), S = `style="${g ? `--control-room-scene-art:url('${this._esc(g)}');` : ""}${y}"`, B = this._controlRoomFocusTarget(), E = B.art || g, I = this._controlRoomActionTargetIds(), F = m?.state === "playing", O = m ? this._isMuted(m) : !1, Z = !!this._state.controlRoomPanel, $ = ["music", "mix", "library", "recent", "favorites", "scenes"].includes(this._state.controlRoomPanel), ce = ["actions", "selection", "visible", "announce", "pro"].includes(this._state.controlRoomPanel);
+      const o = this._controlRoomPlayers(), m = this._controlRoomPrimaryPlayer(), g = this._playerArtworkUrl(m, 320), y = this._controlRoomGridStyle(o.length), S = `style="${g ? `--control-room-scene-art:url('${this._esc(g)}');` : ""}${y}"`, B = this._controlRoomFocusTarget(), I = B.art || g, E = this._controlRoomActionTargetIds(), F = m?.state === "playing", O = m ? this._isMuted(m) : !1, Z = !!this._state.controlRoomPanel, $ = ["music", "mix", "library", "recent", "favorites", "scenes"].includes(this._state.controlRoomPanel), ce = ["actions", "selection", "visible", "announce", "pro"].includes(this._state.controlRoomPanel);
       return `
         <div class="control-room-scene ${g ? "has-art" : ""} ${Z ? "panel-open" : ""}" ${S}>
           <div class="control-room-scene-bg"></div>
@@ -41827,7 +41827,7 @@ function vh({
             <div class="control-room-dock focus-mode">
               <div class="control-room-player-console">
                 <div class="control-room-now-pill focus-target">
-                  <span class="control-room-now-art">${E ? this._imgHtml(E, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
+                  <span class="control-room-now-art">${I ? this._imgHtml(I, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
                   <span class="control-room-now-copy">
                     <span class="control-room-now-kicker">${this._esc(B.kicker)}</span>
                     <span class="control-room-now-name">${this._esc(B.name)}</span>
@@ -41852,7 +41852,7 @@ function vh({
               <span class="control-room-dock-divider" aria-hidden="true"></span>
               <div class="control-room-dock-section room focus-nav">
                 <button class="control-room-selection-pill ${this._state.controlRoomPanel === "selection" ? "active" : ""}" data-room-selection-action="selection" title="${this._esc(this._i18n("ui.connected_players_2"))}">
-                  <span class="control-room-selection-count">${this._esc(String(I.length))}</span>
+                  <span class="control-room-selection-count">${this._esc(String(E.length))}</span>
                   <span class="control-room-dock-label">${this._esc(this._i18n("ui.players"))}</span>
                 </button>
                 <button class="control-room-dock-btn ${$ ? "active" : ""}" data-room-selection-action="music" title="${this._esc(this._i18n("ui.music_hub_2"))}">
@@ -41877,61 +41877,61 @@ function vh({
       if (!this._state.controlRoomOpen || !this.shadowRoot) return;
       const o = this.$("controlRoomBody");
       if (!o) return;
-      const m = this._controlRoomPlayers(), g = new Map(m.map((he) => [he.entity_id, he])), y = this._controlRoomSelectedPlayerIds(), S = this._controlRoomPrimaryPlayerId(), B = this._controlRoomPrimaryPlayer(), E = (he, ve) => {
+      const m = this._controlRoomPlayers(), g = new Map(m.map((he) => [he.entity_id, he])), y = this._controlRoomSelectedPlayerIds(), S = this._controlRoomPrimaryPlayerId(), B = this._controlRoomPrimaryPlayer(), I = (he, ve) => {
         he && he.textContent !== String(ve ?? "") && (he.textContent = String(ve ?? ""));
-      }, I = (he, ve) => {
+      }, E = (he, ve) => {
         he && he.dataset.liveHtml !== ve && (he.innerHTML = ve, he.dataset.liveHtml = ve);
       }, F = (he) => `url("${String(he || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
       o.querySelectorAll("[data-room-tile]").forEach((he) => {
         const ve = he.dataset.roomTile || "", xe = g.get(ve);
         if (!xe) return;
-        const ke = this._playerArtworkUrl(xe, 320), Me = xe.state === "playing", Be = y.includes(ve), Ee = S === ve, De = Math.round((xe.attributes?.volume_level || 0) * 100), Oe = this._controlRoomGroupInfo(xe);
-        he.classList.toggle("has-art", !!ke), he.classList.toggle("no-art", !ke), he.classList.toggle("is-playing", Me), he.classList.toggle("selected", Be), he.classList.toggle("primary", Ee), he.classList.toggle("grouped", !!Oe.count);
+        const ke = this._playerArtworkUrl(xe, 320), Me = xe.state === "playing", Be = y.includes(ve), Ie = S === ve, De = Math.round((xe.attributes?.volume_level || 0) * 100), Oe = this._controlRoomGroupInfo(xe);
+        he.classList.toggle("has-art", !!ke), he.classList.toggle("no-art", !ke), he.classList.toggle("is-playing", Me), he.classList.toggle("selected", Be), he.classList.toggle("primary", Ie), he.classList.toggle("grouped", !!Oe.count);
         const Ke = he.querySelector("[data-room-select]");
         if (Ke) {
           const ut = Be && y.length > 1;
-          Ke.classList.toggle("active", Be), Ke.classList.toggle("removable", ut), Ke.title = ut ? this._i18n("ui.remove_from_selection") : Be ? this._i18n("ui.selected_player_2") : this._i18n("ui.add_to_selection"), I(Ke, `${this._iconSvg(ut ? "close" : Be ? "check" : "grid")}<span class="control-room-select-label">${this._esc(ut ? this._i18n("ui.remove") : Be ? this._i18n("ui.selected") : this._i18n("ui.select"))}</span>`);
+          Ke.classList.toggle("active", Be), Ke.classList.toggle("removable", ut), Ke.title = ut ? this._i18n("ui.remove_from_selection") : Be ? this._i18n("ui.selected_player_2") : this._i18n("ui.add_to_selection"), E(Ke, `${this._iconSvg(ut ? "close" : Be ? "check" : "grid")}<span class="control-room-select-label">${this._esc(ut ? this._i18n("ui.remove") : Be ? this._i18n("ui.selected") : this._i18n("ui.select"))}</span>`);
         }
         ke ? he.style.setProperty("--control-room-tile-art", F(ke)) : he.style.removeProperty("--control-room-tile-art");
         const tt = he.querySelector(".control-room-tile-pills"), Ve = Oe.count, Xe = this._controlRoomQueueCache(ve), Te = this._controlRoomQueueCount(xe, Xe), Je = this._controlRoomProtocolLabel(xe), Ze = [
-          Ee ? `<span class="control-room-primary-pill">${this._esc(this._i18n("ui.primary"))}</span>` : "",
+          Ie ? `<span class="control-room-primary-pill">${this._esc(this._i18n("ui.primary"))}</span>` : "",
           Ve ? `<span class="control-room-float-pill grouped" title="${this._esc(Oe.label || this._i18n("ui.grouped_players"))}">${this._iconSvg("speaker")}${this._esc(this._m(`${Ve} grouped`, `${Ve} בקבוצה`))}</span>` : "",
           Te ? `<span class="control-room-float-pill">${this._iconSvg("queue")}${this._esc(String(Te))}</span>` : "",
           Je ? `<span class="control-room-float-pill protocol">${this._esc(Je)}</span>` : "",
           Me ? `<span class="control-room-float-pill live">${this._esc(this._i18n("ui.playing"))}</span>` : ""
         ].filter(Boolean).join("");
-        I(tt, Ze), E(he.querySelector(".control-room-tile-track"), xe.attributes?.media_title || this._i18n("ui.idle_2")), E(he.querySelector(".control-room-tile-name"), xe.attributes?.friendly_name || xe.entity_id), E(he.querySelector(".control-room-tile-state"), this._playerStateLabel(xe)), I(he.querySelector("[data-room-toggle-play]"), this._iconSvg(Me ? "pause" : "play"));
+        E(tt, Ze), I(he.querySelector(".control-room-tile-track"), xe.attributes?.media_title || this._i18n("ui.idle_2")), I(he.querySelector(".control-room-tile-name"), xe.attributes?.friendly_name || xe.entity_id), I(he.querySelector(".control-room-tile-state"), this._playerStateLabel(xe)), E(he.querySelector("[data-room-toggle-play]"), this._iconSvg(Me ? "pause" : "play"));
         const st = he.querySelector("[data-room-mute]");
         if (st) {
           const ut = this._isMuted(xe);
-          st.classList.toggle("active", ut), I(st, this._iconSvg(ut ? "volume_mute" : this._volumeIconName(xe)));
+          st.classList.toggle("active", ut), E(st, this._iconSvg(ut ? "volume_mute" : this._volumeIconName(xe)));
         }
         const ct = he.querySelector(".control-room-volume");
-        ct && this.shadowRoot.activeElement !== ct && String(ct.value) !== String(De) && (ct.value = String(De), ct.style.setProperty("--vol-pct", `${De}%`)), E(he.querySelector("[data-room-volume-value]"), `${De}%`);
+        ct && this.shadowRoot.activeElement !== ct && String(ct.value) !== String(De) && (ct.value = String(De), ct.style.setProperty("--vol-pct", `${De}%`)), I(he.querySelector("[data-room-volume-value]"), `${De}%`);
       });
       const O = this._playerArtworkUrl(B, 320), Z = o.querySelector(".control-room-scene");
       Z && (Z.classList.toggle("has-art", !!O), O ? Z.style.setProperty("--control-room-scene-art", F(O)) : Z.style.removeProperty("--control-room-scene-art"));
       const $ = this._controlRoomFocusTarget(), ce = $.art || O;
-      I(o.querySelector(".control-room-now-art"), ce ? this._imgHtml(ce, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")), E(o.querySelector(".control-room-now-kicker"), $.kicker), E(o.querySelector(".control-room-now-name"), $.name), E(o.querySelector(".control-room-now-track"), $.track);
+      E(o.querySelector(".control-room-now-art"), ce ? this._imgHtml(ce, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")), I(o.querySelector(".control-room-now-kicker"), $.kicker), I(o.querySelector(".control-room-now-name"), $.name), I(o.querySelector(".control-room-now-track"), $.track);
       const be = o.querySelector('[data-room-selection-action="player_playpause"]');
       if (be) {
         const he = B?.state === "playing";
-        I(be, `${this._iconSvg(he ? "pause" : "play")}<span class="control-room-dock-label">${this._esc(he ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span>`);
+        E(be, `${this._iconSvg(he ? "pause" : "play")}<span class="control-room-dock-label">${this._esc(he ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span>`);
       }
       const ue = o.querySelector('.control-room-action-console [data-room-selection-action="playpause"]');
       if (ue) {
         const he = B?.state === "playing";
-        I(ue, `${this._iconSvg(he ? "pause" : "play")}<span>${this._esc(he ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span>`);
+        E(ue, `${this._iconSvg(he ? "pause" : "play")}<span>${this._esc(he ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span>`);
       }
       const de = o.querySelector('[data-room-selection-action="player_mute"]');
       if (de) {
         const he = B ? this._isMuted(B) : !1;
-        de.classList.toggle("active", he), I(de, `${this._iconSvg(B ? this._volumeIconName(B) : "speaker")}<span class="control-room-dock-label">${this._esc(this._i18n("ui.mute"))}</span>`);
+        de.classList.toggle("active", he), E(de, `${this._iconSvg(B ? this._volumeIconName(B) : "speaker")}<span class="control-room-dock-label">${this._esc(this._i18n("ui.mute"))}</span>`);
       }
       const me = o.querySelector('.control-room-action-console [data-room-selection-action="mute"]');
       if (me) {
         const he = B ? this._isMuted(B) : !1;
-        me.classList.toggle("active", he), I(me, `${this._iconSvg(he ? "volume_mute" : B ? this._volumeIconName(B) : "speaker")}<span>${this._esc(this._i18n("ui.mute"))}</span>`);
+        me.classList.toggle("active", he), E(me, `${this._iconSvg(he ? "volume_mute" : B ? this._volumeIconName(B) : "speaker")}<span>${this._esc(this._i18n("ui.mute"))}</span>`);
       }
     }
     _syncControlRoomUi(o = {}) {
@@ -41940,7 +41940,7 @@ function vh({
       if (!m) return;
       const g = !!o.force;
       if (!this._state.controlRoomOpen && !g) return;
-      const y = this.shadowRoot?.activeElement, B = (/* @__PURE__ */ new Set(["controlRoomLibraryInput", "controlRoomSmartQueryInput", "controlRoomAnnouncementText", "controlRoomSceneNameInput"])).has(y?.id) ? y.id : "", E = B ? y.selectionStart : null, I = B ? y.selectionEnd : null, F = this._controlRoomRenderSignature();
+      const y = this.shadowRoot?.activeElement, B = (/* @__PURE__ */ new Set(["controlRoomLibraryInput", "controlRoomSmartQueryInput", "controlRoomAnnouncementText", "controlRoomSceneNameInput"])).has(y?.id) ? y.id : "", I = B ? y.selectionStart : null, E = B ? y.selectionEnd : null, F = this._controlRoomRenderSignature();
       if (g || this._state.controlRoomRenderSignature !== F || !m.firstElementChild) {
         const ue = this._controlRoomHtml(), de = {};
         m.querySelectorAll?.("[data-control-room-scroll]")?.forEach((he) => {
@@ -41965,9 +41965,9 @@ function vh({
       const be = this.$("controlRoomSceneNameInput");
       if (be && (be.value = this._state.controlRoomSceneName || ""), B) {
         const ue = this.$(B);
-        if (ue?.focus?.({ preventScroll: !0 }), ue && typeof E == "number" && typeof I == "number")
+        if (ue?.focus?.({ preventScroll: !0 }), ue && typeof I == "number" && typeof E == "number")
           try {
-            ue.setSelectionRange(E, I);
+            ue.setSelectionRange(I, E);
           } catch {
           }
       }
@@ -42035,11 +42035,11 @@ function vh({
         };
         return this._cache.lyrics.set(g, be), be;
       }
-      const B = this._state.maQueueState?.current_item, E = B?.media_item || B || {}, I = String(E.uri || this._getSelectedPlayer?.()?.attributes?.media_content_id || "").trim();
+      const B = this._state.maQueueState?.current_item, I = B?.media_item || B || {}, E = String(I.uri || this._getSelectedPlayer?.()?.attributes?.media_content_id || "").trim();
       let F = null;
-      if (I && (E.media_type || "track") === "track")
+      if (E && (I.media_type || "track") === "track")
         try {
-          const be = await this._callEngineMaCommand("music/item_by_uri", { uri: I, allow_update_metadata: !1 }), ue = v.extractCurrentLyricsRawText({ media_item: be }), de = ue ? null : await this._callEngineMaCommand("metadata/get_track_lyrics", { track: be }), me = ue || (Array.isArray(de) ? de[1] || de[0] : this._coerceLyricsRawText(de)) || "";
+          const be = await this._callEngineMaCommand("music/item_by_uri", { uri: E, allow_update_metadata: !1 }), ue = v.extractCurrentLyricsRawText({ media_item: be }), de = ue ? null : await this._callEngineMaCommand("metadata/get_track_lyrics", { track: be }), me = ue || (Array.isArray(de) ? de[1] || de[0] : this._coerceLyricsRawText(de)) || "";
           if (me) {
             const he = { text: this._stripLyricsTimestamps(me), rawText: me, lrc: this._parseLrcLyrics(me), source: "music_assistant" };
             return this._cache.lyrics.set(g, he), he;
@@ -42077,9 +42077,9 @@ function vh({
       if (m && (m.classList.remove("open"), m.onclick = null, m.innerHTML = ""), g?.classList.remove("lyrics-modal-open"), this._state.lyricsOpen = !1, y || this._clearLyricsState(), o.sync === !1) return;
       const S = () => {
         const B = this.shadowRoot?.querySelector(".card");
-        [B, this.shadowRoot?.querySelector(".stage"), this.shadowRoot?.querySelector(".tablet-shell"), this.shadowRoot?.querySelector(".tablet-main")].filter(Boolean).forEach((E) => {
+        [B, this.shadowRoot?.querySelector(".stage"), this.shadowRoot?.querySelector(".tablet-shell"), this.shadowRoot?.querySelector(".tablet-main")].filter(Boolean).forEach((I) => {
           try {
-            E.scrollTop = 0;
+            I.scrollTop = 0;
           } catch {
           }
         }), B?.offsetHeight;
@@ -42120,11 +42120,11 @@ function vh({
             </div>
           </div>
           <div class="lyrics-body">${g}</div>
-        </div>`, Ki(this, y.querySelector(".lyrics-sheet"), "lyrics", () => this._closeLyricsModal()), y.classList.add("open"), this.shadowRoot?.querySelector(".card")?.classList.add("lyrics-modal-open"), y.onclick = (E) => {
-        E.target === y && this._closeLyricsModal();
+        </div>`, Ki(this, y.querySelector(".lyrics-sheet"), "lyrics", () => this._closeLyricsModal()), y.classList.add("open"), this.shadowRoot?.querySelector(".card")?.classList.add("lyrics-modal-open"), y.onclick = (I) => {
+        I.target === y && this._closeLyricsModal();
       }, y.querySelector("#lyricsCloseBtn")?.addEventListener("click", () => this._closeLyricsModal()), y.querySelector("#lyricsRetryBtn")?.addEventListener("click", () => {
-        const E = this._currentTrackInfo();
-        this._cache.lyrics.delete(E.key || E.title), this._openLyricsModal();
+        const I = this._currentTrackInfo();
+        this._cache.lyrics.delete(I.key || I.title), this._openLyricsModal();
       }), y.querySelector("#lyricsSyncBtn")?.addEventListener("click", () => this._toggleLyricsSyncEnabled()), y.querySelector("#lyricsOffsetMinusBtn")?.addEventListener("click", () => this._nudgeLyricsSyncOffset(-500)), y.querySelector("#lyricsOffsetPlusBtn")?.addEventListener("click", () => this._nudgeLyricsSyncOffset(500)), y.querySelector("#lyricsOffsetResetBtn")?.addEventListener("click", () => this._setLyricsSyncOffset(0)), y.querySelector("#lyricsFontMinusBtn")?.addEventListener("click", () => this._nudgeLyricsFontScale(-0.08)), y.querySelector("#lyricsFontPlusBtn")?.addEventListener("click", () => this._nudgeLyricsFontScale(0.08)), y.querySelector("#lyricsFontResetBtn")?.addEventListener("click", () => this._setLyricsFontScale(1));
     }
     _lyricsTimelineHtml(o = []) {
@@ -42153,23 +42153,23 @@ function vh({
       const g = this.shadowRoot?.querySelector("#lyricsTimeline");
       if (!g) return;
       if (g.classList.toggle("karaoke-active", this._state.mobileLyricsSyncEnabled !== !1), this._state.mobileLyricsSyncEnabled === !1) {
-        this._state.lyricsActiveIndex = -1, g.querySelectorAll(".lyrics-line").forEach((I) => I.classList.remove("active")), g.querySelectorAll("[data-lyrics-word-time]").forEach((I) => I.classList.remove("sung"));
+        this._state.lyricsActiveIndex = -1, g.querySelectorAll(".lyrics-line").forEach((E) => E.classList.remove("active")), g.querySelectorAll("[data-lyrics-word-time]").forEach((E) => E.classList.remove("sung"));
         return;
       }
       const y = this._currentLyricsActiveIndex(m);
       if (y < 0) return;
       const S = this._getCurrentPosition() + this._lyricsSyncOffsetMs() / 1e3;
-      if (g.querySelectorAll("[data-lyrics-word-time]").forEach((I) => I.classList.toggle("sung", Number(I.dataset.lyricsWordTime) <= S)), !o && y === this._state.lyricsActiveIndex) return;
-      this._state.lyricsActiveIndex = y, this._syncScreensaverLyricsUi?.(), g.querySelectorAll(".lyrics-line").forEach((I, F) => {
-        I.classList.toggle("active", F === y);
+      if (g.querySelectorAll("[data-lyrics-word-time]").forEach((E) => E.classList.toggle("sung", Number(E.dataset.lyricsWordTime) <= S)), !o && y === this._state.lyricsActiveIndex) return;
+      this._state.lyricsActiveIndex = y, this._syncScreensaverLyricsUi?.(), g.querySelectorAll(".lyrics-line").forEach((E, F) => {
+        E.classList.toggle("active", F === y);
       });
-      const B = g.querySelector(`.lyrics-line[data-lyrics-index="${y}"]`), E = g.closest(".lyrics-body");
-      if (B && E) {
-        const I = E.getBoundingClientRect(), F = B.getBoundingClientRect(), O = E.scrollTop + F.top - I.top - E.clientHeight / 2 + F.height / 2, Z = Math.max(0, E.scrollHeight - E.clientHeight), $ = Math.max(0, Math.min(Z, O));
+      const B = g.querySelector(`.lyrics-line[data-lyrics-index="${y}"]`), I = g.closest(".lyrics-body");
+      if (B && I) {
+        const E = I.getBoundingClientRect(), F = B.getBoundingClientRect(), O = I.scrollTop + F.top - E.top - I.clientHeight / 2 + F.height / 2, Z = Math.max(0, I.scrollHeight - I.clientHeight), $ = Math.max(0, Math.min(Z, O));
         try {
-          E.scrollTo({ top: $, behavior: o ? "auto" : "smooth" });
+          I.scrollTo({ top: $, behavior: o ? "auto" : "smooth" });
         } catch {
-          E.scrollTop = $;
+          I.scrollTop = $;
         }
       }
     }
@@ -42227,13 +42227,13 @@ function vh({
         `<div class="lyrics-state">${this._esc(this._i18n("ui.loading_lyrics"))}</div>`
       ), this._syncScreensaverLyricsUi?.();
       try {
-        const E = await this._fetchLyricsForCurrentTrack();
+        const I = await this._fetchLyricsForCurrentTrack();
         if (!this._lyricsSessionActive() || this._lyricsRequestToken !== B) return;
-        const I = E?.text || "", F = Array.isArray(E?.lrc) ? E.lrc : [];
-        this._state.lyricsText = I, this._state.lyricsLoading = !1, this._state.lyricsLines = F, this._state.lyricsActiveIndex = -1, this._state.lyricsOpen && this._renderLyricsModalShell(
+        const E = I?.text || "", F = Array.isArray(I?.lrc) ? I.lrc : [];
+        this._state.lyricsText = E, this._state.lyricsLoading = !1, this._state.lyricsLines = F, this._state.lyricsActiveIndex = -1, this._state.lyricsOpen && this._renderLyricsModalShell(
           m.title || this._i18n("ui.track_lyrics"),
           S,
-          F.length ? this._lyricsTimelineHtml(F) : I ? `<pre class="lyrics-pre">${this._esc(I)}</pre>` : `<div class="lyrics-state">${this._esc(this._i18n("ui.no_lyrics_found"))}</div>`
+          F.length ? this._lyricsTimelineHtml(F) : E ? `<pre class="lyrics-pre">${this._esc(E)}</pre>` : `<div class="lyrics-state">${this._esc(this._i18n("ui.no_lyrics_found"))}</div>`
         ), this._syncScreensaverLyricsUi?.(), F.length && requestAnimationFrame(() => this._syncLyricsHighlight(!0));
       } catch {
         if (!this._lyricsSessionActive() || this._lyricsRequestToken !== B) return;
@@ -42259,13 +42259,13 @@ function vh({
         `<div class="lyrics-state">${this._esc(this._i18n("ui.loading_lyrics"))}</div>`
       ), this._syncScreensaverLyricsUi?.();
       try {
-        const E = await this._fetchLyricsForCurrentTrack();
+        const I = await this._fetchLyricsForCurrentTrack();
         if (!this._lyricsSessionActive() || this._lyricsRequestToken !== B) return;
-        const I = E?.text || "", F = Array.isArray(E?.lrc) ? E.lrc : [];
-        this._state.lyricsText = I, this._state.lyricsLoading = !1, this._state.lyricsLines = F, this._state.lyricsActiveIndex = -1, this._state.lyricsOpen && this._renderLyricsModalShell(
+        const E = I?.text || "", F = Array.isArray(I?.lrc) ? I.lrc : [];
+        this._state.lyricsText = E, this._state.lyricsLoading = !1, this._state.lyricsLines = F, this._state.lyricsActiveIndex = -1, this._state.lyricsOpen && this._renderLyricsModalShell(
           m.title || this._i18n("ui.track_lyrics"),
           S,
-          F.length ? this._lyricsTimelineHtml(F) : I ? `<pre class="lyrics-pre">${this._esc(I)}</pre>` : `<div class="lyrics-state">${this._esc(this._i18n("ui.no_lyrics_found"))}</div>`
+          F.length ? this._lyricsTimelineHtml(F) : E ? `<pre class="lyrics-pre">${this._esc(E)}</pre>` : `<div class="lyrics-state">${this._esc(this._i18n("ui.no_lyrics_found"))}</div>`
         ), this._syncScreensaverLyricsUi?.(), F.length && requestAnimationFrame(() => this._syncLyricsHighlight(!0));
       } catch {
         if (!this._lyricsSessionActive() || this._lyricsRequestToken !== B) return;
@@ -42392,8 +42392,8 @@ function vh({
       if (!this._useMaLikedMode()) return o;
       const m = this._cache.library.get("liked:ma"), g = Array.isArray(m?.items) ? m.items : [], y = /* @__PURE__ */ new Set();
       return [...g, ...o].filter((S) => {
-        const E = String(S?.uri || "").trim().toLowerCase() || `${String(S?.media_type || "")}:${String(S?.name || "").trim().toLowerCase()}`;
-        return !E || y.has(E) ? !1 : (y.add(E), !0);
+        const I = String(S?.uri || "").trim().toLowerCase() || `${String(S?.media_type || "")}:${String(S?.name || "").trim().toLowerCase()}`;
+        return !I || y.has(I) ? !1 : (y.add(I), !0);
       });
     }
     async _loadMaLikedEntries(o = !1) {
@@ -42411,13 +42411,13 @@ function vh({
           "favorites"
         ))
           return this._likedEntries();
-        const B = (Array.isArray(S?.items) ? S.items : []).map((E) => ({
-          ...this._normalizeSearchItem(E, E?.media_type || "track"),
-          item_id: E?.item_id || E?.id || "",
-          provider: E?.provider || E?.provider_domain || E?.provider_instance || "",
-          library_item_id: E?.library_item_id || "",
+        const B = (Array.isArray(S?.items) ? S.items : []).map((I) => ({
+          ...this._normalizeSearchItem(I, I?.media_type || "track"),
+          item_id: I?.item_id || I?.id || "",
+          provider: I?.provider || I?.provider_domain || I?.provider_instance || "",
+          library_item_id: I?.library_item_id || "",
           favorite: !0
-        })).filter((E) => E?.uri || E?.library_item_id);
+        })).filter((I) => I?.uri || I?.library_item_id);
         return this._cache.library.set("liked:ma", { items: B, ts: Date.now() }), B;
       }
       const m = [
@@ -42432,18 +42432,18 @@ function vh({
       ), y = [];
       return g.forEach((S, B) => {
         if (S.status !== "fulfilled" || !Array.isArray(S.value)) return;
-        const E = m[B][0];
-        S.value.forEach((I) => {
+        const I = m[B][0];
+        S.value.forEach((E) => {
           y.push({
-            uri: I.uri || "",
-            media_type: I.media_type || E,
-            item_id: I.item_id || I.id || "",
-            provider: I.provider || I.provider_domain || I.provider_instance || "",
-            library_item_id: I.library_item_id || "",
-            name: I.name || "",
-            artist: this._artistName(I) || "",
-            album: I.album?.name || "",
-            image: this._artUrl(I) || "",
+            uri: E.uri || "",
+            media_type: E.media_type || I,
+            item_id: E.item_id || E.id || "",
+            provider: E.provider || E.provider_domain || E.provider_instance || "",
+            library_item_id: E.library_item_id || "",
+            name: E.name || "",
+            artist: this._artistName(E) || "",
+            album: E.album?.name || "",
+            image: this._artUrl(E) || "",
             favorite: !0
           });
         });
@@ -42477,13 +42477,13 @@ function vh({
       const m = "button.bathroom_favorite_current_song_2", g = String(o.entity_id || "").toLowerCase(), y = String(o.attributes?.friendly_name || "").toLowerCase(), S = [
         ...g.split(".").pop().split(/[_\s-]+/),
         ...y.split(/[_\s-]+/)
-      ].filter(Boolean), E = Object.keys(this._hass.states).filter(
-        (I) => I.startsWith("button.") && /(favorite|אהב|אהבתי)/i.test(I)
-      ).find((I) => {
-        const F = I.toLowerCase();
+      ].filter(Boolean), I = Object.keys(this._hass.states).filter(
+        (E) => E.startsWith("button.") && /(favorite|אהב|אהבתי)/i.test(E)
+      ).find((E) => {
+        const F = E.toLowerCase();
         return S.some((O) => O && F.includes(O));
       });
-      return E || (this._hass.states[m] ? m : "");
+      return I || (this._hass.states[m] ? m : "");
     }
     async _toggleLikeViaFavoriteButton(o = null) {
       if (this._homeiiEngineRequired?.() !== !1 || this._homeiiEngineRequired?.()) return !1;
@@ -42511,8 +42511,8 @@ function vh({
       const y = String(o?.favorite_scope || o?.favoriteScope || o?.favorite_target || o?.favoriteTarget || "").trim().toLowerCase(), S = !!(o?.radio_browser || o?.radio_browser_id || ["local", "browser", "radio_browser", "external_radio"].includes(y));
       if (this._useMaLikedMode() && !S)
         return this._toggleMaLikeEntry(o, m);
-      const B = this._loadLikedUris(), E = this._loadLikedMetaMap();
-      return B.has(g) ? (B.delete(g), delete E[g]) : (B.add(g), E[g] = {
+      const B = this._loadLikedUris(), I = this._loadLikedMetaMap();
+      return B.has(g) ? (B.delete(g), delete I[g]) : (B.add(g), I[g] = {
         uri: g,
         media_type: o.media_type || "track",
         name: o.name || g,
@@ -42557,14 +42557,14 @@ function vh({
           })), !1;
         }
       }
-      const B = (y ? await this._resolveCanonicalMaLikedEntry(o, !0) : null) || o, E = String(o?.uri || "").trim();
-      if (!E) return !1;
-      const I = o.media_type || o.type || this._parseMediaReference(E, o.media_type || o.type || "track").media_type || "track";
+      const B = (y ? await this._resolveCanonicalMaLikedEntry(o, !0) : null) || o, I = String(o?.uri || "").trim();
+      if (!I) return !1;
+      const E = o.media_type || o.type || this._parseMediaReference(I, o.media_type || o.type || "track").media_type || "track";
       try {
         let F = !1;
-        if (await this._toggleMaLikeViaHaService(B, y, I))
+        if (await this._toggleMaLikeViaHaService(B, y, E))
           return this._applyMaFavoriteOptimisticState(o, !y), F = await this._waitForFavoriteState(B, !y, [500, 1500, 3200]), F || this._applyMaFavoriteOptimisticState(o, !y), this._toast(y ? this._i18n("ui.removed_from_music_assistant_liked") : this._i18n("ui.added_to_music_assistant_liked")), m && this._flashInteraction(m), o.favorite = !y, o.media_item && (o.media_item.favorite = !y), this._scheduleFavoriteReconcile?.(700), !0;
-        const Z = await this._toggleMaLikeEntryDirect(B, y, I);
+        const Z = await this._toggleMaLikeEntryDirect(B, y, E);
         if (!Z && g && await this._toggleLikeViaMassQueue())
           return this._applyMaFavoriteOptimisticState(o, !y), F = await this._waitForFavoriteState(B, !y, [500, 1500, 3200]), F || this._applyMaFavoriteOptimisticState(o, !y), this._toast(y ? this._i18n("ui.removed_from_music_assistant_liked") : this._i18n("ui.added_to_music_assistant_liked")), m && this._flashInteraction(m), o.favorite = !y, o.media_item && (o.media_item.favorite = !y), this._scheduleFavoriteReconcile?.(700), !0;
         if (!Z)
@@ -42581,15 +42581,15 @@ function vh({
       const y = String(o?.uri || "").trim();
       if (!y) return !1;
       if (this._state?.engineCapabilities?.favorite_mutation === !0 && typeof this._homeiiEngineSetFavorite == "function") {
-        const I = m ? await this._resolveMaFavoriteRemoveArgs(o, g) : null, F = this._parseMediaReference(y, g);
+        const E = m ? await this._resolveMaFavoriteRemoveArgs(o, g) : null, F = this._parseMediaReference(y, g);
         return (await this._homeiiEngineSetFavorite({
           favorite: !m,
           uri: y,
           media_type: F.media_type || g,
           item_id: F.item_id || o?.item_id || "",
           provider: F.provider || o?.provider || "",
-          library_item_id: I?.library_item_id || o?.library_item_id || "",
-          remove_args: I || {},
+          library_item_id: E?.library_item_id || o?.library_item_id || "",
+          remove_args: E || {},
           entry: o
         }))?.ok ? (this._favoriteMutationConfirmedAt = Date.now(), !0) : !1;
       }
@@ -42616,22 +42616,22 @@ function vh({
       const B = [
         S,
         { media_type: S.media_type || g, library_item_id: S.library_item_id }
-      ].filter((I) => I?.library_item_id);
-      let E = null;
-      for (const I of B)
+      ].filter((E) => E?.library_item_id);
+      let I = null;
+      for (const E of B)
         try {
-          return await this._callEngineMaCommand("music/favorites/remove_item", I), !0;
+          return await this._callEngineMaCommand("music/favorites/remove_item", E), !0;
         } catch (F) {
-          E = F;
+          I = F;
         }
-      if (E) throw E;
+      if (I) throw I;
       return !1;
     }
     async _toggleMaLikeViaHaService(o = {}, m = !1, g = "track") {
       if (this._homeiiEngineRequired?.()) return !1;
       const y = String(o?.uri || "").trim();
       if (!y) return !1;
-      const S = this._parseMediaReference(y, g), B = m ? await this._resolveMaFavoriteRemoveArgs(o, g) : null, E = {
+      const S = this._parseMediaReference(y, g), B = m ? await this._resolveMaFavoriteRemoveArgs(o, g) : null, I = {
         entity_id: this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "",
         media_id: y,
         uri: y,
@@ -42639,19 +42639,19 @@ function vh({
         item_id: S.item_id || "",
         provider: S.provider || "",
         favorite: !m
-      }, I = m ? [
-        { service: "remove_from_library", data: { entity_id: E.entity_id, media_type: B?.media_type || E.media_type, library_item_id: B?.library_item_id || "" } },
-        { service: "remove_favorite", data: { entity_id: E.entity_id, media_type: B?.media_type || E.media_type, library_item_id: B?.library_item_id || "" } },
-        { service: "favorite_item", data: { entity_id: E.entity_id, media_type: B?.media_type || E.media_type, library_item_id: B?.library_item_id || "", favorite: !1 } },
-        { service: "set_favorite", data: { entity_id: E.entity_id, media_type: B?.media_type || E.media_type, library_item_id: B?.library_item_id || "", favorite: !1 } },
-        { service: "remove_from_library", data: { ...E, ...B || {} } }
+      }, E = m ? [
+        { service: "remove_from_library", data: { entity_id: I.entity_id, media_type: B?.media_type || I.media_type, library_item_id: B?.library_item_id || "" } },
+        { service: "remove_favorite", data: { entity_id: I.entity_id, media_type: B?.media_type || I.media_type, library_item_id: B?.library_item_id || "" } },
+        { service: "favorite_item", data: { entity_id: I.entity_id, media_type: B?.media_type || I.media_type, library_item_id: B?.library_item_id || "", favorite: !1 } },
+        { service: "set_favorite", data: { entity_id: I.entity_id, media_type: B?.media_type || I.media_type, library_item_id: B?.library_item_id || "", favorite: !1 } },
+        { service: "remove_from_library", data: { ...I, ...B || {} } }
       ] : [
-        { service: "add_to_library", data: E },
-        { service: "add_favorite", data: E },
-        { service: "favorite_item", data: { ...E, favorite: !0 } },
-        { service: "set_favorite", data: { ...E, favorite: !0 } }
+        { service: "add_to_library", data: I },
+        { service: "add_favorite", data: I },
+        { service: "favorite_item", data: { ...I, favorite: !0 } },
+        { service: "set_favorite", data: { ...I, favorite: !0 } }
       ];
-      for (const F of I)
+      for (const F of E)
         if (this._hasService("music_assistant", F.service))
           try {
             return await this._callService(F.service, Object.fromEntries(Object.entries(F.data).filter(([, O]) => O !== "" && O !== void 0 && O !== null))), !0;
@@ -42676,8 +42676,8 @@ function vh({
         g,
         m,
         {
-          compareMediaRefsFn: (B, E, I) => this._mediaRefsEquivalent(B, E, I),
-          matchFavoriteLibraryItemFn: (B, E, I) => this._matchFavoriteLibraryItem(B, E, I)
+          compareMediaRefsFn: (B, I, E) => this._mediaRefsEquivalent(B, I, E),
+          matchFavoriteLibraryItemFn: (B, I, E) => this._matchFavoriteLibraryItem(B, I, E)
         }
       );
       this._cache.library.set("liked:ma", { items: S }), o.favorite = !!m, o.media_item && (o.media_item.favorite = !!m), this._syncLikeButtons(), this._state.menuOpen && this._state.menuPage === "library_liked" && this._renderMobileMenu().catch(() => {
@@ -42692,21 +42692,21 @@ function vh({
         } catch {
           y = [];
         }
-      const S = this._entryTargetsCurrentMedia(o), B = S ? this._currentMediaLikeMeta() : null, E = Q.resolveCachedFavoriteRemoveArgs({
+      const S = this._entryTargetsCurrentMedia(o), B = S ? this._currentMediaLikeMeta() : null, I = Q.resolveCachedFavoriteRemoveArgs({
         entry: o,
         mediaType: m,
         likedItems: y,
         currentEntry: B,
         currentEntryMatches: S
       }, {
-        parseMediaReferenceFn: (I, F) => this._parseMediaReference(I, F),
-        favoriteRemoveArgsFromItemFn: (I, F) => this._favoriteRemoveArgsFromItem(I, F),
-        findFavoriteEntryMatchFn: (I, F) => this._findMaLikedEntryMatch(I, F),
-        matchFavoriteLibraryItemFn: (I, F, O) => this._matchFavoriteLibraryItem(I, F, O)
+        parseMediaReferenceFn: (E, F) => this._parseMediaReference(E, F),
+        favoriteRemoveArgsFromItemFn: (E, F) => this._favoriteRemoveArgsFromItem(E, F),
+        findFavoriteEntryMatchFn: (E, F) => this._findMaLikedEntryMatch(E, F),
+        matchFavoriteLibraryItemFn: (E, F, O) => this._matchFavoriteLibraryItem(E, F, O)
       });
-      if (E) return E;
+      if (I) return I;
       try {
-        const I = await this._callEngineMaCommand("music/item_by_uri", { uri: g }), F = this._favoriteRemoveArgsFromItem(I, m);
+        const E = await this._callEngineMaCommand("music/item_by_uri", { uri: g }), F = this._favoriteRemoveArgsFromItem(E, m);
         if (F) return F;
       } catch {
       }
@@ -42751,8 +42751,8 @@ function vh({
           localLikedUris: this._loadLikedUris()
         },
         {
-          compareMediaRefsFn: (S, B, E) => this._mediaRefsEquivalent(S, B, E),
-          matchFavoriteLibraryItemFn: (S, B, E) => this._matchFavoriteLibraryItem(S, B, E)
+          compareMediaRefsFn: (S, B, I) => this._mediaRefsEquivalent(S, B, I),
+          matchFavoriteLibraryItemFn: (S, B, I) => this._matchFavoriteLibraryItem(S, B, I)
         }
       );
     }
@@ -42763,18 +42763,18 @@ function vh({
       this._dismissCtx();
       const y = this.$("mobileMenu")?.classList.contains("open") ? this.$("mobileMenu")?.querySelector(".menu-body") || this.$("mobileMenu")?.querySelector(".menu-sheet") || this.$("mobileMenu") : this.shadowRoot.querySelector(".card");
       if (!y) return;
-      const S = this._isEntryLiked(g), B = Math.max(1, this._getNowPlayingQueueItems().length || (this._state.queueItems || []).length || Number(this._state.maQueueState?.items || 1)), E = Math.max(1, Math.min(B, this._queueDisplayPositionForEntry(g, Math.round(Number(g.sort_index || 0)) + 1 || 1))), I = document.createElement("div");
-      I.className = "ctx-menu queue-ctx-menu", I.innerHTML = `
+      const S = this._isEntryLiked(g), B = Math.max(1, this._getNowPlayingQueueItems().length || (this._state.queueItems || []).length || Number(this._state.maQueueState?.items || 1)), I = Math.max(1, Math.min(B, this._queueDisplayPositionForEntry(g, Math.round(Number(g.sort_index || 0)) + 1 || 1))), E = document.createElement("div");
+      E.className = "ctx-menu queue-ctx-menu", E.innerHTML = `
         <div class="queue-move-control ctx-move-control">
           <label>
             <span>${this._esc(this._i18n("ui.move_to_position"))}</span>
-            ${this._queueMoveSelectHtml(B, E, g)}
+            ${this._queueMoveSelectHtml(B, I, g)}
           </label>
         </div>
         ${Ba(this, "data-queue-popup", "next", "queue_next", this._i18n("ui.move_to_next"), "ctx-item")}
         ${Ba(this, "data-queue-popup", "like", S ? "heart_filled" : "heart_outline", this._i18n("ui.like_2"), "ctx-item")}
         ${Ba(this, "data-queue-popup", "remove", "trash", this._i18n("ui.remove"), "ctx-item")}
-        ${Ba(this, "data-queue-popup", "close", "close", this._i18n("ui.close"), "ctx-item")}`, I.addEventListener("click", (ue) => ue.stopPropagation()), I.querySelectorAll("[data-queue-popup]").forEach((ue) => ue.addEventListener("click", async (de) => {
+        ${Ba(this, "data-queue-popup", "close", "close", this._i18n("ui.close"), "ctx-item")}`, E.addEventListener("click", (ue) => ue.stopPropagation()), E.querySelectorAll("[data-queue-popup]").forEach((ue) => ue.addEventListener("click", async (de) => {
         de.stopPropagation();
         const me = ue.dataset.queuePopup;
         if (me === "close") {
@@ -42789,24 +42789,24 @@ function vh({
           await this._handleQueueAction(me, g.queue_item_id, g.uri || "", g.sort_index || "", he);
         }
         this._dismissCtx();
-      })), I.addEventListener("change", async (ue) => {
+      })), E.addEventListener("change", async (ue) => {
         await this._handleQueueMoveAutoChange(ue) && this._dismissCtx();
-      }), y.appendChild(I), this._ctxMenu = I, this._ctxMenuOpenedAt = Date.now();
+      }), y.appendChild(E), this._ctxMenu = E, this._ctxMenuOpenedAt = Date.now();
       const F = y.getBoundingClientRect(), O = g.anchorRect || null, Z = Number.isFinite(o) && o > 0 ? o : null, $ = Number.isFinite(m) && m > 0 ? m : null;
       let ce = (Z ?? O?.left ?? F.left + 20) - F.left, be = ($ ?? O?.bottom ?? F.top + 20) - F.top;
-      I.style.left = `${ce}px`, I.style.top = `${be}px`, requestAnimationFrame(() => {
-        const ue = I.getBoundingClientRect(), de = y.getBoundingClientRect();
-        ue.right > de.right && (ce = Math.max(12, ce - (ue.right - de.right) - 12)), ue.bottom > de.bottom && (be = Math.max(12, be - ue.height - (O?.height || 0) - 8)), I.style.left = `${Math.max(12, Math.min(ce, de.width - ue.width - 12))}px`, I.style.top = `${Math.max(12, Math.min(be, de.height - ue.height - 12))}px`;
+      E.style.left = `${ce}px`, E.style.top = `${be}px`, requestAnimationFrame(() => {
+        const ue = E.getBoundingClientRect(), de = y.getBoundingClientRect();
+        ue.right > de.right && (ce = Math.max(12, ce - (ue.right - de.right) - 12)), ue.bottom > de.bottom && (be = Math.max(12, be - ue.height - (O?.height || 0) - 8)), E.style.left = `${Math.max(12, Math.min(ce, de.width - ue.width - 12))}px`, E.style.top = `${Math.max(12, Math.min(be, de.height - ue.height - 12))}px`;
       });
     }
     _renderImmersiveNowPlaying() {
       const o = this.$("immersiveNowPlaying"), m = this._getSelectedPlayer();
       if (!o || !m) return;
-      const g = m.attributes.media_title || this._i18n("ui.no_active_media"), y = m.attributes.media_artist || this._i18n("ui.unknown"), S = m.attributes.media_album_name || "", B = m.attributes.friendly_name || m.entity_id, E = this._currentArtworkUrl(m, this._state.maQueueState?.current_item || null, 180), I = this._getCurrentDuration(), F = this._getCurrentPosition(), O = I ? Math.min(100, F / I * 100) : 0, Z = Math.round((m.attributes.volume_level || 0) * 100), $ = !!m.attributes.shuffle, ce = m.attributes.repeat || "off", be = this._isHebrew();
+      const g = m.attributes.media_title || this._i18n("ui.no_active_media"), y = m.attributes.media_artist || this._i18n("ui.unknown"), S = m.attributes.media_album_name || "", B = m.attributes.friendly_name || m.entity_id, I = this._currentArtworkUrl(m, this._state.maQueueState?.current_item || null, 180), E = this._getCurrentDuration(), F = this._getCurrentPosition(), O = E ? Math.min(100, F / E * 100) : 0, Z = Math.round((m.attributes.volume_level || 0) * 100), $ = !!m.attributes.shuffle, ce = m.attributes.repeat || "off", be = this._isHebrew();
       o.innerHTML = `
         <div class="immersive-shell ${be ? "rtl" : ""}">
-          <div class="immersive-bg" ${E ? `style="background-image:url('${this._esc(E)}')"` : ""}></div>
-          <div class="immersive-cover-glow" ${E ? `style="background-image:url('${this._esc(E)}')"` : ""}></div>
+          <div class="immersive-bg" ${I ? `style="background-image:url('${this._esc(I)}')"` : ""}></div>
+          <div class="immersive-cover-glow" ${I ? `style="background-image:url('${this._esc(I)}')"` : ""}></div>
           <div class="immersive-frost"></div>
           <div class="immersive-vignette"></div>
           <div class="immersive-header">
@@ -42820,10 +42820,10 @@ function vh({
           </div>
           <div class="immersive-body">
             <div class="immersive-art-wrap">
-              <div class="immersive-art" id="immersiveArt">${E ? this._imgHtml(E, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album")}</div>
+              <div class="immersive-art" id="immersiveArt">${I ? this._imgHtml(I, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album")}</div>
             </div>
             <div class="immersive-panel">
-              <div class="immersive-time-row"><span id="immersiveCurTime">${this._esc(this._fmtDur(F))}</span><span id="immersiveTotalTime">${this._esc(this._fmtDur(I))}</span></div>
+              <div class="immersive-time-row"><span id="immersiveCurTime">${this._esc(this._fmtDur(F))}</span><span id="immersiveTotalTime">${this._esc(this._fmtDur(E))}</span></div>
               <div class="immersive-progress" id="immersiveProgressBar"><div class="immersive-progress-fill" id="immersiveProgressFill" style="width:${O}%"></div></div>
               <div class="immersive-controls">
                 <button class="immersive-btn ${$ ? "active" : ""}" id="immersiveShuffleBtn">${this._iconSvg("shuffle")}</button>
@@ -42856,16 +42856,16 @@ function vh({
       if (!this._state.immersiveNowPlayingOpen) return;
       const o = this._getSelectedPlayer(), m = this.$("immersiveNowPlaying");
       if (!o || !m?.classList.contains("open")) return;
-      const g = this._getCurrentDuration(), y = this._getCurrentPosition(), S = g ? Math.min(100, y / g * 100) : 0, B = Math.round((o.attributes.volume_level || 0) * 100), E = this._currentArtworkUrl(o, this._state.maQueueState?.current_item || null, 180), I = o.attributes.repeat || "off", F = o.attributes.media_title || this._i18n("ui.no_active_media"), O = o.attributes.media_artist || this._i18n("ui.unknown"), Z = o.attributes.media_album_name || "", $ = o.attributes.friendly_name || o.entity_id;
+      const g = this._getCurrentDuration(), y = this._getCurrentPosition(), S = g ? Math.min(100, y / g * 100) : 0, B = Math.round((o.attributes.volume_level || 0) * 100), I = this._currentArtworkUrl(o, this._state.maQueueState?.current_item || null, 180), E = o.attributes.repeat || "off", F = o.attributes.media_title || this._i18n("ui.no_active_media"), O = o.attributes.media_artist || this._i18n("ui.unknown"), Z = o.attributes.media_album_name || "", $ = o.attributes.friendly_name || o.entity_id;
       m.querySelector(".immersive-title")?.replaceChildren(document.createTextNode(F)), m.querySelector(".immersive-subtitle")?.replaceChildren(document.createTextNode([O, Z].filter(Boolean).join(" · "))), m.querySelector("#immersivePlayerName")?.replaceChildren(document.createTextNode(`${this._i18n("ui.playing_on")}: ${$}`));
       const ce = m.querySelector("#immersivePlayBtn");
       this._setButtonIcon(ce, this._playPauseIconName(o));
       const be = m.querySelector("#immersiveShuffleBtn");
       be && be.classList.toggle("active", !!o.attributes.shuffle);
       const ue = m.querySelector("#immersiveRepeatBtn");
-      ue && (ue.classList.toggle("active", I !== "off"), ue.dataset.repeatMode = I, ue.title = this._repeatModeLabel(I), ue.setAttribute("aria-label", this._repeatModeLabel(I)));
+      ue && (ue.classList.toggle("active", E !== "off"), ue.dataset.repeatMode = E, ue.title = this._repeatModeLabel(E), ue.setAttribute("aria-label", this._repeatModeLabel(E)));
       const de = m.querySelector("#immersiveMuteBtn");
-      this._setButtonIcon(ue, I === "one" ? "repeat_one" : "repeat"), this._setButtonIcon(de, this._volumeIconName(o));
+      this._setButtonIcon(ue, E === "one" ? "repeat_one" : "repeat"), this._setButtonIcon(de, this._volumeIconName(o));
       const me = m.querySelector("#immersiveVolumeSlider");
       me && (me.value = B, me.style.setProperty("--vol-pct", `${B}%`));
       const he = m.querySelector("#immersiveProgressFill");
@@ -42875,19 +42875,19 @@ function vh({
       const xe = m.querySelector("#immersiveTotalTime");
       xe && (xe.textContent = this._fmtDur(g));
       const ke = m.querySelector("#immersiveArt");
-      ke && (ke.innerHTML = E ? this._imgHtml(E, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album"));
+      ke && (ke.innerHTML = I ? this._imgHtml(I, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album"));
       const Me = m.querySelector(".immersive-bg");
-      Me && (Me.style.backgroundImage = E ? `url("${E}")` : "");
+      Me && (Me.style.backgroundImage = I ? `url("${I}")` : "");
       const Be = m.querySelector(".immersive-cover-glow");
-      Be && (Be.style.backgroundImage = E ? `url("${E}")` : "");
+      Be && (Be.style.backgroundImage = I ? `url("${I}")` : "");
     }
     _handleWindowResize() {
       clearTimeout(this._resizeTimer), this._resizeTimer = setTimeout(() => {
         if (!this.isConnected || !this._built || Date.now() < Number(this._layoutResizeHoldUntil || 0)) return;
-        const o = this._state.immersiveNowPlayingOpen, m = typeof window < "u" ? Number(window.innerWidth || 0) : 0, g = typeof window < "u" ? Number(window.innerHeight || 0) : 0, y = this._getCardWidth(m), S = this._getAllocatedCardHeight(g), B = this._lastCardWidth || this._lastViewportWidth || 0, E = this._lastCardHeight || this._lastViewportHeight || 0, I = this._layoutModeConfig({ width: y }), F = this.shadowRoot?.querySelector(".card") || null, O = this._renderedLayoutMode || (F?.classList.contains("layout-tablet") ? "tablet" : F?.classList.contains("layout-mobile") ? "mobile" : ""), Z = !!(O && I && O !== I), $ = this.shadowRoot?.activeElement || document.activeElement, ce = $?.tagName?.toLowerCase?.() || "", be = $ && (ce === "input" || ce === "textarea" || $?.isContentEditable), ue = this._tabletStabilityModeEnabled(), de = p.resolveResizeStrategy({
+        const o = this._state.immersiveNowPlayingOpen, m = typeof window < "u" ? Number(window.innerWidth || 0) : 0, g = typeof window < "u" ? Number(window.innerHeight || 0) : 0, y = this._getCardWidth(m), S = this._getAllocatedCardHeight(g), B = this._lastCardWidth || this._lastViewportWidth || 0, I = this._lastCardHeight || this._lastViewportHeight || 0, E = this._layoutModeConfig({ width: y }), F = this.shadowRoot?.querySelector(".card") || null, O = this._renderedLayoutMode || (F?.classList.contains("layout-tablet") ? "tablet" : F?.classList.contains("layout-mobile") ? "mobile" : ""), Z = !!(O && E && O !== E), $ = this.shadowRoot?.activeElement || document.activeElement, ce = $?.tagName?.toLowerCase?.() || "", be = $ && (ce === "input" || ce === "textarea" || $?.isContentEditable), ue = this._tabletStabilityModeEnabled(), de = p.resolveResizeStrategy({
           previousWidth: B,
           currentWidth: y,
-          previousHeight: E,
+          previousHeight: I,
           currentHeight: S,
           editingText: be,
           tabletStabilityMode: ue
@@ -42975,10 +42975,10 @@ function vh({
         ]);
         if (!this._isValidRender(o)) return;
         const [g, y, S, B] = m.map((O) => O.value ?? []);
-        let E = "";
-        g.length && (E += this._sectionHtml(this._i18n("ui.favorite_radio"), g, "radio", !0)), y.length && (E += this._sectionHtml(this._i18n("ui.recently_played"), y, "album", !0)), S.length && (E += this._sectionHtml(this._i18n("ui.recently_added"), S, "album", !0)), B.length && (E += this._sectionHtml(this._i18n("ui.discover"), B, "album", !0));
-        const I = m.find((O) => O.status === "rejected" && this._isMusicAssistantAvailabilityError(O.reason)), F = this._state.musicAssistantIssueMessage || (I ? this._handleMusicAssistantIssue(I.reason) : "");
-        this.$("content").classList.remove("now-playing-mode"), this.$("content").innerHTML = E || `<div class="state-box">${this._esc(F || this._i18n("ui.no_content_found"))}</div>`, this._hydrateImages(), this._highlightNowPlaying();
+        let I = "";
+        g.length && (I += this._sectionHtml(this._i18n("ui.favorite_radio"), g, "radio", !0)), y.length && (I += this._sectionHtml(this._i18n("ui.recently_played"), y, "album", !0)), S.length && (I += this._sectionHtml(this._i18n("ui.recently_added"), S, "album", !0)), B.length && (I += this._sectionHtml(this._i18n("ui.discover"), B, "album", !0));
+        const E = m.find((O) => O.status === "rejected" && this._isMusicAssistantAvailabilityError(O.reason)), F = this._state.musicAssistantIssueMessage || (E ? this._handleMusicAssistantIssue(E.reason) : "");
+        this.$("content").classList.remove("now-playing-mode"), this.$("content").innerHTML = I || `<div class="state-box">${this._esc(F || this._i18n("ui.no_content_found"))}</div>`, this._hydrateImages(), this._highlightNowPlaying();
       } catch (m) {
         if (!this._isValidRender(o)) return;
         this._renderError(m, () => this._renderHome());
@@ -43050,9 +43050,9 @@ function vh({
       try {
         const g = await this._search(o);
         if (!this._isValidRender(m)) return;
-        const { radio: y = [], podcasts: S = [], albums: B = [], artists: E = [], tracks: I = [], playlists: F = [] } = g;
+        const { radio: y = [], podcasts: S = [], albums: B = [], artists: I = [], tracks: E = [], playlists: F = [] } = g;
         let O = `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.search"))}: ${this._esc(o)}</div></div></div>`;
-        y.length && (O += this._sectionHtml(this._i18n("ui.radio"), y, "radio", !1)), S.length && (O += this._sectionHtml(this._i18n("ui.podcasts"), S, "podcast", !1)), B.length && (O += this._sectionHtml(this._i18n("ui.albums"), B, "album", !1)), E.length && (O += this._sectionHtml(this._i18n("ui.artists"), E, "artist", !1)), I.length && (O += `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.tracks"))}</div><div class="section-badge">${I.length}</div><div class="section-actions">${this._sectionActionButtons(I)}</div></div><div class="track-list">${I.map((Z, $) => this._trackRowHtml(Z, $ + 1)).join("")}</div></div>`), F.length && (O += this._sectionHtml(this._i18n("ui.playlists"), F, "playlist", !1)), !y.length && !S.length && !B.length && !E.length && !I.length && !F.length && (O = `<div class="state-box">${this._esc(this._i18n("ui.no_results"))}: "${this._esc(o)}"</div>`), this.$("content").classList.remove("now-playing-mode"), this.$("content").innerHTML = O, this._hydrateImages(), this._highlightNowPlaying();
+        y.length && (O += this._sectionHtml(this._i18n("ui.radio"), y, "radio", !1)), S.length && (O += this._sectionHtml(this._i18n("ui.podcasts"), S, "podcast", !1)), B.length && (O += this._sectionHtml(this._i18n("ui.albums"), B, "album", !1)), I.length && (O += this._sectionHtml(this._i18n("ui.artists"), I, "artist", !1)), E.length && (O += `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.tracks"))}</div><div class="section-badge">${E.length}</div><div class="section-actions">${this._sectionActionButtons(E)}</div></div><div class="track-list">${E.map((Z, $) => this._trackRowHtml(Z, $ + 1)).join("")}</div></div>`), F.length && (O += this._sectionHtml(this._i18n("ui.playlists"), F, "playlist", !1)), !y.length && !S.length && !B.length && !I.length && !E.length && !F.length && (O = `<div class="state-box">${this._esc(this._i18n("ui.no_results"))}: "${this._esc(o)}"</div>`), this.$("content").classList.remove("now-playing-mode"), this.$("content").innerHTML = O, this._hydrateImages(), this._highlightNowPlaying();
       } catch (g) {
         if (!this._isValidRender(m)) return;
         this._renderError(g, () => this._renderGlobalSearch(o));
@@ -43065,12 +43065,12 @@ function vh({
         if (await this._ensureQueueSnapshot(), this._refreshGroupingState(), !this._isValidRender(o)) return;
         const m = this._getSelectedPlayer();
         if (!m) return this._renderEmpty(this._i18n("ui.no_active_media"));
-        const g = m.attributes.media_title || this._i18n("ui.no_active_media"), y = m.attributes.media_artist || this._i18n("ui.unknown"), S = m.attributes.media_album_name || "", B = m.state || "idle", E = this._state.maQueueState?.current_item || null, I = this._currentArtworkUrl(m, E, 520), F = this._getCurrentDuration(), O = this._getCurrentPosition(), Z = F ? Math.min(100, O / F * 100) : 0, $ = Math.round((m.attributes.volume_level || 0) * 100), ce = !!m.attributes.shuffle, be = m.attributes.repeat || "off", ue = this._getNowPlayingQueueItems(), de = this._state.nowPlayingQuery || "";
+        const g = m.attributes.media_title || this._i18n("ui.no_active_media"), y = m.attributes.media_artist || this._i18n("ui.unknown"), S = m.attributes.media_album_name || "", B = m.state || "idle", I = this._state.maQueueState?.current_item || null, E = this._currentArtworkUrl(m, I, 520), F = this._getCurrentDuration(), O = this._getCurrentPosition(), Z = F ? Math.min(100, O / F * 100) : 0, $ = Math.round((m.attributes.volume_level || 0) * 100), ce = !!m.attributes.shuffle, be = m.attributes.repeat || "off", ue = this._getNowPlayingQueueItems(), de = this._state.nowPlayingQuery || "";
         this.$("content").classList.add("now-playing-mode"), this.$("content").innerHTML = `
           <div class="now-layout">
             <div class="now-left">
               <div class="now-card now-art-card">
-                <div class="now-art" id="nowHeroArt">${I ? this._imgHtml(I, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album")}</div>
+                <div class="now-art" id="nowHeroArt">${E ? this._imgHtml(E, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album")}</div>
                 <div class="now-track-meta">
                   <div class="now-track-title">${this._esc(g)}</div>
                   <div class="now-track-subtitle">${this._esc([y, S].filter(Boolean).join(" · "))}</div>
@@ -43135,8 +43135,8 @@ function vh({
       return o.length ? `<div class="now-side-scroll"><div class="now-queue-list">${o.map((m) => this._miniQueueItemHtml(m)).join("")}</div></div>` : `<div class="now-side-scroll"><div class="state-box" style="min-height:120px;">${this._esc(this._i18n("ui.queue_is_empty"))}</div></div>`;
     }
     _nowPlayingSearchResultsHtml(o, m) {
-      const { radio: g = [], podcasts: y = [], albums: S = [], artists: B = [], tracks: E = [], playlists: I = [] } = m || {};
-      if (!(g.length + y.length + S.length + B.length + E.length + I.length))
+      const { radio: g = [], podcasts: y = [], albums: S = [], artists: B = [], tracks: I = [], playlists: E = [] } = m || {};
+      if (!(g.length + y.length + S.length + B.length + I.length + E.length))
         return `<div class="now-side-scroll"><div class="state-box">${this._esc(this._i18n("ui.no_results"))}: "${this._esc(o)}"</div></div>`;
       let O = `
         <div class="now-side-scroll">
@@ -43144,7 +43144,7 @@ function vh({
             <div class="side-search-summary-text">${this._esc(this._i18n("ui.queue_results"))}: "${this._esc(o)}"</div>
             <button class="chip-btn" id="backToQueueBtn">${this._esc(this._i18n("ui.back_to_queue"))}</button>
           </div>`;
-      return g.length && (O += this._sectionHtml(this._i18n("ui.radio"), g, "radio", !1)), y.length && (O += this._sectionHtml(this._i18n("ui.podcasts"), y, "podcast", !1)), S.length && (O += this._sectionHtml(this._i18n("ui.albums"), S, "album", !1)), B.length && (O += this._sectionHtml(this._i18n("ui.artists"), B, "artist", !1)), E.length && (O += `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.tracks"))}</div><div class="section-badge">${E.length}</div></div><div class="track-list">${E.map((Z, $) => this._trackRowHtml(Z, $ + 1)).join("")}</div></div>`), I.length && (O += this._sectionHtml(this._i18n("ui.playlists"), I, "playlist", !1)), O += "</div>", O;
+      return g.length && (O += this._sectionHtml(this._i18n("ui.radio"), g, "radio", !1)), y.length && (O += this._sectionHtml(this._i18n("ui.podcasts"), y, "podcast", !1)), S.length && (O += this._sectionHtml(this._i18n("ui.albums"), S, "album", !1)), B.length && (O += this._sectionHtml(this._i18n("ui.artists"), B, "artist", !1)), I.length && (O += `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.tracks"))}</div><div class="section-badge">${I.length}</div></div><div class="track-list">${I.map((Z, $) => this._trackRowHtml(Z, $ + 1)).join("")}</div></div>`), E.length && (O += this._sectionHtml(this._i18n("ui.playlists"), E, "playlist", !1)), O += "</div>", O;
     }
     async _updateNowPlayingSidePanel() {
       if (this._state.view !== "now_playing") return;
@@ -43154,22 +43154,22 @@ function vh({
       y && (y.style.display = S ? "" : "none");
       const B = ++this._state.sidePanelToken;
       if (!S) {
-        const E = this._getNowPlayingQueueItems();
-        m.textContent = this._i18n("ui.up_next"), g.textContent = String(E.length), o.innerHTML = this._queuePanelHtml(E), this._hydrateImages(), this._highlightNowPlaying();
+        const I = this._getNowPlayingQueueItems();
+        m.textContent = this._i18n("ui.up_next"), g.textContent = String(I.length), o.innerHTML = this._queuePanelHtml(I), this._hydrateImages(), this._highlightNowPlaying();
         return;
       }
       m.textContent = this._i18n("ui.search"), g.textContent = "…", o.innerHTML = `<div class="now-side-scroll">${this._loadingStateHtml(this._i18n("ui.loading"), { compact: !0 })}</div>`;
       try {
-        const E = await this._search(S);
+        const I = await this._search(S);
         if (B !== this._state.sidePanelToken || !o.isConnected) return;
-        const I = Object.values(E || {}).reduce((F, O) => F + (Array.isArray(O) ? O.length : 0), 0);
-        g.textContent = String(I), o.innerHTML = this._nowPlayingSearchResultsHtml(S, E), this.$("backToQueueBtn")?.addEventListener("click", () => {
+        const E = Object.values(I || {}).reduce((F, O) => F + (Array.isArray(O) ? O.length : 0), 0);
+        g.textContent = String(E), o.innerHTML = this._nowPlayingSearchResultsHtml(S, I), this.$("backToQueueBtn")?.addEventListener("click", () => {
           const F = this.$("nowQueueSearchInput");
           F && (F.value = ""), this._state.nowPlayingQuery = "", this._updateNowPlayingSidePanel();
         }), this._hydrateImages(), this._highlightNowPlaying();
-      } catch (E) {
+      } catch (I) {
         if (B !== this._state.sidePanelToken || !o.isConnected) return;
-        g.textContent = "!", o.innerHTML = `<div class="now-side-scroll"><div class="state-box">${this._esc(E?.message || this._i18n("ui.try_again"))}</div></div>`;
+        g.textContent = "!", o.innerHTML = `<div class="now-side-scroll"><div class="state-box">${this._esc(I?.message || this._i18n("ui.try_again"))}</div></div>`;
       }
     }
     _bindNowPlayingPage() {
@@ -43195,7 +43195,7 @@ function vh({
     }
     _sectionHtml(o, m, g, y = !0) {
       const S = m.length || 0, B = y ? `<div class="section-actions">${this._sectionActionButtons(m)}</div>` : "";
-      return `<div class="section"><div class="section-header"><div class="section-title">${this._esc(o)}</div><div class="section-badge">${S}</div>${B}</div><div class="grid">${m.map((E) => this._mediaCardHtml(E, g)).join("")}</div></div>`;
+      return `<div class="section"><div class="section-header"><div class="section-title">${this._esc(o)}</div><div class="section-badge">${S}</div>${B}</div><div class="grid">${m.map((I) => this._mediaCardHtml(I, g)).join("")}</div></div>`;
     }
     _sectionActionButtons(o) {
       if (!o?.length) return "";
@@ -43203,12 +43203,12 @@ function vh({
       return `<button class="chip-btn" data-action="play-all" data-items="${m}">${this._esc(this._i18n("ui.play_all"))}</button><button class="chip-btn" data-action="shuffle-all" data-items="${m}">${this._esc(this._i18n("ui.shuffle_all"))}</button>`;
     }
     _mediaCardHtml(o, m = null) {
-      const g = m || o.media_type || "album", y = o.uri || "", S = o.name || "", B = this._artUrl(o), E = g === "artist" ? this._i18n("ui.artist") : g === "radio" ? o.metadata?.description || "" : this._artistName(o) || o.album?.name || "", I = g === "radio" ? "radio" : g === "artist" ? "artist" : g === "podcast" ? "podcast" : "album", F = B ? `data-img="${this._esc(B)}" data-placeholder="${I}"` : "";
-      return `<div class="media-card" data-uri="${this._esc(y)}" data-type="${this._esc(g)}"><div class="media-art" ${F}><div class="media-placeholder">${this._artPlaceholderHtml(I)}</div><div class="media-overlay"><div class="play-bubble">▶</div></div><div class="playing-badge">▶</div></div><div class="media-title">${this._esc(S)}</div><div class="media-sub">${this._esc(E)}</div></div>`;
+      const g = m || o.media_type || "album", y = o.uri || "", S = o.name || "", B = this._artUrl(o), I = g === "artist" ? this._i18n("ui.artist") : g === "radio" ? o.metadata?.description || "" : this._artistName(o) || o.album?.name || "", E = g === "radio" ? "radio" : g === "artist" ? "artist" : g === "podcast" ? "podcast" : "album", F = B ? `data-img="${this._esc(B)}" data-placeholder="${E}"` : "";
+      return `<div class="media-card" data-uri="${this._esc(y)}" data-type="${this._esc(g)}"><div class="media-art" ${F}><div class="media-placeholder">${this._artPlaceholderHtml(E)}</div><div class="media-overlay"><div class="play-bubble">▶</div></div><div class="playing-badge">▶</div></div><div class="media-title">${this._esc(S)}</div><div class="media-sub">${this._esc(I)}</div></div>`;
     }
     _trackRowHtml(o, m = 1) {
-      const g = this._artUrl(o), y = o.name || "", B = [this._artistName(o), o.album?.name].filter(Boolean).join(" · "), E = g ? `data-img="${this._esc(g)}" data-placeholder="album"` : "";
-      return `<div class="track-row" data-uri="${this._esc(o.uri || "")}" data-type="track"><div class="track-num">${m}</div><div class="track-art" ${E}>${this._artPlaceholderHtml("album")}</div><div class="track-meta"><div class="track-name">${this._esc(y)}</div><div class="track-sub">${this._esc(B)}</div></div><div class="track-dur">${this._fmtDur(o.duration)}</div></div>`;
+      const g = this._artUrl(o), y = o.name || "", B = [this._artistName(o), o.album?.name].filter(Boolean).join(" · "), I = g ? `data-img="${this._esc(g)}" data-placeholder="album"` : "";
+      return `<div class="track-row" data-uri="${this._esc(o.uri || "")}" data-type="track"><div class="track-num">${m}</div><div class="track-art" ${I}>${this._artPlaceholderHtml("album")}</div><div class="track-meta"><div class="track-name">${this._esc(y)}</div><div class="track-sub">${this._esc(B)}</div></div><div class="track-dur">${this._fmtDur(o.duration)}</div></div>`;
     }
     _getQueueItemKey(o) {
       return _.getQueueItemKey(o);
@@ -43223,8 +43223,8 @@ function vh({
       return _.getQueueItemUri(o);
     }
     _queueItemOrderIdentity(o = {}, m = 0) {
-      const g = this._getQueueItemStableId(o), y = this._getQueueItemUri(o), S = this._queueItemPrimaryTitle(o), B = this._queueItemPrimaryArtist(o), E = Number.isFinite(Number(o?.sort_index)) ? `sort:${o.sort_index}` : "";
-      return g || y || [S, B].filter(Boolean).join("::") || E || `idx:${m}`;
+      const g = this._getQueueItemStableId(o), y = this._getQueueItemUri(o), S = this._queueItemPrimaryTitle(o), B = this._queueItemPrimaryArtist(o), I = Number.isFinite(Number(o?.sort_index)) ? `sort:${o.sort_index}` : "";
+      return g || y || [S, B].filter(Boolean).join("::") || I || `idx:${m}`;
     }
     _queueOrderSignature(o = []) {
       return (Array.isArray(o) ? o : []).map((m, g) => this._queueItemOrderIdentity(m, g)).join("|");
@@ -43260,30 +43260,30 @@ function vh({
       if (!g.length) return -1;
       const y = this._queueVisibleItemsForMove(g), S = Math.max(0, Math.min(y.length - 1, Math.round(Number(m)) - 1 || 0)), B = y[S] || null;
       if (!B) return -1;
-      const E = this._getQueueItemKey(B), I = this._getQueueItemStableId(B), F = this._getQueueItemUri(B), O = _.normalizeFiniteNumber(B?.sort_index), Z = g.findIndex(
-        ($) => $ === B || E && this._getQueueItemKey($) === E || I && this._getQueueItemStableId($) === I || F && this._mediaRefsEquivalent(this._getQueueItemUri($), F, $?.media_item?.media_type || $?.media_type || "track") || Number.isFinite(O) && Number($?.sort_index) === O
+      const I = this._getQueueItemKey(B), E = this._getQueueItemStableId(B), F = this._getQueueItemUri(B), O = _.normalizeFiniteNumber(B?.sort_index), Z = g.findIndex(
+        ($) => $ === B || I && this._getQueueItemKey($) === I || E && this._getQueueItemStableId($) === E || F && this._mediaRefsEquivalent(this._getQueueItemUri($), F, $?.media_item?.media_type || $?.media_type || "track") || Number.isFinite(O) && Number($?.sort_index) === O
       );
       return Z < 0 ? -1 : Math.max(this._queueFirstMovableIndex(g), Z);
     }
     _queueDisplayPositionForEntry(o = {}, m = 1) {
-      const g = this._getNowPlayingQueueItems(), y = this._getQueueItemKey(o) || String(o?.queue_item_id || o?.queueItemId || o?.key || "").trim(), S = this._getQueueItemStableId(o), B = this._getQueueItemUri(o) || String(o?.uri || o?.media_item?.uri || "").trim(), E = _.normalizeFiniteNumber(o?.sort_index), I = g.findIndex(
-        (O) => y && this._getQueueItemKey(O) === y || S && this._getQueueItemStableId(O) === S || B && this._mediaRefsEquivalent(this._getQueueItemUri(O), B, O?.media_item?.media_type || O?.media_type || "track") || Number.isFinite(E) && Number(O?.sort_index) === E
+      const g = this._getNowPlayingQueueItems(), y = this._getQueueItemKey(o) || String(o?.queue_item_id || o?.queueItemId || o?.key || "").trim(), S = this._getQueueItemStableId(o), B = this._getQueueItemUri(o) || String(o?.uri || o?.media_item?.uri || "").trim(), I = _.normalizeFiniteNumber(o?.sort_index), E = g.findIndex(
+        (O) => y && this._getQueueItemKey(O) === y || S && this._getQueueItemStableId(O) === S || B && this._mediaRefsEquivalent(this._getQueueItemUri(O), B, O?.media_item?.media_type || O?.media_type || "track") || Number.isFinite(I) && Number(O?.sort_index) === I
       );
-      if (I >= 0) return I + 1;
+      if (E >= 0) return E + 1;
       const F = Math.round(Number(m || o?.position));
       return Math.max(1, F || 1);
     }
     _resolveQueueActionTarget(o = [], m = "", g = "", y = "") {
-      const S = Array.isArray(o) ? o : [], B = String(m || "").trim(), E = String(g || "").trim(), I = _.normalizeFiniteNumber(y);
+      const S = Array.isArray(o) ? o : [], B = String(m || "").trim(), I = String(g || "").trim(), E = _.normalizeFiniteNumber(y);
       return (B ? S.find(
         (F) => this._getQueueItemKey(F) === B || this._getQueueItemStableId(F) === B || this._getQueueItemUri(F) === B
-      ) : null) || (E ? S.find(
+      ) : null) || (I ? S.find(
         (F) => this._mediaRefsEquivalent(
           this._getQueueItemUri(F),
-          E,
+          I,
           F?.media_item?.media_type || F?.media_type || "track"
         )
-      ) : null) || S.find((F) => Number.isFinite(I) && Number(F?.sort_index) === I) || null;
+      ) : null) || S.find((F) => Number.isFinite(E) && Number(F?.sort_index) === E) || null;
     }
     _queueItemPrimaryArtist(o = {}) {
       return _.queueItemPrimaryArtist(o);
@@ -43297,8 +43297,8 @@ function vh({
       if (Number.isFinite(g) && Number.isFinite(y) && g === y) return !0;
       const S = this._getQueueItemKey(m), B = this._getQueueItemKey(o);
       if (S && B && S === B) return !0;
-      const E = this._getQueueItemUri(m), I = this._getQueueItemUri(o);
-      return E && I && this._mediaRefsEquivalent(I, E, o?.media_item?.media_type || o?.media_type || "track") ? !0 : this._queueItemMatchesPlayer(o);
+      const I = this._getQueueItemUri(m), E = this._getQueueItemUri(o);
+      return I && E && this._mediaRefsEquivalent(E, I, o?.media_item?.media_type || o?.media_type || "track") ? !0 : this._queueItemMatchesPlayer(o);
     }
     _mobileUpNextItem() {
       return _.resolveMobileUpNextItem(
@@ -43309,17 +43309,17 @@ function vh({
     _syncMobileUpNextUi(o = null) {
       const m = Array.from(this.shadowRoot?.querySelectorAll?.("[data-up-next-inline]") || []), g = this._mobileShowUpNextEnabled();
       this._syncTabletAutoFitUi(!!(g && o)), m.forEach((y) => {
-        const S = y.querySelector(".up-next-art"), B = y.querySelector(".up-next-prefix"), E = y.querySelector(".up-next-title");
+        const S = y.querySelector(".up-next-art"), B = y.querySelector(".up-next-prefix"), I = y.querySelector(".up-next-title");
         if (!g || !o) {
-          y.hidden = !0, y.dataset.queueItemId = "", y.dataset.uri = "", y.dataset.type = "", y.dataset.sortIndex = "", y.title = "", S && (S.innerHTML = ""), B && (B.textContent = ""), E && (E.textContent = "");
+          y.hidden = !0, y.dataset.queueItemId = "", y.dataset.uri = "", y.dataset.type = "", y.dataset.sortIndex = "", y.title = "", S && (S.innerHTML = ""), B && (B.textContent = ""), I && (I.textContent = "");
           return;
         }
-        const I = this._queueItemPrimaryTitle(o) || this._i18n("ui.up_next_2"), F = this._queueItemImageUrl(o, 72);
-        if (y.hidden = !1, y.dataset.queueItemId = this._getQueueItemKey(o), y.dataset.uri = this._getQueueItemUri(o), y.dataset.type = o?.media_item?.media_type || o?.media_type || "track", y.dataset.sortIndex = Number.isFinite(Number(o?.sort_index)) ? String(o.sort_index) : "", y.title = this._i18n("ui.up_next_title", { title: I }), S) {
+        const E = this._queueItemPrimaryTitle(o) || this._i18n("ui.up_next_2"), F = this._queueItemImageUrl(o, 72);
+        if (y.hidden = !1, y.dataset.queueItemId = this._getQueueItemKey(o), y.dataset.uri = this._getQueueItemUri(o), y.dataset.type = o?.media_item?.media_type || o?.media_type || "track", y.dataset.sortIndex = Number.isFinite(Number(o?.sort_index)) ? String(o.sort_index) : "", y.title = this._i18n("ui.up_next_title", { title: E }), S) {
           const O = F || "";
           S.dataset.artSrc !== O && (S.dataset.artSrc = O, S.innerHTML = F ? this._imgHtml(F, "", { loading: "eager", fetchpriority: "high" }) : `<span class="up-next-art-fallback">${this._iconSvg("tracks")}</span>`);
         }
-        B && (B.textContent = this._i18n("ui.up_next_2")), E && (E.textContent = I);
+        B && (B.textContent = this._i18n("ui.up_next_2")), I && (I.textContent = E);
       });
     }
     async _playMobileUpNext() {
@@ -43332,7 +43332,7 @@ function vh({
       await this._playQueueItem(m, g, y, S) && this._toastSuccess(this._i18n("ui.skipped_to_up_next"));
     }
     _miniQueueItemHtml(o) {
-      const m = this._queueItemImageUrl(o, 120), g = o.media_item?.artists?.map((E) => E.name).join(", ") || "", y = this._isQueueItemCurrent(o), S = this._getQueueItemKey(o), B = y ? "high" : "low";
+      const m = this._queueItemImageUrl(o, 120), g = o.media_item?.artists?.map((I) => I.name).join(", ") || "", y = this._isQueueItemCurrent(o), S = this._getQueueItemKey(o), B = y ? "high" : "low";
       return `
         <div class="mini-queue-item ${y ? "active" : ""}" data-uri="${this._esc(o.media_item?.uri || "")}" data-type="track" data-sort-index="${this._esc(o.sort_index ?? "")}" data-queue-item-id="${this._esc(S)}">
           <div class="mini-queue-index">${y ? "▶" : o.sort_index ?? ""}</div>
@@ -43354,31 +43354,31 @@ function vh({
       const m = o.target.closest("[data-queue-action]");
       if (m) {
         o.stopPropagation();
-        const E = m.closest("[data-queue-item-id]"), I = m.dataset.queueAction, F = I === "move_to" ? this._queueMoveTargetFromElement(m) : null;
-        if (I === "move_to" && !F) return;
+        const I = m.closest("[data-queue-item-id]"), E = m.dataset.queueAction, F = E === "move_to" ? this._queueMoveTargetFromElement(m) : null;
+        if (E === "move_to" && !F) return;
         await this._handleQueueAction(
-          I,
-          m.dataset.queueItemId || E?.dataset.queueItemId || "",
-          E?.dataset.uri || "",
-          E?.dataset.sortIndex || "",
+          E,
+          m.dataset.queueItemId || I?.dataset.queueItemId || "",
+          I?.dataset.uri || "",
+          I?.dataset.sortIndex || "",
           F
         );
         return;
       }
       const g = o.target.closest('[data-action="play-all"], [data-action="shuffle-all"]');
       if (g) {
-        let E = [];
+        let I = [];
         try {
-          E = JSON.parse(g.dataset.items || "[]");
+          I = JSON.parse(g.dataset.items || "[]");
         } catch {
-          E = [];
+          I = [];
         }
-        if (!Array.isArray(E) || !E.length) {
+        if (!Array.isArray(I) || !I.length) {
           this._toastError(this._i18n("ui.no_content_found"));
           return;
         }
-        const I = g.dataset.action === "shuffle-all";
-        await this._playAll(E, I);
+        const E = g.dataset.action === "shuffle-all";
+        await this._playAll(I, E);
         return;
       }
       const y = o.target.closest(".media-card");
@@ -43455,11 +43455,11 @@ function vh({
           });
         }
       })), S.appendChild(B), this._ctxMenu = B;
-      const E = S.getBoundingClientRect();
-      let I = o - E.left, F = m - E.top;
-      B.style.left = `${I}px`, B.style.top = `${F}px`, requestAnimationFrame(() => {
+      const I = S.getBoundingClientRect();
+      let E = o - I.left, F = m - I.top;
+      B.style.left = `${E}px`, B.style.top = `${F}px`, requestAnimationFrame(() => {
         const O = B.getBoundingClientRect(), Z = S.getBoundingClientRect();
-        O.right > Z.right && (I -= O.width), O.bottom > Z.bottom && (F -= O.height), B.style.left = `${Math.max(8, I)}px`, B.style.top = `${Math.max(8, F)}px`;
+        O.right > Z.right && (E -= O.width), O.bottom > Z.bottom && (F -= O.height), B.style.left = `${Math.max(8, E)}px`, B.style.top = `${Math.max(8, F)}px`;
       });
     }
     _dismissCtx() {
@@ -43570,35 +43570,35 @@ function vh({
     }
     _applyQueueSnapshot(o, m = [], g = !1) {
       if (!o) return;
-      const y = { ...o }, S = C.pendingQueuePlayState(this._state, Date.now()), { hasPendingPlay: B, pendingKey: E, pendingUri: I, pendingIndex: F } = S, O = g || !this._state.queueItems.length || this._isQueueUiVisible(), Z = this._queueItemsWithSequentialSortIndexes(Array.isArray(m) ? m : []);
+      const y = { ...o }, S = C.pendingQueuePlayState(this._state, Date.now()), { hasPendingPlay: B, pendingKey: I, pendingUri: E, pendingIndex: F } = S, O = g || !this._state.queueItems.length || this._isQueueUiVisible(), Z = this._queueItemsWithSequentialSortIndexes(Array.isArray(m) ? m : []);
       let $ = !1;
       if (Z.length) {
         const ve = Number(y.current_index), xe = this._getQueueItemKey(y.current_item), ke = this._getQueueItemUri(y.current_item), Me = Z.find(
-          (Ee) => Number.isFinite(ve) && Number(Ee?.sort_index) === ve || xe && this._getQueueItemKey(Ee) === xe || ke && this._mediaRefsEquivalent(this._getQueueItemUri(Ee), ke, Ee?.media_item?.media_type || Ee?.media_type || "track")
+          (Ie) => Number.isFinite(ve) && Number(Ie?.sort_index) === ve || xe && this._getQueueItemKey(Ie) === xe || ke && this._mediaRefsEquivalent(this._getQueueItemUri(Ie), ke, Ie?.media_item?.media_type || Ie?.media_type || "track")
         );
         Me && (y.current_item = Me);
         const Be = Number(y.current_index);
         if (Number.isFinite(Be)) {
-          const Ee = Z.find((Oe) => Number(Oe?.sort_index) === Be - 1), De = Z.find((Oe) => Number(Oe?.sort_index) === Be + 1);
-          Ee && (y.previous_item = Ee), De && (y.next_item = De);
+          const Ie = Z.find((Oe) => Number(Oe?.sort_index) === Be - 1), De = Z.find((Oe) => Number(Oe?.sort_index) === Be + 1);
+          Ie && (y.previous_item = Ie), De && (y.next_item = De);
         }
       }
       if (Z.length && !this._homeiiEngineRequired?.()) {
         const ve = this._getSelectedPlayer(), xe = String(ve?.attributes?.media_content_id || "").trim(), ke = String(ve?.attributes?.media_title || "").trim().toLowerCase(), Me = String(ve?.attributes?.media_artist || "").trim().toLowerCase();
         let Be = null;
-        if (xe && (Be = Z.find((Ee) => this._mediaRefsEquivalent(this._getQueueItemUri(Ee), xe, Ee?.media_item?.media_type || Ee?.media_type || "track"))), !Be && ke && (Be = Z.find((Ee) => {
-          const De = String(Ee?.media_item?.name || Ee?.media_title || Ee?.name || "").trim().toLowerCase(), Oe = String(Ee?.media_artist || (Ee?.media_item?.artists || []).map((Ke) => Ke?.name).filter(Boolean).join(", ") || "").trim().toLowerCase();
+        if (xe && (Be = Z.find((Ie) => this._mediaRefsEquivalent(this._getQueueItemUri(Ie), xe, Ie?.media_item?.media_type || Ie?.media_type || "track"))), !Be && ke && (Be = Z.find((Ie) => {
+          const De = String(Ie?.media_item?.name || Ie?.media_title || Ie?.name || "").trim().toLowerCase(), Oe = String(Ie?.media_artist || (Ie?.media_item?.artists || []).map((Ke) => Ke?.name).filter(Boolean).join(", ") || "").trim().toLowerCase();
           return De === ke && (!Me || Oe.includes(Me) || Me.includes(Oe));
         })), Be) {
-          const Ee = String(y.current_item?.media_item?.name || y.current_item?.media_title || y.current_item?.name || "").trim().toLowerCase(), De = String(this._getQueueItemUri(y.current_item) || "").trim();
-          if (!(xe ? this._mediaRefsEquivalent(De, xe, y.current_item?.media_item?.media_type || y.current_item?.media_type || "track") : Ee === ke)) {
+          const Ie = String(y.current_item?.media_item?.name || y.current_item?.media_title || y.current_item?.name || "").trim().toLowerCase(), De = String(this._getQueueItemUri(y.current_item) || "").trim();
+          if (!(xe ? this._mediaRefsEquivalent(De, xe, y.current_item?.media_item?.media_type || y.current_item?.media_type || "track") : Ie === ke)) {
             const Ke = Number(Be.sort_index);
             y.current_item = Be, Number.isFinite(Ke) && (y.current_index = Ke, y.next_item = Z.find((tt) => Number(tt?.sort_index) === Ke + 1) || y.next_item || null);
           }
         }
       }
       if (B) {
-        const ve = this._getQueueItemKey(y.current_item), xe = this._getQueueItemUri(y.current_item), ke = Number(y.current_index), Me = !!E || Number.isFinite(F), Be = E && ve === E || Number.isFinite(F) && Number.isFinite(ke) && F === ke || !Me && I && this._mediaRefsEquivalent(xe, I, y.current_item?.media_item?.media_type || y.current_item?.media_type || "track");
+        const ve = this._getQueueItemKey(y.current_item), xe = this._getQueueItemUri(y.current_item), ke = Number(y.current_index), Me = !!I || Number.isFinite(F), Be = I && ve === I || Number.isFinite(F) && Number.isFinite(ke) && F === ke || !Me && E && this._mediaRefsEquivalent(xe, E, y.current_item?.media_item?.media_type || y.current_item?.media_type || "track");
         !Be && this._state.maQueueState?.current_item ? (y.current_index = this._state.maQueueState.current_index, y.current_item = this._state.maQueueState.current_item, y.next_item = this._state.maQueueState.next_item, $ = !0) : Be && this._queueItemMatchesPlayer(y.current_item) && Object.assign(this._state, C.clearPendingQueuePlayPatch());
       }
       if (this._state.maQueueState = y, Number(o.items) === 0 && Array.isArray(m) && m.length === 0 && !B) {
@@ -43686,30 +43686,30 @@ function vh({
       let S = null;
       try {
         S = this._getSelectedPlayer();
-        const B = this._resolveQueuePlayIndex(o, m, y), E = this._getQueueItemByIndexOrKey(B, o, m), I = S?.attributes?.active_queue || S?.attributes?.queue_id || this._state.maQueueState?.queue_id || this._directMaQueueId(S), F = Number.isFinite(B) ? Math.round(B) : null;
-        if (!I || F === null || !this._hasMusicAssistantCommandBridge())
+        const B = this._resolveQueuePlayIndex(o, m, y), I = this._getQueueItemByIndexOrKey(B, o, m), E = S?.attributes?.active_queue || S?.attributes?.queue_id || this._state.maQueueState?.queue_id || this._directMaQueueId(S), F = Number.isFinite(B) ? Math.round(B) : null;
+        if (!E || F === null || !this._hasMusicAssistantCommandBridge())
           throw new Error(this._i18n("ui.queue_item_id_is_not_ready_yet_refresh_the_queue_and_try_again"));
-        if (E && Number.isFinite(B)) {
+        if (I && Number.isFinite(B)) {
           const O = Date.now() + 8500;
-          this._markMobileQueuePlayPending(E, B), this._state.maQueueState = {
+          this._markMobileQueuePlayPending(I, B), this._state.maQueueState = {
             ...this._state.maQueueState || {},
             current_index: B,
-            current_item: E,
+            current_item: I,
             next_item: (this._state.queueItems || []).find((Z) => Number(Z?.sort_index) === B + 1) || null,
             elapsed_time: 0,
             elapsed_time_last_updated: (/* @__PURE__ */ new Date()).toISOString()
-          }, this._state.mobileArtBrowseOffset = 0, typeof this._preloadPendingMobileQueueItemArtwork == "function" && this._preloadPendingMobileQueueItemArtwork(E), S?.entity_id ? this._setPlayerPlaybackOptimistic(S.entity_id, { state: "playing", until: O }) : this._syncNowPlayingUI();
+          }, this._state.mobileArtBrowseOffset = 0, typeof this._preloadPendingMobileQueueItemArtwork == "function" && this._preloadPendingMobileQueueItemArtwork(I), S?.entity_id ? this._setPlayerPlaybackOptimistic(S.entity_id, { state: "playing", until: O }) : this._syncNowPlayingUI();
         }
         return this._debugLog("info", "[Homeii Queue] play item", {
-          queueId: I,
+          queueId: E,
           queueItemId: o,
           fallbackUri: m,
           sortIndex: y,
           playIndex: B,
           directPlayTarget: F,
-          title: E ? this._queueItemPrimaryTitle(E) : ""
+          title: I ? this._queueItemPrimaryTitle(I) : ""
         }), await this._callEngineMaCommand("player_queues/play_index", {
-          queue_id: I,
+          queue_id: E,
           index: F
         }), this._scheduleQueueRefreshAfterMutation(700), !0;
       } catch (B) {
@@ -43727,17 +43727,17 @@ function vh({
           return this._homeiiEngineGetLibrary(m || {});
         if (o === "get_queue" && typeof this._homeiiEngineGetQueue == "function")
           return this._homeiiEngineGetQueue(m || {});
-        throw new Error(`Music Assistant frontend service ${o} is disabled in HOMEii Flow 6. Use HOMEii Flow Engine.`);
+        throw new Error(`Music Assistant frontend service ${o} is disabled in Maverick Music 6. Use Maverick Music Engine.`);
       }
       const y = g.includeConfigEntryId !== !1;
       let S = { ...m };
       if (y) {
-        const E = await this._ensureConfigEntryId();
-        if (E)
-          S = { config_entry_id: E, ...S };
+        const I = await this._ensureConfigEntryId();
+        if (I)
+          S = { config_entry_id: I, ...S };
         else if (!this._hasMusicAssistantServiceSignal()) {
-          const I = new Error(this._musicAssistantSetupMessage());
-          throw I.code = "HOMEII_MA_NOT_READY", I;
+          const E = new Error(this._musicAssistantSetupMessage());
+          throw E.code = "HOMEII_MA_NOT_READY", E;
         }
       }
       const B = this._hass.connection.sendMessagePromise({
@@ -43768,7 +43768,7 @@ function vh({
     }
     _normalizeQueueItem(o, m = 0) {
       if (!o || typeof o != "object") return null;
-      const g = o.media_item || o.media || o.item || o, y = String(o.media_artist || o.artist || "").trim(), S = Array.isArray(g?.artists) ? g.artists : Array.isArray(o.artists) ? o.artists : y ? y.split(",").map((he) => ({ name: String(he).trim() })).filter((he) => he.name) : [], B = String(o.media_album_name || o.album_name || "").trim(), E = g?.album || o.album || (B ? { name: B } : null), I = o.media_image || o.media_image_url || o.image_url || o.image || o.thumbnail || o.thumb || o.local_image_url || o.local_image || o.local_image_encoded || "", F = this._artUrl(o, { size: 420 }) || this._artUrl(g, { size: 420 }) || this._artUrl(E, { size: 420 }) || this._imageUrl(I, 420) || "", O = Number(o.sort_index), Z = Number(o.position), $ = g?.uri || o.uri || o.media_content_id || o.media_id || "", ce = String(o.queue_item_id || o.queueItemId || o.queue_item?.queue_item_id || o.queueItem?.queue_item_id || "").trim(), be = String(o.item_id || o.id || "").trim(), ue = _.parseMediaReference($, g?.media_type || o.media_type || "track"), de = !!(be && (be === $ || be === ue.item_id || $.endsWith(`/${be}`) || $.endsWith(`:${be}`))), me = ce || (be && !de ? be : "");
+      const g = o.media_item || o.media || o.item || o, y = String(o.media_artist || o.artist || "").trim(), S = Array.isArray(g?.artists) ? g.artists : Array.isArray(o.artists) ? o.artists : y ? y.split(",").map((he) => ({ name: String(he).trim() })).filter((he) => he.name) : [], B = String(o.media_album_name || o.album_name || "").trim(), I = g?.album || o.album || (B ? { name: B } : null), E = o.media_image || o.media_image_url || o.image_url || o.image || o.thumbnail || o.thumb || o.local_image_url || o.local_image || o.local_image_encoded || "", F = this._artUrl(o, { size: 420 }) || this._artUrl(g, { size: 420 }) || this._artUrl(I, { size: 420 }) || this._imageUrl(E, 420) || "", O = Number(o.sort_index), Z = Number(o.position), $ = g?.uri || o.uri || o.media_content_id || o.media_id || "", ce = String(o.queue_item_id || o.queueItemId || o.queue_item?.queue_item_id || o.queueItem?.queue_item_id || "").trim(), be = String(o.item_id || o.id || "").trim(), ue = _.parseMediaReference($, g?.media_type || o.media_type || "track"), de = !!(be && (be === $ || be === ue.item_id || $.endsWith(`/${be}`) || $.endsWith(`:${be}`))), me = ce || (be && !de ? be : "");
       return {
         ...o,
         media_item: {
@@ -43776,10 +43776,10 @@ function vh({
           uri: $ || (de ? be : ""),
           name: g?.name || o.name || o.media_title || "",
           artists: S,
-          album: E
+          album: I
         },
-        image: F || o.image || I || g?.image || E?.image || null,
-        image_url: F || o.image_url || I || g?.image_url || g?.image || E?.image_url || E?.image || null,
+        image: F || o.image || E || g?.image || I?.image || null,
+        image_url: F || o.image_url || E || g?.image_url || g?.image || I?.image_url || I?.image || null,
         sort_index: Number.isFinite(O) ? O : Number.isFinite(Z) ? Z : m,
         queue_item_id: me || be || $ || String(m),
         queue_item_id_trusted: !!me,
@@ -43793,16 +43793,16 @@ function vh({
         o,
         m
       ))
-        return this._debugLog?.("debug", "[HOMEii Flow] Ignored stale Engine queue snapshot", {
+        return this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine queue snapshot", {
           entityId: m,
           snapshot: q.engineSnapshotMeta(o)
         }), null;
       const g = o?.normalized ?? o?.data?.normalized ?? null;
       if (g && typeof g == "object") {
-        const me = (Array.isArray(g.items) ? g.items : []).map((Ee, De) => this._normalizeQueueItem(Ee, Number.isFinite(Number(Ee?.sort_index)) ? Number(Ee.sort_index) : De)).filter(Boolean).map((Ee, De) => ({
-          ...Ee,
-          sort_index: Number.isFinite(Number(Ee.sort_index)) ? Number(Ee.sort_index) : De
-        })), he = Number.isFinite(Number(g.items_count)) ? Number(g.items_count) : me.length, ve = g.current_index != null && Number.isFinite(Number(g.current_index)) ? Number(g.current_index) : null, xe = (Ee) => Ee == null ? null : me.find((De) => Number(De?.sort_index) === Ee) || null, ke = xe(ve), Me = xe(ve == null ? null : ve - 1), Be = xe(ve == null ? null : ve + 1);
+        const me = (Array.isArray(g.items) ? g.items : []).map((Ie, De) => this._normalizeQueueItem(Ie, Number.isFinite(Number(Ie?.sort_index)) ? Number(Ie.sort_index) : De)).filter(Boolean).map((Ie, De) => ({
+          ...Ie,
+          sort_index: Number.isFinite(Number(Ie.sort_index)) ? Number(Ie.sort_index) : De
+        })), he = Number.isFinite(Number(g.items_count)) ? Number(g.items_count) : me.length, ve = g.current_index != null && Number.isFinite(Number(g.current_index)) ? Number(g.current_index) : null, xe = (Ie) => Ie == null ? null : me.find((De) => Number(De?.sort_index) === Ie) || null, ke = xe(ve), Me = xe(ve == null ? null : ve - 1), Be = xe(ve == null ? null : ve + 1);
         return {
           state: {
             ...g,
@@ -43825,9 +43825,9 @@ function vh({
         de && (y = de);
       }
       if (!y || typeof y != "object") return null;
-      const S = y.queue_state || y.queue || y, B = Array.isArray(y.previous_items) ? y.previous_items : Array.isArray(S?.previous_items) ? S.previous_items : [], E = y.current_item || S?.current_item || null, I = y.next_item || S?.next_item || null, O = [...Array.isArray(y.next_items) ? y.next_items : Array.isArray(S?.next_items) ? S.next_items : [], ...I ? [I] : []];
+      const S = y.queue_state || y.queue || y, B = Array.isArray(y.previous_items) ? y.previous_items : Array.isArray(S?.previous_items) ? S.previous_items : [], I = y.current_item || S?.current_item || null, E = y.next_item || S?.next_item || null, O = [...Array.isArray(y.next_items) ? y.next_items : Array.isArray(S?.next_items) ? S.next_items : [], ...E ? [E] : []];
       let Z = [];
-      Array.isArray(y.items) ? Z = y.items : Array.isArray(S?.items) ? Z = S.items : Array.isArray(y.queue_items) ? Z = y.queue_items : Z = [...B, ...E ? [E] : [], ...O];
+      Array.isArray(y.items) ? Z = y.items : Array.isArray(S?.items) ? Z = S.items : Array.isArray(y.queue_items) ? Z = y.queue_items : Z = [...B, ...I ? [I] : [], ...O];
       const $ = Number.isFinite(S?.current_index) ? S.current_index : Number.isFinite(y.current_index) ? y.current_index : B.length, ce = Math.max(0, $ - B.length), be = Z.map((de, me) => this._normalizeQueueItem(de, ce + me)).filter(Boolean).map((de, me) => ({
         ...de,
         sort_index: Number.isFinite(de.sort_index) ? de.sort_index : ce + me
@@ -43866,7 +43866,7 @@ function vh({
       return o.queue_source_of_truth === !0 || o.queue_proxy === !0 || o.queue_artwork_proxy === !0 || o.item_artwork_proxy === !0;
     }
     async _ensureHomeiiEngineReadyForAction() {
-      return !this._homeiiEngineRequired?.() || this._state?.engineAvailable ? !0 : typeof this._ensureHomeiiEngineHandshake == "function" ? !!await this._ensureHomeiiEngineHandshake() : typeof this._refreshHomeiiEngineContext == "function" ? !!(await this._refreshHomeiiEngineContext({ force: !0 }).catch((m) => (this._state.engineLastError = m?.message || String(m || "HOMEii Flow Engine is not available."), null)) && this._state?.engineAvailable) : !1;
+      return !this._homeiiEngineRequired?.() || this._state?.engineAvailable ? !0 : typeof this._ensureHomeiiEngineHandshake == "function" ? !!await this._ensureHomeiiEngineHandshake() : typeof this._refreshHomeiiEngineContext == "function" ? !!(await this._refreshHomeiiEngineContext({ force: !0 }).catch((m) => (this._state.engineLastError = m?.message || String(m || "Maverick Music Engine is not available."), null)) && this._state?.engineAvailable) : !1;
     }
     _betterQueueSnapshot(o = null, m = null) {
       if (!o) return m || null;
@@ -43877,8 +43877,8 @@ function vh({
       const S = this._queueSnapshotExpectedCount(o), B = this._queueSnapshotExpectedCount(m);
       if (B > S) return m;
       if (S > B) return o;
-      const E = this._queueSnapshotProxyArtworkCount(o);
-      return this._queueSnapshotProxyArtworkCount(m) > E ? m : o;
+      const I = this._queueSnapshotProxyArtworkCount(o);
+      return this._queueSnapshotProxyArtworkCount(m) > I ? m : o;
     }
     async _fetchMusicAssistantQueueSnapshot(o) {
       if (!o?.entity_id) return null;
@@ -43894,14 +43894,14 @@ function vh({
         });
         return this._normalizeQueueSnapshot(y, o.entity_id);
       } catch (y) {
-        return this._debugLog("warn", "[HOMEii Flow] Engine queue source failed", y), null;
+        return this._debugLog("warn", "[Maverick Music] Engine queue source failed", y), null;
       }
     }
     _guessCurrentQueueIndexFromItems(o = [], m = null) {
       if (!Array.isArray(o) || !o.length) return 0;
       const g = String(m?.attributes?.media_title || "").trim().toLowerCase(), y = String(m?.attributes?.media_artist || "").trim().toLowerCase(), S = o.findIndex((B) => {
-        const E = String(B?.media_item?.name || B?.name || "").trim().toLowerCase(), I = String(B?.media_item?.artists?.map((F) => F.name).join(", ") || "").trim().toLowerCase();
-        return !!g && E === g && (!y || !I || I.includes(y));
+        const I = String(B?.media_item?.name || B?.name || "").trim().toLowerCase(), E = String(B?.media_item?.artists?.map((F) => F.name).join(", ") || "").trim().toLowerCase();
+        return !!g && I === g && (!y || !E || E.includes(y));
       });
       return S >= 0 ? o[S]?.sort_index ?? S : o[0]?.sort_index ?? 0;
     }
@@ -43922,9 +43922,9 @@ function vh({
         }
         return F;
       }
-      const E = await this._ensureHomeiiEngineReadyForAction();
-      if (!(this._homeiiEngineEnabled?.() && E && typeof this._homeiiEngineGetLibrary == "function"))
-        throw this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.", new Error(this._state.musicAssistantIssueMessage);
+      const I = await this._ensureHomeiiEngineReadyForAction();
+      if (!(this._homeiiEngineEnabled?.() && I && typeof this._homeiiEngineGetLibrary == "function"))
+        throw this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.", new Error(this._state.musicAssistantIssueMessage);
       try {
         const F = await this._homeiiEngineGetLibrary({
           media_type: o,
@@ -43950,7 +43950,7 @@ function vh({
           O
         )) {
           if (B.strict) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
-          this._debugLog?.("debug", "[HOMEii Flow] Ignored stale Engine library snapshot", {
+          this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine library snapshot", {
             libraryIdentity: O,
             snapshot: q.engineSnapshotMeta(F)
           });
@@ -43961,49 +43961,49 @@ function vh({
         const Z = F?.data?.response ?? F?.data ?? F, $ = Array.isArray(F?.items) ? F.items : Z?.items ?? (Array.isArray(Z) ? Z : []);
         return (Array.isArray($) ? $ : []).map((ce) => this._normalizeSearchItem(ce, o));
       } catch (F) {
-        throw this._debugLog("warn", "[HOMEii Flow] Engine library proxy failed", F), this._handleMusicAssistantIssue?.(F), F;
+        throw this._debugLog("warn", "[Maverick Music] Engine library proxy failed", F), this._handleMusicAssistantIssue?.(F), F;
       }
     }
     _recommendationFolderItems(o = {}) {
       return o ? Array.isArray(o) ? o : Array.isArray(o?.items) ? o.items : Array.isArray(o?.recommendations) ? o.recommendations : Array.isArray(o?.folders) ? o.folders : [] : [];
     }
     _normalizeRecommendationEntry(o = {}, m = "track", g = null) {
-      const y = this._normalizeSearchItem(o?.media_item || o, m), S = String(y?.media_type || m || "track").toLowerCase(), B = Array.isArray(y?.artists) ? y.artists.map((O) => O?.name).filter(Boolean).join(", ") : "", E = String(y?.uri || o?.uri || o?.media_item?.uri || "").trim();
-      if (!E) return null;
-      const I = String(g?.name || g?.title || g?.item_id || "").trim(), F = String(y?.provider_label || o?.provider_label || g?.provider || y?.provider || "").trim();
+      const y = this._normalizeSearchItem(o?.media_item || o, m), S = String(y?.media_type || m || "track").toLowerCase(), B = Array.isArray(y?.artists) ? y.artists.map((O) => O?.name).filter(Boolean).join(", ") : "", I = String(y?.uri || o?.uri || o?.media_item?.uri || "").trim();
+      if (!I) return null;
+      const E = String(g?.name || g?.title || g?.item_id || "").trim(), F = String(y?.provider_label || o?.provider_label || g?.provider || y?.provider || "").trim();
       return {
         ...y,
-        uri: E,
+        uri: I,
         media_type: S,
-        name: y?.name || y?.title || o?.name || o?.title || E,
-        title: y?.name || y?.title || o?.name || o?.title || E,
+        name: y?.name || y?.title || o?.name || o?.title || I,
+        title: y?.name || y?.title || o?.name || o?.title || I,
         artist: B || y?.artist || o?.artist || "",
         album: y?.album?.name || y?.album || o?.album?.name || o?.album || "",
         image: this._artUrl(y, { size: 240 }) || this._artUrl(o, { size: 240 }) || this._imageUrl(o?.image || o?.image_url, 240) || "",
-        folder_name: I,
+        folder_name: E,
         folder_provider: String(g?.provider || "").trim(),
         provider_label: F
       };
     }
     _flattenNativeRecommendations(o = {}, m = 48) {
-      const g = o?.response ?? o?.result ?? o, y = this._recommendationFolderItems(g), S = [], B = /* @__PURE__ */ new Set(), E = (I, F = null) => {
-        const O = String(I?.media_type || I?.type || I?.media_item?.media_type || "track").toLowerCase(), Z = this._normalizeRecommendationEntry(I, O, F), $ = String(Z?.uri || Z?.name || "").trim().toLowerCase();
+      const g = o?.response ?? o?.result ?? o, y = this._recommendationFolderItems(g), S = [], B = /* @__PURE__ */ new Set(), I = (E, F = null) => {
+        const O = String(E?.media_type || E?.type || E?.media_item?.media_type || "track").toLowerCase(), Z = this._normalizeRecommendationEntry(E, O, F), $ = String(Z?.uri || Z?.name || "").trim().toLowerCase();
         !$ || B.has($) || (B.add($), S.push(Z));
       };
-      return y.some((I) => Array.isArray(I?.items)) ? y.forEach((I) => this._recommendationFolderItems(I).forEach((F) => E(F, I))) : y.forEach((I) => E(I, null)), S.slice(0, Math.max(1, Math.min(100, Number(m) || 48)));
+      return y.some((E) => Array.isArray(E?.items)) ? y.forEach((E) => this._recommendationFolderItems(E).forEach((F) => I(F, E))) : y.forEach((E) => I(E, null)), S.slice(0, Math.max(1, Math.min(100, Number(m) || 48)));
     }
     async _loadRecommendationFolders() {
       const o = await this._callEngineMaCommand("music/recommendations", {}), m = this._recommendationFolderItems(o?.response ?? o?.result ?? o), g = [...m];
       let y = 0;
       const S = async () => {
         for (; y < m.length; ) {
-          const B = y++, E = m[B];
-          if (!(E?.items?.length || !E?.provider || !E?.item_id || !["folder", "recommendation_folder"].includes(String(E.media_type || "folder"))))
+          const B = y++, I = m[B];
+          if (!(I?.items?.length || !I?.provider || !I?.item_id || !["folder", "recommendation_folder"].includes(String(I.media_type || "folder"))))
             try {
-              const I = await this._callEngineMaCommand("music/recommendations/items", { provider: E.provider, item_id: E.item_id });
-              g[B] = { ...E, items: this._recommendationFolderItems(I?.response ?? I?.result ?? I) };
-            } catch (I) {
-              this._debugLog?.("warn", "Recommendation shelf unavailable", I);
+              const E = await this._callEngineMaCommand("music/recommendations/items", { provider: I.provider, item_id: I.item_id });
+              g[B] = { ...I, items: this._recommendationFolderItems(E?.response ?? E?.result ?? E) };
+            } catch (E) {
+              this._debugLog?.("warn", "Recommendation shelf unavailable", E);
             }
         }
       };
@@ -44044,7 +44044,7 @@ function vh({
           limit: Math.max(1, Math.min(50, Number(m) || 12)),
           allow_lookup: !1
         });
-        return (Array.isArray(S?.items) ? S.items : Array.isArray(S) ? S : []).map((E) => this._normalizeRecommendationEntry(E, "track", { name: this._m("Similar tracks", "שירים דומים") })).filter((E) => E?.uri);
+        return (Array.isArray(S?.items) ? S.items : Array.isArray(S) ? S : []).map((I) => this._normalizeRecommendationEntry(I, "track", { name: this._m("Similar tracks", "שירים דומים") })).filter((I) => I?.uri);
       } catch {
         return [];
       }
@@ -44072,16 +44072,16 @@ function vh({
       return m.reduce((y, S) => y + (g.includes(S) ? 1 : 0), 0);
     }
     async _nativeMixEntriesForPreset(o = "", m = "", g = 16) {
-      const y = this._controlRoomMixPresets().find((I) => I.id === o) || null, S = await this._loadNativeRecommendationEntries(!1, 60);
+      const y = this._controlRoomMixPresets().find((E) => E.id === o) || null, S = await this._loadNativeRecommendationEntries(!1, 60);
       if (!S.length) return [];
-      const B = this._recommendationPresetTokens(y, m), E = S.map((I) => ({ entry: I, score: this._scoreNativeRecommendationEntry(I, B) })).filter((I) => I.score > 0 || y?.random || m).sort((I, F) => F.score - I.score).map(({ entry: I }) => this._controlRoomNormalizeMediaEntry(I, I.media_type || "track", {
-        subtitle: I.folder_name || I.provider_label || this._m("Music Assistant recommendations", "המלצות Music Assistant")
+      const B = this._recommendationPresetTokens(y, m), I = S.map((E) => ({ entry: E, score: this._scoreNativeRecommendationEntry(E, B) })).filter((E) => E.score > 0 || y?.random || m).sort((E, F) => F.score - E.score).map(({ entry: E }) => this._controlRoomNormalizeMediaEntry(E, E.media_type || "track", {
+        subtitle: E.folder_name || E.provider_label || this._m("Music Assistant recommendations", "המלצות Music Assistant")
       }));
-      return this._controlRoomUniqueEntries(E).slice(0, Math.max(1, Math.min(30, Number(g) || 16)));
+      return this._controlRoomUniqueEntries(I).slice(0, Math.max(1, Math.min(30, Number(g) || 16)));
     }
     async _getLibrary(o, m = "sort_name", g = 500, y = !1) {
-      const S = `${o}:${m}:${g}:${y}`, B = Number(this._config.cache_ttl || 3e5), E = this._cache.library.get(S), I = Array.isArray(E?.items) ? E.items : [];
-      if (E && Date.now() - E.ts < B) return E.items;
+      const S = `${o}:${m}:${g}:${y}`, B = Number(this._config.cache_ttl || 3e5), I = this._cache.library.get(S), E = Array.isArray(I?.items) ? I.items : [];
+      if (I && Date.now() - I.ts < B) return I.items;
       if (m !== "random") {
         const Z = `${o}:${m}:`, $ = `:${y}`;
         for (const [ce, be] of this._cache.library) {
@@ -44096,18 +44096,18 @@ function vh({
           Z = await this._fetchLibrary(o, m, g, y);
         } catch ($) {
           if (this._isMusicAssistantAvailabilityError($)) {
-            if (this._handleMusicAssistantIssue($), I.length) return I;
+            if (this._handleMusicAssistantIssue($), E.length) return E;
             throw $;
           } else if (m !== "sort_name") Z = await this._fetchLibrary(o, "sort_name", g, y);
           else throw $;
         }
-        return (!Array.isArray(Z) || !Z.length) && I.length && this._state.engineStatus === "degraded" ? I : ((Array.isArray(Z) && Z.length || !this._state.musicAssistantIssueMessage) && this._cache.library.set(S, { ts: Date.now(), items: Z }), Z);
+        return (!Array.isArray(Z) || !Z.length) && E.length && this._state.engineStatus === "degraded" ? E : ((Array.isArray(Z) && Z.length || !this._state.musicAssistantIssueMessage) && this._cache.library.set(S, { ts: Date.now(), items: Z }), Z);
       };
       let O = this._libraryLoadPromises.get(S);
       return O || (O = F().finally(() => {
         this._libraryLoadPromises.get(S) === O && this._libraryLoadPromises.delete(S);
-      }), this._libraryLoadPromises.set(S, O)), I.length ? (O.catch(() => {
-      }), I) : O;
+      }), this._libraryLoadPromises.set(S, O)), E.length ? (O.catch(() => {
+      }), E) : O;
     }
     _mediaTypeCanOpenDetails(o = "") {
       return ["album", "artist", "playlist", "podcast"].includes(String(o || "").toLowerCase());
@@ -44142,10 +44142,10 @@ function vh({
       this._state.mobileLibraryDetailStack = [];
     }
     _findAlbumBrowseIndex(o = [], m = {}) {
-      const g = String(m?.uri || m?.media_item?.uri || "").trim().toLowerCase(), y = _.normalizeComparableText(m?.name || m?.title || m?.media_item?.name || ""), S = this._mediaYearValue(m) || "", B = g ? o.findIndex((E) => String(E?.uri || E?.media_item?.uri || "").trim().toLowerCase() === g) : -1;
-      return B >= 0 ? B : o.findIndex((E) => {
-        const I = _.normalizeComparableText(E?.name || E?.title || E?.media_item?.name || ""), F = this._mediaYearValue(E) || "";
-        return I && I === y && (!S || !F || S === F);
+      const g = String(m?.uri || m?.media_item?.uri || "").trim().toLowerCase(), y = _.normalizeComparableText(m?.name || m?.title || m?.media_item?.name || ""), S = this._mediaYearValue(m) || "", B = g ? o.findIndex((I) => String(I?.uri || I?.media_item?.uri || "").trim().toLowerCase() === g) : -1;
+      return B >= 0 ? B : o.findIndex((I) => {
+        const E = _.normalizeComparableText(I?.name || I?.title || I?.media_item?.name || ""), F = this._mediaYearValue(I) || "";
+        return E && E === y && (!S || !F || S === F);
       });
     }
     _albumBrowseContextFromDetail(o = {}, m = {}) {
@@ -44178,13 +44178,13 @@ function vh({
       return this._libraryMediaDetailCommandArgsList(o, m)[0] || null;
     }
     _libraryMediaDetailCommandArgsList(o = {}, m = "album") {
-      const g = String(m || o?.media_type || o?.type || "album").toLowerCase(), y = o?.media_item || {}, S = this._searchItemProviderMapping(o), B = String(o?.uri || y?.uri || "").trim(), E = this._parseMediaReference(B, g), I = [].concat(Array.isArray(o?.provider_mappings) ? o.provider_mappings : []).concat(Array.isArray(y?.provider_mappings) ? y.provider_mappings : []).concat(S && typeof S == "object" ? [S] : []), F = [], O = (Z, $) => {
+      const g = String(m || o?.media_type || o?.type || "album").toLowerCase(), y = o?.media_item || {}, S = this._searchItemProviderMapping(o), B = String(o?.uri || y?.uri || "").trim(), I = this._parseMediaReference(B, g), E = [].concat(Array.isArray(o?.provider_mappings) ? o.provider_mappings : []).concat(Array.isArray(y?.provider_mappings) ? y.provider_mappings : []).concat(S && typeof S == "object" ? [S] : []), F = [], O = (Z, $) => {
         const ce = String(Z || "").trim(), be = String($ || "").trim();
         if (!ce || !be) return;
         const ue = `${be}::${ce}`.toLowerCase();
         F.some((de) => de.key === ue) || F.push({ key: ue, item_id: ce, provider: be });
       };
-      return O(E?.item_id, E?.provider), O(o?.item_id || o?.id || y?.item_id || y?.id, o?.provider_instance || y?.provider_instance || o?.provider_domain || y?.provider_domain || o?.provider || y?.provider), O(S?.item_id || S?.provider_item_id, S?.provider_instance || S?.provider_domain || S?.provider || S?.provider_id), I.forEach((Z) => {
+      return O(I?.item_id, I?.provider), O(o?.item_id || o?.id || y?.item_id || y?.id, o?.provider_instance || y?.provider_instance || o?.provider_domain || y?.provider_domain || o?.provider || y?.provider), O(S?.item_id || S?.provider_item_id, S?.provider_instance || S?.provider_domain || S?.provider || S?.provider_id), E.forEach((Z) => {
         const $ = Z?.item_id || Z?.provider_item_id || Z?.media_item?.item_id || "", ce = this._parseMediaReference(Z?.uri || Z?.media_item?.uri || "", g);
         O($, Z?.provider_instance), O($, Z?.provider_domain), O($, Z?.provider), O($, Z?.provider_id), O(ce?.item_id, ce?.provider), O(ce?.item_id, Z?.provider_instance || Z?.provider_domain || Z?.provider || Z?.provider_id);
       }), F.map(({ item_id: Z, provider: $ }) => ({ item_id: Z, provider: $ }));
@@ -44197,14 +44197,14 @@ function vh({
         g.media_type || g.type || g.media_content_type || g.media_class || o.media_type || o.type || o.media_content_type || o.media_class || ""
       ).toLowerCase();
       if (y && !["track", "song", "music", "album_track", "albumtrack", "podcast_episode"].includes(y) || !m && !y && !g.uri && !g.media_content_id && !g.item_id) return null;
-      const S = y === "podcast_episode" ? "podcast_episode" : "track", B = this._normalizeSearchItem(g, S), E = String(B?.uri || g.uri || g.media_content_id || o.uri || o.media_content_id || "").trim(), I = B?.name || g.name || g.title || o.name || o.title || o.media_title || "";
-      if (!E && !I) return null;
+      const S = y === "podcast_episode" ? "podcast_episode" : "track", B = this._normalizeSearchItem(g, S), I = String(B?.uri || g.uri || g.media_content_id || o.uri || o.media_content_id || "").trim(), E = B?.name || g.name || g.title || o.name || o.title || o.media_title || "";
+      if (!I && !E) return null;
       const F = Array.isArray(B?.artists) ? B.artists : Array.isArray(g.artists) ? g.artists : Array.isArray(o.artists) ? o.artists : [], O = B?.artist_str || g.artist_str || g.artist || o.artist_str || o.artist || o.media_artist || F.map((be) => be?.name || be).filter(Boolean).join(", "), Z = B?.album || g.album || o.album || {}, $ = typeof Z == "string" ? { name: Z } : Z, ce = this._artUrl(B) || this._artUrl(g) || this._artUrl(o) || "";
       return {
         ...B,
         media_type: S,
-        uri: E,
-        name: I,
+        uri: I,
+        name: E,
         artists: F,
         artist_str: O,
         album: $,
@@ -44213,31 +44213,31 @@ function vh({
       };
     }
     _libraryMediaDetailTracksFromPayload(o, m = {}) {
-      const g = [], y = /* @__PURE__ */ new Set(), S = (E, I = !1) => {
-        const F = this._normalizeLibraryDetailTrack(E, I);
+      const g = [], y = /* @__PURE__ */ new Set(), S = (I, E = !1) => {
+        const F = this._normalizeLibraryDetailTrack(I, E);
         if (!F) return !1;
         const O = String(F.uri || `${F.name}:${F.artist_str || ""}`).trim().toLowerCase();
         return !O || y.has(O) || (y.add(O), g.push(F)), !0;
-      }, B = (E, I = !1, F = 0) => {
-        if (!(E == null || F > 5)) {
-          if (Array.isArray(E)) {
-            E.forEach((O) => {
-              S(O, I) || B(O, I, F + 1);
+      }, B = (I, E = !1, F = 0) => {
+        if (!(I == null || F > 5)) {
+          if (Array.isArray(I)) {
+            I.forEach((O) => {
+              S(O, E) || B(O, E, F + 1);
             });
             return;
           }
-          typeof E == "object" && (S(E, I) || ["tracks", "playlist_tracks", "album_tracks", "items", "media_items", "children", "contents", "result", "response"].forEach((O) => {
-            O in E && B(E[O], I || O.includes("track"), F + 1);
+          typeof I == "object" && (S(I, E) || ["tracks", "playlist_tracks", "album_tracks", "items", "media_items", "children", "contents", "result", "response"].forEach((O) => {
+            O in I && B(I[O], E || O.includes("track"), F + 1);
           }));
         }
       };
       return B(o?.result ?? o?.response ?? o, !!m.forceTrackItems, 0), g;
     }
     _sortLibraryDetailTracks(o = []) {
-      const m = Array.isArray(o) ? [...o] : [], g = (E) => Number(E?.track_number ?? E?.trackNumber ?? E?.media_item?.track_number), y = (E) => Number(E?.disc_number ?? E?.discNumber ?? E?.media_item?.disc_number), S = (E) => Number.isInteger(E) && E > 0;
-      if (!m.every((E) => S(g(E)))) return m;
-      const B = m.some((E) => S(y(E)));
-      return B && !m.every((E) => S(y(E))) ? m : m.sort((E, I) => (B ? y(E) - y(I) : 0) || g(E) - g(I));
+      const m = Array.isArray(o) ? [...o] : [], g = (I) => Number(I?.track_number ?? I?.trackNumber ?? I?.media_item?.track_number), y = (I) => Number(I?.disc_number ?? I?.discNumber ?? I?.media_item?.disc_number), S = (I) => Number.isInteger(I) && I > 0;
+      if (!m.every((I) => S(g(I)))) return m;
+      const B = m.some((I) => S(y(I)));
+      return B && !m.every((I) => S(y(I))) ? m : m.sort((I, E) => (B ? y(I) - y(E) : 0) || g(I) - g(E));
     }
     _libraryTrackMatchesAlbum(o = {}, m = {}) {
       const g = _.normalizeComparableText(m?.name || m?.title || "");
@@ -44268,25 +44268,25 @@ function vh({
       ].map((B) => String(B || "").trim()).filter(Boolean), g = [...new Set(m)], y = [];
       for (const B of g)
         try {
-          const E = await this._fetchLibrary("track", "sort_name", 1e3, !1, B);
-          y.push(...Array.isArray(E) ? E : []);
+          const I = await this._fetchLibrary("track", "sort_name", 1e3, !1, B);
+          y.push(...Array.isArray(I) ? I : []);
         } catch {
         }
       const S = y.map((B) => this._normalizeLibraryDetailTrack(B, !0)).filter((B) => B?.uri && this._libraryTrackMatchesAlbum(B, o) && this._libraryTrackMatchesArtist(B, o));
       return this._sortLibraryDetailTracks(S);
     }
     _libraryMediaItemsFromPayload(o, m = "album") {
-      const g = String(m || "album").toLowerCase(), y = [], S = /* @__PURE__ */ new Set(), B = (I) => {
-        if (!I || typeof I != "object") return !1;
-        const F = I.media_item || I.item || I;
+      const g = String(m || "album").toLowerCase(), y = [], S = /* @__PURE__ */ new Set(), B = (E) => {
+        if (!E || typeof E != "object") return !1;
+        const F = E.media_item || E.item || E;
         if (!F || typeof F != "object") return !1;
         const O = String(
-          F.media_type || F.type || F.media_content_type || F.media_class || I.media_type || I.type || I.media_content_type || I.media_class || ""
+          F.media_type || F.type || F.media_content_type || F.media_class || E.media_type || E.type || E.media_content_type || E.media_class || ""
         ).toLowerCase();
         if (O && O !== g) return !1;
         const Z = this._normalizeSearchItem(F, g);
         if (String(Z?.media_type || g).toLowerCase() !== g) return !1;
-        const ce = String(Z?.uri || F.uri || F.media_content_id || I.uri || I.media_content_id || "").trim(), be = String(Z?.name || Z?.title || F.name || F.title || I.name || I.title || "").trim();
+        const ce = String(Z?.uri || F.uri || F.media_content_id || E.uri || E.media_content_id || "").trim(), be = String(Z?.name || Z?.title || F.name || F.title || E.name || E.title || "").trim();
         if (!ce && !be) return !1;
         const ue = String(ce || `${be}:${Z?.provider || F.provider || ""}`).toLowerCase();
         return S.has(ue) || (S.add(ue), y.push({
@@ -44294,23 +44294,23 @@ function vh({
           media_type: g,
           uri: ce,
           name: be,
-          image: Z?.image || Z?.image_url || F.image || F.image_url || I.image || I.image_url || "",
-          image_url: Z?.image_url || Z?.image || F.image_url || F.image || I.image_url || I.image || ""
+          image: Z?.image || Z?.image_url || F.image || F.image_url || E.image || E.image_url || "",
+          image_url: Z?.image_url || Z?.image || F.image_url || F.image || E.image_url || E.image || ""
         })), !0;
-      }, E = (I, F = !1, O = 0) => {
-        if (I == null || O > 5) return;
-        if (Array.isArray(I)) {
-          I.forEach(($) => {
-            B($) || E($, F, O + 1);
+      }, I = (E, F = !1, O = 0) => {
+        if (E == null || O > 5) return;
+        if (Array.isArray(E)) {
+          E.forEach(($) => {
+            B($) || I($, F, O + 1);
           });
           return;
         }
-        if (typeof I != "object" || F && B(I)) return;
+        if (typeof E != "object" || F && B(E)) return;
         (g === "album" ? ["albums", "album", "items", "media_items", "children", "contents", "result", "response"] : ["playlists", "playlist", "items", "media_items", "children", "contents", "result", "response"]).forEach(($) => {
-          $ in I && E(I[$], ["albums", "album", "playlists", "playlist", "items", "media_items"].includes($), O + 1);
+          $ in E && I(E[$], ["albums", "album", "playlists", "playlist", "items", "media_items"].includes($), O + 1);
         });
       };
-      return E(o?.result ?? o?.response ?? o, !1, 0), y;
+      return I(o?.result ?? o?.response ?? o, !1, 0), y;
     }
     _mediaYearValue(o = {}) {
       const m = o?.metadata || o?.media_item?.metadata || {}, g = o?.album || o?.media_item?.album || {}, y = [
@@ -44330,8 +44330,8 @@ function vh({
         m.original_date
       ];
       for (const S of y) {
-        const E = String(S ?? "").trim().match(/\b(19|20)\d{2}\b/), I = Number(E ? E[0] : S);
-        if (Number.isInteger(I) && I >= 1900 && I <= 2100) return I;
+        const I = String(S ?? "").trim().match(/\b(19|20)\d{2}\b/), E = Number(I ? I[0] : S);
+        if (Number.isInteger(E) && E >= 1900 && E <= 2100) return E;
       }
       return 0;
     }
@@ -44354,10 +44354,10 @@ function vh({
       for (const S of y) {
         const B = String(S ?? "").trim();
         if (!B) continue;
-        const E = B.match(/\b(19|20)\d{2}[-/.]\d{1,2}[-/.]\d{1,2}\b/);
-        if (E) return E[0].replace(/[/.]/g, "-");
-        const I = B.match(/\b(19|20)\d{2}\b/);
-        if (I) return I[0];
+        const I = B.match(/\b(19|20)\d{2}[-/.]\d{1,2}[-/.]\d{1,2}\b/);
+        if (I) return I[0].replace(/[/.]/g, "-");
+        const E = B.match(/\b(19|20)\d{2}\b/);
+        if (E) return E[0];
       }
       return "";
     }
@@ -44421,14 +44421,14 @@ function vh({
       if (!o) return null;
       const g = o?.media_item || o?.item || o, y = g?.album && typeof g.album == "object" ? g.album : o?.album && typeof o.album == "object" ? o.album : g, S = typeof g?.album == "string" ? g.album : typeof o?.album == "string" ? o.album : "", B = this._normalizeSearchItem(S ? { name: S, media_type: "album" } : y, "album");
       if (!B || typeof B != "object") return null;
-      const E = String(B.name || B.title || y?.name || y?.title || S || "").trim(), I = String(B.uri || y?.uri || o?.uri || "").trim();
-      if (!I && !E) return null;
+      const I = String(B.name || B.title || y?.name || y?.title || S || "").trim(), E = String(B.uri || y?.uri || o?.uri || "").trim();
+      if (!E && !I) return null;
       const F = this._artUrl(B, { size: 300 }) || this._artUrl(y, { size: 300 }) || this._artUrl(o, { size: 300 }) || B.image || B.image_url || y?.image || y?.image_url || "";
       return {
         ...B,
         media_type: "album",
-        uri: I,
-        name: E,
+        uri: E,
+        name: I,
         artist: B.artist || B.artist_str || this._artistName(o) || o?.artist || o?.artist_str || m || "",
         artist_str: B.artist_str || B.artist || this._artistName(o) || o?.artist_str || o?.artist || m || "",
         image: B.image || B.image_url || F,
@@ -44436,32 +44436,32 @@ function vh({
       };
     }
     _dedupeArtistAlbums(o = []) {
-      const m = /* @__PURE__ */ new Set(), g = /* @__PURE__ */ new Map(), y = (I = {}) => {
-        const F = _.normalizeComparableText(I?.name || I?.title || I?.media_item?.name || "");
+      const m = /* @__PURE__ */ new Set(), g = /* @__PURE__ */ new Map(), y = (E = {}) => {
+        const F = _.normalizeComparableText(E?.name || E?.title || E?.media_item?.name || "");
         if (!F) return "";
-        const O = this._mediaYearValue(I) || "";
+        const O = this._mediaYearValue(E) || "";
         return O ? `${F}::${O}` : F;
-      }, S = (I = {}) => {
-        const O = y(I).split("::")[0] || "";
+      }, S = (E = {}) => {
+        const O = y(E).split("::")[0] || "";
         if (!O) return "";
-        const Z = this._mediaYearValue(I) || "", $ = _.normalizeComparableText(this._artistName(I) || I?.artist_str || I?.artist || "");
+        const Z = this._mediaYearValue(E) || "", $ = _.normalizeComparableText(this._artistName(E) || E?.artist_str || E?.artist || "");
         return [O, Z, $].filter((ce) => ce !== "").join("::");
-      }, B = (I = {}) => {
+      }, B = (E = {}) => {
         let F = 0;
-        return I.uri && (F += 4), this._mediaYearValue(I) && (F += 2), (this._artUrl(I) || I.image || I.image_url) && (F += 2), (I.provider_instance === "library" || I.provider === "library") && (F += 3), Array.isArray(I.provider_mappings) && I.provider_mappings.length && (F += I.provider_mappings.length), F;
-      }, E = [];
-      return (Array.isArray(o) ? o : []).forEach((I) => {
-        const F = String(I?.uri || I?.media_item?.uri || "").trim().toLowerCase(), O = S(I), Z = y(I);
+        return E.uri && (F += 4), this._mediaYearValue(E) && (F += 2), (this._artUrl(E) || E.image || E.image_url) && (F += 2), (E.provider_instance === "library" || E.provider === "library") && (F += 3), Array.isArray(E.provider_mappings) && E.provider_mappings.length && (F += E.provider_mappings.length), F;
+      }, I = [];
+      return (Array.isArray(o) ? o : []).forEach((E) => {
+        const F = String(E?.uri || E?.media_item?.uri || "").trim().toLowerCase(), O = S(E), Z = y(E);
         if (F && m.has(F)) return;
         const $ = O && g.has(O) ? g.get(O) : Z && g.has(`title:${Z}`) ? g.get(`title:${Z}`) : -1;
         if ($ >= 0) {
-          B(I) > B(E[$]) && (E[$] = I, F && m.add(F));
+          B(E) > B(I[$]) && (I[$] = E, F && m.add(F));
           return;
         }
         if (!F && !O && !Z) return;
-        const ce = E.length;
-        F && m.add(F), O && g.set(O, ce), Z && g.set(`title:${Z}`, ce), E.push(I);
-      }), E;
+        const ce = I.length;
+        F && m.add(F), O && g.set(O, ce), Z && g.set(`title:${Z}`, ce), I.push(E);
+      }), I;
     }
     _artistAlbumsFromTracksPayload(o, m = "") {
       const y = this._libraryMediaDetailTracksFromPayload(o, { forceTrackItems: !0 }).map((S) => {
@@ -44473,32 +44473,32 @@ function vh({
     async _loadArtistPlaylistRecommendations(o = "") {
       const m = String(o || "").trim();
       if (!m) return [];
-      const g = _.normalizeComparableText(m), y = /* @__PURE__ */ new Set(), S = [], B = (E = {}) => {
-        const I = this._normalizeSearchItem(E, "playlist"), F = String(I?.uri || "").trim(), O = String(I?.name || I?.title || "").trim();
+      const g = _.normalizeComparableText(m), y = /* @__PURE__ */ new Set(), S = [], B = (I = {}) => {
+        const E = this._normalizeSearchItem(I, "playlist"), F = String(E?.uri || "").trim(), O = String(E?.name || E?.title || "").trim();
         if (!F && !O) return;
         const Z = String(F || O).toLowerCase();
         if (y.has(Z)) return;
         const $ = _.normalizeComparableText([
           O,
-          I?.description,
-          I?.metadata?.description,
-          I?.provider_label,
-          I?.provider
+          E?.description,
+          E?.metadata?.description,
+          E?.provider_label,
+          E?.provider
         ].filter(Boolean).join(" "));
         y.add(Z), S.push({
-          ...I,
+          ...E,
           media_type: "playlist",
           _homeiiArtistPlaylistScore: $.includes(g) ? 4 : 1
         });
       };
-      for (const E of [`${m} playlist`, `${m} playlists`, m]) {
+      for (const I of [`${m} playlist`, `${m} playlists`, m]) {
         try {
-          ((await this._search(E)).playlists || []).forEach(B);
+          ((await this._search(I)).playlists || []).forEach(B);
         } catch {
         }
         if (S.length >= 12) break;
       }
-      return S.sort((E, I) => Number(I._homeiiArtistPlaylistScore || 0) - Number(E._homeiiArtistPlaylistScore || 0)).slice(0, 12).map(({ _homeiiArtistPlaylistScore: E, ...I }) => I);
+      return S.sort((I, E) => Number(E._homeiiArtistPlaylistScore || 0) - Number(I._homeiiArtistPlaylistScore || 0)).slice(0, 12).map(({ _homeiiArtistPlaylistScore: I, ...E }) => E);
     }
     async _loadLibraryMediaDetailTracksViaHaBrowse(o = {}) {
       return [];
@@ -44517,10 +44517,10 @@ function vh({
           this._libraryDetailLoadPromises.get(y) === $ && this._libraryDetailLoadPromises.delete(y);
         }
       }
-      const E = [], I = this._libraryMediaDetailCommandArgsList(o, m);
+      const I = [], E = this._libraryMediaDetailCommandArgsList(o, m);
       if (m === "podcast") {
         let Z;
-        for (const $ of I)
+        for (const $ of E)
           try {
             const ce = await this._callEngineMaCommand("music/podcasts/podcast_episodes", {
               item_id: $.item_id,
@@ -44532,21 +44532,21 @@ function vh({
           }
         throw Z || new Error(this._m("Could not resolve this podcast.", "לא ניתן לזהות את הפודקאסט."));
       }
-      I.length && (m === "album" ? I.forEach((Z) => {
-        E.push({
+      E.length && (m === "album" ? E.forEach((Z) => {
+        I.push({
           command: "music/albums/album_tracks",
           args: { item_id: Z.item_id, provider_instance_id_or_domain: Z.provider, in_library_only: !1 },
           forceTrackItems: !0
         });
-      }) : m === "playlist" && I.forEach((Z) => {
-        E.push({
+      }) : m === "playlist" && E.forEach((Z) => {
+        I.push({
           command: "music/playlists/playlist_tracks",
           args: { item_id: Z.item_id, provider_instance_id_or_domain: Z.provider, force_refresh: !1 },
           forceTrackItems: !0
         });
-      })), g && E.push({ command: "music/item_by_uri", args: { uri: g }, forceTrackItems: !1 });
+      })), g && I.push({ command: "music/item_by_uri", args: { uri: g }, forceTrackItems: !1 });
       let F = null, O = [];
-      for (const Z of E)
+      for (const Z of I)
         try {
           const $ = await this._callEngineMaCommand(Z.command, Z.args), ce = this._libraryMediaDetailTracksFromPayload($, { forceTrackItems: Z.forceTrackItems }), be = m === "playlist" ? ce : this._sortLibraryDetailTracks(ce);
           if (Z.forceTrackItems)
@@ -44587,28 +44587,28 @@ function vh({
           this._artistDetailLoadPromises.get(y) === he && this._artistDetailLoadPromises.delete(y);
         }
       }
-      let E = { ...o, media_type: "artist", uri: m };
-      delete E._homeiiSingleflight;
-      let I = null;
+      let I = { ...o, media_type: "artist", uri: m };
+      delete I._homeiiSingleflight;
+      let E = null;
       if (m)
         try {
           const me = await this._callEngineMaCommand("music/item_by_uri", { uri: m });
-          I = me;
+          E = me;
           const he = me?.media_item || me?.item || me;
-          he && typeof he == "object" && (E = {
-            ...E,
+          he && typeof he == "object" && (I = {
+            ...I,
             ...this._normalizeSearchItem(he, "artist"),
             media_type: "artist",
             uri: String(he.uri || m).trim() || m
           });
         } catch {
         }
-      const F = String(E?.name || g || "").trim(), O = [], Z = (me) => {
+      const F = String(I?.name || g || "").trim(), O = [], Z = (me) => {
         if (!me?.item_id || !me?.provider) return;
         const he = `${me.provider}::${me.item_id}`.toLowerCase();
         O.some((ve) => ve.key === he) || O.push({ key: he, item_id: me.item_id, provider: me.provider });
       };
-      this._libraryMediaDetailCommandArgsList(E, "artist").forEach(Z), this._libraryMediaDetailCommandArgsList(o, "artist").forEach(Z);
+      this._libraryMediaDetailCommandArgsList(I, "artist").forEach(Z), this._libraryMediaDetailCommandArgsList(o, "artist").forEach(Z);
       const $ = [];
       O.forEach((me) => {
         $.push({
@@ -44626,7 +44626,7 @@ function vh({
         const ve = (Array.isArray(me) ? me : []).map((xe) => this._normalizeArtistAlbumCandidate(xe, F)).filter((xe) => xe?.uri || xe?.name).filter((xe) => he || this._artistAlbumMatches(xe, F));
         ve.length && (ce = this._dedupeArtistAlbums([...ce, ...ve]));
       };
-      I && be(this._libraryMediaItemsFromPayload(I, "album"), { trusted: !0 });
+      E && be(this._libraryMediaItemsFromPayload(E, "album"), { trusted: !0 });
       for (const me of $) {
         if (ce.length) break;
         try {
@@ -44659,7 +44659,7 @@ function vh({
         const ve = this._mediaYearValue(me), xe = this._mediaYearValue(he);
         return ve !== xe ? xe - ve : String(me?.name || "").localeCompare(String(he?.name || ""), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: !0 });
       });
-      const ue = [], de = { artistInfo: E, albums: ce, playlists: ue };
+      const ue = [], de = { artistInfo: I, albums: ce, playlists: ue };
       return (ce.length || ue.length || !this._state.musicAssistantIssueMessage) && this._cache.library.set(y, { ts: Date.now(), detail: de }), this._loadArtistPlaylistRecommendations(F).then((me) => {
         if (this._cache.library.get(y)?.detail !== de) return;
         de.playlists = me;
@@ -44673,9 +44673,9 @@ function vh({
       const y = String(o?.media_type || o?.type || "album").toLowerCase(), S = String(o?.uri || "").trim();
       if (!S || !this._mediaTypeCanOpenDetails(y)) return !1;
       m && this._flashInteraction(m);
-      const B = `${y}:${S}:${Date.now()}`, E = this._state.menuPage === "media_detail" ? this._state.mobileLibraryDetail : null, I = g?.replaceCurrentDetail === !0;
-      !!(E && !I && E.token && String(E.uri || "") !== S) ? this._pushCurrentLibraryDetailStack() : E || this._clearLibraryDetailStack();
-      const O = g?.albumBrowseContext || (y === "album" ? this._albumBrowseContextFromDetail(E, o) : null), Z = this._state.menuPage === "discovery" || String(this._state.menuPage || "").startsWith("library_") ? this._state.menuPage : this._libraryDetailParentPageForType(y);
+      const B = `${y}:${S}:${Date.now()}`, I = this._state.menuPage === "media_detail" ? this._state.mobileLibraryDetail : null, E = g?.replaceCurrentDetail === !0;
+      !!(I && !E && I.token && String(I.uri || "") !== S) ? this._pushCurrentLibraryDetailStack() : I || this._clearLibraryDetailStack();
+      const O = g?.albumBrowseContext || (y === "album" ? this._albumBrowseContextFromDetail(I, o) : null), Z = this._state.menuPage === "discovery" || String(this._state.menuPage || "").startsWith("library_") ? this._state.menuPage : this._libraryDetailParentPageForType(y);
       return this._state.mobileLibraryDetailParentPage = Z, this._state.mobileLibraryDetail = {
         ...o,
         uri: S,
@@ -44755,25 +44755,25 @@ function vh({
         headers: { Accept: "application/json" }
       });
       if (!B.ok) throw new Error(`Radio Browser countries ${B.status}`);
-      const E = await B.json(), I = (Array.isArray(E) ? E : []).map((F) => ({
+      const I = await B.json(), E = (Array.isArray(I) ? I : []).map((F) => ({
         code: String(F.iso_3166_1 || F.countrycode || "").trim().toUpperCase(),
         name: F.name || F.country || "",
         stationcount: Number(F.stationcount || 0) || 0
       })).filter((F) => F.code && F.name && F.stationcount > 0).sort((F, O) => F.name.localeCompare(O.name)).slice(0, m);
-      return this._cache.library.set(g, { ts: Date.now(), items: I }), I;
+      return this._cache.library.set(g, { ts: Date.now(), items: E }), E;
     }
     async _fetchRadioBrowserStations(o = "", m = 40, g = {}) {
       if (this._state?.engineCapabilities?.radio_directory)
         return this._homeiiEngineCommand("radio/search", { query: o, limit: Math.max(8, Math.min(80, Number(m) || 40)), country: g.countryCode || "", tag: g.tag || "" }, { timeoutMs: 15e3 });
-      const y = Math.max(8, Math.min(80, Number(m) || 40)), S = String(o || "").trim(), B = String(g.countryCode || "").trim().toUpperCase(), E = String(g.tag || "").trim(), I = B && B !== "ALL";
+      const y = Math.max(8, Math.min(80, Number(m) || 40)), S = String(o || "").trim(), B = String(g.countryCode || "").trim().toUpperCase(), I = String(g.tag || "").trim(), E = B && B !== "ALL";
       let F;
-      if (S || E) {
+      if (S || I) {
         const $ = new URLSearchParams({
           hidebroken: "true",
           limit: String(y)
         });
-        S && $.set("name", S), E && ($.set("tag", E), $.set("tagExact", "true"), $.set("order", "votes"), $.set("reverse", "true")), I && $.set("countrycode", B), F = `https://de1.api.radio-browser.info/json/stations/search?${$.toString()}`;
-      } else I ? F = `https://de1.api.radio-browser.info/json/stations/bycountrycodeexact/${encodeURIComponent(B)}?hidebroken=true&limit=${y}&order=votes&reverse=true` : F = `https://de1.api.radio-browser.info/json/stations/topvote/${y}`;
+        S && $.set("name", S), I && ($.set("tag", I), $.set("tagExact", "true"), $.set("order", "votes"), $.set("reverse", "true")), E && $.set("countrycode", B), F = `https://de1.api.radio-browser.info/json/stations/search?${$.toString()}`;
+      } else E ? F = `https://de1.api.radio-browser.info/json/stations/bycountrycodeexact/${encodeURIComponent(B)}?hidebroken=true&limit=${y}&order=votes&reverse=true` : F = `https://de1.api.radio-browser.info/json/stations/topvote/${y}`;
       const O = await fetch(F, {
         signal: globalThis.AbortSignal?.timeout?.(12e3),
         headers: {
@@ -44806,7 +44806,7 @@ function vh({
         S?.media_type || y?.media_type || o?.attributes?.media_content_type || o?.attributes?.media_channel || ""
       ).toLowerCase();
       if (B === "radio") return !0;
-      const E = [
+      const I = [
         S?.uri,
         y?.uri,
         y?.media_content_id,
@@ -44827,8 +44827,8 @@ function vh({
         y?.metadata?.stationuuid,
         S?.metadata?.stream_url,
         y?.metadata?.stream_url
-      ].map((I) => String(I || "").toLowerCase()).filter(Boolean).join(" | ");
-      return /(radiobrowser|radio_browser|stationuuid|tunein|streamurl|stream url|icy|webradio)/.test(E) ? !0 : ["track", "song", "album", "playlist", "artist"].includes(B) ? !1 : /(^|[/:._-])radio([/:._-]|$)/.test(E);
+      ].map((E) => String(E || "").toLowerCase()).filter(Boolean).join(" | ");
+      return /(radiobrowser|radio_browser|stationuuid|tunein|streamurl|stream url|icy|webradio)/.test(I) ? !0 : ["track", "song", "album", "playlist", "artist"].includes(B) ? !1 : /(^|[/:._-])radio([/:._-]|$)/.test(I);
     }
     async _playAdjacentRadioStation(o = "next") {
       const m = this._currentRadioIdentity();
@@ -44847,9 +44847,9 @@ function vh({
       }
       if (!y.length) return !1;
       const S = m.uri.toLowerCase(), B = m.name.toLowerCase();
-      let E = y.findIndex(($) => String($.uri || "").toLowerCase() === S);
-      E < 0 && B && (E = y.findIndex(($) => String($.name || "").toLowerCase() === B));
-      const I = o === "next" ? -1 : 0, F = E >= 0 ? E : I, O = o === "next" ? (F + 1) % y.length : (F - 1 + y.length) % y.length, Z = y[O];
+      let I = y.findIndex(($) => String($.uri || "").toLowerCase() === S);
+      I < 0 && B && (I = y.findIndex(($) => String($.name || "").toLowerCase() === B));
+      const E = o === "next" ? -1 : 0, F = I >= 0 ? I : E, O = o === "next" ? (F + 1) % y.length : (F - 1 + y.length) % y.length, Z = y[O];
       return Z?.uri ? (await this._playMedia(Z.uri, "radio", "play", { label: Z.name || "Radio", silent: !0 }), this._toastSuccess(this._i18n("ui.radio_station_changed")), !0) : !1;
     }
     _searchItemProviderMapping(o = {}) {
@@ -44860,10 +44860,10 @@ function vh({
       if (g) return g;
       const y = this._searchItemProviderMapping(o), S = String(y?.uri || y?.media_item?.uri || "").trim();
       if (S) return S;
-      const B = String(o?.item_id || o?.id || y?.item_id || y?.provider_item_id || "").trim(), E = String(
+      const B = String(o?.item_id || o?.id || y?.item_id || y?.provider_item_id || "").trim(), I = String(
         o?.provider || o?.provider_domain || o?.provider_instance || o?.provider_id || y?.provider_domain || y?.provider_instance || y?.provider || y?.provider_id || ""
-      ).trim(), I = String(o?.media_type || o?.type || o?.media_item?.media_type || m || "track").toLowerCase();
-      return E && B ? `${E}://${I}/${B}` : "";
+      ).trim(), E = String(o?.media_type || o?.type || o?.media_item?.media_type || m || "track").toLowerCase();
+      return I && B ? `${I}://${E}/${B}` : "";
     }
     _normalizeSearchItem(o = {}, m = "track") {
       if (!o || typeof o != "object") return o;
@@ -44893,12 +44893,12 @@ function vh({
         });
       }, B = (F = {}) => {
         m.radio.push(...g(F.radio || F.radios).map((O) => this._normalizeSearchItem(O, "radio"))), m.podcasts.push(...g(F.podcast || F.podcasts).map((O) => this._normalizeSearchItem(O, "podcast"))), m.albums.push(...g(F.album || F.albums).map((O) => this._normalizeSearchItem(O, "album"))), m.artists.push(...g(F.artist || F.artists).map((O) => this._normalizeSearchItem(O, "artist"))), m.tracks.push(...g(F.track || F.tracks).map((O) => this._normalizeSearchItem(O, "track"))), m.playlists.push(...g(F.playlist || F.playlists).map((O) => this._normalizeSearchItem(O, "playlist"))), m.genres.push(...g(F.genre || F.genres).map((O) => this._normalizeSearchItem(O, "genre")));
-      }, E = o.response ?? o.result ?? o, I = [E];
-      return E?.response && I.push(E.response), E?.result && I.push(E.result), E?.data && I.push(E.data), E && typeof E == "object" && !Array.isArray(E) && Object.values(E).forEach((F) => {
+      }, I = o.response ?? o.result ?? o, E = [I];
+      return I?.response && E.push(I.response), I?.result && E.push(I.result), I?.data && E.push(I.data), I && typeof I == "object" && !Array.isArray(I) && Object.values(I).forEach((F) => {
         if (!F || typeof F != "object" || Array.isArray(F)) return;
         const O = F.response ?? F.result ?? F;
-        O && typeof O == "object" && I.push(O);
-      }), I.forEach((F) => {
+        O && typeof O == "object" && E.push(O);
+      }), E.forEach((F) => {
         B(F), S(Array.isArray(F) ? F : []), S(F?.items), S(F?.media), S(F?.media_items), S(F?.library_items), S(F?.results);
       }), m;
     }
@@ -44912,9 +44912,9 @@ function vh({
       const m = this._emptySearchResults(), g = ["radio", "podcasts", "albums", "artists", "tracks", "playlists", "genres"], y = /* @__PURE__ */ new Set();
       return o.forEach((S) => {
         g.forEach((B) => {
-          (Array.isArray(S?.[B]) ? S[B] : []).forEach((I) => {
-            const F = String(I?.uri || I?.media_item?.uri || "").trim(), O = String(I?.name || I?.title || I?.media_item?.name || "").trim().toLowerCase(), Z = String(I?.provider || I?.provider_id || I?.provider_domain || I?.media_item?.provider || "").trim().toLowerCase(), $ = `${B}:${F || `${Z}:${O}`}`;
-            !$ || y.has($) || (y.add($), m[B].push(I));
+          (Array.isArray(S?.[B]) ? S[B] : []).forEach((E) => {
+            const F = String(E?.uri || E?.media_item?.uri || "").trim(), O = String(E?.name || E?.title || E?.media_item?.name || "").trim().toLowerCase(), Z = String(E?.provider || E?.provider_id || E?.provider_domain || E?.media_item?.provider || "").trim().toLowerCase(), $ = `${B}:${F || `${Z}:${O}`}`;
+            !$ || y.has($) || (y.add($), m[B].push(E));
           });
         });
       }), m;
@@ -44930,38 +44930,38 @@ function vh({
         track: "tracks",
         playlist: "playlists",
         genre: "genres"
-      }, B = /* @__PURE__ */ new Set(), E = (I, F) => {
-        const O = String(I?.name || I?.title || I?.media_item?.name || "").toLowerCase(), Z = String(this._artistName?.(I) || I?.artist || I?.artist_str || "").toLowerCase(), $ = String(I?.album?.name || I?.media_item?.album?.name || "").toLowerCase();
-        if (![O, Z, $, I?.metadata?.description, I?.description].filter(Boolean).join(" ").toLowerCase().includes(g)) return 0;
+      }, B = /* @__PURE__ */ new Set(), I = (E, F) => {
+        const O = String(E?.name || E?.title || E?.media_item?.name || "").toLowerCase(), Z = String(this._artistName?.(E) || E?.artist || E?.artist_str || "").toLowerCase(), $ = String(E?.album?.name || E?.media_item?.album?.name || "").toLowerCase();
+        if (![O, Z, $, E?.metadata?.description, E?.description].filter(Boolean).join(" ").toLowerCase().includes(g)) return 0;
         let be = 1;
         return O.startsWith(g) && (be += 6), O === g && (be += 4), Z.startsWith(g) && (be += 3), F === "track" && (be += 1), be;
       };
-      for (const [I, F] of this._cache.library.entries()) {
-        const O = String(I || "").split(":")[0], Z = S[O];
+      for (const [E, F] of this._cache.library.entries()) {
+        const O = String(E || "").split(":")[0], Z = S[O];
         !Z || !Array.isArray(F?.items) || F.items.forEach(($) => {
           const ce = String($?.uri || $?.media_item?.uri || "").trim(), be = `${Z}:${ce || $?.item_id || $?.name || ""}`;
           if (!be || B.has(be)) return;
-          const ue = E($, O);
+          const ue = I($, O);
           ue && (B.add(be), y[Z].push({ ...$, media_type: $?.media_type || O, _homeiiSearchScore: ue }));
         });
       }
-      return Object.keys(y).forEach((I) => {
-        y[I] = y[I].sort((F, O) => Number(O._homeiiSearchScore || 0) - Number(F._homeiiSearchScore || 0)).slice(0, m).map(({ _homeiiSearchScore: F, ...O }) => O);
+      return Object.keys(y).forEach((E) => {
+        y[E] = y[E].sort((F, O) => Number(O._homeiiSearchScore || 0) - Number(F._homeiiSearchScore || 0)).slice(0, m).map(({ _homeiiSearchScore: F, ...O }) => O);
       }), y;
     }
     async _searchPreviewResults(o = "", m = 8) {
       const g = String(o || "").trim(), y = this._cachedLibrarySearchResults(g, m);
       if (this._hasSearchResults(y)) return y;
       if (!g) return this._emptySearchResults();
-      const S = Math.max(4, Math.min(20, Number(m || 8) || 8)), B = await this._search(g, { fastOnly: !0, limit: S }), E = (I) => (Array.isArray(I) ? I : []).slice(0, S);
+      const S = Math.max(4, Math.min(20, Number(m || 8) || 8)), B = await this._search(g, { fastOnly: !0, limit: S }), I = (E) => (Array.isArray(E) ? E : []).slice(0, S);
       return {
-        radio: E(B.radio),
-        podcasts: E(B.podcasts),
-        albums: E(B.albums),
-        artists: E(B.artists),
-        tracks: E(B.tracks),
-        playlists: E(B.playlists),
-        genres: E(B.genres)
+        radio: I(B.radio),
+        podcasts: I(B.podcasts),
+        albums: I(B.albums),
+        artists: I(B.artists),
+        tracks: I(B.tracks),
+        playlists: I(B.playlists),
+        genres: I(B.genres)
       };
     }
     async _search(o, m = {}) {
@@ -44969,22 +44969,22 @@ function vh({
       if (!g) return this._emptySearchResults();
       const y = m?.providerOnly ? "provider" : m?.fastOnly ? "fast" : "full", S = Math.max(5, Math.min(80, Number(m?.limit || 25) || 25)), B = ["radio", "podcast", "album", "artist", "track", "playlist", "genre"];
       if (!(this._homeiiEngineEnabled?.() && await this._ensureHomeiiEngineReadyForAction() && typeof this._homeiiEngineSearch == "function")) {
-        if (this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.", m.strict) throw new Error(this._state.musicAssistantIssueMessage);
+        if (this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.", m.strict) throw new Error(this._state.musicAssistantIssueMessage);
         return this._emptySearchResults();
       }
       try {
-        const I = await this._homeiiEngineSearch({
+        const E = await this._homeiiEngineSearch({
           query: g,
           limit: S,
           media_types: B,
           library_only: y === "fast",
           provider_only: y === "provider"
         }), F = this._normalizeSearchResponse(
-          I?.groups ? { ...I.groups, items: I.items || [] } : I?.data?.response ?? I?.data ?? I
+          E?.groups ? { ...E.groups, items: E.items || [] } : E?.data?.response ?? E?.data ?? E
         );
         return this._state.musicAssistantIssueMessage = "", F;
-      } catch (I) {
-        if (this._debugLog("warn", "[HOMEii Flow] Engine search failed", I), this._handleMusicAssistantIssue?.(I), m.strict) throw I;
+      } catch (E) {
+        if (this._debugLog("warn", "[Maverick Music] Engine search failed", E), this._handleMusicAssistantIssue?.(E), m.strict) throw E;
         return this._emptySearchResults();
       }
     }
@@ -44994,10 +44994,10 @@ function vh({
     async _callEngineMaCommand(o, m = {}) {
       const g = await this._ensureHomeiiEngineReadyForAction();
       if (typeof this._homeiiEngineMaCommand != "function" || !g)
-        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
+        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
       const y = await this._homeiiEngineMaCommand?.(o, m);
       if (y == null)
-        throw new Error(`HOMEii Flow Engine did not return a response for ${o}.`);
+        throw new Error(`Maverick Music Engine did not return a response for ${o}.`);
       return y?.data ?? y?.result ?? y;
     }
     async _callHaServiceRaw(o, m, g = {}, y = !1) {
@@ -45027,7 +45027,7 @@ function vh({
     async _callHaMediaPlayerService(o, m, g = {}) {
       const y = String(o || "").trim();
       if (!y) return null;
-      const S = { ...g || {} }, E = {
+      const S = { ...g || {} }, I = {
         media_play: "play",
         media_pause: "pause",
         media_stop: "stop",
@@ -45039,20 +45039,20 @@ function vh({
         volume_set: "volume",
         volume_mute: "volume_mute"
       }[m] || m;
-      return this._callHomeiiEnginePlayerCommand(y, E, S);
+      return this._callHomeiiEnginePlayerCommand(y, I, S);
     }
     async _callMusicAssistantTransferQueue(o, m) {
       const g = String(o || "").trim(), y = String(m || "").trim();
       if (!g || !y || g === y) return !1;
       const S = await this._ensureHomeiiEngineReadyForAction();
       if (!(typeof this._homeiiEngineTransferQueue == "function" && this._homeiiEngineRequired?.() && S))
-        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
-      const E = await this._homeiiEngineTransferQueue({
+        throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
+      const I = await this._homeiiEngineTransferQueue({
         source_player: g,
         target_player: y,
         auto_play: !0
       });
-      if (!E?.ok) throw new Error(E?.error || "HOMEii Flow Engine could not transfer the queue.");
+      if (!I?.ok) throw new Error(I?.error || "Maverick Music Engine could not transfer the queue.");
       return !0;
     }
     _activePlayerHelperEntity() {
@@ -45086,8 +45086,8 @@ function vh({
     _cardIssueAckStorageKey(o = "issue", m = "") {
       const g = String(o || "issue").trim() || "issue", y = g.replace(/[^a-z0-9_-]+/gi, "_").replace(/^_+|_+$/g, "").slice(0, 64) || "issue", S = `${g}|${String(m || "")}`;
       let B = 2166136261;
-      for (let E = 0; E < S.length; E += 1)
-        B ^= S.charCodeAt(E), B = Math.imul(B, 16777619);
+      for (let I = 0; I < S.length; I += 1)
+        B ^= S.charCodeAt(I), B = Math.imul(B, 16777619);
       return this._lsKey(`homeii_music_flow_card_issue_ack_${y}_${(B >>> 0).toString(36)}`);
     }
     _isCardIssueAcknowledged(o = "issue", m = "") {
@@ -45107,14 +45107,14 @@ function vh({
       const S = String(m || "").trim();
       if (!S) return;
       this._cardIssueNoticeTimes || (this._cardIssueNoticeTimes = /* @__PURE__ */ new Map());
-      const B = Date.now(), E = String(o || S);
-      if (this._isCardIssueAcknowledged(E, S)) return;
-      const I = this._cardIssueNoticeTimes.get(E) || 0;
-      if (B - I < y) return;
-      this._cardIssueNoticeTimes.set(E, B);
+      const B = Date.now(), I = String(o || S);
+      if (this._isCardIssueAcknowledged(I, S)) return;
+      const E = this._cardIssueNoticeTimes.get(I) || 0;
+      if (B - E < y) return;
+      this._cardIssueNoticeTimes.set(I, B);
       const F = {
         duration: Math.max(6500, Math.min(Number(y || 8500) || 8500, 12e3)),
-        issueAckKey: E,
+        issueAckKey: I,
         issueAckText: S
       };
       g === "success" ? this._toastSuccess(S, F) : g === "info" || g === "warning" || g === "warn" ? this._toast(S, "info", F) : this._toastError(S, F);
@@ -45131,8 +45131,8 @@ function vh({
       const m = String(o?.message || o || "").trim();
       if (this._homeiiEngineRequired?.() && this._state?.engineContext && this._isMusicAssistantAvailabilityError(o))
         return this._state.engineStatus = "degraded", this._state.engineAvailable = !0, this._state.musicAssistantIssueMessage = "", m || this._m(
-          "HOMEii Flow Engine is reconnecting.",
-          "HOMEii Flow Engine מתחבר מחדש."
+          "Maverick Music Engine is reconnecting.",
+          "Maverick Music Engine מתחבר מחדש."
         );
       const g = this._isMusicAssistantAvailabilityError(o) ? this._musicAssistantSetupMessage(m) : m || this._musicAssistantSetupMessage();
       return this._state.musicAssistantIssueMessage = g, this._notifyCardIssue("music-assistant-not-ready", g, "error", 45e3), g;
@@ -45151,11 +45151,11 @@ function vh({
       if (!m || typeof m != "object") return "";
       const g = Number(m.music_assistant_player_count || 0), y = String(m.message || o.summary || "").trim();
       return m.ok === !0 && g > 0 ? this._m(
-        "HOMEii Flow Engine reports Music Assistant is connected, but the card did not receive the player list yet. Open HOMEii Flow Engine in Home Assistant and check Required connections, then reload the dashboard.",
-        "HOMEii Flow Engine מדווח ש-Music Assistant מחובר, אבל הכרטיס עדיין לא קיבל את רשימת הנגנים. פתח את אינטגרציית HOMEii Flow Engine ובדוק Required connections ואז רענן את הדשבורד."
+        "Maverick Music Engine reports Music Assistant is connected, but the card did not receive the player list yet. Open Maverick Music Engine in Home Assistant and check Required connections, then reload the dashboard.",
+        "Maverick Music Engine מדווח ש-Music Assistant מחובר, אבל הכרטיס עדיין לא קיבל את רשימת הנגנים. פתח את אינטגרציית Maverick Music Engine ובדוק Required connections ואז רענן את הדשבורד."
       ) : y ? this._m(
-        `HOMEii Flow Engine reports: ${y} Open the HOMEii Flow Engine integration page and check Required connections.`,
-        `HOMEii Flow Engine מדווח: ${y} פתח את דף אינטגרציית HOMEii Flow Engine ובדוק Required connections.`
+        `Maverick Music Engine reports: ${y} Open the Maverick Music Engine integration page and check Required connections.`,
+        `Maverick Music Engine מדווח: ${y} פתח את דף אינטגרציית Maverick Music Engine ובדוק Required connections.`
       ) : "";
     }
     _musicAssistantRequiredMessage() {
@@ -45163,8 +45163,8 @@ function vh({
       if (o) return o;
       const m = String(this._state?.engineLastError || "").trim(), g = m ? ` Last Engine error: ${m}` : "";
       return this._m(
-        `HOMEii Flow 6 requires HOMEii Flow Engine 0.7.6 with a healthy Music Assistant required connection snapshot.${g}`,
-        `HOMEii Flow 6 דורש HOMEii Flow Engine 0.7.6 עם תמונת חיבורים נדרשים תקינה של Music Assistant.${g}`
+        `Maverick Music 6 requires Maverick Music Engine 0.7.6 with a healthy Music Assistant required connection snapshot.${g}`,
+        `Maverick Music 6 דורש Maverick Music Engine 0.7.6 עם תמונת חיבורים נדרשים תקינה של Music Assistant.${g}`
       );
     }
     _musicAssistantSetupMessage(o = "") {
@@ -45193,7 +45193,7 @@ function vh({
         if (!y) return;
         const S = y.startsWith("?") ? y.slice(1) : y;
         try {
-          new URLSearchParams(S).forEach((B, E) => o.set(E, B));
+          new URLSearchParams(S).forEach((B, I) => o.set(I, B));
         } catch {
         }
       };
@@ -45233,12 +45233,12 @@ function vh({
         y.startsWith("media_player.") ? y : `media_player.${y}`,
         y.replace(/\s+/g, "_"),
         y.startsWith("media_player.") ? y.replace(/\s+/g, "_") : `media_player.${y.replace(/\s+/g, "_")}`
-      ].map((I) => String(I || "").trim()).filter(Boolean), B = (Array.isArray(o) ? o : []).find((I) => S.includes(I?.entity_id));
+      ].map((E) => String(E || "").trim()).filter(Boolean), B = (Array.isArray(o) ? o : []).find((E) => S.includes(E?.entity_id));
       if (B) return B;
-      const E = this._playerOverrideSlug(y);
-      return E && (Array.isArray(o) ? o : []).find((I) => {
-        const F = this._playerOverrideSlug(I?.entity_id || ""), O = this._playerOverrideSlug(I?.attributes?.friendly_name || "");
-        return F === E || O === E;
+      const I = this._playerOverrideSlug(y);
+      return I && (Array.isArray(o) ? o : []).find((E) => {
+        const F = this._playerOverrideSlug(E?.entity_id || ""), O = this._playerOverrideSlug(E?.attributes?.friendly_name || "");
+        return F === I || O === I;
       }) || null;
     }
     _normalizeEnginePlayerEntity(o = {}) {
@@ -45271,27 +45271,27 @@ function vh({
       return this._state.enginePlayersLastAttemptAt = Date.now(), this._enginePlayersRefreshPromise = (async () => {
         try {
           if (!this._state?.engineAvailable && typeof this._refreshHomeiiEngineContext == "function" && await this._refreshHomeiiEngineContext({ force: !0 }), !this._state?.engineAvailable) {
-            if (o.requireFresh) throw new Error("HOMEii Flow Engine is unavailable.");
+            if (o.requireFresh) throw new Error("Maverick Music Engine is unavailable.");
             return m;
           }
           const g = await this._homeiiEngineGetPlayers({ include_all: !1 });
           if (!Array.isArray(g?.music_assistant_players) && !Array.isArray(g?.players))
-            throw new Error("HOMEii Flow Engine returned an invalid player catalog.");
+            throw new Error("Maverick Music Engine returned an invalid player catalog.");
           if (!q.acceptEngineSnapshot(
             this._engineSnapshotRevisions,
             "players",
             g,
             "music_assistant"
           )) {
-            if (this._debugLog?.("debug", "[HOMEii Flow] Ignored stale Engine player snapshot", {
+            if (this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine player snapshot", {
               snapshot: q.engineSnapshotMeta(g)
-            }), o.requireFresh) throw new Error("HOMEii Flow Engine returned a stale player snapshot.");
+            }), o.requireFresh) throw new Error("Maverick Music Engine returned a stale player snapshot.");
             return m;
           }
           const S = (Array.isArray(g?.music_assistant_players) ? g.music_assistant_players : Array.isArray(g?.players) ? g.players : []).map((B) => this._normalizeEnginePlayerEntity(B)).filter(Boolean);
           return this._state.engineStatus = "connected", this._state.engineAvailable = !0, this._state.engineLastError = "", this._state.enginePlayers = S, S.length && (this._state.enginePlayersLastGoodAt = Date.now()), S;
         } catch (g) {
-          if (m.length && (this._state.engineStatus = "degraded", this._state.engineAvailable = !0), this._debugLog?.("warn", "[HOMEii Flow] Engine player snapshot failed", g), o.requireFresh) throw g;
+          if (m.length && (this._state.engineStatus = "degraded", this._state.engineAvailable = !0), this._debugLog?.("warn", "[Maverick Music] Engine player snapshot failed", g), o.requireFresh) throw g;
           return m;
         } finally {
           this._enginePlayersRefreshPromise = null;
@@ -45333,13 +45333,13 @@ function vh({
         y.length && (this._state.musicAssistantIssueMessage = de), this._state.selectedPlayer = null, this._state.hasAutoSelectedPlayer = !1, this._state.maQueueState = null, this._state.queueItems = [], o && (o.innerHTML = `<option value="">${this._esc(this._musicAssistantRequiredTitle())}</option>`), this._syncActivePlayerHelper(null), y.length && this._notifyCardIssue("no-music-assistant-players", de, "warning", 45e3);
         return;
       }
-      const B = this._getThisDevicePlayer(m), E = typeof this._resolvedPinnedPlayerEntities == "function" ? this._resolvedPinnedPlayerEntities(m) : [];
+      const B = this._getThisDevicePlayer(m), I = typeof this._resolvedPinnedPlayerEntities == "function" ? this._resolvedPinnedPlayerEntities(m) : [];
       if (this._state.awaitingThisDevicePlayer) {
         const me = this._getThisDevicePlayer(m);
         me && (this._rememberThisDevicePlayer(me.entity_id), this._state.awaitingThisDevicePlayer = !1, this._state.knownBrowserPlayerIds = [], this._state.selectedPlayer = me.entity_id, this._state.hasAutoSelectedPlayer = !0, this._revealControlRoomThisDevicePlayer(me.entity_id, { sync: !1 }));
       }
-      const I = this._playerByEntityId(this._state.selectedPlayer);
-      this._state.awaitingThisDevicePlayer && this._isExternalBrowserPlayer(I) && (this._state.selectedPlayer = null, this._state.hasAutoSelectedPlayer = !1);
+      const E = this._playerByEntityId(this._state.selectedPlayer);
+      this._state.awaitingThisDevicePlayer && this._isExternalBrowserPlayer(E) && (this._state.selectedPlayer = null, this._state.hasAutoSelectedPlayer = !1);
       const F = this._resolvePlayerOverrideEntity(m), O = String(this._config?.entity || this.config?.entity || "").trim(), Z = O ? m.find((de) => de?.entity_id === O) : null, $ = C.pendingPlayerLockState(this._state, m, Date.now());
       $.lockedPlayerId && this._state.selectedPlayer !== $.lockedPlayerId && (this._state.selectedPlayer = $.lockedPlayerId);
       const ce = $.shouldHoldSelectedPlayer;
@@ -45350,7 +45350,7 @@ function vh({
         manualFrontEntityId: this._manualFrontPlayerEntity(m),
         manualFrontUntil: this._state.manualFrontPlayerUntil,
         now: Date.now(),
-        pinnedEntityIds: E,
+        pinnedEntityIds: I,
         orderedEntityIds: typeof this._playerOrderPreferences == "function" && this._playerSortMode?.() === "custom" ? this._playerOrderPreferences() : [],
         defaultEntityId: Z?.entity_id || "",
         stickyEntityId: typeof this._pinnedPlayerMasterPreference == "function" ? this._pinnedPlayerMasterPreference() : "",
@@ -45393,14 +45393,14 @@ function vh({
       if (y.length && this._hass?.states) {
         const S = Object.values(this._hass.states).find((B) => {
           if (!B?.entity_id?.startsWith?.("media_player.")) return !1;
-          const E = B.attributes || {};
+          const I = B.attributes || {};
           return [
-            E.mass_player_id,
-            E.player_id,
-            E.id,
-            E.active_queue,
-            E.queue_id
-          ].some((I) => y.includes(String(I || "").trim()));
+            I.mass_player_id,
+            I.player_id,
+            I.id,
+            I.active_queue,
+            I.queue_id
+          ].some((E) => y.includes(String(E || "").trim()));
         });
         if (S?.entity_id) return S.entity_id;
       }
@@ -45422,12 +45422,12 @@ function vh({
       if (!o) return !1;
       const B = this._mediaFeedbackLabel(m, S.label || "");
       try {
-        const E = this._playerByEntityId(o);
-        if (E && !z.isPlayerAvailable(E))
+        const I = this._playerByEntityId(o);
+        if (I && !z.isPlayerAvailable(I))
           throw new Error(this._m("This player is offline. Choose an available player.", "הנגן אינו מחובר. בחר נגן זמין."));
-        const I = await this._ensureHomeiiEngineReadyForAction();
-        if (!(typeof this._homeiiEnginePlayMedia == "function" && this._homeiiEngineRequired?.() && I))
-          throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
+        const E = await this._ensureHomeiiEngineReadyForAction();
+        if (!(typeof this._homeiiEnginePlayMedia == "function" && this._homeiiEngineRequired?.() && E))
+          throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
         const O = await this._homeiiEnginePlayMedia({
           player: o,
           media_id: m,
@@ -45437,18 +45437,18 @@ function vh({
           verify_playback: S.verifyPlayback !== !1 && ["play", "replace", "shuffle"].includes(y)
         });
         if (!O?.ok)
-          throw new Error(O?.error || "HOMEii Flow Engine did not confirm playback.");
+          throw new Error(O?.error || "Maverick Music Engine did not confirm playback.");
         if (!S.silent) {
           const Z = this._playerByEntityId(o);
           this._toastMediaQueued(B, Z?.attributes?.friendly_name || o);
         }
         return o === this._state.selectedPlayer && this._scheduleQueueRefreshAfterMutation(600), !0;
-      } catch (E) {
+      } catch (I) {
         if (!S.silent)
-          if (this._isMusicAssistantAvailabilityError(E)) this._handleMusicAssistantIssue(E);
+          if (this._isMusicAssistantAvailabilityError(I)) this._handleMusicAssistantIssue(I);
           else {
-            const I = this._i18n("ui.could_not_play_label", { label: B }), F = String(E?.message || "").trim();
-            this._toastError(F ? `${I}: ${F}` : I);
+            const E = this._i18n("ui.could_not_play_label", { label: B }), F = String(I?.message || "").trim();
+            this._toastError(F ? `${E}: ${F}` : E);
           }
         return !1;
       }
@@ -45456,12 +45456,12 @@ function vh({
     async _playMediaOnPlayers(o = [], m, g = "album", y = "play", S = {}) {
       const B = [...new Set((Array.isArray(o) ? o : []).filter(Boolean))];
       if (!B.length) return !1;
-      const I = (await Promise.allSettled(B.map((F) => this._playMediaOnPlayer(F, m, g, y, { ...S, silent: !0 })))).filter((F) => F.status === "fulfilled" && F.value).length;
+      const E = (await Promise.allSettled(B.map((F) => this._playMediaOnPlayer(F, m, g, y, { ...S, silent: !0 })))).filter((F) => F.status === "fulfilled" && F.value).length;
       if (!S.silent) {
-        const F = I > 1 ? this._m(`Started on ${I} players`, `הופעל על ${I} נגנים`) : this._i18n("ui.started_on_selected_player");
-        (I ? this._toastSuccess : this._toastError).call(this, I ? F : this._i18n("ui.could_not_start_playback"));
+        const F = E > 1 ? this._m(`Started on ${E} players`, `הופעל על ${E} נגנים`) : this._i18n("ui.started_on_selected_player");
+        (E ? this._toastSuccess : this._toastError).call(this, E ? F : this._i18n("ui.could_not_start_playback"));
       }
-      return I > 0;
+      return E > 0;
     }
     async _playMedia(o, m = "album", g = "play", y = {}) {
       return this._state.selectedPlayer ? (this._state.forceRadioHero = !!y.forceRadioHero || String(m || "").toLowerCase() === "radio", y.sourceEl && this._flashInteraction(y.sourceEl), this._playMediaOnPlayer(this._state.selectedPlayer, o, m, g, y)) : (this._toastError(this._i18n("ui.select_a_player_first")), !1);
@@ -45483,25 +45483,25 @@ function vh({
         { label: y.name || "", silent: !0 }
       )) {
         for (let B = 1; B < g.length; B++) {
-          const E = g[B];
+          const I = g[B];
           await this._playMediaOnPlayer(
             this._state.selectedPlayer,
-            E.uri,
-            E.media_type || "track",
+            I.uri,
+            I.media_type || "track",
             "add",
-            { label: E.name || "", silent: !0, verifyPlayback: !1 }
+            { label: I.name || "", silent: !0, verifyPlayback: !1 }
           );
         }
         this._scheduleQueueRefreshAfterMutation(600);
       }
     }
     _likedPlayableEntries(o = [], m = !1) {
-      const g = Array.isArray(o) ? o.filter((E) => String(E?.uri || "").trim()) : [], y = new Set(Array.isArray(this._state.likedSelectedUris) ? this._state.likedSelectedUris : []), S = m ? g.filter((E) => y.has(String(E?.uri || "").trim())) : g, B = S.filter((E) => String(E?.media_type || "").toLowerCase() === "track");
-      return (B.length ? B : S).map((E) => ({
-        uri: String(E.uri || "").trim(),
-        media_type: E.media_type || "track",
-        name: E.name || ""
-      })).filter((E) => E.uri);
+      const g = Array.isArray(o) ? o.filter((I) => String(I?.uri || "").trim()) : [], y = new Set(Array.isArray(this._state.likedSelectedUris) ? this._state.likedSelectedUris : []), S = m ? g.filter((I) => y.has(String(I?.uri || "").trim())) : g, B = S.filter((I) => String(I?.media_type || "").toLowerCase() === "track");
+      return (B.length ? B : S).map((I) => ({
+        uri: String(I.uri || "").trim(),
+        media_type: I.media_type || "track",
+        name: I.name || ""
+      })).filter((I) => I.uri);
     }
     _togglePlay() {
       const o = this._getSelectedPlayer();
@@ -45516,13 +45516,13 @@ function vh({
       if (!m) return;
       let g = _.sortQueueItems(this._state.queueItems || []);
       const y = Number(this._state.maQueueState?.current_index);
-      let S = Number.isFinite(y) ? g.findIndex((I) => Number(I?.sort_index) === y) : -1;
+      let S = Number.isFinite(y) ? g.findIndex((E) => Number(E?.sort_index) === y) : -1;
       if (S < 0 && typeof this._mobileArtStackContext == "function") {
-        const I = this._mobileArtStackContext();
-        g = Array.isArray(I.queueItems) ? I.queueItems : g, S = Number(I.baseIndex);
+        const E = this._mobileArtStackContext();
+        g = Array.isArray(E.queueItems) ? E.queueItems : g, S = Number(E.baseIndex);
       }
-      const B = o === "previous" ? S - 1 : S + 1, E = Array.isArray(g) ? g[B] : null;
-      E && (this._setOptimisticMobileQueueItem(E), this._setPlayerPlaybackOptimistic(m.entity_id, { state: "playing", until: Date.now() + 8500 }), this._refreshMobileArtStack(!0), this._syncNowPlayingUI()), this._callHomeiiEnginePlayerCommand(m.entity_id, o === "previous" ? "previous" : "next").catch((I) => this._toastError(this._mediaControlFailureMessage(I))), this._scheduleQueueRefreshAfterMutation(700);
+      const B = o === "previous" ? S - 1 : S + 1, I = Array.isArray(g) ? g[B] : null;
+      I && (this._setOptimisticMobileQueueItem(I), this._setPlayerPlaybackOptimistic(m.entity_id, { state: "playing", until: Date.now() + 8500 }), this._refreshMobileArtStack(!0), this._syncNowPlayingUI()), this._callHomeiiEnginePlayerCommand(m.entity_id, o === "previous" ? "previous" : "next").catch((E) => this._toastError(this._mediaControlFailureMessage(E))), this._scheduleQueueRefreshAfterMutation(700);
     }
     async _playerCmdFor(o, m = "next") {
       const g = this._playerByEntityId(o);
@@ -45573,23 +45573,23 @@ function vh({
         return S.pending = y, S.promise;
       const B = { pending: y, promise: null };
       return this._volumeRequestsByPlayer.set(g, B), B.promise = (async () => {
-        let E = !1;
+        let I = !1;
         try {
           for (; B.pending !== null; ) {
-            const I = B.pending;
+            const E = B.pending;
             B.pending = null;
             try {
-              if (await this._callHomeiiEnginePlayerCommand(g, "volume", { volume_level: I }), I > 0) {
+              if (await this._callHomeiiEnginePlayerCommand(g, "volume", { volume_level: E }), E > 0) {
                 const F = this._muteRequestsByPlayer?.get(g);
-                F && await F, this._isMuted(this._playerByEntityId(g)) && (await this._callHomeiiEnginePlayerCommand(g, "volume_mute", { is_volume_muted: !1 }), this._setPlayerVolumeOptimistic(g, B.pending ?? I, !1));
+                F && await F, this._isMuted(this._playerByEntityId(g)) && (await this._callHomeiiEnginePlayerCommand(g, "volume_mute", { is_volume_muted: !1 }), this._setPlayerVolumeOptimistic(g, B.pending ?? E, !1));
               }
-              E = !0;
+              I = !0;
             } catch (F) {
-              E = !1, B.pending === null && (this._optimisticVolumeByPlayer.delete(g), this._loadPlayers(), this._syncNowPlayingUI(), this._toastError(this._mediaControlFailureMessage(F)));
+              I = !1, B.pending === null && (this._optimisticVolumeByPlayer.delete(g), this._loadPlayers(), this._syncNowPlayingUI(), this._toastError(this._mediaControlFailureMessage(F)));
             }
             await new Promise((F) => setTimeout(F, 120));
           }
-          return E;
+          return I;
         } finally {
           this._volumeRequestsByPlayer.delete(g);
         }
@@ -45600,20 +45600,20 @@ function vh({
       if (!m) return;
       const g = Math.round(this._effectivePlayerVolumeLevel(m) * 100), y = this._mobileVolumeStepPercent(), S = Math.max(0, Math.min(100, g + (o < 0 ? -y : y))), B = this.$("volSlider");
       B && (B.value = String(S), B.style.setProperty("--vol-pct", `${S}%`));
-      const E = this.$("mobileVolPctLabel");
-      E && (E.textContent = `${S}%`), this._setButtonIcon(this.$("btnMute"), S === 0 ? "volume_mute" : S < 40 ? "volume_low" : "volume_high"), this.$("btnMute")?.classList.toggle("muted", S === 0), this._setVolume(S / 100), this._syncNowPlayingUI();
+      const I = this.$("mobileVolPctLabel");
+      I && (I.textContent = `${S}%`), this._setButtonIcon(this.$("btnMute"), S === 0 ? "volume_mute" : S < 40 ? "volume_low" : "volume_high"), this.$("btnMute")?.classList.toggle("muted", S === 0), this._setVolume(S / 100), this._syncNowPlayingUI();
     }
     _applyOptimisticPlayerVolumeState(o = null) {
       const m = String(o?.entity_id || "").trim();
       if (!m) return o;
-      const g = Date.now(), y = this._optimisticVolumeByPlayer.get(m), S = this._optimisticMuteByPlayer.get(m), B = this._optimisticPlaybackByPlayer.get(m), E = {};
-      let I = "";
-      return y && g - Number(y.ts || 0) < 5e3 ? E.volume_level = y.level : y && this._optimisticVolumeByPlayer.delete(m), S && g - Number(S.ts || 0) < 5e3 ? E.is_volume_muted = !!S.muted : S && this._optimisticMuteByPlayer.delete(m), B && (Number(B.until || 0) > g || g - Number(B.ts || 0) < 5e3) ? (B.state && (I = B.state), B.shuffle !== void 0 && (E.shuffle = !!B.shuffle), B.repeat !== void 0 && (E.repeat = B.repeat)) : B && this._optimisticPlaybackByPlayer.delete(m), !Object.keys(E).length && !I ? o : {
+      const g = Date.now(), y = this._optimisticVolumeByPlayer.get(m), S = this._optimisticMuteByPlayer.get(m), B = this._optimisticPlaybackByPlayer.get(m), I = {};
+      let E = "";
+      return y && g - Number(y.ts || 0) < 5e3 ? I.volume_level = y.level : y && this._optimisticVolumeByPlayer.delete(m), S && g - Number(S.ts || 0) < 5e3 ? I.is_volume_muted = !!S.muted : S && this._optimisticMuteByPlayer.delete(m), B && (Number(B.until || 0) > g || g - Number(B.ts || 0) < 5e3) ? (B.state && (E = B.state), B.shuffle !== void 0 && (I.shuffle = !!B.shuffle), B.repeat !== void 0 && (I.repeat = B.repeat)) : B && this._optimisticPlaybackByPlayer.delete(m), !Object.keys(I).length && !E ? o : {
         ...o,
-        ...I ? { state: I } : {},
+        ...E ? { state: E } : {},
         attributes: {
           ...o.attributes || {},
-          ...E
+          ...I
         }
       };
     }
@@ -45645,8 +45645,8 @@ function vh({
       if (!S) return;
       const B = Date.now();
       this._optimisticVolumeByPlayer.set(S, { level: y, ts: B }), g !== null && this._optimisticMuteByPlayer.set(S, { muted: !!g, ts: B }), g === !0 && this._softMutedPlayers.add(S), g === !1 && this._softMutedPlayers.delete(S);
-      const E = (I) => !I || I.entity_id !== S ? I : this._applyOptimisticPlayerVolumeState(I);
-      this._state.players = (this._state.players || []).map(E), this._directMaPlayers = (this._directMaPlayers || []).map(E), this._syncPlayerVolumeControls(S, Math.round(y * 100), { muted: g });
+      const I = (E) => !E || E.entity_id !== S ? E : this._applyOptimisticPlayerVolumeState(E);
+      this._state.players = (this._state.players || []).map(I), this._directMaPlayers = (this._directMaPlayers || []).map(I), this._syncPlayerVolumeControls(S, Math.round(y * 100), { muted: g });
     }
     _syncPlayerVolumeControls(...o) {
       return QA.apply(this, o);
@@ -45707,21 +45707,21 @@ function vh({
           ce && ($ += Math.max(0, (Date.now() - ce) / 1e3));
         }
         return $;
-      }, E = y ? B(o?.attributes?.media_position, o?.attributes?.media_position_updated_at) : 0, I = S ? B(this._state.maQueueState?.elapsed_time, this._state.maQueueState?.elapsed_time_last_updated) : 0;
-      let F = y ? E : I;
-      return y && S && (F = E), m && F > m + 2 ? m : Math.max(0, F || 0);
+      }, I = y ? B(o?.attributes?.media_position, o?.attributes?.media_position_updated_at) : 0, E = S ? B(this._state.maQueueState?.elapsed_time, this._state.maQueueState?.elapsed_time_last_updated) : 0;
+      let F = y ? I : E;
+      return y && S && (F = I), m && F > m + 2 ? m : Math.max(0, F || 0);
     }
     _applyProgressUi(o = this._getCurrentPosition(), m = this._getCurrentDuration()) {
       const g = v.coercePlaybackSeconds(m), y = g ? Math.max(0, Math.min(g, v.coercePlaybackSeconds(o))) : Math.max(0, v.coercePlaybackSeconds(o)), S = g ? Math.min(100, y / g * 100) : 0, B = this.$("progressBar")?.querySelector?.(".waveform-played");
-      B && (B.style.clipPath = `inset(0 ${100 - S}% 0 0)`), ["progressFill", "bigProgressFill", "immersiveProgressFill"].forEach((E) => {
-        const I = this.$(E) || this.shadowRoot?.querySelector?.(`#${E}`);
-        I && (I.style.width = `${S}%`);
-      }), ["bigCurTime", "immersiveCurTime"].forEach((E) => {
-        const I = this.$(E) || this.shadowRoot?.querySelector?.(`#${E}`);
-        I && (I.textContent = this._fmtDur(y));
-      }), ["bigTotalTime", "immersiveTotalTime"].forEach((E) => {
-        const I = this.$(E) || this.shadowRoot?.querySelector?.(`#${E}`);
-        I && (I.textContent = this._fmtDur(g));
+      B && (B.style.clipPath = `inset(0 ${100 - S}% 0 0)`), ["progressFill", "bigProgressFill", "immersiveProgressFill"].forEach((I) => {
+        const E = this.$(I) || this.shadowRoot?.querySelector?.(`#${I}`);
+        E && (E.style.width = `${S}%`);
+      }), ["bigCurTime", "immersiveCurTime"].forEach((I) => {
+        const E = this.$(I) || this.shadowRoot?.querySelector?.(`#${I}`);
+        E && (E.textContent = this._fmtDur(y));
+      }), ["bigTotalTime", "immersiveTotalTime"].forEach((I) => {
+        const E = this.$(I) || this.shadowRoot?.querySelector?.(`#${I}`);
+        E && (E.textContent = this._fmtDur(g));
       });
     }
     _bindProgressSeekBar(o) {
@@ -45734,35 +45734,35 @@ function vh({
       if (!y) return;
       const S = o.currentTarget.getBoundingClientRect();
       if (!S.width) return;
-      const B = Math.max(0, Math.min(1, (o.clientX - S.left) / S.width)), E = Math.floor(y * B);
-      this._applyProgressUi(E, y), clearTimeout(this._seekTimer);
-      const I = async () => {
+      const B = Math.max(0, Math.min(1, (o.clientX - S.left) / S.width)), I = Math.floor(y * B);
+      this._applyProgressUi(I, y), clearTimeout(this._seekTimer);
+      const E = async () => {
         try {
-          return await this._callHomeiiEnginePlayerCommand(g.entity_id, "seek", { seek_position: E }), this._getSelectedPlayer()?.entity_id === g.entity_id && await this._ensureQueueSnapshot?.(!0), !0;
+          return await this._callHomeiiEnginePlayerCommand(g.entity_id, "seek", { seek_position: I }), this._getSelectedPlayer()?.entity_id === g.entity_id && await this._ensureQueueSnapshot?.(!0), !0;
         } catch (F) {
           return this._toastError(this._mediaControlFailureMessage(F)), this._schedulePlayerStateRefresh(), !1;
         }
       };
-      if (m.immediate) return I();
-      this._seekTimer = setTimeout(I, 20);
+      if (m.immediate) return E();
+      this._seekTimer = setTimeout(E, 20);
     }
     _setNowPlayingSubtitle(o, { scrollWhenOverflow: m = !1 } = {}) {
       const g = this.$("npSub");
       if (!g) return;
-      const y = String(o || "—"), S = this._nowPlayingSubtitleShouldScroll(m), B = g.querySelector?.(".scrolling-text-inner"), E = g.dataset.homeiiSubtitleText === y && g.dataset.homeiiSubtitleScroll === String(S) && B;
-      if (g.title = y, g.classList.toggle("scroll-when-overflow", S), E) {
+      const y = String(o || "—"), S = this._nowPlayingSubtitleShouldScroll(m), B = g.querySelector?.(".scrolling-text-inner"), I = g.dataset.homeiiSubtitleText === y && g.dataset.homeiiSubtitleScroll === String(S) && B;
+      if (g.title = y, g.classList.toggle("scroll-when-overflow", S), I) {
         S && this._queueNowPlayingSubtitleOverflowSync(g);
         return;
       }
       g.dataset.homeiiSubtitleText = y, g.dataset.homeiiSubtitleScroll = String(S), g.classList.remove("is-overflowing"), g.style.removeProperty("--scroll-distance"), g.style.removeProperty("--scroll-duration"), g.textContent = "";
-      const I = document.createElement("span");
-      I.className = "scrolling-text-inner";
+      const E = document.createElement("span");
+      E.className = "scrolling-text-inner";
       const F = document.createElement("span");
-      if (F.className = "scrolling-text-item", F.textContent = y, I.appendChild(F), S) {
+      if (F.className = "scrolling-text-item", F.textContent = y, E.appendChild(F), S) {
         const O = document.createElement("span");
-        O.className = "scrolling-text-item", O.setAttribute("aria-hidden", "true"), O.textContent = y, I.appendChild(O);
+        O.className = "scrolling-text-item", O.setAttribute("aria-hidden", "true"), O.textContent = y, E.appendChild(O);
       }
-      g.appendChild(I), S && this._queueNowPlayingSubtitleOverflowSync(g);
+      g.appendChild(E), S && this._queueNowPlayingSubtitleOverflowSync(g);
     }
     _nowPlayingSubtitleShouldScroll(o = !1) {
       return !!o && !this._isHebrew() && !this._performanceUltraLiteEnabled();
@@ -45773,8 +45773,8 @@ function vh({
     _syncNowPlayingSubtitleOverflow(o) {
       const m = o?.querySelector?.(".scrolling-text-inner"), g = m?.querySelector?.(".scrolling-text-item");
       if (!o || !m || !g) return;
-      const y = Math.max(24, Math.round(o.clientWidth * 0.18)), S = g.scrollWidth, B = S + y, E = S > o.clientWidth + 1;
-      o.classList.toggle("is-overflowing", E), o.style.setProperty("--scroll-gap", y + "px"), o.style.setProperty("--scroll-distance", B + "px"), o.style.setProperty("--scroll-duration", Math.max(9, Math.min(24, B / 24)).toFixed(2) + "s");
+      const y = Math.max(24, Math.round(o.clientWidth * 0.18)), S = g.scrollWidth, B = S + y, I = S > o.clientWidth + 1;
+      o.classList.toggle("is-overflowing", I), o.style.setProperty("--scroll-gap", y + "px"), o.style.setProperty("--scroll-distance", B + "px"), o.style.setProperty("--scroll-duration", Math.max(9, Math.min(24, B / 24)).toFixed(2) + "s");
     }
     _syncNowPlayingUI() {
       const o = this._getSelectedPlayer();
@@ -45787,11 +45787,11 @@ function vh({
       }
       const m = this._state.maQueueState?.current_item || null, g = m?.media_item || {}, y = g?.name || m?.media_title || m?.name || "", S = Array.isArray(g?.artists) ? g.artists.map((be) => be?.name).filter(Boolean).join(", ") : m?.media_artist || "", B = this._queueItemImageUrl(m, 420) || m?.media_image || m?.image || m?.image_url || g?.image || g?.image_url || g?.album?.image || g?.album?.image_url || "";
       this._setButtonIcon(this.$("btnPlay"), this._playPauseIconName(o)), this.$("npTitle").textContent = y || o.attributes.media_title || this._i18n("ui.nothing_playing"), this._setNowPlayingSubtitle(S || o.attributes.media_artist || "—");
-      const E = this._currentArtworkUrl(o, m, 420, { preferPlayerArtwork: !0 }) || B || this._bestArtworkUrl([
+      const I = this._currentArtworkUrl(o, m, 420, { preferPlayerArtwork: !0 }) || B || this._bestArtworkUrl([
         o.attributes.entity_picture_local,
         o.attributes.entity_picture
-      ], { size: 420, cacheKey: this._currentArtworkCacheKey(o, m) }), I = this.$("npArt");
-      E && I?.querySelector("img")?.getAttribute("src") !== E ? I.innerHTML = this._imgHtml(E, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : E || (I.innerHTML = this._artPlaceholderHtml("album"));
+      ], { size: 420, cacheKey: this._currentArtworkCacheKey(o, m) }), E = this.$("npArt");
+      I && E?.querySelector("img")?.getAttribute("src") !== I ? E.innerHTML = this._imgHtml(I, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : I || (E.innerHTML = this._artPlaceholderHtml("album"));
       const F = Math.round((o.attributes.volume_level || 0) * 100), O = this.$("volSlider");
       O && (O.value = F, O.style.setProperty("--vol-pct", `${F}%`)), this._setButtonIcon(this.$("btnMute"), this._volumeIconName(o));
       const Z = this._getCurrentDuration(), $ = this._getCurrentPosition();
@@ -45803,7 +45803,7 @@ function vh({
       if (this._state.view !== "now_playing") return;
       const o = this._getSelectedPlayer();
       if (!o) return;
-      const m = o.attributes.media_title || this._i18n("ui.no_active_media"), g = o.attributes.media_artist || this._i18n("ui.unknown"), y = o.attributes.media_album_name || "", S = this._getCurrentDuration(), B = this._getCurrentPosition(), E = S ? Math.min(100, B / S * 100) : 0, I = Math.round((o.attributes.volume_level || 0) * 100), F = this._state.maQueueState?.current_item || null, O = this._currentArtworkUrl(o, F, 620, { preferPlayerArtwork: !0 }), Z = o.attributes.repeat || "off", $ = this.$("bigPlayBtn");
+      const m = o.attributes.media_title || this._i18n("ui.no_active_media"), g = o.attributes.media_artist || this._i18n("ui.unknown"), y = o.attributes.media_album_name || "", S = this._getCurrentDuration(), B = this._getCurrentPosition(), I = S ? Math.min(100, B / S * 100) : 0, E = Math.round((o.attributes.volume_level || 0) * 100), F = this._state.maQueueState?.current_item || null, O = this._currentArtworkUrl(o, F, 620, { preferPlayerArtwork: !0 }), Z = o.attributes.repeat || "off", $ = this.$("bigPlayBtn");
       this._setButtonIcon($, this._playPauseIconName(o));
       const ce = this.$("bigShuffleBtn");
       ce && ce.classList.toggle("active", !!o.attributes.shuffle);
@@ -45812,9 +45812,9 @@ function vh({
       const ue = this.$("bigMuteBtn");
       this._setButtonIcon(ue, this._volumeIconName(o));
       const de = this.$("bigVolumeSlider");
-      de && (de.value = I, de.style.setProperty("--vol-pct", `${I}%`));
+      de && (de.value = E, de.style.setProperty("--vol-pct", `${E}%`));
       const me = this.$("bigProgressFill");
-      me && (me.style.width = `${E}%`), this.$("bigCurTime") && (this.$("bigCurTime").textContent = this._fmtDur(B)), this.$("bigTotalTime") && (this.$("bigTotalTime").textContent = this._fmtDur(S));
+      me && (me.style.width = `${I}%`), this.$("bigCurTime") && (this.$("bigCurTime").textContent = this._fmtDur(B)), this.$("bigTotalTime") && (this.$("bigTotalTime").textContent = this._fmtDur(S));
       const he = this.$("nowHeroArt");
       he && (he.innerHTML = O ? this._imgHtml(O, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album"));
       const ve = this.shadowRoot.querySelector(".now-track-title");
@@ -46003,12 +46003,12 @@ function vh({
           g.innerHTML = `<div class="state-box">${this._esc(this._i18n("ui.queue_is_empty"))}</div>`;
           return;
         }
-        const B = S.current_index ?? 0, E = S.items ?? 0, I = this._state.queueItems || [];
-        if (y.textContent = `${m.attributes.media_artist || ""}${m.attributes.media_artist ? " · " : ""}${E} ${this._i18n("ui.items")}`, !Array.isArray(I) || !I.length) {
+        const B = S.current_index ?? 0, I = S.items ?? 0, E = this._state.queueItems || [];
+        if (y.textContent = `${m.attributes.media_artist || ""}${m.attributes.media_artist ? " · " : ""}${I} ${this._i18n("ui.items")}`, !Array.isArray(E) || !E.length) {
           g.innerHTML = `<div class="state-box">${this._esc(this._i18n("ui.queue_is_empty"))}</div>`;
           return;
         }
-        g.innerHTML = I.map((F, O) => {
+        g.innerHTML = E.map((F, O) => {
           const Z = F.sort_index === B, $ = F.sort_index < B, ce = this._queueItemImageUrl(F, 120), be = F.media_item?.artists?.map((me) => me.name).join(", ") || "", ue = this._getQueueItemKey(F), de = Z || O < 24;
           return `
             <div class="queue-item ${Z ? "active" : ""} ${$ ? "past" : ""}" data-uri="${this._esc(F.media_item?.uri || "")}" data-type="track" data-queue-item-id="${this._esc(ue)}" data-sort-index="${this._esc(F.sort_index ?? "")}">
@@ -46029,43 +46029,43 @@ function vh({
       this._state.queueVisible = !1, this.shadowRoot.getElementById("queuePanel")?.remove();
     }
     _queueItemsAfterLocalAction(o, m, g = this._state.queueItems || [], y = null) {
-      const S = [...Array.isArray(g) ? g : []], B = String(m || "").trim(), E = S.findIndex(
+      const S = [...Array.isArray(g) ? g : []], B = String(m || "").trim(), I = S.findIndex(
         (O) => this._getQueueItemKey(O) === B || this._getQueueItemStableId(O) === B || this._getQueueItemUri(O) === B
       );
-      if (E === -1) return null;
-      const I = [...S];
+      if (I === -1) return null;
+      const E = [...S];
       if (o === "remove")
-        return I.splice(E, 1), this._queueItemsWithSequentialSortIndexes(I);
-      const F = this._queueFirstMovableIndex(I);
+        return E.splice(I, 1), this._queueItemsWithSequentialSortIndexes(E);
+      const F = this._queueFirstMovableIndex(E);
       if (o === "up")
-        return E > F ? ([I[E - 1], I[E]] = [I[E], I[E - 1]], this._queueItemsWithSequentialSortIndexes(I)) : null;
+        return I > F ? ([E[I - 1], E[I]] = [E[I], E[I - 1]], this._queueItemsWithSequentialSortIndexes(E)) : null;
       if (o === "down")
-        return E >= F && E < I.length - 1 ? ([I[E + 1], I[E]] = [I[E], I[E + 1]], this._queueItemsWithSequentialSortIndexes(I)) : null;
+        return I >= F && I < E.length - 1 ? ([E[I + 1], E[I]] = [E[I], E[I + 1]], this._queueItemsWithSequentialSortIndexes(E)) : null;
       if (o === "next") {
-        const O = I[E], Z = Math.max(0, F);
-        return O && E > Z ? (I.splice(E, 1), I.splice(Z, 0, O), this._queueItemsWithSequentialSortIndexes(I)) : null;
+        const O = E[I], Z = Math.max(0, F);
+        return O && I > Z ? (E.splice(I, 1), E.splice(Z, 0, O), this._queueItemsWithSequentialSortIndexes(E)) : null;
       }
       if (o === "move_to") {
-        const O = I[E], Z = Math.round(Number(y));
+        const O = E[I], Z = Math.round(Number(y));
         if (!O || !Number.isFinite(Z)) return null;
-        const $ = this._queueMoveGlobalIndexForDisplayPosition(I, Z);
-        return $ < 0 ? null : E === $ ? I : (I.splice(E, 1), I.splice(Math.max(F, Math.min(I.length, $)), 0, O), this._queueItemsWithSequentialSortIndexes(I));
+        const $ = this._queueMoveGlobalIndexForDisplayPosition(E, Z);
+        return $ < 0 ? null : I === $ ? E : (E.splice(I, 1), E.splice(Math.max(F, Math.min(E.length, $)), 0, O), this._queueItemsWithSequentialSortIndexes(E));
       }
       return null;
     }
     async _handleQueueAction(o, m, g = "", y = "", S = null) {
       const B = this._getSelectedPlayer();
       if (!B || !m || this._state.queueActionPending) return !1;
-      const E = [...this._state.queueItems || []], I = this._resolveQueueActionTarget(E, m, g, y), F = I ? this._getQueueItemKey(I) : String(m || "").trim(), O = I ? E.indexOf(I) : E.findIndex((Z) => this._getQueueItemKey(Z) === F);
+      const I = [...this._state.queueItems || []], E = this._resolveQueueActionTarget(I, m, g, y), F = E ? this._getQueueItemKey(E) : String(m || "").trim(), O = E ? I.indexOf(E) : I.findIndex((Z) => this._getQueueItemKey(Z) === F);
       if (O === -1) return !1;
       try {
         this._setQueueBusy(!0);
-        const Z = Math.round(Number(S)), $ = o === "move_to" && Number.isFinite(Z) ? this._queueMoveGlobalIndexForDisplayPosition(E, Z) : null, ce = o === "next" ? this._queueFirstMovableIndex(E) : null, be = o === "move_to" && Number.isFinite($) && $ >= 0 ? $ - O : o === "next" && Number.isFinite(ce) ? ce - O : null, ue = this._queueItemsAfterLocalAction(o, F, E, Z), de = this._queueIdForPlayer(B), me = {
+        const Z = Math.round(Number(S)), $ = o === "move_to" && Number.isFinite(Z) ? this._queueMoveGlobalIndexForDisplayPosition(I, Z) : null, ce = o === "next" ? this._queueFirstMovableIndex(I) : null, be = o === "move_to" && Number.isFinite($) && $ >= 0 ? $ - O : o === "next" && Number.isFinite(ce) ? ce - O : null, ue = this._queueItemsAfterLocalAction(o, F, I, Z), de = this._queueIdForPlayer(B), me = {
           up: "move_queue_item_up",
           down: "move_queue_item_down",
           next: "move_queue_item_next",
           remove: "remove_queue_item"
-        }, he = I ? String(I.queue_service_id || (I.queue_item_id_trusted !== !1 ? I.queue_item_id : "") || this._getQueueItemPlaybackId(I) || "").trim() : "", ve = _.normalizeFiniteNumber(I?.sort_index ?? y);
+        }, he = E ? String(E.queue_service_id || (E.queue_item_id_trusted !== !1 ? E.queue_item_id : "") || this._getQueueItemPlaybackId(E) || "").trim() : "", ve = _.normalizeFiniteNumber(E?.sort_index ?? y);
         this._debugLog("info", "[Homeii Queue] action", {
           action: o,
           queueId: de,
@@ -46073,12 +46073,12 @@ function vh({
           serviceQueueItemId: he,
           sortIndex: ve,
           targetPosition: Number.isFinite(Z) ? Z : "",
-          title: I ? this._queueItemPrimaryTitle(I) : ""
+          title: E ? this._queueItemPrimaryTitle(E) : ""
         });
         let xe = !1;
         const ke = await this._ensureHomeiiEngineReadyForAction();
         if (typeof this._homeiiEngineQueueAction != "function" || !this._homeiiEngineRequired?.() || !ke)
-          throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
+          throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
         if (he && (me[o] || o === "move_to") && (xe = !!(await this._homeiiEngineQueueAction({
           entity_id: B.entity_id,
           queue_id: de,
@@ -46113,9 +46113,9 @@ function vh({
       o && await this._callHaMediaPlayerService(o, "media_stop");
     }
     async _rebuildQueue(o, m, g = 0) {
-      const y = this._state.maQueueState?.current_index ?? 0, S = m.find((O) => (O.sort_index ?? -1) === y) || m[0], B = m.indexOf(S), E = B >= 0 ? m.slice(B + 1) : m.filter((O) => Number(O?.sort_index ?? -1) > Number(y)), I = this._getQueueItemUri(S);
-      if (!I) throw new Error(this._i18n("ui.no_queue_item_to_rebuild"));
-      const F = [I, ...E.map((O) => this._getQueueItemUri(O)).filter(Boolean)];
+      const y = this._state.maQueueState?.current_index ?? 0, S = m.find((O) => (O.sort_index ?? -1) === y) || m[0], B = m.indexOf(S), I = B >= 0 ? m.slice(B + 1) : m.filter((O) => Number(O?.sort_index ?? -1) > Number(y)), E = this._getQueueItemUri(S);
+      if (!E) throw new Error(this._i18n("ui.no_queue_item_to_rebuild"));
+      const F = [E, ...I.map((O) => this._getQueueItemUri(O)).filter(Boolean)];
       await this._clearQueueForPlayer(o);
       for (const [O, Z] of F.entries()) {
         const $ = this._parseMediaReference(Z, "track");
@@ -46199,9 +46199,9 @@ function vh({
         maUrl: S,
         seen: g,
         depth: y
-      }), E = this._normalizeArtworkUrl(B, { size: m }), I = v.rebaseImageProxyUrl(B, m, S), F = this._normalizeArtworkUrl(I, { size: m }), O = v.legacyImageProxyFallbackUrl(o, m, {
+      }), I = this._normalizeArtworkUrl(B, { size: m }), E = v.rebaseImageProxyUrl(B, m, S), F = this._normalizeArtworkUrl(E, { size: m }), O = v.legacyImageProxyFallbackUrl(o, m, {
         maUrl: S
-      }), Z = this._normalizeArtworkUrl(O, { size: m }), $ = E || F;
+      }), Z = this._normalizeArtworkUrl(O, { size: m }), $ = I || F;
       return this._rememberArtworkFallback($, [F, Z]);
     }
     _artUrl(o, m = {}) {
@@ -46235,9 +46235,9 @@ function vh({
         }
         return "";
       }
-      const S = this._maArtworkBaseUrl(), B = v.artUrl(o, S, g), E = this._normalizeArtworkUrl(B, { size: g, cacheKey: m?.cacheKey || "" }), I = v.rebaseImageProxyUrl(B, g, S), F = this._normalizeArtworkUrl(I, { size: g, cacheKey: m?.cacheKey || "" }), O = v.legacyImageProxyFallbackUrl(o, g, {
+      const S = this._maArtworkBaseUrl(), B = v.artUrl(o, S, g), I = this._normalizeArtworkUrl(B, { size: g, cacheKey: m?.cacheKey || "" }), E = v.rebaseImageProxyUrl(B, g, S), F = this._normalizeArtworkUrl(E, { size: g, cacheKey: m?.cacheKey || "" }), O = v.legacyImageProxyFallbackUrl(o, g, {
         maUrl: S
-      }), Z = this._normalizeArtworkUrl(O, { size: g, cacheKey: m?.cacheKey || "" }), $ = E || F;
+      }), Z = this._normalizeArtworkUrl(O, { size: g, cacheKey: m?.cacheKey || "" }), $ = I || F;
       return this._rememberArtworkFallback($, [F, Z]);
     }
     _artistName(o) {
@@ -46252,8 +46252,8 @@ function vh({
     _imgHtml(o = "", m = "", g = {}) {
       const y = String(o || "").trim();
       if (!y) return "";
-      const S = g.loading || "lazy", B = g.decoding || "async", E = g.className ? ` class="${this._esc(g.className)}"` : "", I = g.fetchpriority || g.fetchPriority || "low", F = ` fetchpriority="${this._esc(I)}"`, O = g.fallbackIcon || g.placeholder || "album";
-      return `<img${E} src="${this._esc(y)}" alt="${this._esc(m)}" loading="${this._esc(S)}" decoding="${this._esc(B)}"${F} data-homeii-inline-art="1" data-homeii-art-src="${this._esc(y)}" data-homeii-art-fallback-icon="${this._esc(O)}">`;
+      const S = g.loading || "lazy", B = g.decoding || "async", I = g.className ? ` class="${this._esc(g.className)}"` : "", E = g.fetchpriority || g.fetchPriority || "low", F = ` fetchpriority="${this._esc(E)}"`, O = g.fallbackIcon || g.placeholder || "album";
+      return `<img${I} src="${this._esc(y)}" alt="${this._esc(m)}" loading="${this._esc(S)}" decoding="${this._esc(B)}"${F} data-homeii-inline-art="1" data-homeii-art-src="${this._esc(y)}" data-homeii-art-fallback-icon="${this._esc(O)}">`;
     }
     _toast(o, m = "info", g = {}) {
       return Km.call(this, o, m, g);
@@ -46314,21 +46314,21 @@ function vh({
       const m = o || this.$("content");
       if (m) {
         if (o) {
-          const g = (E) => {
-            if (!E?.dataset?.img) return;
-            const I = E.dataset.img, F = E.dataset.placeholder || "album";
-            delete E.dataset.img, this._loadImgInto(I, E, F);
+          const g = (I) => {
+            if (!I?.dataset?.img) return;
+            const E = I.dataset.img, F = I.dataset.placeholder || "album";
+            delete I.dataset.img, this._loadImgInto(E, I, F);
           }, y = Array.from(m.querySelectorAll("[data-img]"));
           this._menuImgObserver?.disconnect?.(), this._menuImgObserver = null, [
             ...Array.from(m.querySelectorAll(".active[data-img], .active [data-img], [data-homeii-art-priority='1'][data-img]")),
             ...y.slice(0, 6)
-          ].filter((E, I, F) => E?.dataset?.img && F.indexOf(E) === I).forEach(g);
-          const B = y.filter((E) => E?.dataset?.img);
-          typeof IntersectionObserver < "u" && B.length ? (this._menuImgObserver = new IntersectionObserver((E) => {
-            E.forEach((I) => {
-              I.isIntersecting && (this._menuImgObserver?.unobserve?.(I.target), g(I.target));
+          ].filter((I, E, F) => I?.dataset?.img && F.indexOf(I) === E).forEach(g);
+          const B = y.filter((I) => I?.dataset?.img);
+          typeof IntersectionObserver < "u" && B.length ? (this._menuImgObserver = new IntersectionObserver((I) => {
+            I.forEach((E) => {
+              E.isIntersecting && (this._menuImgObserver?.unobserve?.(E.target), g(E.target));
             });
-          }, { root: m, rootMargin: "280px 180px" }), B.forEach((E) => this._menuImgObserver.observe(E))) : B.slice(0, 18).forEach(g);
+          }, { root: m, rootMargin: "280px 180px" }), B.forEach((I) => this._menuImgObserver.observe(I))) : B.slice(0, 18).forEach(g);
           return;
         }
         this._imgObserver && this._imgObserverRoot !== m && (this._imgObserver.disconnect(), this._imgObserver = null, this._imgObserverRoot = null), this._imgObserver || (this._imgObserver = new IntersectionObserver((g) => {
@@ -46336,8 +46336,8 @@ function vh({
             if (!y.isIntersecting) continue;
             const S = y.target;
             this._imgObserver.unobserve(S);
-            const B = S.dataset.img, E = S.dataset.placeholder || "💿";
-            delete S.dataset.img, this._loadImgInto(B, S, E);
+            const B = S.dataset.img, I = S.dataset.placeholder || "💿";
+            delete S.dataset.img, this._loadImgInto(B, S, I);
           }
         }, { root: m, rootMargin: "120px" }), this._imgObserverRoot = m), m.querySelectorAll("[data-img]").forEach((g) => this._imgObserver.observe(g));
       }
@@ -46345,7 +46345,7 @@ function vh({
     async _loadImgInto(o, m, g = "💿") {
       const S = ["artist", "radio", "podcast", "music_note", "album", "playlist", "tracks", "speaker", "repeat"].includes(String(g || "")) ? g : g === "🎤" ? "artist" : g === "📻" ? "radio" : "album", B = () => {
         m?.isConnected && (m.innerHTML = `<div class="media-placeholder">${this._artPlaceholderHtml(S)}</div>`);
-      }, E = (Z = o) => {
+      }, I = (Z = o) => {
         if (m?.isConnected)
           try {
             const ce = (m.ownerDocument || (typeof document < "u" ? document : null))?.createElement?.("img");
@@ -46366,7 +46366,7 @@ function vh({
           } catch {
             m.innerHTML = `<img src="${this._esc(Z)}" alt="" loading="lazy" decoding="async">`;
           }
-      }, I = (() => {
+      }, E = (() => {
         try {
           const Z = typeof window < "u" ? window.location?.href : "", $ = typeof window < "u" ? window.location?.origin : "", ce = new URL(o, Z || "http://homeii.local");
           return !!($ && ce.origin && ce.origin !== $);
@@ -46378,36 +46378,36 @@ function vh({
         B();
         return;
       }
-      if (this._isImageFailureFresh(o) && !this._shouldFetchArtworkUrl(o, { crossOrigin: I })) {
+      if (this._isImageFailureFresh(o) && !this._shouldFetchArtworkUrl(o, { crossOrigin: E })) {
         B(), this._scheduleImageRetry(o, m, S);
         return;
       }
       const F = this._imageBlobCache.get(o);
       if (F) {
-        E(F);
+        I(F);
         return;
       }
-      if (!this._shouldFetchArtworkUrl(o, { crossOrigin: I })) {
-        E();
+      if (!this._shouldFetchArtworkUrl(o, { crossOrigin: E })) {
+        I();
         return;
       }
-      if (I) {
+      if (E) {
         try {
           const Z = await this._fetchArtworkBlobUrl(o, { crossOrigin: !0 });
           if (Z) {
-            E(Z);
+            I(Z);
             return;
           }
         } catch {
         }
-        E();
+        I();
         return;
       }
       try {
         const Z = await this._fetchArtworkBlobUrl(o);
-        Z && m.isConnected && E(Z);
+        Z && m.isConnected && I(Z);
       } catch {
-        E();
+        I();
       }
     }
     connectedCallback() {
@@ -46560,11 +46560,11 @@ const Jn = Object.freeze({
   low: 60,
   ultra_lite: 30
 });
-function Eh(n) {
+function Ih(n) {
   const e = String(n || "").trim().toLowerCase();
   return Jn[e] ?? Jn.full;
 }
-function Ih(n) {
+function Eh(n) {
   const e = $a(n);
   if (e === "low" || e === "ultra_lite") return "off";
   const t = String(n?.mobileDynamicThemeMode || "auto").toLowerCase(), r = ["off", "auto", "strong"].includes(t) ? t : "auto";
@@ -46730,7 +46730,7 @@ function dc(n, e = "list") {
 function Ac(n) {
   return pi(n, jh, "combined");
 }
-function Er(n) {
+function Ir(n) {
   const e = [];
   return vi(n).forEach((t) => {
     e.includes(t) || e.push(t);
@@ -46738,12 +46738,12 @@ function Er(n) {
 }
 function mc(n = {}) {
   const e = vi(n?.pinned_player_entities);
-  if (e.length) return Er(e);
+  if (e.length) return Ir(e);
   const t = String(n?.pinned_player_entity || "").trim();
-  return Er(t ? [t] : []);
+  return Ir(t ? [t] : []);
 }
 function pc(n = {}) {
-  return Er(n?.excluded_player_entities);
+  return Ir(n?.excluded_player_entities);
 }
 function i_(n, {
   usesVisualSettings: e = !1,
@@ -46893,7 +46893,7 @@ const o_ = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   normalizeMobileVolumeMode: lc,
   normalizePerformanceProfile: Vl,
   normalizePinnedPlayerEntities: mc,
-  normalizePinnedPlayerEntityList: Er,
+  normalizePinnedPlayerEntityList: Ir,
   normalizePlayerOrderEntities: $l,
   normalizePlayerSortMode: Xl,
   normalizePowerButtonAction: Cr,
@@ -47038,7 +47038,7 @@ const __ = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   tabletAutoFitDense: A_,
   tabletAutoFitEnabled: gs,
   tabletStabilityModeEnabled: p_
-}, Symbol.toStringTag, { value: "Module" })), Zi = [245, 166, 35], Ir = "#f5a623";
+}, Symbol.toStringTag, { value: "Module" })), Zi = [245, 166, 35], Er = "#f5a623";
 function Yi(n) {
   return Math.max(0, Math.min(255, Math.round(Number(n) || 0)));
 }
@@ -47053,7 +47053,7 @@ function Ji(n, e = Zi) {
   return e.map((t) => Yi(t));
 }
 function bc(n, e = Zi) {
-  const t = String(n || Ir).replace("#", "").trim(), r = t.length === 3 ? t.split("").map((p) => p + p).join("") : t.padEnd(6, "0").slice(0, 6), c = [
+  const t = String(n || Er).replace("#", "").trim(), r = t.length === 3 ? t.split("").map((p) => p + p).join("") : t.padEnd(6, "0").slice(0, 6), c = [
     parseInt(r.slice(0, 2), 16),
     parseInt(r.slice(2, 4), 16),
     parseInt(r.slice(4, 6), 16)
@@ -47144,10 +47144,10 @@ function f_(n = null, { mode: e = "auto" } = {}) {
     mode: e
   });
 }
-function y_(n = null, e = Ir) {
-  return n?.accent || String(e || Ir);
+function y_(n = null, e = Er) {
+  return n?.accent || String(e || Er);
 }
-function v_(n = null, e = Ir) {
+function v_(n = null, e = Er) {
   return n?.accent_rgb || Ja(bc(e));
 }
 const w_ = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
@@ -47249,10 +47249,10 @@ function B_(n) {
 function Bc(n = "") {
   return String(n || "").toLowerCase() === "night" ? "night" : "";
 }
-function E_(n, e = "") {
+function I_(n, e = "") {
   return Number(n || 0) > 0 && Bc(e) === "night";
 }
-function I_(n, e = "") {
+function E_(n, e = "") {
   return Number(n || 0) > 0;
 }
 function P_(n, e = Date.now()) {
@@ -47283,11 +47283,11 @@ const L_ = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   normalizeNightModeDays: Sc,
   normalizeSleepTimerOrigin: Bc,
   resolveNightModeWindow: S_,
-  sleepTimerChipVisible: I_,
+  sleepTimerChipVisible: E_,
   sleepTimerFooterLabel: B_,
   sleepTimerRemainingLabel: C_,
   sleepTimerRemainingMs: Cc,
-  sleepTimerStartedFromNightMode: E_
+  sleepTimerStartedFromNightMode: I_
 }, Symbol.toStringTag, { value: "Module" })), T_ = 8e3;
 function Oa(n = "") {
   return String(n || "").trim().toLowerCase();
@@ -47474,7 +47474,7 @@ function G_(n = null, e = {}) {
     n?.media_item?.album?.image_url
   ].map((_) => String(_ || "").trim()).filter(Boolean).join("|");
 }
-function Ec(n = [], e = {}) {
+function Ic(n = [], e = {}) {
   const t = Array.isArray(n) ? n.filter(Boolean) : [];
   if (!t.length) return [];
   const r = Number(e.currentIndex);
@@ -47493,7 +47493,7 @@ function Ec(n = [], e = {}) {
   return Q;
 }
 function j_(n = [], e = {}, t = () => "") {
-  const r = Array.isArray(n) ? n.filter(Boolean) : [], c = Ec(r, e), p = c[0] ?? 0, _ = [];
+  const r = Array.isArray(n) ? n.filter(Boolean) : [], c = Ic(r, e), p = c[0] ?? 0, _ = [];
   return c.forEach((v) => {
     const k = r[v], C = Math.abs(v - p), Q = t(k, 160);
     if (Q && _.push(Q), C <= 3) {
@@ -47504,7 +47504,7 @@ function j_(n = [], e = {}, t = () => "") {
 }
 const Y_ = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  queueArtworkPrefetchIndexes: Ec,
+  queueArtworkPrefetchIndexes: Ic,
   queueArtworkPrefetchUrls: j_,
   queueItemArtworkCacheKey: G_
 }, Symbol.toStringTag, { value: "Module" })), O_ = /^[A-Za-z0-9_-]{1,64}$/, J_ = "__";
@@ -47580,7 +47580,7 @@ function $_() {
     mobileQueuePlayPendingPlayerId: ""
   };
 }
-function Ic(n = null, e = {}, t = {}, r = Hi) {
+function Ec(n = null, e = {}, t = {}, r = Hi) {
   if (!n) return !1;
   const c = Object.prototype.hasOwnProperty.call(e || {}, "hasPendingPlay") ? e : La(e);
   if (!c?.hasPendingPlay) return !1;
@@ -47615,7 +47615,7 @@ function Pc({
     r?.current,
     ...Array.isArray(c) ? c : []
   ].filter(Boolean).find(
-    (C) => Ic(C, v, p, _)
+    (C) => Ec(C, v, p, _)
   ) || n?.maQueueState?.current_item || t || r?.current) || null;
 }
 function eg({
@@ -47670,7 +47670,7 @@ const ig = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   nowPlayingDisplaySource: eg,
   pendingPlayerLockState: tg,
   pendingQueuePlayState: La,
-  queueItemMatchesPendingPlay: Ic,
+  queueItemMatchesPendingPlay: Ec,
   resolvePendingQueueItem: Pc
 }, Symbol.toStringTag, { value: "Module" }));
 function ag({ player: n = null, queueItem: e = null } = {}) {
@@ -48426,9 +48426,9 @@ function Oc(n = [], e = "") {
 function Bg(n = [], e = "") {
   return Oc(n, e).find((t) => t.accepted && t.candidate?.uri)?.candidate || null;
 }
-const Eg = Object.freeze(
+const Ig = Object.freeze(
   "AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS XK YE YT ZA ZM ZW".split(" ").filter((n, e, t) => n && t.indexOf(n) === e)
-), Ig = Object.freeze({
+), Eg = Object.freeze({
   AU: "ui.australia",
   CA: "ui.canada",
   DE: "ui.germany",
@@ -48455,7 +48455,7 @@ function Pg(n = "", e = "en") {
   return Uo.set(c, p), p;
 }
 function Jc(n = "", e = null, t = "en") {
-  const r = String(n || "").trim().toUpperCase(), c = Ig[r];
+  const r = String(n || "").trim().toUpperCase(), c = Eg[r];
   if (c && typeof e == "function") {
     const p = e(c);
     if (p && p !== c) return p;
@@ -48466,7 +48466,7 @@ function Qg(n = null, e = "en") {
   const t = typeof n == "function" ? n : (r) => r;
   return [
     { value: "all", label: t("ui.all_countries") },
-    ...Eg.map((r) => ({
+    ...Ig.map((r) => ({
       value: r,
       label: Jc(r, t, e)
     }))
@@ -48497,7 +48497,7 @@ const ea = "6.0.1", Kn = "homeii-music-flow-browser-editor-v601", Lr = "homeii-m
 }), Kc = Object.freeze({
   ...vg
 });
-function Es(n, e = {}, t = "") {
+function Is(n, e = {}, t = "") {
   const r = Bs.detectEditorHebrew() ? "he" : "en";
   return As(r, n, e, t);
 }
@@ -48536,7 +48536,7 @@ const Hr = Object.freeze({
   performanceProfile: $a,
   performanceModeEnabled: Ch,
   performanceUltraLiteEnabled: Bh,
-  mobileDynamicThemeMode: Ih,
+  mobileDynamicThemeMode: Eh,
   mobileBackgroundMotionMode: hs,
   backgroundMotionEnabled: Ph,
   backgroundMotionAmount: Qh,
@@ -48561,7 +48561,7 @@ const Hr = Object.freeze({
   ...bg
 }), Zn = Object.freeze({
   ...Y_
-}), Ia = Object.freeze({
+}), Ea = Object.freeze({
   ...ig
 }), Ng = Object.freeze({
   ...K_
@@ -48569,7 +48569,7 @@ const Hr = Object.freeze({
   ...Um
 });
 Rm({
-  homeiiEditorI18n: Es,
+  homeiiEditorI18n: Is,
   homeiiEditorLabelFor: Xc,
   homeiiEditorHelperFor: $c,
   detectEditorHebrew: Bs.detectEditorHebrew,
@@ -48579,7 +48579,7 @@ Rm({
 function Hg() {
   return Fm();
 }
-function Ug(n = Es, e = "") {
+function Ug(n = Is, e = "") {
   return Bl(n, e);
 }
 function Gg() {
@@ -48595,7 +48595,7 @@ const ss = vh({
   HomeiiMediaQueueFoundation: Ui,
   HomeiiMediaPresentationFoundation: Fg,
   HomeiiMediaHistoryFoundation: qg,
-  HomeiiNowPlayingFoundation: Ia,
+  HomeiiNowPlayingFoundation: Ea,
   HomeiiFavoritesFoundation: zg,
   HomeiiPlayersFoundation: Tt,
   HomeiiRevisionedSnapshotsFoundation: Kc,
@@ -48615,7 +48615,7 @@ const ss = vh({
   HomeiiConfigValidators: Hr,
   HomeiiPlayersFoundation: Tt,
   HomeiiMobileSettingsFoundation: Ge,
-  homeiiEditorI18n: Es,
+  homeiiEditorI18n: Is,
   homeiiEditorLabelFor: Xc,
   homeiiEditorHelperFor: $c,
   HOMEII_CARD_VERSION: ea,
@@ -49603,9 +49603,9 @@ class ta extends ss {
               const K = (z[X + 3] || 0) / 255;
               if (K < 0.08) continue;
               const ne = [z[X], z[X + 1], z[X + 2]], [ge, o, m] = this._rgbToHsl(ne), g = 1 - Math.abs(m - 0.52), y = K * (0.35 + o * 0.9 + g * 0.55);
-              q = q.map((E, I) => E + ne[I] * y), G += y;
+              q = q.map((I, E) => I + ne[E] * y), G += y;
               const S = this._tunePaletteColor(ne, { minSaturation: 0.48, minLightness: 0.4, maxLightness: 0.58 }), B = K * (0.2 + o * 1.9 + g * 0.85 + ge * 0.05);
-              U = U.map((E, I) => E + S[I] * B), J += B;
+              U = U.map((I, E) => I + S[E] * B), J += B;
             }
             if (!G || !J) {
               _(null);
@@ -49812,13 +49812,13 @@ class ta extends ss {
     const r = this._scheduledStartEnginePayload(e);
     if (!r.player) return !1;
     if (!await this._homeiiEngineReadyForPersistence())
-      return (this._homeiiEngineRequired() || t.toast) && this._toastError(this._m("Saved locally, but HOMEii Flow Engine did not confirm the schedule.", "נשמר מקומית, אבל HOMEii Flow Engine לא אישר את התזמון.")), !1;
+      return (this._homeiiEngineRequired() || t.toast) && this._toastError(this._m("Saved locally, but Maverick Music Engine did not confirm the schedule.", "נשמר מקומית, אבל Maverick Music Engine לא אישר את התזמון.")), !1;
     try {
       if (!await this._homeiiEngineSetSchedule(r, { required: !0 })) return !1;
       const _ = await this._confirmScheduleInHomeiiEngine(r.schedule_id);
-      return !_ && (this._homeiiEngineRequired() || t.toast) && this._toastError("HOMEii Flow Engine accepted the schedule write, but it was not found when reading it back."), _;
+      return !_ && (this._homeiiEngineRequired() || t.toast) && this._toastError("Maverick Music Engine accepted the schedule write, but it was not found when reading it back."), _;
     } catch (p) {
-      return (this._homeiiEngineRequired() || t.toast) && this._toastError(p?.message || "HOMEii Flow Engine schedule sync failed"), !1;
+      return (this._homeiiEngineRequired() || t.toast) && this._toastError(p?.message || "Maverick Music Engine schedule sync failed"), !1;
     }
   }
   async _confirmScheduleInHomeiiEngine(e = "") {
@@ -49837,7 +49837,7 @@ class ta extends ss {
     try {
       return !!await this._homeiiEngineDeleteSchedule({ schedule_id: r }, { required: !0 });
     } catch (p) {
-      return (this._homeiiEngineRequired() || t.toast) && this._toastError(p?.message || "HOMEii Flow Engine schedule delete failed"), !1;
+      return (this._homeiiEngineRequired() || t.toast) && this._toastError(p?.message || "Maverick Music Engine schedule delete failed"), !1;
     }
   }
   async _hydrateSchedulesFromHomeiiEngine() {
@@ -49972,7 +49972,7 @@ class ta extends ss {
     }), Q = this._scheduledStartSchedules(), z = Q.findIndex((G) => G.id === C.id);
     z >= 0 ? Q[z] = C : Q.push(C), this._state.mobileStartSchedules = Q, this._state.mobileStartScheduleEditId = "", this._state.mobileStartTimerEnabled = Q.some((G) => G.enabled !== !1), this._state.mobileStartTimerTime = C.time, this._state.mobileStartTimerPlayer = C.player, this._state.mobileStartTimerPlaylist = C.playlist, this._state.mobileStartTimerPlaylistName = C.playlistName, this._state.mobileStartTimerVolume = C.volume, this._state.mobileStartTimerDays = C.days, this._state.mobileStartTimerLastRunKey = C.lastRunKey, this._state.mobileStartTimerAfterRun = C.afterRun || "keep", this._persistMobileAppearance();
     const q = await this._syncScheduleToHomeiiEngine(C, { toast: !0 });
-    return this._toastSuccess(q ? this._m("Schedule saved to HOMEii Flow Engine", "התזמון נשמר ב-HOMEii Flow Engine") : this._i18n("ui.scheduled_start_saved")), !0;
+    return this._toastSuccess(q ? this._m("Schedule saved to Maverick Music Engine", "התזמון נשמר ב-Maverick Music Engine") : this._i18n("ui.scheduled_start_saved")), !0;
   }
   async _clearScheduledStart(e = !1) {
     const t = String(this._state.mobileStartScheduleEditId || "").trim();
@@ -50080,9 +50080,9 @@ class ta extends ss {
       }, { required: !0 }))
         return this._toastError(this._m("The Engine did not confirm the sleep timer.", "ה־Engine לא אישר את שמירת הטיימר.")), !1;
       const k = await this._confirmSleepTimerInHomeiiEngine(this._homeiiSleepTimerId(c), c, p);
-      return !k && (this._homeiiEngineRequired() || r.toast) && this._toastError("HOMEii Flow Engine accepted the timer write, but it was not found when reading it back."), k;
+      return !k && (this._homeiiEngineRequired() || r.toast) && this._toastError("Maverick Music Engine accepted the timer write, but it was not found when reading it back."), k;
     } catch (v) {
-      return (this._homeiiEngineRequired() || r.toast) && this._toastError(v?.message || "HOMEii Flow Engine timer sync failed"), !1;
+      return (this._homeiiEngineRequired() || r.toast) && this._toastError(v?.message || "Maverick Music Engine timer sync failed"), !1;
     }
   }
   async _confirmSleepTimerInHomeiiEngine(e = "", t = "", r = 0) {
@@ -50114,7 +50114,7 @@ class ta extends ss {
       if (_.timers.some((k) => String(k.id || k.timer_id || "") === this._homeiiSleepTimerId(r))) throw new Error("The timer is still present in the Engine");
       return !0;
     } catch (p) {
-      return (this._homeiiEngineRequired() || t.toast) && this._toastError(p?.message || "HOMEii Flow Engine timer delete failed"), !1;
+      return (this._homeiiEngineRequired() || t.toast) && this._toastError(p?.message || "Maverick Music Engine timer delete failed"), !1;
     }
   }
   async _hydrateSleepTimerFromHomeiiEngine() {
@@ -50421,7 +50421,7 @@ class ta extends ss {
   }
   async _ensureHomeiiEngineHandshake() {
     if (!this._homeiiEngineRequired()) return !0;
-    const e = await this._refreshHomeiiEngineContext({ force: !0 }).catch((_) => (this._state.engineLastError = _?.message || String(_ || "HOMEii Flow Engine is not available."), null)), t = this._homeiiEngineHandshakeMissingCapabilities(), r = this._state?.engineRequiredConnections, c = r?.ok === !0;
+    const e = await this._refreshHomeiiEngineContext({ force: !0 }).catch((_) => (this._state.engineLastError = _?.message || String(_ || "Maverick Music Engine is not available."), null)), t = this._homeiiEngineHandshakeMissingCapabilities(), r = this._state?.engineRequiredConnections, c = r?.ok === !0;
     return e && this._state.engineAvailable && this._homeiiEngineVersionAtLeast("0.7.6") && t.length === 0 && c ? !0 : (this._renderHomeiiEngineRequiredScreen({
       version: this._state.engineVersion || "",
       missingCapabilities: t,
@@ -50430,7 +50430,7 @@ class ta extends ss {
     }), !1);
   }
   _renderHomeiiEngineRequiredScreen(e = {}) {
-    const t = String(e?.version || "").trim(), r = Array.isArray(e?.missingCapabilities) ? e.missingCapabilities : [], c = String(e?.error || "").trim(), p = e?.requiredConnections && typeof e.requiredConnections == "object" ? e.requiredConnections : null, _ = this._state?.engineStatus || "missing", v = t ? `Detected Engine ${t}, but it is missing required HOMEii Flow 6 capabilities.` : "HOMEii Flow Engine was not detected by Home Assistant.", k = r.length ? `<div class="engine-gate-list"><strong>Missing capabilities</strong><span>${this._esc(r.join(", "))}</span></div>` : "", C = p && p.ok !== !0 ? `<div class="engine-gate-list"><strong>Required connections</strong><span>${this._esc(p.summary || "Music Assistant 2.10 API is not ready. Open HOMEii Flow Engine diagnostics for details.")}</span></div>` : "";
+    const t = String(e?.version || "").trim(), r = Array.isArray(e?.missingCapabilities) ? e.missingCapabilities : [], c = String(e?.error || "").trim(), p = e?.requiredConnections && typeof e.requiredConnections == "object" ? e.requiredConnections : null, _ = this._state?.engineStatus || "missing", v = t ? `Detected Engine ${t}, but it is missing required Maverick Music 6 capabilities.` : "Maverick Music Engine was not detected by Home Assistant.", k = r.length ? `<div class="engine-gate-list"><strong>Missing capabilities</strong><span>${this._esc(r.join(", "))}</span></div>` : "", C = p && p.ok !== !0 ? `<div class="engine-gate-list"><strong>Required connections</strong><span>${this._esc(p.summary || "Music Assistant 2.10 API is not ready. Open Maverick Music Engine diagnostics for details.")}</span></div>` : "";
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -50563,8 +50563,8 @@ class ta extends ss {
         <div class="engine-gate">
           <div class="engine-gate-panel">
             <div class="engine-gate-icon">${this._iconSvg("settings")}</div>
-            <h2>HOMEii Flow 6 requires HOMEii Flow Engine</h2>
-            <p>${this._esc(v)} Install or update the HOMEii Flow Engine integration, reload Home Assistant, then refresh this dashboard.</p>
+            <h2>Maverick Music 6 requires Maverick Music Engine</h2>
+            <p>${this._esc(v)} Install or update the Maverick Music Engine integration, reload Home Assistant, then refresh this dashboard.</p>
             ${k}
             ${C}
             ${c ? `<div class="engine-gate-list"><strong>Last error</strong><span>${this._esc(c)}</span></div>` : ""}
@@ -50580,7 +50580,7 @@ class ta extends ss {
       this._state.engineLastChecked = 0, await this._ensureHomeiiEngineHandshake() && (this._build(), this._init());
     }), this.$("engineGateDiagnostics")?.addEventListener("click", () => {
       const Q = [
-        "HOMEii Flow 6 Engine handshake",
+        "Maverick Music 6 Engine handshake",
         `Card: ${ea}`,
         `Status: ${_}`,
         `Engine version: ${t || "(none)"}`,
@@ -50643,13 +50643,13 @@ class ta extends ss {
   }
   async _homeiiEngineHttpCommand(e = "get_context", t = {}, r = {}) {
     if (!this._homeiiEngineHttpFallbackAllowed(e))
-      throw new Error(`HOMEii Flow Engine HTTP fallback does not support ${e}`);
+      throw new Error(`Maverick Music Engine HTTP fallback does not support ${e}`);
     const c = Pi.clampHomeiiEngineTimeoutMs(r?.timeoutMs, this._homeiiEngineTimeoutMs()), p = this._homeiiEngineMessage(e, t), _ = this._homeiiEngineHttpPath(e);
     if (typeof this._hass?.callApi == "function")
       return this._withTimeout(
         this._hass.callApi("POST", _, p),
         c,
-        this._timeoutMessage("HOMEii Flow Engine HTTP")
+        this._timeoutMessage("Maverick Music Engine HTTP")
       );
     const v = {
       Accept: "application/json",
@@ -50664,9 +50664,9 @@ class ta extends ss {
         body: JSON.stringify(p)
       }),
       c,
-      this._timeoutMessage("HOMEii Flow Engine HTTP")
+      this._timeoutMessage("Maverick Music Engine HTTP")
     );
-    if (!C.ok) throw new Error(`HOMEii Flow Engine HTTP ${C.status}`);
+    if (!C.ok) throw new Error(`Maverick Music Engine HTTP ${C.status}`);
     return C.json();
   }
   async _homeiiEngineCommand(e = "get_context", t = {}, r = {}) {
@@ -50683,10 +50683,10 @@ class ta extends ss {
           const C = await this._homeiiEngineHttpCommand(e, t, { timeoutMs: _ });
           return this._state.engineLastTransport = "http", this._state.engineStatus = "connected", this._state.engineAvailable = !0, this._state.engineLastError = "", C;
         } catch (C) {
-          this._debugLog?.("debug", "HOMEii Flow Engine HTTP fallback failed", e, C?.message || C);
+          this._debugLog?.("debug", "Maverick Music Engine HTTP fallback failed", e, C?.message || C);
         }
-      const k = v?.message || "HOMEii Flow Engine is not available.";
-      if (e !== "get_context" && this._state.engineAvailable || this._state.engineContext ? (this._state.engineStatus = "degraded", this._state.engineAvailable = !0) : (this._state.engineStatus = "missing", this._state.engineAvailable = !1), this._state.engineLastError = k, this._debugLog?.("debug", "HOMEii Flow Engine command failed", e, k), p) throw v;
+      const k = v?.message || "Maverick Music Engine is not available.";
+      if (e !== "get_context" && this._state.engineAvailable || this._state.engineContext ? (this._state.engineStatus = "degraded", this._state.engineAvailable = !0) : (this._state.engineStatus = "missing", this._state.engineAvailable = !1), this._state.engineLastError = k, this._debugLog?.("debug", "Maverick Music Engine command failed", e, k), p) throw v;
       return null;
     }
   }
@@ -50746,7 +50746,7 @@ class ta extends ss {
         return null;
       }
       return typeof c == "function" ? c : null;
-    }).catch((c) => (this._debugLog?.("debug", "HOMEii Flow Engine MA event subscription failed", c?.message || c), null));
+    }).catch((c) => (this._debugLog?.("debug", "Maverick Music Engine MA event subscription failed", c?.message || c), null));
   }
   _unsubscribeHomeiiEngineMusicAssistantEvents() {
     this._homeiiMaEventGeneration = (this._homeiiMaEventGeneration || 0) + 1;
@@ -51846,10 +51846,10 @@ class ta extends ss {
     this._syncLocalSendspinMediaSession(c, p);
     const _ = this._currentArtworkUrl(c, p, 720, { preferPlayerArtwork: !0 }), v = c?.attributes?.media_title || p?.media_item?.name || "", k = c?.attributes?.media_artist || (p?.media_item?.artists || []).map((B) => B?.name).filter(Boolean).join(", ") || "", C = !!(v || k || _);
     ["screensaverPrevBtn", "screensaverPlayPauseBtn", "screensaverNextBtn", "screensaverMuteBtn", "screensaverPowerBtn", "screensaverLyricsBtn", "screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((B) => {
-      const E = this.$(B);
-      if (!E) return;
-      const I = B === "screensaverPowerBtn" ? !!this._hass : !!c;
-      E.disabled = !I, E.setAttribute("aria-disabled", I ? "false" : "true");
+      const I = this.$(B);
+      if (!I) return;
+      const E = B === "screensaverPowerBtn" ? !!this._hass : !!c;
+      I.disabled = !E, I.setAttribute("aria-disabled", E ? "false" : "true");
     }), this._setButtonIcon(this.$("screensaverPlayPauseBtn"), this._playPauseIconName(c)), this._setButtonIcon(this.$("screensaverMuteBtn"), this._volumeIconName(c));
     const Q = this.$("screensaverMuteBtn");
     Q && Q.classList.toggle("active", this._isMuted(c));
@@ -51863,8 +51863,8 @@ class ta extends ss {
     e.classList.toggle("analog-mode", t === "analog"), e.classList.toggle("digital-mode", t !== "analog"), e.classList.toggle("empty-mode", !C), this._setScreensaverBackgroundArt(e, _), this._syncScreensaverLyricsUi(c);
     const X = this.$("screensaverLyricsBtn"), K = e.classList.contains("lyrics-mode");
     X && (X.classList.toggle("active", K), X.setAttribute("aria-pressed", K ? "true" : "false")), ["screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((B) => {
-      const E = this.$(B);
-      E && (E.disabled = !K, E.setAttribute("aria-disabled", K ? "false" : "true"));
+      const I = this.$(B);
+      I && (I.disabled = !K, I.setAttribute("aria-disabled", K ? "false" : "true"));
     });
     const ne = this.$("screensaverLyricsSyncBtn");
     if (ne) {
@@ -52765,7 +52765,7 @@ class ta extends ss {
     return { previous: p, current: c, next: _, offset: r };
   }
   _hasPendingMobileQueuePlay(e = Date.now()) {
-    return Ia.hasPendingQueuePlay(this._state, e);
+    return Ea.hasPendingQueuePlay(this._state, e);
   }
   _queueItemIdentityAccessors() {
     return {
@@ -52776,15 +52776,15 @@ class ta extends ss {
     };
   }
   _queueItemMatchesPendingMobilePlay(e = null) {
-    return Ia.queueItemMatchesPendingPlay(
+    return Ea.queueItemMatchesPendingPlay(
       e,
-      Ia.pendingQueuePlayState(this._state),
+      Ea.pendingQueuePlayState(this._state),
       this._queueItemIdentityAccessors(),
       (t, r, c) => this._mediaRefsEquivalent(t, r, c)
     );
   }
   _pendingMobileQueueItem(e = null) {
-    return Ia.resolvePendingQueueItem({
+    return Ea.resolvePendingQueueItem({
       state: this._state,
       currentQueueItem: this._state.maQueueState?.current_item || null,
       stack: e,
@@ -52825,7 +52825,7 @@ class ta extends ss {
     return !t || !r && k ? k : p || k || this._currentArtworkUrl(e, t, c, { preferPlayerArtwork: !r });
   }
   _mobileNowPlayingDisplaySource(e = null, t = null, r = null) {
-    return Ia.nowPlayingDisplaySource({
+    return Ea.nowPlayingDisplaySource({
       player: e,
       currentQueueItem: t,
       stack: r,
@@ -52979,7 +52979,7 @@ class ta extends ss {
       let v = !1, k = null;
       const C = new Image(), Q = () => {
         this._decodedArtworkUrls.add(t), this._decodedArtworkImages.set(t, C);
-        const q = Eh(this._performanceProfile());
+        const q = Ih(this._performanceProfile());
         for (; this._decodedArtworkUrls.size > q; ) {
           const G = this._decodedArtworkUrls.values().next().value;
           if (!G) break;
@@ -53503,12 +53503,12 @@ class ta extends ss {
       width: C || m ? this._getCardWidth(J) : Q ? K : 0,
       height: y,
       compactPopup: z
-    }), B = this._layoutProfileClassNames(S), E = this._layoutProfileStyleVars(S), I = this._performanceProfile(), F = this._performanceModeEnabled(), O = this._performanceUltraLiteEnabled();
+    }), B = this._layoutProfileClassNames(S), I = this._layoutProfileStyleVars(S), E = this._performanceProfile(), F = this._performanceModeEnabled(), O = this._performanceUltraLiteEnabled();
     this.classList.toggle("compact-popup-open", C), this.classList.toggle("compact-window-popup-open", Q), this.classList.toggle("mobile-edge-to-edge-open", m), this.classList.remove("compact-inline-popup-open"), this.classList.toggle("compact-tile-open", c && p), this.classList.toggle("compact-menu-open", this._compactMenuOverlayOpen());
     const Z = this._mobileNightMode(), $ = this._isNightModeActive(), ce = this._sleepTimerRemainingMs() > 0, be = this._mobileShowUpNextEnabled(), ue = !!this._mobileUpNextItem(), de = be && ue, me = Z !== "off", he = this._tabletAutoFitEnabled(), ve = this._tabletAutoFitDense(me, de) || ge === "tablet" && S.heightSize === "short", xe = this._mobileContentDense(ge, S, {
       showNightRow: me,
       showUpNextInline: de
-    }), ke = this._fullMobileInlineTargetHeight(), Me = Math.max(280, Math.min(2200, Math.round(y || (r === "full" ? ke : j)))), Be = S.heightSize === "short" ? 280 : ge === "tablet" ? 420 : 360, Ee = ge === "tablet" && !_ ? "min(calc(100vw - 32px), 720px)" : "0px", De = this._screensaverClockSize(), Oe = this._screensaverClockX(), Ke = this._screensaverClockY(), tt = this._screensaverControlButtons(), Ve = tt.filter((W) => W !== "like").map((W) => this._screensaverControlButtonHtml(W)).filter(Boolean).join(""), Xe = tt.includes("like") ? `<button class="screensaver-voice-btn screensaver-control-btn screensaver-like-btn ${this._currentMediaFavoriteState() ? "active" : ""}" id="screensaverLikeBtn" data-screensaver-control="like" title="${this._esc(this._i18n("ui.like_2"))}" aria-label="${this._esc(this._i18n("ui.like_2"))}">${this._iconSvg(this._currentMediaFavoriteState() ? "heart_filled" : "heart_outline")}</button>` : "", Te = String(this._state.mobileCompactTransition || ""), Je = Te === "expand" ? " compact-transition-expand" : Te === "collapse" ? " compact-transition-collapse" : "";
+    }), ke = this._fullMobileInlineTargetHeight(), Me = Math.max(280, Math.min(2200, Math.round(y || (r === "full" ? ke : j)))), Be = S.heightSize === "short" ? 280 : ge === "tablet" ? 420 : 360, Ie = ge === "tablet" && !_ ? "min(calc(100vw - 32px), 720px)" : "0px", De = this._screensaverClockSize(), Oe = this._screensaverClockX(), Ke = this._screensaverClockY(), tt = this._screensaverControlButtons(), Ve = tt.filter((W) => W !== "like").map((W) => this._screensaverControlButtonHtml(W)).filter(Boolean).join(""), Xe = tt.includes("like") ? `<button class="screensaver-voice-btn screensaver-control-btn screensaver-like-btn ${this._currentMediaFavoriteState() ? "active" : ""}" id="screensaverLikeBtn" data-screensaver-control="like" title="${this._esc(this._i18n("ui.like_2"))}" aria-label="${this._esc(this._i18n("ui.like_2"))}">${this._iconSvg(this._currentMediaFavoriteState() ? "heart_filled" : "heart_outline")}</button>` : "", Te = String(this._state.mobileCompactTransition || ""), Je = Te === "expand" ? " compact-transition-expand" : Te === "collapse" ? " compact-transition-collapse" : "";
     this._renderedLayoutMode = ge, this._lastCardWidth = Math.max(0, Math.round(S.width || this._lastCardWidth || 0)), this._lastCardHeight = Math.max(0, Math.round(Me || this._lastCardHeight || 0)), this._state.mobileNightRenderedActive = $, this._state.mobileNightRenderedMode = Z;
     const Ze = me ? `
       <div class="night-quick-row ${Z === "auto" ? "auto-mode" : "on-mode"}" id="nightQuickRow" ${me ? "" : "hidden"}>
@@ -53656,8 +53656,8 @@ class ta extends ss {
         ${pt === "always" ? Zt : ""}
       </div>`, Ti = `<aside class="tablet-rail">${ct}${dt}</aside>`, Bt = e ? `<div class="tablet-shell"><div class="tablet-main">${Nt}${Rt}</div>${Ti}</div>` : `<div class="tablet-shell">${Ti}<div class="tablet-main">${Nt}${Rt}</div></div>`;
     this.shadowRoot.innerHTML = `
-      <style>${Pm({ hostMinWidth: Ee, height: Me, minCardHeight: Be, fontScale: this._state.mobileFontScale || 1, iconScale: g.toFixed(2), customRgb: this._customRgb(), customText: this._customTextColor(), customColor: this._state.mobileCustomColor || "#e0a11b", fullInlineTargetHeight: ke })}</style>
-      <div class="card ${e ? "rtl" : ""} theme-${t} layout-${ge}${B ? ` ${B}` : ""} mobile-layout-${r}${r === "full" ? " mobile-layout-forced-full" : ""}${r === "compact" ? " mobile-layout-forced-compact" : ""}${m ? " mobile-edge-to-edge" : ""} performance-profile-${I}${F ? " performance-lite" : ""}${O ? " performance-ultra-lite" : ""}${ut ? " hotel-mode" : ""}${p ? " compact-mode compact-collapsed" : c ? " compact-expanded" : ""}${G ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${Je}${$ ? " night-mode" : ""}${me ? " night-mode-enabled" : ""}${he ? " tablet-auto-fit" : ""}${ve ? " tablet-fit-dense" : ""}${me ? " tablet-fit-night" : ""}${de ? " tablet-fit-up-next" : ""}${xe ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!ut && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${E}--screensaver-clock-scale:${this._esc(De.toFixed(2))};--screensaver-clock-x:${this._esc(Oe.toFixed(1))}%;--screensaver-clock-y:${this._esc(Ke.toFixed(1))}%;">
+      <style>${Pm({ hostMinWidth: Ie, height: Me, minCardHeight: Be, fontScale: this._state.mobileFontScale || 1, iconScale: g.toFixed(2), customRgb: this._customRgb(), customText: this._customTextColor(), customColor: this._state.mobileCustomColor || "#e0a11b", fullInlineTargetHeight: ke })}</style>
+      <div class="card ${e ? "rtl" : ""} theme-${t} layout-${ge}${B ? ` ${B}` : ""} mobile-layout-${r}${r === "full" ? " mobile-layout-forced-full" : ""}${r === "compact" ? " mobile-layout-forced-compact" : ""}${m ? " mobile-edge-to-edge" : ""} performance-profile-${E}${F ? " performance-lite" : ""}${O ? " performance-ultra-lite" : ""}${ut ? " hotel-mode" : ""}${p ? " compact-mode compact-collapsed" : c ? " compact-expanded" : ""}${G ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${Je}${$ ? " night-mode" : ""}${me ? " night-mode-enabled" : ""}${he ? " tablet-auto-fit" : ""}${ve ? " tablet-fit-dense" : ""}${me ? " tablet-fit-night" : ""}${de ? " tablet-fit-up-next" : ""}${xe ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!ut && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${I}--screensaver-clock-scale:${this._esc(De.toFixed(2))};--screensaver-clock-x:${this._esc(Oe.toFixed(1))}%;--screensaver-clock-y:${this._esc(Ke.toFixed(1))}%;">
         <div class="bg" id="mobileBg"></div><div class="shade"></div><div class="glow"></div>
         ${Li}
         ${ot}
@@ -53889,8 +53889,8 @@ class ta extends ss {
       const N = W.target.closest("[data-room-select]");
       if (N) {
         W.preventDefault(), W.stopPropagation(), this._pressUiButton(N);
-        const qe = N.dataset.roomSelect, gt = this._toggleControlRoomPlayerSelection(qe), Et = this._controlRoomPlayerName(qe);
-        gt === "kept" ? this._toast(this._i18n("ui.at_least_one_player_must_stay_selected")) : this._toastSuccess(gt === "removed" ? this._m(`${Et} removed from studio selection`, `${Et} הוסר מבחירת הסטודיו`) : this._m(`${Et} added to studio selection`, `${Et} נוסף לבחירת הסטודיו`));
+        const qe = N.dataset.roomSelect, gt = this._toggleControlRoomPlayerSelection(qe), It = this._controlRoomPlayerName(qe);
+        gt === "kept" ? this._toast(this._i18n("ui.at_least_one_player_must_stay_selected")) : this._toastSuccess(gt === "removed" ? this._m(`${It} removed from studio selection`, `${It} הוסר מבחירת הסטודיו`) : this._m(`${It} added to studio selection`, `${It} נוסף לבחירת הסטודיו`));
         return;
       }
       const i = W.target.closest("[data-room-primary]");
@@ -53909,15 +53909,15 @@ class ta extends ss {
         const qe = le.dataset.roomTogglePlay, gt = this._playerByEntityId(qe);
         try {
           await this._togglePlayFor(qe), this._toastSuccess(gt?.state === "playing" ? this._m(`${this._controlRoomPlayerName(qe)} paused`, `${this._controlRoomPlayerName(qe)} הושהה`) : this._m(`${this._controlRoomPlayerName(qe)} started playing`, `${this._controlRoomPlayerName(qe)} התחיל לנגן`)), setTimeout(() => this._updateNowPlayingState(), 250);
-        } catch (Et) {
-          this._toastError(Et?.message || this._i18n("ui.playback_command_failed_2"));
+        } catch (It) {
+          this._toastError(It?.message || this._i18n("ui.playback_command_failed_2"));
         }
         return;
       }
-      const Ie = W.target.closest("[data-room-next]");
-      if (Ie) {
-        W.preventDefault(), W.stopPropagation(), this._pressUiButton(Ie);
-        const qe = Ie.dataset.roomNext;
+      const Ee = W.target.closest("[data-room-next]");
+      if (Ee) {
+        W.preventDefault(), W.stopPropagation(), this._pressUiButton(Ee);
+        const qe = Ee.dataset.roomNext;
         try {
           await this._playerCmdFor(qe, "next"), this._toastSuccess(this._m(`${this._controlRoomPlayerName(qe)} skipped to next`, `${this._controlRoomPlayerName(qe)} עבר לרצועה הבאה`)), setTimeout(() => this._updateNowPlayingState(), 250);
         } catch (gt) {
@@ -53932,8 +53932,8 @@ class ta extends ss {
         try {
           if (!await this._toggleMuteFor(qe)) return;
           this._toastSuccess(gt ? this._m(`${this._controlRoomPlayerName(qe)} unmuted`, `${this._controlRoomPlayerName(qe)} בוטלה ההשתקה`) : this._m(`${this._controlRoomPlayerName(qe)} muted`, `${this._controlRoomPlayerName(qe)} הושתק`)), setTimeout(() => this._updateNowPlayingState(), 160);
-        } catch (Et) {
-          this._toastError(Et?.message || this._i18n("ui.mute_command_failed"));
+        } catch (It) {
+          this._toastError(It?.message || this._i18n("ui.mute_command_failed"));
         }
         return;
       }
@@ -54118,45 +54118,45 @@ class ta extends ss {
           this._toggleControlRoomPanel(qe), this._toast(Ft ? this._m(`${this._controlRoomPanelLabel(qe)} closed`, `${this._controlRoomPanelLabel(qe)} נסגר`) : this._m(`${this._controlRoomPanelLabel(qe)} opened`, `${this._controlRoomPanelLabel(qe)} נפתח`));
           return;
         }
-        const Et = this._controlRoomPrimaryPlayerId();
+        const It = this._controlRoomPrimaryPlayerId();
         if (qe === "player_playpause") {
-          if (!Et) return;
+          if (!It) return;
           this._pressUiButton(ht);
-          const Ft = this._playerByEntityId(Et);
+          const Ft = this._playerByEntityId(It);
           try {
-            await this._togglePlayFor(Et), this._toastSuccess(Ft?.state === "playing" ? this._m(`${this._controlRoomPlayerName(Et)} paused`, `${this._controlRoomPlayerName(Et)} הושהה`) : this._m(`${this._controlRoomPlayerName(Et)} started playing`, `${this._controlRoomPlayerName(Et)} התחיל לנגן`)), setTimeout(() => this._updateNowPlayingState(), 250);
+            await this._togglePlayFor(It), this._toastSuccess(Ft?.state === "playing" ? this._m(`${this._controlRoomPlayerName(It)} paused`, `${this._controlRoomPlayerName(It)} הושהה`) : this._m(`${this._controlRoomPlayerName(It)} started playing`, `${this._controlRoomPlayerName(It)} התחיל לנגן`)), setTimeout(() => this._updateNowPlayingState(), 250);
           } catch (sa) {
             this._toastError(sa?.message || this._i18n("ui.playback_command_failed_2"));
           }
           return;
         }
         if (qe === "player_next") {
-          if (!Et) return;
+          if (!It) return;
           this._pressUiButton(ht);
           try {
-            await this._playerCmdFor(Et, "next"), this._toastSuccess(this._m(`${this._controlRoomPlayerName(Et)} skipped to next`, `${this._controlRoomPlayerName(Et)} עבר לרצועה הבאה`)), setTimeout(() => this._updateNowPlayingState(), 250);
+            await this._playerCmdFor(It, "next"), this._toastSuccess(this._m(`${this._controlRoomPlayerName(It)} skipped to next`, `${this._controlRoomPlayerName(It)} עבר לרצועה הבאה`)), setTimeout(() => this._updateNowPlayingState(), 250);
           } catch (Ft) {
             this._toastError(Ft?.message || this._i18n("ui.next_track_failed"));
           }
           return;
         }
         if (qe === "player_mute") {
-          if (!Et) return;
+          if (!It) return;
           this._pressUiButton(ht);
-          const Ft = this._isMuted(this._playerByEntityId(Et));
+          const Ft = this._isMuted(this._playerByEntityId(It));
           try {
-            if (!await this._toggleMuteFor(Et)) return;
-            this._toastSuccess(Ft ? this._m(`${this._controlRoomPlayerName(Et)} unmuted`, `${this._controlRoomPlayerName(Et)} בוטלה ההשתקה`) : this._m(`${this._controlRoomPlayerName(Et)} muted`, `${this._controlRoomPlayerName(Et)} הושתק`)), setTimeout(() => this._updateNowPlayingState(), 160);
+            if (!await this._toggleMuteFor(It)) return;
+            this._toastSuccess(Ft ? this._m(`${this._controlRoomPlayerName(It)} unmuted`, `${this._controlRoomPlayerName(It)} בוטלה ההשתקה`) : this._m(`${this._controlRoomPlayerName(It)} muted`, `${this._controlRoomPlayerName(It)} הושתק`)), setTimeout(() => this._updateNowPlayingState(), 160);
           } catch (sa) {
             this._toastError(sa?.message || this._i18n("ui.mute_command_failed"));
           }
           return;
         }
         if (qe === "player_stop") {
-          if (!Et) return;
+          if (!It) return;
           this._pressUiButton(ht);
           try {
-            await this._stopPlayer(Et), this._toastSuccess(this._m(`${this._controlRoomPlayerName(Et)} stopped`, `${this._controlRoomPlayerName(Et)} נעצר`)), setTimeout(() => this._updateNowPlayingState(), 250);
+            await this._stopPlayer(It), this._toastSuccess(this._m(`${this._controlRoomPlayerName(It)} stopped`, `${this._controlRoomPlayerName(It)} נעצר`)), setTimeout(() => this._updateNowPlayingState(), 250);
           } catch (Ft) {
             this._toastError(Ft?.message || this._i18n("ui.stop_command_failed"));
           }
@@ -54240,9 +54240,9 @@ class ta extends ss {
         this._state.controlRoomAnnouncementText = le.value || "";
         return;
       }
-      const Ie = W.target.closest?.("#controlRoomSceneNameInput");
-      if (Ie) {
-        this._state.controlRoomSceneName = Ie.value || "";
+      const Ee = W.target.closest?.("#controlRoomSceneNameInput");
+      if (Ee) {
+        this._state.controlRoomSceneName = Ee.value || "";
         return;
       }
       const je = W.target.closest?.("#controlRoomAnnouncementVolumeInput");
@@ -54784,13 +54784,13 @@ class ta extends ss {
     }
     e || (this._syncGroupVolumeShortcut(null), this._syncControlRoomUi(), this._resetLocalSendspinMediaSession());
     const r = this._isCompactTileMode(), c = () => {
-      const Be = Math.max(0, Math.min(100, Math.round(this._effectivePlayerVolumeLevel(e) * 100))), Ee = this.$("volSlider");
-      Ee && (Ee.value = Be, Ee.style.setProperty("--vol-pct", `${Be}%`));
+      const Be = Math.max(0, Math.min(100, Math.round(this._effectivePlayerVolumeLevel(e) * 100))), Ie = this.$("volSlider");
+      Ie && (Ie.value = Be, Ie.style.setProperty("--vol-pct", `${Be}%`));
       const De = this.$("mobileVolPctLabel");
       return De && (De.innerHTML = r && this._isMuted(e) ? this._iconSvg("volume_mute") : `${Be}%`), this._setButtonIcon(this.$("btnMute"), this._volumeIconName(e)), this.$("btnMute")?.classList.toggle("active", this._isMuted(e)), this.$("btnMute")?.classList.toggle("muted", this._isMuted(e)), Be;
-    }, p = ({ title: Be = "", subtitle: Ee = "", art: De = "", icon: Oe = "album", duration: Ke = 0, position: tt = 0, emptyAction: Ve = "", upNextItem: Xe = null, sourceQueueItem: Te = null }) => {
+    }, p = ({ title: Be = "", subtitle: Ie = "", art: De = "", icon: Oe = "album", duration: Ke = 0, position: tt = 0, emptyAction: Ve = "", upNextItem: Xe = null, sourceQueueItem: Te = null }) => {
       if (!r) return !1;
-      const Je = this.$("npArt"), Ze = this.$("compactCoverImage"), st = this.$("compactBackdropArt"), ct = this.$("compactCoverAura"), ut = this.$("mobileBg"), pt = this._mobileArtStackItems(), St = Number(pt.offset || 0), xt = this._mobileSwipeMode() === "browse" && St !== 0, ri = Array.isArray(pt.current?.media_item?.artists) ? pt.current.media_item.artists.map((Gt) => Gt?.name).filter(Boolean).join(", ") : "", Yt = pt.current?.media_item?.name || pt.current?.media_title || pt.current?.name || Be, ui = pt.current?.media_artist || pt.current?.artist_str || ri || pt.current?.artist || "", Xt = pt.current?.media_item?.album?.name || pt.current?.media_album_name || pt.current?.album || "", oi = xt && Yt || Be, Kt = xt && [ui, Xt].filter(Boolean).join(" · ") || Ee, lt = xt && pt.current || Te, kt = this._queueItemArtworkUrl(pt.current, 420, e), vt = xt && kt || De, Mt = this._normalizeArtworkUrl(vt || "", {
+      const Je = this.$("npArt"), Ze = this.$("compactCoverImage"), st = this.$("compactBackdropArt"), ct = this.$("compactCoverAura"), ut = this.$("mobileBg"), pt = this._mobileArtStackItems(), St = Number(pt.offset || 0), xt = this._mobileSwipeMode() === "browse" && St !== 0, ri = Array.isArray(pt.current?.media_item?.artists) ? pt.current.media_item.artists.map((Gt) => Gt?.name).filter(Boolean).join(", ") : "", Yt = pt.current?.media_item?.name || pt.current?.media_title || pt.current?.name || Be, ui = pt.current?.media_artist || pt.current?.artist_str || ri || pt.current?.artist || "", Xt = pt.current?.media_item?.album?.name || pt.current?.media_album_name || pt.current?.album || "", oi = xt && Yt || Be, Kt = xt && [ui, Xt].filter(Boolean).join(" · ") || Ie, lt = xt && pt.current || Te, kt = this._queueItemArtworkUrl(pt.current, 420, e), vt = xt && kt || De, Mt = this._normalizeArtworkUrl(vt || "", {
         size: 420,
         cacheKey: this._queueItemArtworkCacheKey(lt) || this._currentArtworkCacheKey(e, lt)
       }), At = this._mobileBackdropOverlay(this._effectiveTheme());
@@ -54803,8 +54803,8 @@ class ta extends ss {
     };
     if (!e) {
       this._syncMobileUpNextUi(null), this._syncSourceBadgesUi(null, null), this._syncRecentHistoryUi();
-      const Be = this._state.musicAssistantIssueMessage || this._musicAssistantRequiredMessage(), Ee = this.$("emptyQuickShelf");
-      if (Ee && (Ee.hidden = !0, Ee.innerHTML = ""), p({
+      const Be = this._state.musicAssistantIssueMessage || this._musicAssistantRequiredMessage(), Ie = this.$("emptyQuickShelf");
+      if (Ie && (Ie.hidden = !0, Ie.innerHTML = ""), p({
         title: this._musicAssistantRequiredTitle(),
         subtitle: Be,
         art: "",
@@ -54829,16 +54829,16 @@ class ta extends ss {
     z && (z.value = U, z.style.setProperty("--vol-pct", `${U}%`)), G && (G.textContent = `${U}%`), q && this._setButtonIcon(q, this._volumeIconName(e));
     const J = this._state.maQueueState?.current_item || null, j = this._getQueueItemStableId(J) || this._getQueueItemUri(J) || `${e.entity_id}:${e.attributes.media_content_id || e.attributes.media_title || ""}`;
     this._state.mobileArtAnchorKey !== j && (this._state.mobileArtAnchorKey = j, this._state.mobileArtBrowseOffset = 0);
-    const V = this._mobileArtStackItems(), X = this._mobileNowPlayingDisplaySource(e, t, V), K = X.queueItem || t, ne = X.media || {}, ge = X.hasPendingPlay, o = String(e.attributes.media_content_id || "").trim(), m = String(X.uri || this._getQueueItemUri(K) || "").trim(), g = X.title, y = X.artist, S = X.album, B = X.mediaType, E = this._mobileUpNextItem(), I = !!this._state.forceRadioHero, F = this._isLikelyRadioPlayback(e, K, ne), O = !!(e.attributes.media_title || e.attributes.media_content_id || K?.name || ne?.name), Z = Number(this._state.quickMixPendingUntil || 0) > Date.now() ? this._state.quickMixPendingEntry : null;
+    const V = this._mobileArtStackItems(), X = this._mobileNowPlayingDisplaySource(e, t, V), K = X.queueItem || t, ne = X.media || {}, ge = X.hasPendingPlay, o = String(e.attributes.media_content_id || "").trim(), m = String(X.uri || this._getQueueItemUri(K) || "").trim(), g = X.title, y = X.artist, S = X.album, B = X.mediaType, I = this._mobileUpNextItem(), E = !!this._state.forceRadioHero, F = this._isLikelyRadioPlayback(e, K, ne), O = !!(e.attributes.media_title || e.attributes.media_content_id || K?.name || ne?.name), Z = Number(this._state.quickMixPendingUntil || 0) > Date.now() ? this._state.quickMixPendingEntry : null;
     if (O && this._state.quickMixPendingUntil && (this._state.quickMixPendingUntil = 0, this._state.quickMixPendingEntry = null), !O && Z) {
-      const Be = Z.name || this._i18n("ui.quick_mix"), Ee = this._normalizeArtworkUrl(Z.image || this._currentArtworkUrl(e, t, 420, { preferPlayerArtwork: !0 }), {
+      const Be = Z.name || this._i18n("ui.quick_mix"), Ie = this._normalizeArtworkUrl(Z.image || this._currentArtworkUrl(e, t, 420, { preferPlayerArtwork: !0 }), {
         size: 420,
         cacheKey: `quick-mix:${Z.uri || Be}`
       });
       if (this.$("mobileArtActions")?.removeAttribute("hidden"), this._setMobileRandomFabVisible(!0), this._setMobileRandomFabDisabled(!0), p({
         title: Be,
         subtitle: this._i18n("ui.starting_quick_mix"),
-        art: Ee,
+        art: Ie,
         icon: "radio",
         duration: 0,
         position: 0,
@@ -54848,7 +54848,7 @@ class ta extends ss {
         c();
         return;
       }
-      this.$("npTitle") && (this.$("npTitle").textContent = Be), this._setNowPlayingSubtitle(this._i18n("ui.starting_quick_mix")), this.$("npArt") && (this.$("npArt").innerHTML = this._decodedArtworkImgHtml(Ee, Be, { current: !0, fallbackIcon: "radio" }), this._hydrateDecodedArtworkImages(this.$("npArt"))), this.$("progressFill") && (this.$("progressFill").style.width = "0%"), this._syncDynamicThemeArtwork(Ee || "").catch(() => {
+      this.$("npTitle") && (this.$("npTitle").textContent = Be), this._setNowPlayingSubtitle(this._i18n("ui.starting_quick_mix")), this.$("npArt") && (this.$("npArt").innerHTML = this._decodedArtworkImgHtml(Ie, Be, { current: !0, fallbackIcon: "radio" }), this._hydrateDecodedArtworkImages(this.$("npArt"))), this.$("progressFill") && (this.$("progressFill").style.width = "0%"), this._syncDynamicThemeArtwork(Ie || "").catch(() => {
       }), c(), this._syncControlRoomUi();
       return;
     }
@@ -54869,9 +54869,9 @@ class ta extends ss {
       this._renderEmpty(Tt.isPlayerAvailable(e) ? this._i18n("ui.player_is_ready_nothing_is_playing_right_now") : this._m("This player is offline. Choose an available player.", "הנגן אינו מחובר. בחר נגן זמין."), { wasEmptyMedia: v }), this._syncMobileUpNextUi(null), this.$("btnPlay")?.classList.remove("is-playing"), this._renderPlayerSummary(), this._syncStatus(), this._syncLikeButtons(), this._updateActivePlayersBubble(), this._syncControlRoomUi(), this._syncLocalSendspinMediaSession(e, K);
       return;
     }
-    this._syncActiveQuickActionRow(), (B === "radio" || I || F) && _?.classList.add("radio-media"), this._state.forceRadioHero = !1;
+    this._syncActiveQuickActionRow(), (B === "radio" || E || F) && _?.classList.add("radio-media"), this._state.forceRadioHero = !1;
     const ce = this.$("emptyQuickShelf");
-    ce && (ce.hidden = !0, ce.innerHTML = ""), this.$("mobileArtActions")?.removeAttribute("hidden"), this._setMobileRandomFabVisible(!0), this._setMobileRandomFabDisabled(!1), this.$("npTitle") && (this.$("npTitle").textContent = g), this._setNowPlayingSubtitle([y || e.attributes.media_artist || "", S].filter(Boolean).join(" · ") || "—"), this._rememberRecentPlayback(e, K), this._syncRecentHistoryUi(), this._syncSourceBadgesUi(e, K), this._syncMobileUpNextUi(E);
+    ce && (ce.hidden = !0, ce.innerHTML = ""), this.$("mobileArtActions")?.removeAttribute("hidden"), this._setMobileRandomFabVisible(!0), this._setMobileRandomFabDisabled(!1), this.$("npTitle") && (this.$("npTitle").textContent = g), this._setNowPlayingSubtitle([y || e.attributes.media_artist || "", S].filter(Boolean).join(" · ") || "—"), this._rememberRecentPlayback(e, K), this._syncRecentHistoryUi(), this._syncSourceBadgesUi(e, K), this._syncMobileUpNextUi(I);
     const be = X.art || this._displayArtworkForQueueItem(e, K, { pending: ge, size: 420 }), ue = this._queueItemArtworkUrl(V.current, 420, e) || be, de = this._mobileBrowsePreviewActive(V) || ge ? be : Number(V.offset || 0) !== 0 && ue ? ue : be, me = this._getCurrentDuration(), he = this._getCurrentPosition();
     if (p({
       title: g,
@@ -54879,7 +54879,7 @@ class ta extends ss {
       art: de,
       duration: me,
       position: he,
-      upNextItem: E,
+      upNextItem: I,
       sourceQueueItem: K
     })) {
       c(), this._syncControlRoomUi();
@@ -55781,14 +55781,14 @@ class ta extends ss {
     }).join(""), K = c.length ? `
       <div class="schedule-list">
         ${c.map((g) => {
-      const S = this._playerByEntityId(this._scheduledStartPlayerId(g))?.attributes?.friendly_name || this._i18n("ui.selected_player_3"), B = g.afterRun === "disable" ? this._i18n("ui.turns_off_after_run") : this._i18n("ui.stays_active"), E = this._nightModeDayOptions().filter(([I]) => this._normalizeNightModeDays(g.days).includes(I)).map(([, I]) => I).join(" ");
+      const S = this._playerByEntityId(this._scheduledStartPlayerId(g))?.attributes?.friendly_name || this._i18n("ui.selected_player_3"), B = g.afterRun === "disable" ? this._i18n("ui.turns_off_after_run") : this._i18n("ui.stays_active"), I = this._nightModeDayOptions().filter(([E]) => this._normalizeNightModeDays(g.days).includes(E)).map(([, E]) => E).join(" ");
       return `
             <div class="schedule-row ${g.enabled === !1 ? "disabled" : ""} ${g.id === this._state.mobileStartScheduleEditId ? "editing" : ""}">
               <button class="schedule-row-main" data-start-schedule-edit="${this._esc(g.id)}">
                 <span class="schedule-row-time">${this._esc(g.time)}</span>
                 <span class="schedule-row-copy">
                   <span class="schedule-row-title">${this._esc(S)}</span>
-                  <span class="schedule-row-sub">${this._esc(`${this._scheduledStartPlaylistLabel(g)} · ${g.volume}% · ${B} · ${E}`)}</span>
+                  <span class="schedule-row-sub">${this._esc(`${this._scheduledStartPlaylistLabel(g)} · ${g.volume}% · ${B} · ${I}`)}</span>
                 </span>
               </button>
               <div class="schedule-row-actions">
@@ -56332,9 +56332,9 @@ class ta extends ss {
         <div class="players-premium-grid">
           ${this._playerRowHtml(v, `data-menu-player="${this._esc(v.entity_id)}"`, v.entity_id === r, { controls: !t, pin: !0 })}
         </div>
-      ` : "", ge = this._frontPinnedPlayerEntity(c), o = c.filter((I) => (e.activeOnly || t || I.entity_id !== v?.entity_id) && !this._isLikelyBrowserPlayer(I) && (!this._pinnedPlayersExclusive() || !p.size || p.has(I.entity_id))), m = e.activeOnly ? o.filter((I) => I.state === "playing") : o;
+      ` : "", ge = this._frontPinnedPlayerEntity(c), o = c.filter((E) => (e.activeOnly || t || E.entity_id !== v?.entity_id) && !this._isLikelyBrowserPlayer(E) && (!this._pinnedPlayersExclusive() || !p.size || p.has(E.entity_id))), m = e.activeOnly ? o.filter((E) => E.state === "playing") : o;
     if (e.activeOnly && !m.length) return `<div class="notice open">${this._i18n("ui.no_active_players")}</div>`;
-    const g = this._manualFrontPlayerEntity(c), y = (I) => I?.entity_id === ge ? 0 : I?.entity_id === g || I?.entity_id === r ? 1 : I?.state === "playing" ? 2 : this._isPlayerActive(I) ? 3 : 4, B = m.map((I, F) => ({ player: I, index: F })).sort((I, F) => y(I.player) - y(F.player) || I.index - F.index).map((I) => I.player).map((I) => this._playerRowHtml(I, `data-menu-player="${this._esc(I.entity_id)}"`, I.entity_id === r, { controls: !t, pin: !0 })).join(""), E = _.filter((I) => !this._pinnedPlayersExclusive() || !p.size || p.has(I.entity_id)).filter((I) => I.entity_id !== v?.entity_id).map((I) => this._playerRowHtml(I, `data-menu-player="${this._esc(I.entity_id)}"`, I.entity_id === r, { controls: !t, pin: !0 })).join("");
+    const g = this._manualFrontPlayerEntity(c), y = (E) => E?.entity_id === ge ? 0 : E?.entity_id === g || E?.entity_id === r ? 1 : E?.state === "playing" ? 2 : this._isPlayerActive(E) ? 3 : 4, B = m.map((E, F) => ({ player: E, index: F })).sort((E, F) => y(E.player) - y(F.player) || E.index - F.index).map((E) => E.player).map((E) => this._playerRowHtml(E, `data-menu-player="${this._esc(E.entity_id)}"`, E.entity_id === r, { controls: !t, pin: !0 })).join(""), I = _.filter((E) => !this._pinnedPlayersExclusive() || !p.size || p.has(E.entity_id)).filter((E) => E.entity_id !== v?.entity_id).map((E) => this._playerRowHtml(E, `data-menu-player="${this._esc(E.entity_id)}"`, E.entity_id === r, { controls: !t, pin: !0 })).join("");
     return `
       ${e.activeOnly || t ? "" : this._playersActionHubHtml({
       thisDeviceActionName: V,
@@ -56343,7 +56343,7 @@ class ta extends ss {
       ${e.activeOnly || t ? "" : ne}
       ${!c.length && !e.activeOnly ? `<div class="notice open">${this._i18n("ui.no_players_found_yet")}</div>` : ""}
       ${B ? `<div class="players-premium-grid">${B}</div>` : ""}
-      ${E && !t ? `<div class="media-section-title">${this._esc(this._i18n("ui.browser_players"))}</div><div class="players-premium-grid">${E}</div>` : ""}
+      ${I && !t ? `<div class="media-section-title">${this._esc(this._i18n("ui.browser_players"))}</div><div class="players-premium-grid">${I}</div>` : ""}
     `;
   }
   _transferMenuHtml() {
@@ -56368,7 +56368,7 @@ class ta extends ss {
   // Mirrors the namespacing pattern from PR #43 (feat/per-card-state-isolation).
   // When that lands, this helper can be replaced with the global _lsKey() it introduces.
   // Cards without card_id keep the unsuffixed key; cards with card_id get a per-card namespace
-  // so two HOMEii Flow cards on the same dashboard don't share accordion open/closed state.
+  // so two Maverick Music cards on the same dashboard don't share accordion open/closed state.
   _settingsLsKey(e) {
     const t = this._config?.card_id;
     if (!t) return e;
@@ -57069,7 +57069,7 @@ class ta extends ss {
   _diagnosticConfiguredEntityRows(e, t = null, r = this._hass?.states || {}, c = this._hass?.entities || {}) {
     const p = String(this._config?.entity || this.config?.entity || "").trim(), _ = this._playerOverrideParamValue?.() || "";
     if (!p) {
-      e("info", "Configured entity", "No card entity is configured. HOMEii will choose from query-string override, active players, pinned players, remembered player, and visible player order.", "(none)");
+      e("info", "Configured entity", "No card entity is configured. Maverick Music will choose from query-string override, active players, pinned players, remembered player, and visible player order.", "(none)");
       return;
     }
     const v = r?.[p] || null;
@@ -57079,17 +57079,17 @@ class ta extends ss {
     }
     const C = (Array.isArray(this._state?.players) ? this._state.players : []).some((K) => K?.entity_id === p), Q = t?.entity_id === p, z = this._diagnosticIsStrictMusicAssistantPlayer(v, c), q = !z && this._isGenericMusicAssistantFallbackPlayer?.(v), G = this._isPlayerExcluded?.(v), U = t && t.entity_id !== p && this._isPlayerActive?.(t), J = v.attributes?.friendly_name || p, j = t?.attributes?.friendly_name || t?.entity_id || "(none)";
     let V = "ok", X = "Configured entity exists and is available as the card default player.";
-    G ? (V = "warn", X = "Configured entity exists, but it is excluded in HOMEii settings.") : !z && !q ? (V = "warn", X = "Configured entity exists, but it does not look like a Music Assistant player.") : C ? _ ? (V = Q ? "ok" : "info", X = Q ? "Configured entity is selected even with a query-string override present." : "A query-string player override is active, so it can intentionally win over the configured entity.") : Q ? X = "Configured entity is the currently selected player." : U ? (V = "info", X = "Another player is currently active, so HOMEii is showing the active player and keeping the configured entity as the fallback default.") : (V = "warn", X = "Configured entity exists, but HOMEii selected a different player. This usually means manual/front selection, pinned order, or remembered state is taking priority.") : (V = "warn", X = "Configured entity exists, but it is not in the current visible player list. Check pinned/excluded player filters."), e(V, "Configured entity", `${X} Selected now: ${j}.`, `${J} | ${p} | ${this._diagnosticPlayerMarkerSummary(v, c)}`);
+    G ? (V = "warn", X = "Configured entity exists, but it is excluded in Maverick Music settings.") : !z && !q ? (V = "warn", X = "Configured entity exists, but it does not look like a Music Assistant player.") : C ? _ ? (V = Q ? "ok" : "info", X = Q ? "Configured entity is selected even with a query-string override present." : "A query-string player override is active, so it can intentionally win over the configured entity.") : Q ? X = "Configured entity is the currently selected player." : U ? (V = "info", X = "Another player is currently active, so Maverick Music is showing the active player and keeping the configured entity as the fallback default.") : (V = "warn", X = "Configured entity exists, but Maverick Music selected a different player. This usually means manual/front selection, pinned order, or remembered state is taking priority.") : (V = "warn", X = "Configured entity exists, but it is not in the current visible player list. Check pinned/excluded player filters."), e(V, "Configured entity", `${X} Selected now: ${j}.`, `${J} | ${p} | ${this._diagnosticPlayerMarkerSummary(v, c)}`);
   }
   async _diagnosticSearchRows(e, t = []) {
     const r = this._diagnosticSearchQuery(), c = this._hasService?.("music_assistant", "search") || Array.isArray(t) && t.includes("search"), p = Number(this._cache?.library?.size || 0);
     if (e(
       this._state.engineAvailable ? "ok" : "fail",
       "Search providers",
-      `Engine search ${this._state.engineAvailable ? "yes" : "no"}; HA search ${c ? "available to Engine" : "not exposed"}; Direct browser search disabled for HOMEii Flow 6; library cache entries ${p}.`,
+      `Engine search ${this._state.engineAvailable ? "yes" : "no"}; HA search ${c ? "available to Engine" : "not exposed"}; Direct browser search disabled for Maverick Music 6; library cache entries ${p}.`,
       r ? `query="${r}"` : "(no active query)"
     ), !r || r.length < 2) {
-      e("info", "Search provider sample", "Open the affected Search screen, run the exact search term, then run diagnostics. HOMEii will measure that active query without guessing.", "skipped");
+      e("info", "Search provider sample", "Open the affected Search screen, run the exact search term, then run diagnostics. Maverick Music will measure that active query without guessing.", "skipped");
       return;
     }
     const _ = async (v, k, C) => {
@@ -57121,7 +57121,7 @@ class ta extends ss {
       e(
         k.count ? "ok" : "warn",
         "Search provider sample",
-        `${k.count ? "Provider search returned results." : "Provider search returned no results for this query. HOMEii should still keep showing library results and should not stop provider search just because library results exist."} ${k.breakdown}`,
+        `${k.count ? "Provider search returned results." : "Provider search returned no results for this query. Maverick Music should still keep showing library results and should not stop provider search just because library results exist."} ${k.breakdown}`,
         `${k.count} result(s), ${k.elapsed}ms`
       );
     } catch (v) {
@@ -57147,7 +57147,7 @@ class ta extends ss {
         c ? `HA proxy ${this._sanitizeDiagnosticUrl(c)}` : "HA proxy unavailable",
         p ? `MA current_media ${this._sanitizeDiagnosticUrl(p)}` : "MA current_media unavailable"
       ].join("; ");
-      if (e("info", "Current artwork sources", "HOMEii now prefers the Home Assistant media-player proxy for the current item and only then tries the raw Music Assistant artwork URL.", ge), c) {
+      if (e("info", "Current artwork sources", "Maverick Music now prefers the Home Assistant media-player proxy for the current item and only then tries the raw Music Assistant artwork URL.", ge), c) {
         const o = await this._diagnosticProbeArtworkLoad(c);
         e(
           o.ok ? "ok" : "warn",
@@ -57159,7 +57159,7 @@ class ta extends ss {
     } else
       e("info", "Current artwork sources", "The selected player currently exposes neither a Home Assistant entity_picture nor a raw current_media artwork URL.");
     const _ = this._queueIdForPlayer?.(t) || this._directMaQueueId?.(t) || "";
-    e(_ ? "ok" : "warn", "Queue identity", _ ? "Selected player exposes an active queue id." : "Selected player does not expose active_queue/queue_id. Some queue APIs may still infer it from the entity.", _ || "(none)"), e("info", "Queue providers", `Engine queue ${this._state.engineAvailable ? "yes" : "no"}; HA get_queue ${this._hasService?.("music_assistant", "get_queue") ? "available to Engine" : "not exposed"}; Direct browser queue disabled for HOMEii Flow 6.`);
+    e(_ ? "ok" : "warn", "Queue identity", _ ? "Selected player exposes an active queue id." : "Selected player does not expose active_queue/queue_id. Some queue APIs may still infer it from the entity.", _ || "(none)"), e("info", "Queue providers", `Engine queue ${this._state.engineAvailable ? "yes" : "no"}; HA get_queue ${this._hasService?.("music_assistant", "get_queue") ? "available to Engine" : "not exposed"}; Direct browser queue disabled for Maverick Music 6.`);
     const v = Array.isArray(this._state.queueItems) ? this._state.queueItems.length : 0, k = Number(this._state.maQueueState?.items), C = Number.isFinite(k) && k > v && v > 0;
     e(
       C ? "warn" : "info",
@@ -57175,7 +57175,7 @@ class ta extends ss {
       } catch (m) {
         Q.push(`${ge}: ${m?.message || "failed"}`);
       }
-    })("HOMEii Flow Engine queue", () => this._fetchMusicAssistantQueueSnapshot(t));
+    })("Maverick Music Engine queue", () => this._fetchMusicAssistantQueueSnapshot(t));
     const G = z.sort((ge, o) => o.count - ge.count)[0], U = Q.join("; ") || "No queue providers were available.";
     if (G?.count > 0) {
       const ge = G.snapshot?.state || null, o = Array.isArray(G.snapshot?.items) ? G.snapshot.items : [];
@@ -57203,7 +57203,7 @@ class ta extends ss {
       art: this._queueItemImageUrl?.(ge, 300) || this._artUrl(ge, { size: 300 }) || this._artUrl(ge?.media_item || ge, { size: 300 })
     })).find((ge) => ge.art);
     if (!j) {
-      e("warn", "Queue artwork sample", "Queue items were returned, but HOMEii could not infer artwork from the sample window.", `${G.label}: ${J.length} item(s)`);
+      e("warn", "Queue artwork sample", "Queue items were returned, but Maverick Music could not infer artwork from the sample window.", `${G.label}: ${J.length} item(s)`);
       return;
     }
     const X = (j.item?.media_item || j.item)?.name || j.item?.name || j.item?.media_title || "queue item", K = this._diagnosticUrlHasMixedContentRisk(j.art);
@@ -57218,10 +57218,10 @@ class ta extends ss {
   }
   async _diagnosticLibraryRows(e, t = []) {
     if (!this._state.engineAvailable) {
-      e("fail", "Library coverage", "Skipped because HOMEii Flow Engine is not available.");
+      e("fail", "Library coverage", "Skipped because Maverick Music Engine is not available.");
       return;
     }
-    e("info", "Library providers", `Engine library yes; HA get_library ${t.includes("get_library") ? "available to Engine" : "not exposed"}; Direct browser library disabled for HOMEii Flow 6.`);
+    e("info", "Library providers", `Engine library yes; HA get_library ${t.includes("get_library") ? "available to Engine" : "not exposed"}; Direct browser library disabled for Maverick Music 6.`);
     const r = ["playlist", "artist", "album", "track", "radio"], c = await Promise.all(r.map(async (U) => {
       try {
         const J = await this._fetchLibrary(U, "sort_name", 3, !1);
@@ -57241,7 +57241,7 @@ class ta extends ss {
     }
     const Q = this._artUrl(C, { size: 300 }), z = C.name || C.title || C.media_item?.name || k.type;
     if (!Q) {
-      e("warn", "Library artwork sample", "A library item was returned, but HOMEii could not infer an artwork URL from it.", `${k.type}: ${z}`);
+      e("warn", "Library artwork sample", "A library item was returned, but Maverick Music could not infer an artwork URL from it.", `${k.type}: ${z}`);
       return;
     }
     const q = this._diagnosticUrlHasMixedContentRisk(Q);
@@ -57275,8 +57275,8 @@ class ta extends ss {
     return `
       <div class="settings-shell diagnostics-shell">
         <div class="settings-group diagnostics-card">
-          <div class="settings-label">${this._esc(this._m("HOMEii Diagnostics", "אבחון HOMEii"))}</div>
-          <div class="settings-hint">${this._esc(this._m("Diagnostic v7 checks HOMEii Flow Engine, browser context, configured entity, player selection, search providers, group state, queue UI/API alignment, authenticated artwork loading, rendered artwork DOM, and Engine cache performance.", "Diagnostic v7 בודק את HOMEii Flow Engine, דפדפן, ישות מוגדרת, בחירת נגן, ספקי חיפוש, מצב קבוצה, התאמת תור UI/API, טעינת עטיפות מאומתת, מצב תמונות ב-DOM וביצועי מטמון Engine."))}</div>
+          <div class="settings-label">${this._esc(this._m("Maverick Music Diagnostics", "אבחון Maverick Music"))}</div>
+          <div class="settings-hint">${this._esc(this._m("Diagnostic v7 checks Maverick Music Engine, browser context, configured entity, player selection, search providers, group state, queue UI/API alignment, authenticated artwork loading, rendered artwork DOM, and Engine cache performance.", "Diagnostic v7 בודק את Maverick Music Engine, דפדפן, ישות מוגדרת, בחירת נגן, ספקי חיפוש, מצב קבוצה, התאמת תור UI/API, טעינת עטיפות מאומתת, מצב תמונות ב-DOM וביצועי מטמון Engine."))}</div>
           <div class="settings-actions diagnostics-actions">
             <button class="settings-pill active" data-menu-action="run_diagnostics" ${t ? "disabled" : ""}>${this._esc(t ? this._m("Running...", "מריץ...") : this._m("Run diagnostics", "הרץ אבחון"))}</button>
             <button class="settings-pill" data-menu-action="copy_diagnostics" ${e.length ? "" : "disabled"}>${this._esc(this._m("Copy report", "העתק דוח"))}</button>
@@ -57291,38 +57291,38 @@ class ta extends ss {
   async _diagnosticEngineRows(e) {
     const t = this._homeiiEngineMode();
     if (!this._homeiiEngineEnabled()) {
-      e("fail", "HOMEii Flow Engine", "HOMEii Flow 6 requires the HOMEii Flow Engine integration. There is no frontend-only compatibility path.", t);
+      e("fail", "Maverick Music Engine", "Maverick Music 6 requires the Maverick Music Engine integration. There is no frontend-only compatibility path.", t);
       return;
     }
     const r = await this._refreshHomeiiEngineContext({ force: !0 });
     if (r?.available) {
       const _ = Pi.summarizeHomeiiEngineCapabilities(r.capabilities), v = r.version || "unknown version";
-      e("ok", "HOMEii Flow Engine", `Connected to HOMEii Flow Engine ${v}. Capabilities: ${_}.`, t), e("info", "Engine routing", "Card writes will use the resolved Engine instance/profile unless explicitly overridden in the card config.", `instance=${r.instanceId || "default"}; profile=${r.profileId || "default"}; transport=${this._state.engineLastTransport || "websocket"}`);
+      e("ok", "Maverick Music Engine", `Connected to Maverick Music Engine ${v}. Capabilities: ${_}.`, t), e("info", "Engine routing", "Card writes will use the resolved Engine instance/profile unless explicitly overridden in the card config.", `instance=${r.instanceId || "default"}; profile=${r.profileId || "default"}; transport=${this._state.engineLastTransport || "websocket"}`);
       const k = r.raw?.required_connections || r.raw?.connections || this._state.engineRequiredConnections;
       if (k && typeof k == "object") {
-        const E = k.music_assistant || k.connections?.music_assistant || {}, I = k.queue_provider || k.connections?.queue_provider || {}, F = k.library_provider || k.connections?.library_provider || {}, O = k.search_provider || k.connections?.search_provider || {};
+        const I = k.music_assistant || k.connections?.music_assistant || {}, E = k.queue_provider || k.connections?.queue_provider || {}, F = k.library_provider || k.connections?.library_provider || {}, O = k.search_provider || k.connections?.search_provider || {};
         e(
           k.ok ? "ok" : "warn",
           "Engine required connections",
           k.summary || (k.ok ? "Required connections are ready." : "One or more required connections need attention."),
           k.status || "unknown"
         ), e(
-          E.ok ? "ok" : "fail",
+          I.ok ? "ok" : "fail",
           "Engine Music Assistant connection",
-          E.message || "Music Assistant connection state was not reported.",
-          `${Number(E.music_assistant_player_count || 0)} MA player(s), ${Number(E.service_count || 0)} service(s)`
-        ), e(I.ok ? "ok" : "warn", "Engine queue provider", I.message || "Queue provider state was not reported."), e(F.ok ? "ok" : "fail", "Engine library provider", F.message || "Library provider state was not reported."), e(O.ok ? "ok" : "fail", "Engine search provider", O.message || "Search provider state was not reported.");
+          I.message || "Music Assistant connection state was not reported.",
+          `${Number(I.music_assistant_player_count || 0)} MA player(s), ${Number(I.service_count || 0)} service(s)`
+        ), e(E.ok ? "ok" : "warn", "Engine queue provider", E.message || "Queue provider state was not reported."), e(F.ok ? "ok" : "fail", "Engine library provider", F.message || "Library provider state was not reported."), e(O.ok ? "ok" : "fail", "Engine search provider", O.message || "Search provider state was not reported.");
       }
       e(
         r.capabilities?.item_artwork_proxy ? "ok" : "info",
         "Engine item artwork proxy",
-        r.capabilities?.item_artwork_proxy ? "Queue and Library artwork can be served through short-lived Home Assistant capability URLs without direct browser access to Music Assistant." : "This Engine version does not expose the item artwork proxy. Update HOMEii Flow Engine before using the 6.x card."
+        r.capabilities?.item_artwork_proxy ? "Queue and Library artwork can be served through short-lived Home Assistant capability URLs without direct browser access to Music Assistant." : "This Engine version does not expose the item artwork proxy. Update Maverick Music Engine before using the 6.x card."
       );
       const C = r.raw?.media_cache;
       if (C && typeof C == "object") {
-        const E = r.capabilities?.persistent_media_cache && r.capabilities?.stale_while_revalidate && r.capabilities?.request_coalescing;
+        const I = r.capabilities?.persistent_media_cache && r.capabilities?.stale_while_revalidate && r.capabilities?.request_coalescing;
         e(
-          E ? "ok" : "info",
+          I ? "ok" : "info",
           "Engine persistent media cache",
           `${Number(C.memory_entries || 0)} snapshot(s), ${Number(C.cached_items || 0)} cached item(s), ${Number(C.fresh_entries || 0)} fresh and ${Number(C.stale_entries || 0)} stale.`,
           `hits=${Number(C.memory_hits || 0)}; stale_hits=${Number(C.stale_hits || 0)}; coalesced=${Number(C.coalesced || 0)}; last_fetch=${Number(C.last_fetch_ms || 0)}ms; warm=${C.warm_status || "pending"}`
@@ -57334,7 +57334,7 @@ class ta extends ss {
         "Card menu render performance",
         `Last menu render ${Number(Q.lastMenuRenderMs || 0)}ms on ${Q.lastMenuPage || "none"} with ${Number(Q.lastMenuDomNodes || 0)} DOM node(s).`,
         `renders=${Number(Q.menuRenders || 0)}; slowest=${Number(Q.slowestMenuRenderMs || 0)}ms`
-      ), r.capabilities?.schedule_calendar && e("ok", "Engine schedule calendar", "HOMEii Flow Engine reports a Home Assistant calendar entity for stored schedules.");
+      ), r.capabilities?.schedule_calendar && e("ok", "Engine schedule calendar", "Maverick Music Engine reports a Home Assistant calendar entity for stored schedules.");
       const [z, q, G, U, J, j, V, X, K, ne] = await Promise.allSettled([
         this._homeiiEngineGetPlayers(),
         this._homeiiEngineGetStats(),
@@ -57348,25 +57348,25 @@ class ta extends ss {
         this._homeiiEngineGetScreensaver()
       ]), ge = Number(z.value?.music_assistant_count ?? q.value?.music_assistant_players ?? 0);
       if (z.status === "fulfilled" || q.status === "fulfilled") {
-        const E = Number(q.value?.players_playing ?? 0), I = Number(q.value?.players_grouped ?? 0), F = q.value?.active_player_entity || q.value?.active_player?.entity_id || "";
-        e(ge ? "ok" : "warn", "Engine player state", `${ge} Music Assistant player(s), ${E} playing, ${I} grouped.`, F ? `active=${F}` : "");
+        const I = Number(q.value?.players_playing ?? 0), E = Number(q.value?.players_grouped ?? 0), F = q.value?.active_player_entity || q.value?.active_player?.entity_id || "";
+        e(ge ? "ok" : "warn", "Engine player state", `${ge} Music Assistant player(s), ${I} playing, ${E} grouped.`, F ? `active=${F}` : "");
       }
       if (X.status === "fulfilled") {
-        const E = X.value || {}, I = E.last_schedule_check || {}, F = E.last_schedule_action || {}, O = E.last_timer_action || {}, Z = E.last_volume_action || {}, $ = E.last_button_action || {}, ce = I.local_time ? `Last schedule check at ${I.local_time}; ${I.schedule_count ?? 0} schedule(s), ${I.attempted_count ?? 0} attempted, ${I.executed_count ?? 0} executed, ${I.failed_count ?? 0} failed.` : "No schedule check has been recorded yet. Restart Home Assistant or run orchestration once if this stays empty.", be = F.error ? ` Last schedule action failed: ${F.error}` : F.provider ? ` Last schedule action used ${F.provider}.` : "", ue = O.error ? ` Last timer action failed: ${O.error}` : O.provider ? ` Last timer action used ${O.provider}.` : "", de = Z.player ? ` Last volume rule adjusted ${Z.player}.` : "", me = $.action ? ` Last Engine button action: ${$.action}${$.ok === !1 && $.error ? ` (${$.error})` : ""}.` : "";
-        e(E.running ? "ok" : "warn", "Engine scheduler", `${ce}${be}`, `running=${E.running ? "yes" : "no"}; last_tick=${E.last_tick_at || "(none)"}`), (ue || de || me) && e("info", "Engine background actions", `${ue}${de}${me}`.trim());
+        const I = X.value || {}, E = I.last_schedule_check || {}, F = I.last_schedule_action || {}, O = I.last_timer_action || {}, Z = I.last_volume_action || {}, $ = I.last_button_action || {}, ce = E.local_time ? `Last schedule check at ${E.local_time}; ${E.schedule_count ?? 0} schedule(s), ${E.attempted_count ?? 0} attempted, ${E.executed_count ?? 0} executed, ${E.failed_count ?? 0} failed.` : "No schedule check has been recorded yet. Restart Home Assistant or run orchestration once if this stays empty.", be = F.error ? ` Last schedule action failed: ${F.error}` : F.provider ? ` Last schedule action used ${F.provider}.` : "", ue = O.error ? ` Last timer action failed: ${O.error}` : O.provider ? ` Last timer action used ${O.provider}.` : "", de = Z.player ? ` Last volume rule adjusted ${Z.player}.` : "", me = $.action ? ` Last Engine button action: ${$.action}${$.ok === !1 && $.error ? ` (${$.error})` : ""}.` : "";
+        e(I.running ? "ok" : "warn", "Engine scheduler", `${ce}${be}`, `running=${I.running ? "yes" : "no"}; last_tick=${I.last_tick_at || "(none)"}`), (ue || de || me) && e("info", "Engine background actions", `${ue}${de}${me}`.trim());
       }
       if (K.status === "fulfilled") {
-        const E = K.value || {}, I = E.top_player_today || {}, F = I.friendly_name ? `Top today: ${I.friendly_name}, ${I.minutes || 0} minute(s).` : "No top player yet.";
-        e("info", "Engine playback statistics", `${E.today_minutes || 0} minute(s), ${E.today_sessions || 0} session(s) today.`, F);
+        const I = K.value || {}, E = I.top_player_today || {}, F = E.friendly_name ? `Top today: ${E.friendly_name}, ${E.minutes || 0} minute(s).` : "No top player yet.";
+        e("info", "Engine playback statistics", `${I.today_minutes || 0} minute(s), ${I.today_sessions || 0} session(s) today.`, F);
       }
       if (ne.status === "fulfilled") {
-        const E = ne.value || {}, I = E.config || {}, F = I.frontend_url || r.raw?.frontend?.system_screensaver_url || "/homeii_flow/homeii-flow-system-screensaver.js";
-        e(E.enabled ? "ok" : "info", "Engine system screensaver", `System-wide screensaver is ${E.enabled ? "enabled" : "disabled"}; effective mode ${E.effective_mode || "clock"} after ${E.timeout_seconds || I.timeout_seconds || 90}s.`, `Resource: ${F}`);
+        const I = ne.value || {}, E = I.config || {}, F = E.frontend_url || r.raw?.frontend?.system_screensaver_url || "/homeii_flow/homeii-flow-system-screensaver.js";
+        e(I.enabled ? "ok" : "info", "Engine system screensaver", `System-wide screensaver is ${I.enabled ? "enabled" : "disabled"}; effective mode ${I.effective_mode || "clock"} after ${I.timeout_seconds || E.timeout_seconds || 90}s.`, `Resource: ${F}`);
       }
       const o = Array.isArray(G.value?.schedules) ? G.value.schedules : [], m = Array.isArray(U.value?.timers) ? U.value.timers : [], g = Array.isArray(J.value?.volume_rules) ? J.value.volume_rules : [], y = Array.isArray(J.value?.active) ? J.value.active : [], S = Array.isArray(j.value?.announcements) ? j.value.announcements : [], B = Array.isArray(V.value?.activity) ? V.value.activity : [];
       if (G.status === "fulfilled" || U.status === "fulfilled" || J.status === "fulfilled" || j.status === "fulfilled" || V.status === "fulfilled") {
-        const E = this._scheduledStartSchedules(), I = this._sleepTimerRemainingMs() > 0;
-        e("info", "Engine orchestration store", `${o.length} schedule(s), ${m.length} timer(s), ${g.length} volume rule(s), ${S.length} announcement record(s), ${B.length} activity event(s) stored in HOMEii Flow Engine. Card state has ${E.length} schedule(s) and ${I ? 1 : 0} active sleep timer(s).`), o.length && e("info", "Engine schedule controls", `${o.length} per-schedule Run now button(s) should be available on the HOMEii Flow Engine device page after HA reloads the integration.`);
+        const I = this._scheduledStartSchedules(), E = this._sleepTimerRemainingMs() > 0;
+        e("info", "Engine orchestration store", `${o.length} schedule(s), ${m.length} timer(s), ${g.length} volume rule(s), ${S.length} announcement record(s), ${B.length} activity event(s) stored in Maverick Music Engine. Card state has ${I.length} schedule(s) and ${E ? 1 : 0} active sleep timer(s).`), o.length && e("info", "Engine schedule controls", `${o.length} per-schedule Run now button(s) should be available on the Maverick Music Engine device page after HA reloads the integration.`);
         const F = V.value?.last_activity || B[0] || {};
         if (F?.message && e("info", "Engine last activity", `${F.message}`, `${F.kind || "event"} · ${F.created_at || ""}`), J.status === "fulfilled") {
           const $ = y.slice(0, 4).map((ce) => `${ce.player || "(no player)"} <= ${ce.max_volume ?? "?"}%`).join("; ");
@@ -57382,11 +57382,11 @@ class ta extends ss {
           const $ = Number(Z.remaining_seconds ?? 0), ce = Number.isFinite($) ? ` · ${Math.max(0, Math.ceil($ / 60))} minute(s) remaining` : "";
           e("info", "Engine next timer", `${Z.ends_at} · ${Z.player || "(no player)"} · ${Z.action || "stop"}${ce}`);
         }
-        if (E.length) {
-          const $ = new Set(o.map((be) => String(be?.id || be?.schedule_id || "").trim()).filter(Boolean)), ce = E.filter((be) => !$.has(String(be?.id || "").trim()));
+        if (I.length) {
+          const $ = new Set(o.map((be) => String(be?.id || be?.schedule_id || "").trim()).filter(Boolean)), ce = I.filter((be) => !$.has(String(be?.id || "").trim()));
           ce.length ? e("warn", "Engine schedule sync", `${ce.length} card schedule(s) were not found in the Engine read-back result. Save one schedule again, then rerun diagnostics.`) : e("ok", "Engine schedule sync", "Card schedules were found in the Engine read-back result.");
         }
-        if (I) {
+        if (E) {
           const $ = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim(), ce = this._homeiiSleepTimerId($), be = Date.now(), ue = m.some((de) => {
             const me = String(de?.type || de?.timer_type || "sleep"), he = Date.parse(de?.ends_at || de?.target_at || ""), ve = String(de?.id || de?.timer_id || "").trim() === ce, xe = $ && String(de?.player || de?.entity_id || "").trim() === $;
             return me === "sleep" && (ve || xe) && Number.isFinite(he) && he > be;
@@ -57396,15 +57396,15 @@ class ta extends ss {
       }
       return;
     }
-    const c = "Engine mode is Required, but the Home Assistant integration did not answer. HOMEii Flow 6 will not run until the integration is installed, loaded, and refreshed.", p = this._state.engineLastError ? ` Last error: ${this._state.engineLastError}` : "";
-    e("fail", "HOMEii Flow Engine", `${c}${p}`, t);
+    const c = "Engine mode is Required, but the Home Assistant integration did not answer. Maverick Music 6 will not run until the integration is installed, loaded, and refreshed.", p = this._state.engineLastError ? ` Last error: ${this._state.engineLastError}` : "";
+    e("fail", "Maverick Music Engine", `${c}${p}`, t);
   }
   async _runDiagnostics() {
     if (this._state.diagnosticsStatus === "running") return;
     this._state.diagnosticsStatus = "running", this._state.diagnosticsItems = [], this._state.menuOpen && this._state.menuPage === "diagnostics" && await this._renderMobileMenu();
     const e = [], t = (U, J, j = "", V = "") => e.push(this._diagnosticItem(U, J, j, V)), r = !!(this._hass && this._hass.states && this._hass.services), c = Object.keys(this._hass?.services?.music_assistant || {}), p = c.length > 0, _ = this._hass?.states || {}, v = this._hass?.entities || {}, k = Object.values(_).filter((U) => Tt.isMusicAssistantPlayer(U, v?.[U.entity_id])), C = Object.values(_).filter((U) => U?.entity_id?.startsWith?.("media_player."));
     let Q = Array.isArray(this._state.enginePlayers) ? this._state.enginePlayers : [], z = this._getSelectedPlayer(), q = "", G = !1;
-    if (t("ok", "Card version", "HOMEii Flow runtime is loaded.", ea), t("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7"), t("info", "Browser", this._diagnosticBrowserSummary()), t("info", "Viewport", this._diagnosticViewportSummary()), t("info", "Diagnostic privacy", "External/private hostnames are redacted in visible and copied diagnostic output."), t(this._diagnosticCurrentOrigin() ? "ok" : "warn", "Home Assistant URL", this._diagnosticCurrentOrigin() ? this._diagnosticUrlDescription(this._diagnosticCurrentOrigin()) : "Could not read current Home Assistant origin.", this._diagnosticCurrentOrigin() ? this._sanitizeDiagnosticUrl(this._diagnosticCurrentOrigin()) : ""), t(r ? "ok" : "fail", "Home Assistant frontend", r ? "The card can read Home Assistant state and services." : "The card does not have a usable Home Assistant frontend object."), t(c.length ? "ok" : "fail", "Music Assistant services", c.length ? `${c.length} service(s) are exposed by Home Assistant.` : "No music_assistant services are exposed by Home Assistant."), t(p ? "ok" : "warn", "Music Assistant dependency", p ? "Home Assistant exposes Music Assistant services for the Engine to use." : "Home Assistant does not expose music_assistant services. HOMEii Flow Engine will not be able to provide full playback, queue, search and library data."), await this._diagnosticEngineRows(t), this._homeiiEngineRequired?.() && typeof this._refreshEnginePlayers == "function" && (await this._refreshEnginePlayers({ force: !0 }).catch(() => []), Q = Array.isArray(this._state.enginePlayers) ? this._state.enginePlayers : [], z = this._getSelectedPlayer()), t("info", "Engine source of truth", "HOMEii Flow 6 uses HOMEii Flow Engine exclusively for players, queue, library, search, artwork and playback. Music Assistant credentials are not stored in the card."), this._hass?.connection?.sendMessagePromise)
+    if (t("ok", "Card version", "Maverick Music runtime is loaded.", ea), t("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7"), t("info", "Browser", this._diagnosticBrowserSummary()), t("info", "Viewport", this._diagnosticViewportSummary()), t("info", "Diagnostic privacy", "External/private hostnames are redacted in visible and copied diagnostic output."), t(this._diagnosticCurrentOrigin() ? "ok" : "warn", "Home Assistant URL", this._diagnosticCurrentOrigin() ? this._diagnosticUrlDescription(this._diagnosticCurrentOrigin()) : "Could not read current Home Assistant origin.", this._diagnosticCurrentOrigin() ? this._sanitizeDiagnosticUrl(this._diagnosticCurrentOrigin()) : ""), t(r ? "ok" : "fail", "Home Assistant frontend", r ? "The card can read Home Assistant state and services." : "The card does not have a usable Home Assistant frontend object."), t(c.length ? "ok" : "fail", "Music Assistant services", c.length ? `${c.length} service(s) are exposed by Home Assistant.` : "No music_assistant services are exposed by Home Assistant."), t(p ? "ok" : "warn", "Music Assistant dependency", p ? "Home Assistant exposes Music Assistant services for the Engine to use." : "Home Assistant does not expose music_assistant services. Maverick Music Engine will not be able to provide full playback, queue, search and library data."), await this._diagnosticEngineRows(t), this._homeiiEngineRequired?.() && typeof this._refreshEnginePlayers == "function" && (await this._refreshEnginePlayers({ force: !0 }).catch(() => []), Q = Array.isArray(this._state.enginePlayers) ? this._state.enginePlayers : [], z = this._getSelectedPlayer()), t("info", "Engine source of truth", "Maverick Music 6 uses Maverick Music Engine exclusively for players, queue, library, search, artwork and playback. Music Assistant credentials are not stored in the card."), this._hass?.connection?.sendMessagePromise)
       try {
         const U = await this._withTimeout(this._hass.connection.sendMessagePromise({
           type: "config_entries/get",
@@ -57424,7 +57424,7 @@ class ta extends ss {
       t("fail", "Selected player", "No selected player is available.");
     else {
       const U = z.attributes?.friendly_name || z.entity_id || "", J = this._isPlayerExcluded?.(z), j = Q.some((S) => S?.entity_id === z.entity_id);
-      t(j && !J ? "ok" : "warn", "Selected player", J ? "The selected player is currently excluded in HOMEii settings." : j ? "Selected player was provided by HOMEii Flow Engine." : "Selected player was not found in the Engine player list.", `${U} | ${this._diagnosticPlayerMarkerSummary(z, v)}`);
+      t(j && !J ? "ok" : "warn", "Selected player", J ? "The selected player is currently excluded in Maverick Music settings." : j ? "Selected player was provided by Maverick Music Engine." : "Selected player was not found in the Engine player list.", `${U} | ${this._diagnosticPlayerMarkerSummary(z, v)}`);
       const V = this._playerOverrideParamValue?.() || "", X = String(this._config?.entity || this.config?.entity || "").trim(), K = V ? `query string (${V})` : X ? `card entity (${X})` : "automatic / remembered";
       t("info", "Player selection source", "Query-string player overrides win first, then card entity, then automatic/remembered selection.", K), this._diagnosticConfiguredEntityRows(t, z, _, v);
       const ne = this._currentSpeakerGroupMemberIds?.(z.entity_id) || [], ge = ne.map((S) => this._playerByEntityId?.(S)?.attributes?.friendly_name || S).filter(Boolean);
@@ -57432,15 +57432,15 @@ class ta extends ss {
       const o = this._currentSpeakerGroupOwnerId?.(z.entity_id) || z.entity_id || "", m = this._playerByEntityId?.(o)?.attributes?.friendly_name || o || "(none)", g = !!this._hass?.services?.media_player?.join, y = !!this._hass?.services?.media_player?.unjoin;
       t(g && y ? "ok" : "warn", "Group service path", `media_player.join ${g ? "yes" : "no"}, media_player.unjoin ${y ? "yes" : "no"}`, `owner=${m}; selected_is_owner=${o === z.entity_id ? "yes" : "no"}; members=${ne.join(", ") || "(none)"}`);
     }
-    if (t(p ? "ok" : "info", "Music Assistant credentials", "The internal URL, external URL and API token are owned only by HOMEii Flow Engine and are intentionally absent from the card.", "Engine only"), t("ok", "Music Assistant transport", "Commands, realtime events and artwork are proxied through HOMEii Flow Engine. The card opens no authenticated MA REST or WebSocket connection.", "Engine only"), this._state.maServerVersion) {
+    if (t(p ? "ok" : "info", "Music Assistant credentials", "The internal URL, external URL and API token are owned only by Maverick Music Engine and are intentionally absent from the card.", "Engine only"), t("ok", "Music Assistant transport", "Commands, realtime events and artwork are proxied through Maverick Music Engine. The card opens no authenticated MA REST or WebSocket connection.", "Engine only"), this._state.maServerVersion) {
       const U = this._state.maSchemaVersion ? `schema ${this._state.maSchemaVersion}` : "schema unavailable";
-      t("info", "Music Assistant server version", "Version reported by the authenticated HOMEii Flow Engine event connection.", `${this._state.maServerVersion}; ${U}`);
+      t("info", "Music Assistant server version", "Version reported by the authenticated Maverick Music Engine event connection.", `${this._state.maServerVersion}; ${U}`);
     }
     await this._diagnosticSearchRows(t, c), await this._diagnosticQueueRows(t, z), await this._diagnosticLibraryRows(t, c), this._diagnosticRenderedArtworkRows(t), this._state.diagnosticsItems = e, this._state.diagnosticsStatus = "done", this._state.diagnosticsRunAt = Date.now(), this._state.menuOpen && this._state.menuPage === "diagnostics" && await this._renderMobileMenu();
   }
   _diagnosticsReportText() {
     const e = Array.isArray(this._state.diagnosticsItems) ? this._state.diagnosticsItems : [], t = [
-      "HOMEii Music Flow Diagnostics",
+      "Maverick Music Diagnostics",
       "Diagnostics: v7",
       `Version: ${ea}`,
       `Generated: ${new Date(this._state.diagnosticsRunAt || Date.now()).toISOString()}`,
@@ -58099,7 +58099,7 @@ class ta extends ss {
       try {
         p = await this._search(c);
       } catch (U) {
-        this._debugLog?.("warn", "[HOMEii Voice] Music search failed", { query: c, error: U });
+        this._debugLog?.("warn", "[Maverick Music Voice] Music search failed", { query: c, error: U });
       }
       const _ = this._voiceAssistantRequestedMediaType(c), v = this._voiceAssistantFocusedMusicQuery(c), k = this._voiceAssistantCanonicalMediaType(_?.type || "track", "track");
       if (!this._hasSearchResults(p) && v && k) {
@@ -59011,7 +59011,7 @@ class ta extends ss {
         this._search(c, { providerOnly: !0, limit: 30, strict: !0 }),
         Math.max(this._musicAssistantTimeoutMs(), 18e3),
         this._timeoutMessage("Music Assistant provider search")
-      ) : this._emptySearchResults()))().catch((V) => (G = V, this._debugLog("warn", "[HOMEii Flow] provider search failed", V), this._emptySearchResults()));
+      ) : this._emptySearchResults()))().catch((V) => (G = V, this._debugLog("warn", "[Maverick Music] provider search failed", V), this._emptySearchResults()));
       const j = await this._search(c, { fastOnly: !0, limit: 25, strict: !0 });
       z = this._mergeSearchResults(z, j);
     } catch (j) {
@@ -59661,7 +59661,7 @@ class ta extends ss {
       try {
         Z = await this._loadDiscoverySections(), C() && (this._discoveryLastView = Z);
       } catch ($) {
-        Z = { providers: this._discoveryLastView?.providers || [], sections: [], error: this._m("Unable to load this source. Please retry.", "לא ניתן לטעון את המקור. נסה שוב.") }, this._debugLog("warn", "[HOMEii Flow] Discovery source failed", $);
+        Z = { providers: this._discoveryLastView?.providers || [], sections: [], error: this._m("Unable to load this source. Please retry.", "לא ניתן לטעון את המקור. נסה שוב.") }, this._debugLog("warn", "[Maverick Music] Discovery source failed", $);
       }
       if (!C()) return;
       this._updateDiscoveryMenuBody(e, Z), q();
@@ -59711,7 +59711,7 @@ class ta extends ss {
       const O = { playlist: 250, artist: 250, album: 250, track: 350, radio: 200, podcast: 250 }, Z = this._mobileLibraryOrderBy(), $ = this._libraryTabSearchQuery(_), ce = this._libraryFavoritesOnlyEnabled(_), be = `${_}:${Z}:${ce}:${$.toLowerCase()}`, ue = this._state.engineCapabilities?.library_pagination ? this._state.libraryVisibleLimits?.[be] || 60 : O[F.type] || 250, de = (Ve) => this._state.engineCapabilities?.library_pagination && Ve >= ue ? `<button type="button" class="chip-btn" data-library-load-more="${this._esc(be)}" data-library-current-limit="${ue}">${this._esc(this._m("Load more from Music Assistant", "טען עוד מ־Music Assistant"))}</button>` : "", me = $ ? `tab-search:${F.type}:${Z}:${ue}:${ce}:${$.toLowerCase()}` : `${F.type}:${Z}:${ue}:${ce}`;
       !this._cache.library.get(me) && e.dataset.libraryLoadingKey !== me && (e.innerHTML = this._libraryShellHtml(this._loadingStateHtml(this._i18n("ui.loading"), { notice: !0 }), _), e.dataset.libraryLoadingKey = me);
       const ve = _ === "library_radio" ? this._mobileRadioSourceMode() : "combined", xe = ce || ve !== "radiobrowser_only", ke = !ce && ve !== "ma_only", Me = ce || ve === "ma_first" || ve === "ma_only";
-      let Be = [], Ee = "";
+      let Be = [], Ie = "";
       try {
         Be = _ === "library_radio" && !xe ? [] : await this._getLibraryTabItems(F, Z, ue, $, ce);
       } catch (Ve) {
@@ -59720,7 +59720,7 @@ class ta extends ss {
           delete e.dataset.libraryLoadingKey, e.innerHTML = this._libraryShellHtml(`<div class="notice open" role="alert">${this._esc(Ve?.message || this._m("Could not load the library.", "לא ניתן לטעון את הספרייה."))}</div><button class="chip-btn" data-menu-action="retry_library">${this._esc(this._m("Retry", "נסה שוב"))}</button>`, _), q();
           return;
         }
-        Ee = Ve?.message || this._m("Could not load Music Assistant radio.", "לא ניתן לטעון רדיו מ-Music Assistant.");
+        Ie = Ve?.message || this._m("Could not load Music Assistant radio.", "לא ניתן לטעון רדיו מ-Music Assistant.");
       }
       if (e.dataset.libraryLoadingKey === me && delete e.dataset.libraryLoadingKey, !C()) return;
       const De = this._sortLibraryItemsLocally(Be);
@@ -59748,7 +59748,7 @@ class ta extends ss {
       }
       const Ke = this._libraryFlowPageActive(_);
       if (_ === "library_radio" && Ke) {
-        let Ve = xe ? De : [], Xe = xe ? Ee : "";
+        let Ve = xe ? De : [], Xe = xe ? Ie : "";
         if (ke && !(Me && Ve.length))
           try {
             const Je = this._mobileRadioBrowserCountry(), Ze = this._state.mobileRadioBrowseCountry || (Je === "all" ? "" : Je), st = await this._fetchRadioBrowserStations($ || "", 80, { countryCode: Ze || Je || "all" });
@@ -59764,7 +59764,7 @@ class ta extends ss {
       }
       let tt = `${this._mediaLayoutToolbarHtml()}${Ke ? this._libraryFlowPickerHtml(De, F.type, { className: "library-tab-flow" }) : this._mediaItemsListHtml(De, F.type, { librarySkin: !0 })}`;
       if (_ === "library_radio") {
-        const Ve = xe ? Ee ? `<div class="notice open">${this._esc(Ee)}</div>` : Ke ? this._libraryFlowPickerHtml(De, F.type, { className: "library-radio-flow" }) : this._mediaItemsListHtml(De, F.type, { librarySkin: !0 }) : "", Xe = Ve ? `<div>
+        const Ve = xe ? Ie ? `<div class="notice open">${this._esc(Ie)}</div>` : Ke ? this._libraryFlowPickerHtml(De, F.type, { className: "library-radio-flow" }) : this._mediaItemsListHtml(De, F.type, { librarySkin: !0 }) : "", Xe = Ve ? `<div>
               <div class="media-section-title">Music Assistant</div>
               ${Ve}
             </div>` : "";
@@ -59862,7 +59862,7 @@ class ta extends ss {
       return;
     }
     c.hidden = !0;
-    const E = {
+    const I = {
       queue: this._i18n("ui.queue_2"),
       players: this._i18n("ui.players"),
       players_active: this._i18n("ui.active_players"),
@@ -59873,12 +59873,12 @@ class ta extends ss {
       simple_wizard: "FLOW",
       ungroup_all: this._i18n("ui.disconnect_player_groups"),
       stop_all: this._i18n("ui.stop_all_players")
-    }, I = _ === "queue" && this._mobileQueueFlowMenuActive();
+    }, E = _ === "queue" && this._mobileQueueFlowMenuActive();
     if (this._setMobileMenuHeader(
-      I ? "" : E[_] || this._i18n("ui.menu"),
+      E ? "" : I[_] || this._i18n("ui.menu"),
       this._menuPageIcon(_)
     ), _ === "queue") {
-      if (I) {
+      if (E) {
         if ((Q !== _ || !this._state.maQueueState?.queue_id) && (e.innerHTML = this._state.maQueueState?.queue_id ? this._queueMenuHtml() : this._loadingStateHtml(this._i18n("ui.loading"), { notice: !0 }), this._hydrateImages(e), await this._ensureQueueSnapshot(!0)), !C()) return;
         e.innerHTML = this._queueMenuHtml(), q(), this._bindQueueFlowPicker(e);
         return;
@@ -59991,11 +59991,11 @@ class ta extends ss {
     const k = t.closest("[data-artist-radio]");
     if (k) {
       e.preventDefault(), e.stopPropagation();
-      const le = this._state.mobileLibraryDetail || {}, Ie = String(k.dataset.mediaUri || le.uri || "").trim();
-      if (!Ie) return;
+      const le = this._state.mobileLibraryDetail || {}, Ee = String(k.dataset.mediaUri || le.uri || "").trim();
+      if (!Ee) return;
       const je = this._showLibraryInteractionFeedback(k, { loading: !0, hold: !0 });
       try {
-        await this._playMedia(Ie, "artist", "play", {
+        await this._playMedia(Ee, "artist", "play", {
           label: k.dataset.mediaName || le.name || this._i18n("ui.artist"),
           radioMode: !0,
           silent: !0,
@@ -60024,7 +60024,7 @@ class ta extends ss {
     const q = t.closest("[data-setting-quick-action-move]");
     if (q) {
       if (e.preventDefault(), e.stopPropagation(), q.disabled) return;
-      const le = String(q.dataset.settingQuickActionMove || "").trim(), Ie = Number(q.dataset.direction || 0), je = this._mobileQuickActions().slice(), L = je.indexOf(le), we = L + (Ie < 0 ? -1 : 1);
+      const le = String(q.dataset.settingQuickActionMove || "").trim(), Ee = Number(q.dataset.direction || 0), je = this._mobileQuickActions().slice(), L = je.indexOf(le), we = L + (Ee < 0 ? -1 : 1);
       if (L < 0 || we < 0 || we >= je.length) return;
       [je[L], je[we]] = [je[we], je[L]], this._flashInteraction(q), this._state.mobileQuickActions = je, this._persistMobileAppearance(), this._refreshAfterSettingsChange({ quickActionsChanged: !0 });
       return;
@@ -60032,10 +60032,10 @@ class ta extends ss {
     const G = t.closest("[data-setting-player-order-move]");
     if (G) {
       if (e.preventDefault(), e.stopPropagation(), G.disabled) return;
-      const le = String(G.dataset.settingPlayerOrderMove || "").trim(), Ie = Number(G.dataset.direction || 0), je = this._pinnedPlayerOptionPlayers([], { includeExcluded: !0 }).map((ft) => ft.entity_id), L = this._playerOrderPreferences(), we = [
+      const le = String(G.dataset.settingPlayerOrderMove || "").trim(), Ee = Number(G.dataset.direction || 0), je = this._pinnedPlayerOptionPlayers([], { includeExcluded: !0 }).map((ft) => ft.entity_id), L = this._playerOrderPreferences(), we = [
         ...L.filter((ft) => je.includes(ft)),
         ...je.filter((ft) => !L.includes(ft))
-      ], D = we.indexOf(le), x = D + (Ie < 0 ? -1 : 1);
+      ], D = we.indexOf(le), x = D + (Ee < 0 ? -1 : 1);
       if (D < 0 || x < 0 || x >= we.length) return;
       [we[D], we[x]] = [we[x], we[D]], this._flashInteraction(G), this._state.playerOrderEntities = we, this._state.playerSortMode = "custom", this._persistMobileAppearance(), this._refreshAfterSettingsChange({ playerListChanged: !0 });
       return;
@@ -60043,10 +60043,10 @@ class ta extends ss {
     const U = t.closest("[data-announcement-preset-fill]");
     if (U) {
       e.preventDefault(), e.stopPropagation();
-      const le = Number(U.dataset.announcementPresetFill), Ie = (this._state.mobileAnnouncementPresets || [])[le] || "";
-      this._state.mobileAnnouncementText = Ie;
+      const le = Number(U.dataset.announcementPresetFill), Ee = (this._state.mobileAnnouncementPresets || [])[le] || "";
+      this._state.mobileAnnouncementText = Ee;
       const je = this.$("mobileAnnouncementText");
-      je && (je.value = Ie), this._flashInteraction(U), this._hapticTap([8]);
+      je && (je.value = Ee), this._flashInteraction(U), this._hapticTap([8]);
       return;
     }
     const J = t.closest("[data-announcement-voice]");
@@ -60085,8 +60085,8 @@ class ta extends ss {
       const le = ne.querySelector("input[data-liked-select-uri]");
       if (!le) return;
       le.checked = !le.checked;
-      const Ie = String(le.dataset.likedSelectUri || "").trim(), je = new Set(Array.isArray(this._state.likedSelectedUris) ? this._state.likedSelectedUris : []);
-      le.checked ? je.add(Ie) : je.delete(Ie), this._state.likedSelectedUris = Array.from(je), await this._renderMobileMenu();
+      const Ee = String(le.dataset.likedSelectUri || "").trim(), je = new Set(Array.isArray(this._state.likedSelectedUris) ? this._state.likedSelectedUris : []);
+      le.checked ? je.add(Ee) : je.delete(Ee), this._state.likedSelectedUris = Array.from(je), await this._renderMobileMenu();
       return;
     }
     const ge = t.closest("[data-liked-play-all]");
@@ -60119,8 +60119,8 @@ class ta extends ss {
     const g = t.closest("[data-liked-remove]");
     if (g?.dataset.likedRemove) {
       if (e.preventDefault(), e.stopPropagation(), this._useMaLikedMode()) {
-        const le = g.dataset.likedRemove, Ie = this._likedEntries().find((je) => String(je?.uri || "").trim() === String(le || "").trim());
-        Ie && await this._toggleLikeEntry(Ie, g);
+        const le = g.dataset.likedRemove, Ee = this._likedEntries().find((je) => String(je?.uri || "").trim() === String(le || "").trim());
+        Ee && await this._toggleLikeEntry(Ee, g);
       } else
         this._removeLikedUri(g.dataset.likedRemove);
       await this._renderMobileMenu();
@@ -60129,8 +60129,8 @@ class ta extends ss {
     const y = t.closest("[data-queue-action]");
     if (y) {
       e.preventDefault(), e.stopPropagation();
-      const le = y.closest("[data-queue-item-id]"), Ie = y.dataset.queueAction, je = y.dataset.queueItemId || le?.dataset.queueItemId || "";
-      if (Ie === "like") {
+      const le = y.closest("[data-queue-item-id]"), Ee = y.dataset.queueAction, je = y.dataset.queueItemId || le?.dataset.queueItemId || "";
+      if (Ee === "like") {
         const we = {
           uri: y.dataset.queueUri || le?.dataset.uri || "",
           media_type: y.dataset.queueType || le?.dataset.type || "track",
@@ -60144,7 +60144,7 @@ class ta extends ss {
         this._syncQueueLikeActionButton(y, !D), await this._toggleLikeEntry(we, y) === !1 ? this._syncQueueLikeActionButton(y, D) : this._syncQueueLikeActionButton(y, this._isEntryLiked(we)), await this._renderMobileMenu();
         return;
       }
-      if (this._state.expandedQueueItemId = "", Ie === "play") {
+      if (this._state.expandedQueueItemId = "", Ee === "play") {
         await this._playQueueItem(
           je,
           le?.dataset.uri || "",
@@ -60153,9 +60153,9 @@ class ta extends ss {
         ), await this._renderMobileMenu();
         return;
       }
-      const L = Ie === "move_to" ? this._queueMoveTargetFromElement(y) : null;
-      if (Ie === "move_to" && !L) return;
-      await this._handleQueueAction(Ie, je, le?.dataset.uri || "", le?.dataset.sortIndex || "", L);
+      const L = Ee === "move_to" ? this._queueMoveTargetFromElement(y) : null;
+      if (Ee === "move_to" && !L) return;
+      await this._handleQueueAction(Ee, je, le?.dataset.uri || "", le?.dataset.sortIndex || "", L);
       return;
     }
     const S = t.closest("[data-schedule-tab]");
@@ -60170,14 +60170,14 @@ class ta extends ss {
       e.preventDefault(), e.stopPropagation(), this._state.mobileScheduleControlActiveUntil = 0, this._flashInteraction(B), this._state.mobileSchedulesTab = "wake", this._newScheduledStartDraft(), this._persistMobileAppearance(), await this._renderMobileMenu();
       return;
     }
-    const E = t.closest("[data-start-schedule-edit]");
-    if (E?.dataset.startScheduleEdit) {
-      e.preventDefault(), e.stopPropagation(), this._state.mobileScheduleControlActiveUntil = 0, this._flashInteraction(E), this._state.mobileSchedulesTab = "wake", this._editScheduledStart(E.dataset.startScheduleEdit), this._persistMobileAppearance(), await this._renderMobileMenu();
+    const I = t.closest("[data-start-schedule-edit]");
+    if (I?.dataset.startScheduleEdit) {
+      e.preventDefault(), e.stopPropagation(), this._state.mobileScheduleControlActiveUntil = 0, this._flashInteraction(I), this._state.mobileSchedulesTab = "wake", this._editScheduledStart(I.dataset.startScheduleEdit), this._persistMobileAppearance(), await this._renderMobileMenu();
       return;
     }
-    const I = t.closest("[data-start-schedule-toggle]");
-    if (I?.dataset.startScheduleToggle) {
-      e.preventDefault(), e.stopPropagation(), this._state.mobileScheduleControlActiveUntil = 0, this._flashInteraction(I), await this._toggleScheduledStart(I.dataset.startScheduleToggle), await this._renderMobileMenu();
+    const E = t.closest("[data-start-schedule-toggle]");
+    if (E?.dataset.startScheduleToggle) {
+      e.preventDefault(), e.stopPropagation(), this._state.mobileScheduleControlActiveUntil = 0, this._flashInteraction(E), await this._toggleScheduledStart(E.dataset.startScheduleToggle), await this._renderMobileMenu();
       return;
     }
     const F = t.closest("[data-start-schedule-delete]");
@@ -60308,9 +60308,9 @@ class ta extends ss {
       this._state.performanceProfile = le, this._state.performanceMode = le === "low", this._state.performanceModeLocalOverride = !0, this._state.performanceMode && (this._state.mobileDynamicThemePalette = null, this._state.mobileDynamicThemeArtwork = "", this._state.mobileDynamicThemeArtworkUrl = ""), this._persistMobileAppearance(), this._applyDynamicThemeStyles(), this._applyBackgroundMotionStyles(), this._syncNowPlayingUI(), this._reopenSettingsMenuPreservingScroll({ rebuild: !0, init: !0 });
       return;
     }
-    const Ee = t.closest("[data-setting-background-motion]");
-    if (Ee?.dataset.settingBackgroundMotion) {
-      this._flashInteraction(Ee), this._state.mobileBackgroundMotionMode = ["off", "subtle", "strong", "extreme"].includes(Ee.dataset.settingBackgroundMotion) ? Ee.dataset.settingBackgroundMotion : "subtle", this._persistMobileAppearance(), this._applyBackgroundMotionStyles(), this._reopenSettingsMenuPreservingScroll();
+    const Ie = t.closest("[data-setting-background-motion]");
+    if (Ie?.dataset.settingBackgroundMotion) {
+      this._flashInteraction(Ie), this._state.mobileBackgroundMotionMode = ["off", "subtle", "strong", "extreme"].includes(Ie.dataset.settingBackgroundMotion) ? Ie.dataset.settingBackgroundMotion : "subtle", this._persistMobileAppearance(), this._applyBackgroundMotionStyles(), this._reopenSettingsMenuPreservingScroll();
       return;
     }
     const De = t.closest("[data-setting-ambient-light]");
@@ -60366,8 +60366,8 @@ class ta extends ss {
     if (Je) {
       const le = { night_mode: this._mobileNightMode(), night_start: this._state.mobileNightModeStart, night_end: this._state.mobileNightModeEnd, night_days: [...this._nightModeDays()] };
       this._state.mobileScheduleControlActiveUntil = 0, this._flashInteraction(Je);
-      const Ie = this.$("mobileNightStartInput"), je = this.$("mobileNightEndInput"), L = Array.from(this.shadowRoot?.querySelectorAll("input[data-setting-night-day]:checked") || []).map((we) => Number(we.dataset.settingNightDay)).filter((we) => Number.isInteger(we) && we >= 0 && we <= 6);
-      if (this._state.mobileNightModeStart = this._normalizeClockTime(Ie?.value || "22:00", "22:00"), this._state.mobileNightModeEnd = this._normalizeClockTime(je?.value || "06:00", "06:00"), this._state.mobileNightModeDays = this._normalizeNightModeDays(L), !await Tn(this, le)) return;
+      const Ee = this.$("mobileNightStartInput"), je = this.$("mobileNightEndInput"), L = Array.from(this.shadowRoot?.querySelectorAll("input[data-setting-night-day]:checked") || []).map((we) => Number(we.dataset.settingNightDay)).filter((we) => Number.isInteger(we) && we >= 0 && we <= 6);
+      if (this._state.mobileNightModeStart = this._normalizeClockTime(Ee?.value || "22:00", "22:00"), this._state.mobileNightModeEnd = this._normalizeClockTime(je?.value || "06:00", "06:00"), this._state.mobileNightModeDays = this._normalizeNightModeDays(L), !await Tn(this, le)) return;
       this._persistMobileAppearance(), this._toastSuccess(this._i18n("ui.night_schedule_updated")), this._build(), this._init(), this._openMobileMenu(this._state.menuPage || "sleep_timer");
       return;
     }
@@ -60431,8 +60431,8 @@ class ta extends ss {
       this._flashInteraction(ui);
       const le = ui.dataset.settingHomeShortcut === "on";
       this._state.mobileHomeShortcutEnabled = le;
-      const Ie = this._mobileQuickActions().filter((je) => je !== "home");
-      this._state.mobileQuickActions = le ? ["home", ...Ie] : Ie, this._persistMobileAppearance(), this._reopenSettingsMenuPreservingScroll({ rebuild: !0, init: !0 });
+      const Ee = this._mobileQuickActions().filter((je) => je !== "home");
+      this._state.mobileQuickActions = le ? ["home", ...Ee] : Ee, this._persistMobileAppearance(), this._reopenSettingsMenuPreservingScroll({ rebuild: !0, init: !0 });
       return;
     }
     const Xt = t.closest("[data-setting-mic-mode]");
@@ -60491,15 +60491,15 @@ class ta extends ss {
     }
     if (Li) {
       e.preventDefault(), e.stopPropagation(), this._showLibraryInteractionFeedback(Li, { loading: !0, loadingMs: 500 });
-      const le = Li.dataset.libraryFavoritesToggle || this._state.menuPage, Ie = !this._libraryFavoritesOnlyEnabled(le);
-      this._setLibraryFavoritesOnly(le, Ie) && await this._renderMobileMenu();
+      const le = Li.dataset.libraryFavoritesToggle || this._state.menuPage, Ee = !this._libraryFavoritesOnlyEnabled(le);
+      this._setLibraryFavoritesOnly(le, Ee) && await this._renderMobileMenu();
       return;
     }
     const Ce = t.closest("[data-library-tab-search-submit]");
     if (Ce) {
       e.preventDefault(), e.stopPropagation();
-      const le = Ce.dataset.libraryTabSearchSubmit || this._state.menuPage, Ie = Ce.closest(".library-toolbar-search, .library-tab-search-row")?.querySelector("[data-library-tab-search-input]");
-      this._showLibraryInteractionFeedback(Ce, { loading: !0, loadingMs: 700 }), this._commitLibraryTabSearchQuery(le, Ie?.value ?? null), this._state.libraryTabSearchOpen = !0, this._state.libraryTabSearchFocusId = Ie?.id || (Ce.closest(".library-tab-search-row") ? "mobileLibraryTabSearchRowInput" : "mobileLibraryTabSearchInput"), await this._renderMobileMenu();
+      const le = Ce.dataset.libraryTabSearchSubmit || this._state.menuPage, Ee = Ce.closest(".library-toolbar-search, .library-tab-search-row")?.querySelector("[data-library-tab-search-input]");
+      this._showLibraryInteractionFeedback(Ce, { loading: !0, loadingMs: 700 }), this._commitLibraryTabSearchQuery(le, Ee?.value ?? null), this._state.libraryTabSearchOpen = !0, this._state.libraryTabSearchFocusId = Ee?.id || (Ce.closest(".library-tab-search-row") ? "mobileLibraryTabSearchRowInput" : "mobileLibraryTabSearchInput"), await this._renderMobileMenu();
       return;
     }
     const Pe = t.closest("[data-library-tab-search-clear]");
@@ -60596,9 +60596,9 @@ class ta extends ss {
     const jt = t.closest("[data-media-detail-browse]");
     if (jt) {
       if (e.preventDefault(), e.stopPropagation(), jt.disabled) return;
-      const le = this._showLibraryInteractionFeedback(jt, { loading: !0, hold: !0 }), Ie = jt.dataset.mediaDetailBrowse === "prev" ? -1 : 1;
+      const le = this._showLibraryInteractionFeedback(jt, { loading: !0, hold: !0 }), Ee = jt.dataset.mediaDetailBrowse === "prev" ? -1 : 1;
       try {
-        await this._openLibraryAdjacentAlbum(Ie, jt);
+        await this._openLibraryAdjacentAlbum(Ee, jt);
       } finally {
         this._clearLibraryInteractionFeedback(le);
       }
@@ -60636,7 +60636,7 @@ class ta extends ss {
     const Nt = t.closest("[data-media-play]");
     if (Nt?.dataset.mediaPlay) {
       e.preventDefault(), e.stopPropagation();
-      const le = Nt.closest(".media-entry, .media-detail-hero") || Nt, Ie = this._showLibraryInteractionFeedback(le, { loading: !0, hold: !0 }), je = Nt.dataset.mediaName || le.querySelector?.(".menu-item-title, .media-detail-title")?.textContent?.trim() || "";
+      const le = Nt.closest(".media-entry, .media-detail-hero") || Nt, Ee = this._showLibraryInteractionFeedback(le, { loading: !0, hold: !0 }), je = Nt.dataset.mediaName || le.querySelector?.(".menu-item-title, .media-detail-title")?.textContent?.trim() || "";
       try {
         if (await this._playMedia(Nt.dataset.mediaPlay, Nt.dataset.mediaType || "album", "play", {
           label: je,
@@ -60645,14 +60645,14 @@ class ta extends ss {
         })) return this._closeMobileMenu();
         await this._renderMobileMenu();
       } finally {
-        this._clearLibraryInteractionFeedback(Ie);
+        this._clearLibraryInteractionFeedback(Ee);
       }
       return;
     }
     const Rt = t.closest("[data-media-open]");
     if (Rt?.dataset.mediaOpen) {
       e.preventDefault(), e.stopPropagation();
-      const le = Rt.closest(".media-entry") || Rt, Ie = this._showLibraryInteractionFeedback(le, { loading: !0, loadingMs: 1600 }), je = this._openLibraryMediaDetail({
+      const le = Rt.closest(".media-entry") || Rt, Ee = this._showLibraryInteractionFeedback(le, { loading: !0, loadingMs: 1600 }), je = this._openLibraryMediaDetail({
         uri: Rt.dataset.mediaOpen,
         media_type: Rt.dataset.mediaType || "album",
         name: Rt.dataset.mediaName || le.querySelector?.(".menu-item-title")?.textContent?.trim() || "",
@@ -60661,12 +60661,12 @@ class ta extends ss {
         image: Rt.dataset.mediaImage || "",
         favorite_scope: Rt.dataset.mediaFavoriteScope || "library"
       }, le);
-      if (je || this._clearLibraryInteractionFeedback(Ie), je) return;
+      if (je || this._clearLibraryInteractionFeedback(Ee), je) return;
     }
     const Ti = t.closest("[data-media-uri]");
     if (Ti?.dataset.mediaUri) {
       e.preventDefault(), e.stopPropagation();
-      const le = Ti.closest(".media-entry") || Ti, Ie = this._showLibraryInteractionFeedback(le, { loading: !0, hold: !0 }), je = Ti.dataset.mediaName || Ti.querySelector(".menu-item-title, .discovery-orb-title")?.textContent?.trim() || "";
+      const le = Ti.closest(".media-entry") || Ti, Ee = this._showLibraryInteractionFeedback(le, { loading: !0, hold: !0 }), je = Ti.dataset.mediaName || Ti.querySelector(".menu-item-title, .discovery-orb-title")?.textContent?.trim() || "";
       try {
         if (await this._playMedia(Ti.dataset.mediaUri, Ti.dataset.mediaType || "album", "play", {
           label: je,
@@ -60675,15 +60675,15 @@ class ta extends ss {
         })) return this._closeMobileMenu();
         await this._renderMobileMenu();
       } finally {
-        this._clearLibraryInteractionFeedback(Ie);
+        this._clearLibraryInteractionFeedback(Ee);
       }
       return;
     }
     const Bt = t.closest("[data-menu-player]");
     if (Bt) {
       if (this._selectPlayer(Bt.dataset.menuPlayer, !0), this._toast(this._i18n("ui.player_selected"), "info", { position: "top" }), this._screenPlayerReturn) {
-        const Ie = this._screenPlayerReturn;
-        return this._screenPlayerReturn = null, Ie();
+        const Ee = this._screenPlayerReturn;
+        return this._screenPlayerReturn = null, Ee();
       }
       const le = this._state.menuStack[this._state.menuStack.length - 1];
       if (String(le || "").startsWith("library_") || le === "media_detail" || le === "discovery") {
@@ -61084,7 +61084,7 @@ class ta extends ss {
     }, 220);
   }
 }
-class Is extends eu {
+class Es extends eu {
   constructor() {
     super(), this._config = { ...ta.getStubConfig(), type: "custom:homeii-music-flow" };
   }
@@ -61119,13 +61119,13 @@ class Yg extends ta {
     return document.createElement(Lr);
   }
 }
-class Og extends Is {
+class Og extends Es {
 }
-class Jg extends Is {
+class Jg extends Es {
 }
 customElements.get("homeii-music-flow") || customElements.define("homeii-music-flow", jg);
 customElements.get("homeii-music-mobile") || customElements.define("homeii-music-mobile", Yg);
-customElements.get(Lr) || customElements.define(Lr, Is);
+customElements.get(Lr) || customElements.define(Lr, Es);
 customElements.get("homeii-music-flow-editor") || customElements.define("homeii-music-flow-editor", Og);
 customElements.get("homeii-music-mobile-editor") || customElements.define("homeii-music-mobile-editor", Jg);
 function Ps() {
@@ -61136,7 +61136,7 @@ function Ps() {
   }
   n.push({
     type: "homeii-music-flow",
-    name: "HOMEii Flow",
+    name: "Maverick Music",
     description: `Premium Music Assistant dashboard card v${ea}`,
     preview: !1,
     documentationURL: "https://github.com/ambient-home-systems/maverick-music-flow"
@@ -61256,7 +61256,7 @@ function Kg() {
               dt[48 + Ct] = 52 + Ct, dt[65 + Ct] = Ct, dt[97 + Ct] = 26 + Ct;
             dt[43] = 62, dt[47] = 63;
             function Ue(Bt, at, it) {
-              for (var W, N, i = 0, le = at, Ie = it.length, je = at + (Ie * 3 >> 2) - (it[Ie - 2] == "=") - (it[Ie - 1] == "="); i < Ie; i += 4)
+              for (var W, N, i = 0, le = at, Ee = it.length, je = at + (Ee * 3 >> 2) - (it[Ee - 2] == "=") - (it[Ee - 1] == "="); i < Ee; i += 4)
                 W = dt[it.charCodeAt(i + 1)], N = dt[it.charCodeAt(i + 2)], Bt[le++] = dt[it.charCodeAt(i)] << 2 | W >> 4, le < je && (Bt[le++] = W << 4 | N >> 2), le < je && (Bt[le++] = N << 6 | dt[it.charCodeAt(i + 3)]);
             }
             function di(Bt) {
@@ -61282,7 +61282,7 @@ function Kg() {
               return xi[2];
             }
             function Ti(Bt) {
-              var at = Bt.memory, it = at.buffer, W = new Int8Array(it), N = new Int16Array(it), i = new Int32Array(it), le = new Uint8Array(it), Ie = new Uint16Array(it), je = new Uint32Array(it), L = new Float32Array(it), we = new Float64Array(it), D = Math.imul, x = Math.fround, ft = Math.abs, $e = Math.clz32, Ht = Math.min, Qt = Math.max, gi = Math.floor, si = Math.sqrt, Le = Bt.abort, oa = Bt.emscripten_resize_heap, Ta = Bt.emscripten_memcpy_big, Ra = Bt.fd_close, za = Bt.fd_write, Le = Bt.abort, ir = Bt.setTempRet0, Fa = Bt.fd_seek, _e = 5282864, ht = 0;
+              var at = Bt.memory, it = at.buffer, W = new Int8Array(it), N = new Int16Array(it), i = new Int32Array(it), le = new Uint8Array(it), Ee = new Uint16Array(it), je = new Uint32Array(it), L = new Float32Array(it), we = new Float64Array(it), D = Math.imul, x = Math.fround, ft = Math.abs, $e = Math.clz32, Ht = Math.min, Qt = Math.max, gi = Math.floor, si = Math.sqrt, Le = Bt.abort, oa = Bt.emscripten_resize_heap, Ta = Bt.emscripten_memcpy_big, Ra = Bt.fd_close, za = Bt.fd_write, Le = Bt.abort, ir = Bt.setTempRet0, Fa = Bt.fd_seek, _e = 5282864, ht = 0;
               function qe(a) {
                 a = a | 0;
                 var s = 0, u = 0, l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0;
@@ -62104,8 +62104,8 @@ function Kg() {
                 }
                 Re(36419, 35333, 488), Le();
               }
-              function Et(a, s, u, l, A, d, h, b, f, w, M, P, R, H, Y, T, ee, ie, Ae, te, oe, pe, fe) {
-                var re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = x(0), nt = x(0), yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ei = 0, Ii = x(0), Qi = 0, Ri = 0, Gi = 0, la = 0, ca = 0, ua = 0, da = 0, Aa = 0, ma = 0, pa = 0, ya = 0, va = 0, wa = 0, Ar = 0, ao = 0, ro = 0, oo = 0, so = 0, no = 0, lo = 0, co = 0, uo = 0, Ao = 0, mo = 0, po = 0, ho = 0, _o = 0, go = 0, bo = 0, fo = 0, yo = 0, vo = 0, wo = 0, xo = 0, ko = 0, So = 0, Mo = 0, Co = x(0), Bo = 0, Eo = 0, Io = 0, Po = 0, Qo = 0, Do = 0, Lo = 0, To = 0, Ro = 0, zo = 0, Fo = 0, qo = 0, No = 0, Ho = 0, bn = 0, fn = 0, yn = 0, vn = 0, wn = 0, xn = 0, kn = 0, Sn = x(0);
+              function It(a, s, u, l, A, d, h, b, f, w, M, P, R, H, Y, T, ee, ie, Ae, te, oe, pe, fe) {
+                var re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = x(0), nt = x(0), yt = 0, Et = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ii = 0, Ei = x(0), Qi = 0, Ri = 0, Gi = 0, la = 0, ca = 0, ua = 0, da = 0, Aa = 0, ma = 0, pa = 0, ya = 0, va = 0, wa = 0, Ar = 0, ao = 0, ro = 0, oo = 0, so = 0, no = 0, lo = 0, co = 0, uo = 0, Ao = 0, mo = 0, po = 0, ho = 0, _o = 0, go = 0, bo = 0, fo = 0, yo = 0, vo = 0, wo = 0, xo = 0, ko = 0, So = 0, Mo = 0, Co = x(0), Bo = 0, Io = 0, Eo = 0, Po = 0, Qo = 0, Do = 0, Lo = 0, To = 0, Ro = 0, zo = 0, Fo = 0, qo = 0, No = 0, Ho = 0, bn = 0, fn = 0, yn = 0, vn = 0, wn = 0, xn = 0, kn = 0, Sn = x(0);
                 Qe = _e - 1568 | 0, ye = Qe, _e = ye, ze = 1, Dt = i[s + 32 >> 2], ao = Dt + (u << 1) | 0, $t = N[ao >> 1] << ie, Qi = d ? 2 : 1, We = ye - ((D(Qi, (N[((i[s + 8 >> 2] << 1) + Dt | 0) - 2 >> 1] << ie) - $t | 0) << 2) + 15 & -16) | 0, Se = We, _e = Se, Qe = i[s + 8 >> 2], Ne = N[((Qe << 1) + Dt | 0) - 2 >> 1], Ut = Ne << ie << 2, Ri = !P & ((a | 0) != 0 & (d | 0) != 0) & (oe | 0) > 7, ya = Ri | !a, Ot = w ? 1 << ie : 1;
                 e: {
                   if (Ri) {
@@ -62120,11 +62120,11 @@ function Kg() {
                     e: {
                       t: {
                         if (la = fe + 1 | 0, yt = (fe << 1) + Dt | 0, a = N[yt >> 1] << ie, Qe = (N[(la << 1) + Dt >> 1] << ie) - a | 0, (Qe | 0) > 0) {
-                          wa = na(ee), Se = Y - wa | 0, i[ye + 1536 >> 2] = Se - 1, Ao = T - ((u | 0) == (fe | 0) ? 0 : wa) | 0, It = 0;
+                          wa = na(ee), Se = Y - wa | 0, i[ye + 1536 >> 2] = Se - 1, Ao = T - ((u | 0) == (fe | 0) ? 0 : wa) | 0, Et = 0;
                           i: {
-                            if ((Ae | 0) <= (fe | 0) || (T = Ae - fe | 0, T = i[(fe << 2) + f >> 2] + ((Ao | 0) / (((T | 0) < 3 ? T : 3) | 0) | 0) | 0, T = (T | 0) > (Se | 0) ? Se : T, It = 16383, (T | 0) > 16383))
+                            if ((Ae | 0) <= (fe | 0) || (T = Ae - fe | 0, T = i[(fe << 2) + f >> 2] + ((Ao | 0) / (((T | 0) < 3 ? T : 3) | 0) | 0) | 0, T = (T | 0) > (Se | 0) ? Se : T, Et = 16383, (T | 0) > 16383))
                               break i;
-                            It = (T | 0) > 0 ? T : 0;
+                            Et = (T | 0) > 0 ? T : 0;
                           }
                           T = a << 2, Jt = !ya | (((N[yt >> 1] << ie) - Qe | 0) < N[ao >> 1] << ie ? (fe | 0) != (Gi | 0) : 0) ? Jt : M ? fe : Jt || fe, a = d + T | 0, mo = (fe | 0) != (Gi | 0);
                           i: {
@@ -62132,7 +62132,7 @@ function Kg() {
                               break i;
                             bt(w + Ut | 0, ze + Ut | 0, Se);
                           }
-                          Ai = d ? a : 0, oe = A + T | 0, Ar = fe << 2, T = i[Ar + H >> 2], i[ye + 1528 >> 2] = T, Ne = i[s + 12 >> 2] > (fe | 0), et = Ne ? et : 0, fi = (fe | 0) == (co | 0), Ei = fi ? 0 : et, Ye = -1;
+                          Ai = d ? a : 0, oe = A + T | 0, Ar = fe << 2, T = i[Ar + H >> 2], i[ye + 1528 >> 2] = T, Ne = i[s + 12 >> 2] > (fe | 0), et = Ne ? et : 0, fi = (fe | 0) == (co | 0), Ii = fi ? 0 : et, Ye = -1;
                           i: {
                             if (!Jt) {
                               a = uo, Se = a;
@@ -62156,7 +62156,7 @@ function Kg() {
                             for (ze = (a | 0) < (Se | 0) ? T : a, a = 0, Se = 0; M = D(T, Qi), a = le[M + h | 0] | a, Se = le[(M + pe | 0) + h | 0] | Se, M = (T | 0) != (ze | 0), T = T + 1 | 0, !!M; )
                               ;
                           }
-                          if (et = Ri ? et : Ei, oe = Ne ? oe : We, w = Ne ? Ai : bn, !P)
+                          if (et = Ri ? et : Ii, oe = Ne ? oe : We, w = Ne ? Ai : bn, !P)
                             break t;
                           if (!((R | 0) != (fe | 0) | yn)) {
                             if (T = N[yt >> 1] << ie, ($t | 0) >= (T | 0))
@@ -62167,7 +62167,7 @@ function Kg() {
                           }
                           if ((R | 0) == (fe | 0))
                             break t;
-                          M = Ye << 2, ze = (Ye | 0) == -1, Ne = ze ? 0 : We + M | 0, T = It >>> 1 | 0;
+                          M = Ye << 2, ze = (Ye | 0) == -1, Ne = ze ? 0 : We + M | 0, T = Et >>> 1 | 0;
                           i: {
                             if ((fe | 0) == (co | 0)) {
                               Ye = 0, M = ze ? 0 : M + Ut | 0, oe = Xi(ye + 1504 | 0, oe, Qe, T, Ot, Ne, ie, 0, x(1), et, a);
@@ -62183,25 +62183,25 @@ function Kg() {
                       t: {
                         if (w) {
                           if (!(Ri ^ 1 | (R | 0) <= (fe | 0))) {
-                            for (rt = L[b + Ar >> 2], nt = L[(i[s + 8 >> 2] + fe << 2) + b >> 2], po = i[ee + 4 >> 2], ho = i[ee >> 2], se = Bi, re = i[se + 8 >> 2], T = i[se + 12 >> 2], M = re, _o = ye + 1496 | 0, re = _o, i[re >> 2] = M, i[re + 4 >> 2] = T, re = i[se + 4 >> 2], T = i[se >> 2], M = T, T = ye, i[T + 1488 >> 2] = M, i[T + 1492 >> 2] = re, Ei = i[ee + 24 >> 2], go = T + 1480 | 0, i[go >> 2] = i[Ci + 16 >> 2], bo = T + 1472 | 0, se = Ci, re = i[se + 8 >> 2], T = i[se + 12 >> 2], M = re, re = bo, i[re >> 2] = M, i[re + 4 >> 2] = T, re = i[se + 4 >> 2], T = i[se >> 2], M = T, T = ye, i[T + 1464 >> 2] = M, i[T + 1468 >> 2] = re, fo = T + 1408 | 0, ca = T + 1560 | 0, i[fo >> 2] = i[ca >> 2], yo = T + 1400 | 0, Ai = T + 1552 | 0, se = Ai, re = i[se >> 2], T = i[se + 4 >> 2], M = re, re = yo, i[re >> 2] = M, i[re + 4 >> 2] = T, ua = ye + 1544 | 0, se = ua, T = i[se >> 2], re = i[se + 4 >> 2], M = T, vo = ye + 1392 | 0, T = vo, i[T >> 2] = M, i[T + 4 >> 2] = re, da = ye + 1536 | 0, se = da, re = i[se >> 2], T = i[se + 4 >> 2], M = re, wo = ye + 1384 | 0, re = wo, i[re >> 2] = M, i[re + 4 >> 2] = T, Aa = ye + 1528 | 0, se = Aa, T = i[se >> 2], re = i[se + 4 >> 2], M = T, xo = ye + 1376 | 0, T = xo, i[T >> 2] = M, i[T + 4 >> 2] = re, ma = ye + 1520 | 0, se = ma, re = i[se >> 2], T = i[se + 4 >> 2], M = re, ko = ye + 1368 | 0, re = ko, i[re >> 2] = M, i[re + 4 >> 2] = T, pa = ye + 1512 | 0, se = pa, T = i[se >> 2], re = i[se + 4 >> 2], M = T, So = ye + 1360 | 0, T = So, i[T >> 2] = M, i[T + 4 >> 2] = re, se = ye, re = i[se + 1504 >> 2], T = i[se + 1508 >> 2], M = re, re = se, i[re + 1352 >> 2] = M, i[re + 1356 >> 2] = T, P = Qe << 2, M = bt(ro, oe, P), ze = bt(oo, w, P), i[Ai >> 2] = -1, T = 0, Mo = a | Se, a = 0, Ii = x((rt < nt ? rt : nt) / x(3)), Co = x(nt + Ii), Ii = x(rt + Ii), rt = x(0), Ye = (Ye | 0) == -1 ? 0 : (Ye << 2) + We | 0, a = fi ? a : (N[yt >> 1] << ie << 2) + ii | 0, wn = jr(re + 1504 | 0, oe, w, Qe, It, Ot, Ye, ie, a, et, Mo), nt = x(0); a = T << 2, nt = x(nt + x(L[M + a >> 2] * L[a + oe >> 2])), T = T + 1 | 0, (Qe | 0) != (T | 0); )
+                            for (rt = L[b + Ar >> 2], nt = L[(i[s + 8 >> 2] + fe << 2) + b >> 2], po = i[ee + 4 >> 2], ho = i[ee >> 2], se = Bi, re = i[se + 8 >> 2], T = i[se + 12 >> 2], M = re, _o = ye + 1496 | 0, re = _o, i[re >> 2] = M, i[re + 4 >> 2] = T, re = i[se + 4 >> 2], T = i[se >> 2], M = T, T = ye, i[T + 1488 >> 2] = M, i[T + 1492 >> 2] = re, Ii = i[ee + 24 >> 2], go = T + 1480 | 0, i[go >> 2] = i[Ci + 16 >> 2], bo = T + 1472 | 0, se = Ci, re = i[se + 8 >> 2], T = i[se + 12 >> 2], M = re, re = bo, i[re >> 2] = M, i[re + 4 >> 2] = T, re = i[se + 4 >> 2], T = i[se >> 2], M = T, T = ye, i[T + 1464 >> 2] = M, i[T + 1468 >> 2] = re, fo = T + 1408 | 0, ca = T + 1560 | 0, i[fo >> 2] = i[ca >> 2], yo = T + 1400 | 0, Ai = T + 1552 | 0, se = Ai, re = i[se >> 2], T = i[se + 4 >> 2], M = re, re = yo, i[re >> 2] = M, i[re + 4 >> 2] = T, ua = ye + 1544 | 0, se = ua, T = i[se >> 2], re = i[se + 4 >> 2], M = T, vo = ye + 1392 | 0, T = vo, i[T >> 2] = M, i[T + 4 >> 2] = re, da = ye + 1536 | 0, se = da, re = i[se >> 2], T = i[se + 4 >> 2], M = re, wo = ye + 1384 | 0, re = wo, i[re >> 2] = M, i[re + 4 >> 2] = T, Aa = ye + 1528 | 0, se = Aa, T = i[se >> 2], re = i[se + 4 >> 2], M = T, xo = ye + 1376 | 0, T = xo, i[T >> 2] = M, i[T + 4 >> 2] = re, ma = ye + 1520 | 0, se = ma, re = i[se >> 2], T = i[se + 4 >> 2], M = re, ko = ye + 1368 | 0, re = ko, i[re >> 2] = M, i[re + 4 >> 2] = T, pa = ye + 1512 | 0, se = pa, T = i[se >> 2], re = i[se + 4 >> 2], M = T, So = ye + 1360 | 0, T = So, i[T >> 2] = M, i[T + 4 >> 2] = re, se = ye, re = i[se + 1504 >> 2], T = i[se + 1508 >> 2], M = re, re = se, i[re + 1352 >> 2] = M, i[re + 1356 >> 2] = T, P = Qe << 2, M = bt(ro, oe, P), ze = bt(oo, w, P), i[Ai >> 2] = -1, T = 0, Mo = a | Se, a = 0, Ei = x((rt < nt ? rt : nt) / x(3)), Co = x(nt + Ei), Ei = x(rt + Ei), rt = x(0), Ye = (Ye | 0) == -1 ? 0 : (Ye << 2) + We | 0, a = fi ? a : (N[yt >> 1] << ie << 2) + ii | 0, wn = jr(re + 1504 | 0, oe, w, Qe, Et, Ot, Ye, ie, a, et, Mo), nt = x(0); a = T << 2, nt = x(nt + x(L[M + a >> 2] * L[a + oe >> 2])), T = T + 1 | 0, (Qe | 0) != (T | 0); )
                               ;
                             for (T = 0; a = T << 2, rt = x(rt + x(L[ze + a >> 2] * L[a + w >> 2])), T = T + 1 | 0, (Qe | 0) != (T | 0); )
                               ;
-                            for (se = ee, T = i[se + 40 >> 2], re = i[se + 44 >> 2], a = T, Bo = ye + 1456 | 0, T = Bo, i[T >> 2] = a, i[T + 4 >> 2] = re, T = i[se + 36 >> 2], re = i[se + 32 >> 2], a = re, Eo = ye + 1448 | 0, re = Eo, i[re >> 2] = a, i[re + 4 >> 2] = T, re = i[se + 28 >> 2], T = i[se + 24 >> 2], a = T, Io = ye + 1440 | 0, T = Io, i[T >> 2] = a, i[T + 4 >> 2] = re, T = i[se + 20 >> 2], re = i[se + 16 >> 2], a = re, Po = ye + 1432 | 0, re = Po, i[re >> 2] = a, i[re + 4 >> 2] = T, se = Bi, T = i[se >> 2], re = i[se + 4 >> 2], a = T, Qo = ye + 1424 | 0, T = Qo, i[T >> 2] = a, i[T + 4 >> 2] = re, se = ee, re = i[se >> 2], Se = re, T = i[se + 4 >> 2], a = T, se = pa, T = i[se >> 2], re = i[se + 4 >> 2], se = T, Do = ye + 1296 | 0, T = Do, i[T >> 2] = se, i[T + 4 >> 2] = re, se = ma, re = i[se >> 2], T = i[se + 4 >> 2], se = re, Lo = ye + 1304 | 0, re = Lo, i[re >> 2] = se, i[re + 4 >> 2] = T, se = Aa, T = i[se >> 2], re = i[se + 4 >> 2], se = T, To = ye + 1312 | 0, T = To, i[T >> 2] = se, i[T + 4 >> 2] = re, se = da, re = i[se >> 2], T = i[se + 4 >> 2], se = re, Ro = ye + 1320 | 0, re = Ro, i[re >> 2] = se, i[re + 4 >> 2] = T, se = ua, T = i[se >> 2], re = i[se + 4 >> 2], se = T, zo = ye + 1328 | 0, T = zo, i[T >> 2] = se, i[T + 4 >> 2] = re, se = Ai, re = i[se >> 2], T = i[se + 4 >> 2], se = re, Fo = ye + 1336 | 0, re = Fo, i[re >> 2] = se, i[re + 4 >> 2] = T, qo = ye + 1344 | 0, i[qo >> 2] = i[ca >> 2], re = ye, i[re + 1416 >> 2] = Se, T = a, i[re + 1420 >> 2] = T, se = re, T = i[re + 1504 >> 2], re = i[re + 1508 >> 2], a = T, T = se, i[T + 1288 >> 2] = a, i[T + 1292 >> 2] = re, xn = bt(so, oe, P), kn = bt(no, w, P), fi || bt(va, (N[yt >> 1] << ie << 2) + ii | 0, P), No = Ei + ho | 0, Ho = po - Ei | 0, Ne = bt(ye, No, Ho), i[ee + 4 >> 2] = po, i[ee >> 2] = ho, se = _o, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Bi, i[re + 8 >> 2] = a, i[re + 12 >> 2] = T, se = Ne, T = i[se + 1488 >> 2], re = i[se + 1492 >> 2], a = T, T = Bi, i[T >> 2] = a, i[T + 4 >> 2] = re, i[ee + 24 >> 2] = Ei, i[Ci + 16 >> 2] = i[go >> 2], se = bo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Ci, i[re + 8 >> 2] = a, i[re + 12 >> 2] = T, se = Ne, T = i[se + 1464 >> 2], re = i[se + 1468 >> 2], a = T, T = Ci, i[T >> 2] = a, i[T + 4 >> 2] = re, se = So, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = pa, i[re >> 2] = a, i[re + 4 >> 2] = T, se = ko, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = ma, i[T >> 2] = a, i[T + 4 >> 2] = re, se = xo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Aa, i[re >> 2] = a, i[re + 4 >> 2] = T, se = wo, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = da, i[T >> 2] = a, i[T + 4 >> 2] = re, se = vo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = ua, i[re >> 2] = a, i[re + 4 >> 2] = T, se = yo, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = Ai, i[T >> 2] = a, i[T + 4 >> 2] = re, i[ca >> 2] = i[fo >> 2], se = Ne, re = i[se + 1352 >> 2], T = i[se + 1356 >> 2], a = re, re = se, i[re + 1504 >> 2] = a, i[re + 1508 >> 2] = T, Se = bt(oe, M, P), w = bt(w, ze, P), mo || (T = i[s + 32 >> 2], oe = N[T + (Gi << 1) >> 1], a = oe - N[(u << 1) + T >> 1] << ie, T = N[(lo << 1) + T >> 1] - oe << ie, bt((a << 2) + We | 0, ((a << 1) - T << 2) + We | 0, T - a << 2)), i[Ne + 1552 >> 2] = 1, T = 0, a = 0, nt = x(Ii * nt), rt = x(Co * rt), Sn = x(nt + rt), rt = x(0), a = fi ? a : (N[yt >> 1] << ie << 2) + ii | 0, oe = jr(Ne + 1504 | 0, Se, w, Qe, It, Ot, Ye, ie, a, et, Mo), nt = x(0); a = T << 2, nt = x(nt + x(L[M + a >> 2] * L[a + Se >> 2])), T = T + 1 | 0, (Qe | 0) != (T | 0); )
+                            for (se = ee, T = i[se + 40 >> 2], re = i[se + 44 >> 2], a = T, Bo = ye + 1456 | 0, T = Bo, i[T >> 2] = a, i[T + 4 >> 2] = re, T = i[se + 36 >> 2], re = i[se + 32 >> 2], a = re, Io = ye + 1448 | 0, re = Io, i[re >> 2] = a, i[re + 4 >> 2] = T, re = i[se + 28 >> 2], T = i[se + 24 >> 2], a = T, Eo = ye + 1440 | 0, T = Eo, i[T >> 2] = a, i[T + 4 >> 2] = re, T = i[se + 20 >> 2], re = i[se + 16 >> 2], a = re, Po = ye + 1432 | 0, re = Po, i[re >> 2] = a, i[re + 4 >> 2] = T, se = Bi, T = i[se >> 2], re = i[se + 4 >> 2], a = T, Qo = ye + 1424 | 0, T = Qo, i[T >> 2] = a, i[T + 4 >> 2] = re, se = ee, re = i[se >> 2], Se = re, T = i[se + 4 >> 2], a = T, se = pa, T = i[se >> 2], re = i[se + 4 >> 2], se = T, Do = ye + 1296 | 0, T = Do, i[T >> 2] = se, i[T + 4 >> 2] = re, se = ma, re = i[se >> 2], T = i[se + 4 >> 2], se = re, Lo = ye + 1304 | 0, re = Lo, i[re >> 2] = se, i[re + 4 >> 2] = T, se = Aa, T = i[se >> 2], re = i[se + 4 >> 2], se = T, To = ye + 1312 | 0, T = To, i[T >> 2] = se, i[T + 4 >> 2] = re, se = da, re = i[se >> 2], T = i[se + 4 >> 2], se = re, Ro = ye + 1320 | 0, re = Ro, i[re >> 2] = se, i[re + 4 >> 2] = T, se = ua, T = i[se >> 2], re = i[se + 4 >> 2], se = T, zo = ye + 1328 | 0, T = zo, i[T >> 2] = se, i[T + 4 >> 2] = re, se = Ai, re = i[se >> 2], T = i[se + 4 >> 2], se = re, Fo = ye + 1336 | 0, re = Fo, i[re >> 2] = se, i[re + 4 >> 2] = T, qo = ye + 1344 | 0, i[qo >> 2] = i[ca >> 2], re = ye, i[re + 1416 >> 2] = Se, T = a, i[re + 1420 >> 2] = T, se = re, T = i[re + 1504 >> 2], re = i[re + 1508 >> 2], a = T, T = se, i[T + 1288 >> 2] = a, i[T + 1292 >> 2] = re, xn = bt(so, oe, P), kn = bt(no, w, P), fi || bt(va, (N[yt >> 1] << ie << 2) + ii | 0, P), No = Ii + ho | 0, Ho = po - Ii | 0, Ne = bt(ye, No, Ho), i[ee + 4 >> 2] = po, i[ee >> 2] = ho, se = _o, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Bi, i[re + 8 >> 2] = a, i[re + 12 >> 2] = T, se = Ne, T = i[se + 1488 >> 2], re = i[se + 1492 >> 2], a = T, T = Bi, i[T >> 2] = a, i[T + 4 >> 2] = re, i[ee + 24 >> 2] = Ii, i[Ci + 16 >> 2] = i[go >> 2], se = bo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Ci, i[re + 8 >> 2] = a, i[re + 12 >> 2] = T, se = Ne, T = i[se + 1464 >> 2], re = i[se + 1468 >> 2], a = T, T = Ci, i[T >> 2] = a, i[T + 4 >> 2] = re, se = So, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = pa, i[re >> 2] = a, i[re + 4 >> 2] = T, se = ko, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = ma, i[T >> 2] = a, i[T + 4 >> 2] = re, se = xo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Aa, i[re >> 2] = a, i[re + 4 >> 2] = T, se = wo, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = da, i[T >> 2] = a, i[T + 4 >> 2] = re, se = vo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = ua, i[re >> 2] = a, i[re + 4 >> 2] = T, se = yo, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = Ai, i[T >> 2] = a, i[T + 4 >> 2] = re, i[ca >> 2] = i[fo >> 2], se = Ne, re = i[se + 1352 >> 2], T = i[se + 1356 >> 2], a = re, re = se, i[re + 1504 >> 2] = a, i[re + 1508 >> 2] = T, Se = bt(oe, M, P), w = bt(w, ze, P), mo || (T = i[s + 32 >> 2], oe = N[T + (Gi << 1) >> 1], a = oe - N[(u << 1) + T >> 1] << ie, T = N[(lo << 1) + T >> 1] - oe << ie, bt((a << 2) + We | 0, ((a << 1) - T << 2) + We | 0, T - a << 2)), i[Ne + 1552 >> 2] = 1, T = 0, a = 0, nt = x(Ei * nt), rt = x(Co * rt), Sn = x(nt + rt), rt = x(0), a = fi ? a : (N[yt >> 1] << ie << 2) + ii | 0, oe = jr(Ne + 1504 | 0, Se, w, Qe, Et, Ot, Ye, ie, a, et, Mo), nt = x(0); a = T << 2, nt = x(nt + x(L[M + a >> 2] * L[a + Se >> 2])), T = T + 1 | 0, (Qe | 0) != (T | 0); )
                               ;
                             for (T = 0; a = T << 2, rt = x(rt + x(L[ze + a >> 2] * L[a + w >> 2])), T = T + 1 | 0, (Qe | 0) != (T | 0); )
                               ;
-                            x(x(Ii * nt) + x(Co * rt)) <= Sn ^ 1 || (T = i[Ne + 1416 >> 2], re = i[se + 1420 >> 2], a = T, T = ee, i[T >> 2] = a, i[T + 4 >> 2] = re, se = Bo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = ee, i[re + 40 >> 2] = a, i[re + 44 >> 2] = T, se = Eo, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = ee, i[T + 32 >> 2] = a, i[T + 36 >> 2] = re, se = Io, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = ee, i[re + 24 >> 2] = a, i[re + 28 >> 2] = T, se = Po, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = ee, i[T + 16 >> 2] = a, i[T + 20 >> 2] = re, se = Qo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Bi, i[re >> 2] = a, i[re + 4 >> 2] = T, se = Do, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = pa, i[T >> 2] = a, i[T + 4 >> 2] = re, se = Lo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = ma, i[re >> 2] = a, i[re + 4 >> 2] = T, se = To, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = Aa, i[T >> 2] = a, i[T + 4 >> 2] = re, se = Ro, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = da, i[re >> 2] = a, i[re + 4 >> 2] = T, se = zo, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = ua, i[T >> 2] = a, i[T + 4 >> 2] = re, se = Fo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Ai, i[re >> 2] = a, i[re + 4 >> 2] = T, i[ca >> 2] = i[qo >> 2], se = Ne, T = i[se + 1288 >> 2], re = i[se + 1292 >> 2], a = T, T = se, i[T + 1504 >> 2] = a, i[T + 1508 >> 2] = re, bt(Se, xn, P), bt(w, kn, P), fi || bt((N[yt >> 1] << ie << 2) + ii | 0, va, P), bt(No, Ne, Ho), oe = wn), P = 0;
+                            x(x(Ei * nt) + x(Co * rt)) <= Sn ^ 1 || (T = i[Ne + 1416 >> 2], re = i[se + 1420 >> 2], a = T, T = ee, i[T >> 2] = a, i[T + 4 >> 2] = re, se = Bo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = ee, i[re + 40 >> 2] = a, i[re + 44 >> 2] = T, se = Io, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = ee, i[T + 32 >> 2] = a, i[T + 36 >> 2] = re, se = Eo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = ee, i[re + 24 >> 2] = a, i[re + 28 >> 2] = T, se = Po, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = ee, i[T + 16 >> 2] = a, i[T + 20 >> 2] = re, se = Qo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Bi, i[re >> 2] = a, i[re + 4 >> 2] = T, se = Do, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = pa, i[T >> 2] = a, i[T + 4 >> 2] = re, se = Lo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = ma, i[re >> 2] = a, i[re + 4 >> 2] = T, se = To, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = Aa, i[T >> 2] = a, i[T + 4 >> 2] = re, se = Ro, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = da, i[re >> 2] = a, i[re + 4 >> 2] = T, se = zo, T = i[se >> 2], re = i[se + 4 >> 2], a = T, T = ua, i[T >> 2] = a, i[T + 4 >> 2] = re, se = Fo, re = i[se >> 2], T = i[se + 4 >> 2], a = re, re = Ai, i[re >> 2] = a, i[re + 4 >> 2] = T, i[ca >> 2] = i[qo >> 2], se = Ne, T = i[se + 1288 >> 2], re = i[se + 1292 >> 2], a = T, T = se, i[T + 1504 >> 2] = a, i[T + 1508 >> 2] = re, bt(Se, xn, P), bt(w, kn, P), fi || bt((N[yt >> 1] << ie << 2) + ii | 0, va, P), bt(No, Ne, Ho), oe = wn), P = 0;
                             break t;
                           }
-                          P = 0, i[ye + 1552 >> 2] = 0, T = 0, M = (Ye | 0) == -1 ? 0 : (Ye << 2) + We | 0, T = fi ? T : (N[yt >> 1] << ie << 2) + ii | 0, oe = jr(ye + 1504 | 0, oe, w, Qe, It, Ot, M, ie, T, et, a | Se);
+                          P = 0, i[ye + 1552 >> 2] = 0, T = 0, M = (Ye | 0) == -1 ? 0 : (Ye << 2) + We | 0, T = fi ? T : (N[yt >> 1] << ie << 2) + ii | 0, oe = jr(ye + 1504 | 0, oe, w, Qe, Et, Ot, M, ie, T, et, a | Se);
                           break t;
                         }
-                        P = 0, T = 0, M = (Ye | 0) == -1 ? 0 : (Ye << 2) + We | 0, T = fi ? T : (N[yt >> 1] << ie << 2) + ii | 0, oe = Xi(ye + 1504 | 0, oe, Qe, It, Ot, M, ie, T, x(1), et, a | Se);
+                        P = 0, T = 0, M = (Ye | 0) == -1 ? 0 : (Ye << 2) + We | 0, T = fi ? T : (N[yt >> 1] << ie << 2) + ii | 0, oe = Xi(ye + 1504 | 0, oe, Qe, Et, Ot, M, ie, T, x(1), et, a | Se);
                       }
                       T = oe;
                     }
-                    if (a = D(fe, Qi), W[h + a | 0] = oe, W[(a + pe | 0) + h | 0] = T, T = i[f + Ar >> 2], i[ye + 1560 >> 2] = 0, T = (wa + Ao | 0) + T | 0, M = Qe << 3 < (It | 0), (l | 0) == (la | 0))
+                    if (a = D(fe, Qi), W[h + a | 0] = oe, W[(a + pe | 0) + h | 0] = T, T = i[f + Ar >> 2], i[ye + 1560 >> 2] = 0, T = (wa + Ao | 0) + T | 0, M = Qe << 3 < (Et | 0), (l | 0) == (la | 0))
                       break;
                   }
                   Qe = i[ye + 1544 >> 2];
@@ -62896,7 +62896,7 @@ function Kg() {
                       w = i[M >> 2], xu(a + 8528 | 0, w, R, M + 640 | 0, i[a + 2316 >> 2], i[M + 648 >> 2]), P = i[M + 648 >> 2];
                       break t;
                     }
-                    l = i[a + 8532 >> 2], N[w >> 1] = l, N[w + 2 >> 1] = l >>> 16, P = i[M + 648 >> 2], l = (P << 1) + w | 0, i[a + 8532 >> 2] = Ie[l >> 1] | Ie[l + 2 >> 1] << 16;
+                    l = i[a + 8532 >> 2], N[w >> 1] = l, N[w + 2 >> 1] = l >>> 16, P = i[M + 648 >> 2], l = (P << 1) + w | 0, i[a + 8532 >> 2] = Ee[l >> 1] | Ee[l + 2 >> 1] << 16;
                   }
                   f = (D(i[s + 8 >> 2], P) | 0) / (D(N[a + 2316 >> 1], 1e3) | 0) | 0, i[h >> 2] = f, R = i[s >> 2], l = (R | 0) == 2, A = Y - (((l ? f : 1) << 1) + 15 & -16) | 0, b = A, _e = A, f = i[s + 4 >> 2], H || (H = i[a + 2328 >> 2], Y = D(H + 2 | 0, f) << 1, w = b - (Y + 15 & -16) | 0, _e = w, b = bt(w, d, Y), i[M + 4 >> 2] = (b + (H << 1) | 0) + 4, i[M >> 2] = b), A = l ? A : d;
                   t: {
@@ -62907,7 +62907,7 @@ function Kg() {
                       i: {
                         if ((R | 0) != 2 || (f = 0, P = i[h >> 2], (P | 0) < 1))
                           break i;
-                        for (; w = f << 1, N[(w + l << 1) + d >> 1] = Ie[A + w >> 1], f = f + 1 | 0, (P | 0) != (f | 0); )
+                        for (; w = f << 1, N[(w + l << 1) + d >> 1] = Ee[A + w >> 1], f = f + 1 | 0, (P | 0) != (f | 0); )
                           ;
                       }
                       if (T = T + H | 0, l = l + 1 | 0, f = i[s + 4 >> 2], (l | 0) >= (((f | 0) > (R | 0) ? R : f) | 0))
@@ -62924,7 +62924,7 @@ function Kg() {
                           break i;
                         if (f = 0, l = i[h >> 2], (l | 0) <= 0)
                           break a;
-                        for (; w = f << 2, N[(w | 2) + d >> 1] = Ie[d + w >> 1], f = f + 1 | 0, (f | 0) != (l | 0); )
+                        for (; w = f << 2, N[(w | 2) + d >> 1] = Ee[d + w >> 1], f = f + 1 | 0, (f | 0) != (l | 0); )
                           ;
                       }
                       l = T;
@@ -62932,7 +62932,7 @@ function Kg() {
                     }
                     if (l = $s(a + 6696 | 0, A, i[M >> 2] + 2 | 0, i[M + 648 >> 2]) + T | 0, w = i[h >> 2], (w | 0) < 1)
                       break t;
-                    for (f = 0; N[(f << 2 | 2) + d >> 1] = Ie[(f << 1) + A >> 1], f = f + 1 | 0, (w | 0) != (f | 0); )
+                    for (f = 0; N[(f << 2 | 2) + d >> 1] = Ee[(f << 1) + A >> 1], f = f + 1 | 0, (w | 0) != (f | 0); )
                       ;
                   }
                   f = 0, f = i[a + 4164 >> 2] == 2 ? D(i[(i[a + 2316 >> 2] - 8 & -4) + 9412 >> 2], i[a + 2308 >> 2]) : f, i[s + 20 >> 2] = f;
@@ -62950,8 +62950,8 @@ function Kg() {
                 return _e = M + 656 | 0, l;
               }
               function Qs(a, s) {
-                var u = 0, l = x(0), A = 0, d = x(0), h = x(0), b = 0, f = x(0), w = 0, M = 0, P = x(0), R = 0, H = x(0), Y = 0, T = x(0), ee = x(0), ie = x(0), Ae = 0, te = x(0), oe = x(0), pe = 0, fe = x(0), re = x(0), se = x(0), ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = x(0), et = x(0), rt = x(0), nt = 0, yt = 0, It = 0, Dt = x(0), Ut = 0, Ot = 0, Jt = x(0), $t = x(0), ii = x(0), Ai = x(0), fi = x(0), Ci = x(0), Bi = x(0), Ei = x(0), Ii = x(0), Qi = x(0), Ri = 0;
-                for (Ne = _e - 32 | 0, _e = Ne, Y = i[a + 8 >> 2], i[Ne >> 2] = 1, b = a + 12 | 0, w = 1; u = A, M = u << 2, Ae = Ie[(M | 2) + b >> 1], A = u + 1 | 0, w = D(N[b + M >> 1], w), i[(A << 2) + Ne >> 2] = w, (Ae | 0) != 1; )
+                var u = 0, l = x(0), A = 0, d = x(0), h = x(0), b = 0, f = x(0), w = 0, M = 0, P = x(0), R = 0, H = x(0), Y = 0, T = x(0), ee = x(0), ie = x(0), Ae = 0, te = x(0), oe = x(0), pe = 0, fe = x(0), re = x(0), se = x(0), ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = x(0), et = x(0), rt = x(0), nt = 0, yt = 0, Et = 0, Dt = x(0), Ut = 0, Ot = 0, Jt = x(0), $t = x(0), ii = x(0), Ai = x(0), fi = x(0), Ci = x(0), Bi = x(0), Ii = x(0), Ei = x(0), Qi = x(0), Ri = 0;
+                for (Ne = _e - 32 | 0, _e = Ne, Y = i[a + 8 >> 2], i[Ne >> 2] = 1, b = a + 12 | 0, w = 1; u = A, M = u << 2, Ae = Ee[(M | 2) + b >> 1], A = u + 1 | 0, w = D(N[b + M >> 1], w), i[(A << 2) + Ne >> 2] = w, (Ae | 0) != 1; )
                   ;
                 Ut = (Y | 0) > 0 ? Y : 0, yt = N[((A << 2) + a | 0) + 10 >> 1];
                 e: {
@@ -62978,11 +62978,11 @@ function Kg() {
                             }
                             if ((nt | 0) < 1)
                               break t;
-                            for (Se = D(R, 3), Qe = R << 1, pe = nt << Ut, ze = D(pe, 3), Ot = pe << 1, Ri = i[a + 48 >> 2], It = 0; ; ) {
+                            for (Se = D(R, 3), Qe = R << 1, pe = nt << Ut, ze = D(pe, 3), Ot = pe << 1, Ri = i[a + 48 >> 2], Et = 0; ; ) {
                               if ((R | 0) >= 1)
-                                for (u = (D(yt, It) << 3) + s | 0, ye = 0, A = Ri, b = A, w = A; M = (R << 3) + u | 0, h = L[M + 4 >> 2], l = L[M >> 2], Ae = (Se << 3) + u | 0, d = L[Ae + 4 >> 2], f = L[Ae >> 2], P = L[w >> 2], T = L[w + 4 >> 2], oe = L[A >> 2], fe = L[A + 4 >> 2], ee = L[b >> 2], Y = (Qe << 3) + u | 0, ie = L[Y + 4 >> 2], H = L[Y >> 2], te = L[b + 4 >> 2], We = x(x(ee * ie) + x(H * te)), re = L[u + 4 >> 2], se = x(We + re), L[u + 4 >> 2] = se, ee = x(x(H * ee) - x(ie * te)), ie = L[u >> 2], H = x(ee + ie), L[u >> 2] = H, te = x(x(P * h) + x(l * T)), et = x(x(oe * d) + x(f * fe)), rt = x(te + et), L[Y + 4 >> 2] = se - rt, h = x(x(l * P) - x(h * T)), l = x(x(f * oe) - x(d * fe)), d = x(h + l), L[Y >> 2] = H - d, L[u >> 2] = d + L[u >> 2], L[u + 4 >> 2] = rt + L[u + 4 >> 2], d = x(re - We), h = x(h - l), L[M + 4 >> 2] = d - h, l = x(ie - ee), f = x(te - et), L[M >> 2] = l + f, L[Ae + 4 >> 2] = d + h, L[Ae >> 2] = l - f, u = u + 8 | 0, A = (ze << 3) + A | 0, b = (Ot << 3) + b | 0, w = (pe << 3) + w | 0, ye = ye + 1 | 0, (ye | 0) != (R | 0); )
+                                for (u = (D(yt, Et) << 3) + s | 0, ye = 0, A = Ri, b = A, w = A; M = (R << 3) + u | 0, h = L[M + 4 >> 2], l = L[M >> 2], Ae = (Se << 3) + u | 0, d = L[Ae + 4 >> 2], f = L[Ae >> 2], P = L[w >> 2], T = L[w + 4 >> 2], oe = L[A >> 2], fe = L[A + 4 >> 2], ee = L[b >> 2], Y = (Qe << 3) + u | 0, ie = L[Y + 4 >> 2], H = L[Y >> 2], te = L[b + 4 >> 2], We = x(x(ee * ie) + x(H * te)), re = L[u + 4 >> 2], se = x(We + re), L[u + 4 >> 2] = se, ee = x(x(H * ee) - x(ie * te)), ie = L[u >> 2], H = x(ee + ie), L[u >> 2] = H, te = x(x(P * h) + x(l * T)), et = x(x(oe * d) + x(f * fe)), rt = x(te + et), L[Y + 4 >> 2] = se - rt, h = x(x(l * P) - x(h * T)), l = x(x(f * oe) - x(d * fe)), d = x(h + l), L[Y >> 2] = H - d, L[u >> 2] = d + L[u >> 2], L[u + 4 >> 2] = rt + L[u + 4 >> 2], d = x(re - We), h = x(h - l), L[M + 4 >> 2] = d - h, l = x(ie - ee), f = x(te - et), L[M >> 2] = l + f, L[Ae + 4 >> 2] = d + h, L[Ae >> 2] = l - f, u = u + 8 | 0, A = (ze << 3) + A | 0, b = (Ot << 3) + b | 0, w = (pe << 3) + w | 0, ye = ye + 1 | 0, (ye | 0) != (R | 0); )
                                   ;
-                              if (It = It + 1 | 0, (It | 0) == (nt | 0))
+                              if (Et = Et + 1 | 0, (Et | 0) == (nt | 0))
                                 break;
                             }
                             break t;
@@ -63003,9 +63003,9 @@ function Kg() {
                         }
                       if (ze = i[(Ye << 2) + Ne >> 2], (ze | 0) < 1)
                         break t;
-                      for (Ae = i[a + 48 >> 2], Se = ze << Ut, u = D(Se, R), A = Ae + (u << 4) | 0, h = L[A + 4 >> 2], l = L[A >> 2], u = (u << 3) + Ae | 0, d = L[u + 4 >> 2], f = L[u >> 2], Ot = R << 2, It = D(R, 3), nt = R << 1, Qe = 0; ; ) {
+                      for (Ae = i[a + 48 >> 2], Se = ze << Ut, u = D(Se, R), A = Ae + (u << 4) | 0, h = L[A + 4 >> 2], l = L[A >> 2], u = (u << 3) + Ae | 0, d = L[u + 4 >> 2], f = L[u >> 2], Ot = R << 2, Et = D(R, 3), nt = R << 1, Qe = 0; ; ) {
                         if ((R | 0) >= 1)
-                          for (u = (D(Qe, yt) << 3) + s | 0, A = u + (R << 3) | 0, b = (nt << 3) + u | 0, w = (It << 3) + u | 0, M = (Ot << 3) + u | 0, ye = 0; P = L[u >> 2], T = L[u + 4 >> 2], Y = D(ye, Se), pe = (Y << 4) + Ae | 0, ee = L[pe >> 2], ie = L[b + 4 >> 2], H = L[b >> 2], te = L[pe + 4 >> 2], We = x(x(ee * ie) + x(H * te)), pe = D(Y, 24) + Ae | 0, re = L[pe >> 2], se = L[w + 4 >> 2], et = L[w >> 2], rt = L[pe + 4 >> 2], Dt = x(x(re * se) + x(et * rt)), oe = x(We + Dt), pe = (Y << 3) + Ae | 0, Jt = L[pe >> 2], $t = L[A + 4 >> 2], ii = L[A >> 2], Ai = L[pe + 4 >> 2], fi = x(x(Jt * $t) + x(ii * Ai)), Y = (Y << 5) + Ae | 0, Ci = L[Y >> 2], Bi = L[M + 4 >> 2], Ei = L[M >> 2], Ii = L[Y + 4 >> 2], Qi = x(x(Ci * Bi) + x(Ei * Ii)), fe = x(fi + Qi), L[u + 4 >> 2] = T + x(oe + fe), H = x(x(H * ee) - x(ie * te)), te = x(x(et * re) - x(se * rt)), ee = x(H + te), re = x(x(ii * Jt) - x($t * Ai)), se = x(x(Ei * Ci) - x(Bi * Ii)), ie = x(re + se), L[u >> 2] = P + x(ee + ie), H = x(H - te), te = x(re - se), re = x(x(h * H) + x(d * te)), se = x(T + x(x(l * oe) + x(f * fe))), L[A + 4 >> 2] = re + se, et = x(P + x(x(l * ee) + x(f * ie))), We = x(We - Dt), rt = x(fi - Qi), Dt = x(x(h * We) + x(d * rt)), L[A >> 2] = et - Dt, L[M + 4 >> 2] = se - re, L[M >> 2] = Dt + et, H = x(x(h * te) - x(d * H)), T = x(T + x(x(f * oe) + x(l * fe))), L[b + 4 >> 2] = H + T, oe = x(x(d * We) - x(h * rt)), P = x(P + x(x(f * ee) + x(l * ie))), L[b >> 2] = oe + P, L[w + 4 >> 2] = T - H, L[w >> 2] = P - oe, M = M + 8 | 0, w = w + 8 | 0, b = b + 8 | 0, A = A + 8 | 0, u = u + 8 | 0, ye = ye + 1 | 0, (ye | 0) != (R | 0); )
+                          for (u = (D(Qe, yt) << 3) + s | 0, A = u + (R << 3) | 0, b = (nt << 3) + u | 0, w = (Et << 3) + u | 0, M = (Ot << 3) + u | 0, ye = 0; P = L[u >> 2], T = L[u + 4 >> 2], Y = D(ye, Se), pe = (Y << 4) + Ae | 0, ee = L[pe >> 2], ie = L[b + 4 >> 2], H = L[b >> 2], te = L[pe + 4 >> 2], We = x(x(ee * ie) + x(H * te)), pe = D(Y, 24) + Ae | 0, re = L[pe >> 2], se = L[w + 4 >> 2], et = L[w >> 2], rt = L[pe + 4 >> 2], Dt = x(x(re * se) + x(et * rt)), oe = x(We + Dt), pe = (Y << 3) + Ae | 0, Jt = L[pe >> 2], $t = L[A + 4 >> 2], ii = L[A >> 2], Ai = L[pe + 4 >> 2], fi = x(x(Jt * $t) + x(ii * Ai)), Y = (Y << 5) + Ae | 0, Ci = L[Y >> 2], Bi = L[M + 4 >> 2], Ii = L[M >> 2], Ei = L[Y + 4 >> 2], Qi = x(x(Ci * Bi) + x(Ii * Ei)), fe = x(fi + Qi), L[u + 4 >> 2] = T + x(oe + fe), H = x(x(H * ee) - x(ie * te)), te = x(x(et * re) - x(se * rt)), ee = x(H + te), re = x(x(ii * Jt) - x($t * Ai)), se = x(x(Ii * Ci) - x(Bi * Ei)), ie = x(re + se), L[u >> 2] = P + x(ee + ie), H = x(H - te), te = x(re - se), re = x(x(h * H) + x(d * te)), se = x(T + x(x(l * oe) + x(f * fe))), L[A + 4 >> 2] = re + se, et = x(P + x(x(l * ee) + x(f * ie))), We = x(We - Dt), rt = x(fi - Qi), Dt = x(x(h * We) + x(d * rt)), L[A >> 2] = et - Dt, L[M + 4 >> 2] = se - re, L[M >> 2] = Dt + et, H = x(x(h * te) - x(d * H)), T = x(T + x(x(f * oe) + x(l * fe))), L[b + 4 >> 2] = H + T, oe = x(x(d * We) - x(h * rt)), P = x(P + x(x(f * ee) + x(l * ie))), L[b >> 2] = oe + P, L[w + 4 >> 2] = T - H, L[w >> 2] = P - oe, M = M + 8 | 0, w = w + 8 | 0, b = b + 8 | 0, A = A + 8 | 0, u = u + 8 | 0, ye = ye + 1 | 0, (ye | 0) != (R | 0); )
                             ;
                         if (Qe = Qe + 1 | 0, (ze | 0) == (Qe | 0))
                           break;
@@ -63020,7 +63020,7 @@ function Kg() {
                 Re(34088, 34072, 76), Le();
               }
               function rr(a, s, u, l, A, d, h) {
-                var b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = x(0), pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = x(0), ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0, yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ei = 0, Ii = 0, Qi = 0, Ri = 0, Gi = x(0);
+                var b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = x(0), pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = x(0), ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0, yt = 0, Et = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ii = 0, Ei = 0, Qi = 0, Ri = 0, Gi = x(0);
                 te = _e - 80 | 0, _e = te, Ne = i[a + 8 >> 2], ie = te, i[ie + 12 >> 2] = 0, i[ie + 8 >> 2] = 0, pe = i[a + 12 >> 2], du(a), M = -1, R = i[a >> 2], fe = i[R + 36 >> 2];
                 e: {
                   if ((fe | 0) < 0)
@@ -63041,7 +63041,7 @@ function Kg() {
                     nu(a, A, w), js(ie + 16 | 0, l, A, Ne, i[a + 16 >> 2], R + 16 | 0, a + 84 | 0, h), M = (A | 0) / i[a + 16 >> 2] | 0;
                     break e;
                   }
-                  if (It = i[R + 12 >> 2], b = 0, i[a + 56 >> 2] = i[a + 52 >> 2] != 0, d || (tn(ie + 32 | 0, s, u), d = ie + 32 | 0), We = 1, !((pe | 0) != 1 | (Y | 0) < 1))
+                  if (Et = i[R + 12 >> 2], b = 0, i[a + 56 >> 2] = i[a + 52 >> 2] != 0, d || (tn(ie + 32 | 0, s, u), d = ie + 32 | 0), We = 1, !((pe | 0) != 1 | (Y | 0) < 1))
                     for (; f = (b << 2) + ee | 0, oe = L[f >> 2], Qe = L[(b + Y << 2) + ee >> 2], L[f >> 2] = oe > Qe ? oe : Qe, b = b + 1 | 0, (Y | 0) != (b | 0); )
                       ;
                   f = $e(i[d + 28 >> 2]), b = (f + i[d + 20 >> 2] | 0) - 32 | 0, se = u << 3;
@@ -63115,7 +63115,7 @@ function Kg() {
                         break;
                     }
                   }
-                  P = $t - ((Y << 2) + 15 & -16) | 0, te = P, _e = P, u = 5, (f + 48 | 0) <= (M | 0) && (u = mt(d, 35253, 7)), M = (H | 0) > (It | 0), f = (na(d) ^ -1) + Dt | 0, b = 0, nt = M ? It : H, It = ze ? ii : 0, M = (Y << 2) + 15 & -16, te = te - M | 0, s = te, _e = s, s = s - M | 0, $t = s, _e = s, M = R, Bi = Ae, Ei = H, Ii = ie + 12 | 0, Qi = ie + 8 | 0, Ri = f;
+                  P = $t - ((Y << 2) + 15 & -16) | 0, te = P, _e = P, u = 5, (f + 48 | 0) <= (M | 0) && (u = mt(d, 35253, 7)), M = (H | 0) > (Et | 0), f = (na(d) ^ -1) + Dt | 0, b = 0, nt = M ? Et : H, Et = ze ? ii : 0, M = (Y << 2) + 15 & -16, te = te - M | 0, s = te, _e = s, s = s - M | 0, $t = s, _e = s, M = R, Bi = Ae, Ii = H, Ei = ie + 12 | 0, Qi = ie + 8 | 0, Ri = f;
                   t: {
                     if (w >>> 0 < 2) {
                       re = 0, T = 0;
@@ -63125,9 +63125,9 @@ function Kg() {
                       break t;
                     re = ((w << 3) + 16 | 0) <= (f | 0), T = re << 3;
                   }
-                  for (u = ru(M, Bi, Ei, ye, Jt, u, Ii, Qi, Ri - T | 0, ie + 4 | 0, te, P, s, pe, w, d, 0, 0), rd(R, Ae, H, ee, P, d, pe), M = (((rt | 0) / 2 | 0) - A << 2) - -8192 | 0; f = i[(ie + 24 | 0) + (b << 2) >> 2], _a(f, (A << 2) + f | 0, M), b = b + 1 | 0, (fe | 0) != (b | 0); )
+                  for (u = ru(M, Bi, Ii, ye, Jt, u, Ei, Qi, Ri - T | 0, ie + 4 | 0, te, P, s, pe, w, d, 0, 0), rd(R, Ae, H, ee, P, d, pe), M = (((rt | 0) / 2 | 0) - A << 2) - -8192 | 0; f = i[(ie + 24 | 0) + (b << 2) >> 2], _a(f, (A << 2) + f | 0, M), b = b + 1 | 0, (fe | 0) != (b | 0); )
                     ;
-                  f = D(Y, pe), b = $t - (f + 15 & -16) | 0, _e = b, M = b - ((D(A, pe) << 2) + 15 & -16) | 0, _e = M, Et(0, R, Ae, H, M, (pe | 0) == 2 ? (A << 2) + M | 0 : 0, b, 0, te, It, Ai, i[ie + 8 >> 2], i[ie + 12 >> 2], et, Dt - T | 0, i[ie + 4 >> 2], d, w, u, a + 40 | 0, 0, i[a + 36 >> 2], i[a + 32 >> 2]);
+                  f = D(Y, pe), b = $t - (f + 15 & -16) | 0, _e = b, M = b - ((D(A, pe) << 2) + 15 & -16) | 0, _e = M, It(0, R, Ae, H, M, (pe | 0) == 2 ? (A << 2) + M | 0 : 0, b, 0, te, Et, Ai, i[ie + 8 >> 2], i[ie + 12 >> 2], et, Dt - T | 0, i[ie + 4 >> 2], d, w, u, a + 40 | 0, 0, i[a + 36 >> 2], i[a + 32 >> 2]);
                   t: {
                     if (re) {
                       if (T = Wi(d, 1), Ws(R, Ae, H, ee, P, s, ((se - i[d + 20 >> 2] | 0) - $e(i[d + 28 >> 2]) | 0) + 32 | 0, d, pe), !T)
@@ -63173,7 +63173,7 @@ function Kg() {
                 return _e = ie + 80 | 0, M;
               }
               function ru(a, s, u, l, A, d, h, b, f, w, M, P, R, H, Y, T, ee, ie, Ae) {
-                var te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0, yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0;
+                var te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0, yt = 0, Et = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0;
                 te = _e, $t = te, f = (f | 0) > 0 ? f : 0, Ot = ((f | 0) > 7) << 3, rt = f - Ot | 0, Dt = i[a + 8 >> 2];
                 e: {
                   if ((H | 0) != 2)
@@ -63182,16 +63182,16 @@ function Kg() {
                     yt = 0;
                     break e;
                   }
-                  f = rt - yt | 0, It = ((f | 0) > 7) << 3, rt = f - It | 0;
+                  f = rt - yt | 0, Et = ((f | 0) > 7) << 3, rt = f - Et | 0;
                 }
                 if (f = (Dt << 2) + 15 & -16, re = te - f | 0, te = re, _e = te, Ye = te - f | 0, te = Ye, _e = te, Qe = te - f | 0, te = Qe, _e = te, ze = H << 3, nt = te - f | 0, _e = nt, Ut = (s | 0) >= (u | 0), !Ut)
-                  for (ye = Y + 3 | 0, se = D((d - Y | 0) - 5 | 0, H), Se = i[a + 32 >> 2], oe = Ie[Se + (s << 1) >> 1], f = s; d = oe << 16, pe = f << 2, te = f + 1 | 0, oe = N[(te << 1) + Se >> 1], d = oe - (d >> 16) | 0, fe = D(d, 3) << Y << 3 >> 4, i[Qe + pe >> 2] = (fe | 0) < (ze | 0) ? ze : fe, i[pe + nt >> 2] = (D(D((f ^ -1) + u | 0, se), d) << ye >> 6) - (d << Y == 1 ? ze : 0), f = te, (u | 0) != (te | 0); )
+                  for (ye = Y + 3 | 0, se = D((d - Y | 0) - 5 | 0, H), Se = i[a + 32 >> 2], oe = Ee[Se + (s << 1) >> 1], f = s; d = oe << 16, pe = f << 2, te = f + 1 | 0, oe = N[(te << 1) + Se >> 1], d = oe - (d >> 16) | 0, fe = D(d, 3) << Y << 3 >> 4, i[Qe + pe >> 2] = (fe | 0) < (ze | 0) ? ze : fe, i[pe + nt >> 2] = (D(D((f ^ -1) + u | 0, se), d) << ye >> 6) - (d << Y == 1 ? ze : 0), f = te, (u | 0) != (te | 0); )
                     ;
                 Jt = i[a + 48 >> 2], et = Jt - 1 | 0, Ne = 1;
                 e: {
                   for (; ; ) {
                     if (We = Ne + et >> 1, !Ut) {
-                      for (ye = D(We, Dt), se = i[a + 32 >> 2], pe = Ie[se + (u << 1) >> 1], Se = i[a + 52 >> 2], oe = 0, f = u, fe = 0; ; ) {
+                      for (ye = D(We, Dt), se = i[a + 32 >> 2], pe = Ee[se + (u << 1) >> 1], Se = i[a + 52 >> 2], oe = 0, f = u, fe = 0; ; ) {
                         d = pe << 16 >> 16, f = f - 1 | 0, pe = N[(f << 1) + se >> 1], d = D(D(d - pe | 0, H), le[(f + ye | 0) + Se | 0]) << Y, te = d >> 2, fe = !fe, (d | 0) >= 4 && (te = i[(f << 2) + nt >> 2] + te | 0, te = (te | 0) > 0 ? te : 0), d = f << 2, te = i[d + l >> 2] + te | 0;
                         t: {
                           if (!((te | 0) < i[d + Qe >> 2] && fe)) {
@@ -63207,7 +63207,7 @@ function Kg() {
                         continue;
                       if (We = s, Ut)
                         break e;
-                      for (ii = D(Ne, Dt), Se = D(Ne - 1 | 0, Dt), et = i[a + 32 >> 2], ye = Ie[et + (s << 1) >> 1], se = i[a + 52 >> 2], f = s, We = f; te = ye << 16, d = f + 1 | 0, ye = N[(d << 1) + et >> 1], te = D(ye - (te >> 16) | 0, H), oe = D(te, le[(f + Se | 0) + se | 0]) << Y, (Ne | 0) >= (Jt | 0) ? te = i[(f << 2) + A >> 2] : te = D(le[(f + ii | 0) + se | 0], te) << Y >> 2, pe = oe >> 2, (oe | 0) >= 4 && (oe = i[(f << 2) + nt >> 2] + pe | 0, pe = (oe | 0) > 0 ? oe : 0), (te | 0) >= 1 && (te = i[(f << 2) + nt >> 2] + te | 0, te = (te | 0) > 0 ? te : 0), oe = f << 2, fe = i[oe + l >> 2], pe = ((Ne | 0) > 1 ? fe : 0) + pe | 0, i[oe + re >> 2] = pe, te = (te - pe | 0) + fe | 0, i[oe + Ye >> 2] = (te | 0) > 0 ? te : 0, We = (fe | 0) > 0 ? f : We, f = d, (f | 0) != (u | 0); )
+                      for (ii = D(Ne, Dt), Se = D(Ne - 1 | 0, Dt), et = i[a + 32 >> 2], ye = Ee[et + (s << 1) >> 1], se = i[a + 52 >> 2], f = s, We = f; te = ye << 16, d = f + 1 | 0, ye = N[(d << 1) + et >> 1], te = D(ye - (te >> 16) | 0, H), oe = D(te, le[(f + Se | 0) + se | 0]) << Y, (Ne | 0) >= (Jt | 0) ? te = i[(f << 2) + A >> 2] : te = D(le[(f + ii | 0) + se | 0], te) << Y >> 2, pe = oe >> 2, (oe | 0) >= 4 && (oe = i[(f << 2) + nt >> 2] + pe | 0, pe = (oe | 0) > 0 ? oe : 0), (te | 0) >= 1 && (te = i[(f << 2) + nt >> 2] + te | 0, te = (te | 0) > 0 ? te : 0), oe = f << 2, fe = i[oe + l >> 2], pe = ((Ne | 0) > 1 ? fe : 0) + pe | 0, i[oe + re >> 2] = pe, te = (te - pe | 0) + fe | 0, i[oe + Ye >> 2] = (te | 0) > 0 ? te : 0, We = (fe | 0) > 0 ? f : We, f = d, (f | 0) != (u | 0); )
                         ;
                       break e;
                     }
@@ -63273,17 +63273,17 @@ function Kg() {
                           r: {
                             c: {
                               o: {
-                                ie = It;
+                                ie = Et;
                                 {
                                   if ((te | 0) >= 1)
                                     break o;
                                   i[h >> 2] = 0, te = 0;
                                 }
-                                if (oe = (te | 0) > (s | 0), te = oe ? 0 : ie, !It | !oe)
+                                if (oe = (te | 0) > (s | 0), te = oe ? 0 : ie, !Et | !oe)
                                   break r;
                                 break c;
                               }
-                              if (te = Na(T, (d - s | 0) + 1 | 0) + s | 0, i[h >> 2] = te, oe = (s | 0) < (te | 0), te = oe ? 0 : It, !It | !oe)
+                              if (te = Na(T, (d - s | 0) + 1 | 0) + s | 0, i[h >> 2] = te, oe = (s | 0) < (te | 0), te = oe ? 0 : Et, !Et | !oe)
                                 break r;
                             }
                             i[b >> 2] = Si(T, 1);
@@ -63513,12 +63513,12 @@ function Kg() {
               }
               function ou(a, s, u, l) {
                 var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0;
-                A = _e + -64 | 0, _e = A, ee = A - ((i[a + 2328 >> 2] + i[a + 2336 >> 2] << 2) + 15 & -16) | 0, d = ee, _e = d, P = d - ((i[a + 2336 >> 2] << 1) + 15 & -16) | 0, _e = P, w = A, i[A + 8 >> 2] = i[a + 4244 >> 2] >> 6, Se = i[a + 4248 >> 2], Qe = Se >> 6, i[A + 12 >> 2] = Qe, i[a + 2376 >> 2] && (d = a + 4210 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4202 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4194 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4186 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0), f = a + 4 | 0, Hu(w + 52 | 0, w + 60 | 0, w + 48 | 0, w + 56 | 0, f, w + 8 | 0, i[a + 2332 >> 2], i[a + 2324 >> 2]), te = Ie[a + 4228 >> 1], oe = i[a + 4260 >> 2], se = i[a + 4256 >> 2], d = i[a + 4160 >> 2], b = i[a + 4164 >> 2], T = i[w + 56 >> 2], pe = i[w + 52 >> 2], ie = i[w + 60 >> 2], ye = i[w + 48 >> 2], h = a + 4186 | 0, Xr(h, i[a + 2340 >> 2], 64881), A = i[a + 2340 >> 2], bt(w + 16 | 0, h, A << 1), fe = ((d | 0) < 1 ? d : 1) << 1, M = N[fe + ((b | 0) == 2 ? 2234 : 2238) >> 1];
+                A = _e + -64 | 0, _e = A, ee = A - ((i[a + 2328 >> 2] + i[a + 2336 >> 2] << 2) + 15 & -16) | 0, d = ee, _e = d, P = d - ((i[a + 2336 >> 2] << 1) + 15 & -16) | 0, _e = P, w = A, i[A + 8 >> 2] = i[a + 4244 >> 2] >> 6, Se = i[a + 4248 >> 2], Qe = Se >> 6, i[A + 12 >> 2] = Qe, i[a + 2376 >> 2] && (d = a + 4210 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4202 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4194 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4186 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0), f = a + 4 | 0, Hu(w + 52 | 0, w + 60 | 0, w + 48 | 0, w + 56 | 0, f, w + 8 | 0, i[a + 2332 >> 2], i[a + 2324 >> 2]), te = Ee[a + 4228 >> 1], oe = i[a + 4260 >> 2], se = i[a + 4256 >> 2], d = i[a + 4160 >> 2], b = i[a + 4164 >> 2], T = i[w + 56 >> 2], pe = i[w + 52 >> 2], ie = i[w + 60 >> 2], ye = i[w + 48 >> 2], h = a + 4186 | 0, Xr(h, i[a + 2340 >> 2], 64881), A = i[a + 2340 >> 2], bt(w + 16 | 0, h, A << 1), fe = ((d | 0) < 1 ? d : 1) << 1, M = N[fe + ((b | 0) == 2 ? 2234 : 2238) >> 1];
                 e: {
                   if (i[a + 4160 >> 2])
                     break e;
                   if (i[a + 4164 >> 2] == 2) {
-                    d = 16384 - (Ie[a + 4184 >> 1] + (Ie[a + 4182 >> 1] + (Ie[a + 4180 >> 1] + (Ie[a + 4176 >> 1] + Ie[a + 4178 >> 1] | 0) | 0) | 0) | 0) | 0, te = D(N[a + 4240 >> 1], (d << 16 >> 16 > 3277 ? d : 3277) & 65535) >>> 14 | 0;
+                    d = 16384 - (Ee[a + 4184 >> 1] + (Ee[a + 4182 >> 1] + (Ee[a + 4180 >> 1] + (Ee[a + 4176 >> 1] + Ee[a + 4178 >> 1] | 0) | 0) | 0) | 0) | 0, te = D(N[a + 4240 >> 1], (d << 16 >> 16 > 3277 ? d : 3277) & 65535) >>> 14 | 0;
                     break e;
                   }
                   A = Yr(h, A), A = (A | 0) < 134217728 ? A : 134217728, A = (A | 0) > 4194304 ? A : 4194304, M = (D(A << 3 & 65528, M) >> 16) + D(A >>> 13 & 65535, M) >> 14, A = i[a + 2340 >> 2], te = 16384;
@@ -63536,7 +63536,7 @@ function Kg() {
                     for (h = (l | 0) < 1073741823 ? l : 1073741823, l = h & 65535, b = h >> 16; h = N[(A << 1) + P >> 1], i[(A << 2) + ee >> 2] = (D(h, l) >> 16) + D(b, h), A = A + 1 | 0, (Ae | 0) > (A | 0); )
                       ;
                   if (ze = i[a + 2324 >> 2], (ze | 0) >= 1) {
-                    for (A = D(se - (pe >> T < ye >> ie) | 0, oe), se = ((((A | 0) > 128 ? A : 128) << 2) + f | 0) - 512 | 0, T = N[fe + 2230 >> 1], pe = D(N[a + 2316 >> 1], 4608), ye = M << 16 >> 16, A = Ie[a + 4184 >> 1], l = Ie[a + 4182 >> 1], b = Ie[a + 4180 >> 1], M = Ie[a + 4178 >> 1], R = Ie[a + 4176 >> 1], oe = i[a + 2332 >> 2], fe = le[a + 2765 | 0], ie = 0; ; ) {
+                    for (A = D(se - (pe >> T < ye >> ie) | 0, oe), se = ((((A | 0) > 128 ? A : 128) << 2) + f | 0) - 512 | 0, T = N[fe + 2230 >> 1], pe = D(N[a + 2316 >> 1], 4608), ye = M << 16 >> 16, A = Ee[a + 4184 >> 1], l = Ee[a + 4182 >> 1], b = Ee[a + 4180 >> 1], M = Ee[a + 4178 >> 1], R = Ee[a + 4176 >> 1], oe = i[a + 2332 >> 2], fe = le[a + 2765 | 0], ie = 0; ; ) {
                       e: {
                         if ((oe | 0) <= 0) {
                           h = te << 16 >> 16, P = A << 16 >> 16, l = l << 16 >> 16, b = b << 16 >> 16, M = M << 16 >> 16, R = R << 16 >> 16;
@@ -63724,7 +63724,7 @@ function Kg() {
                 bt(ie, (H << 2) + R | 0, ee << 2), _e = oe;
               }
               function nu(a, s, u) {
-                var l = 0, A = 0, d = 0, h = 0, b = x(0), f = 0, w = x(0), M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = x(0), te = 0, oe = 0, pe = 0, fe = x(0), re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = x(0), Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = x(0), yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ei = 0, Ii = 0, Qi = 0, Ri = 0, Gi = 0, la = 0, ca = 0, ua = 0, da = 0, Aa = 0, ma = 0, pa = 0, ya = 0, va = 0, wa = 0;
+                var l = 0, A = 0, d = 0, h = 0, b = x(0), f = 0, w = x(0), M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = x(0), te = 0, oe = 0, pe = 0, fe = x(0), re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = x(0), Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = x(0), yt = 0, Et = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ii = 0, Ei = 0, Qi = 0, Ri = 0, Gi = 0, la = 0, ca = 0, ua = 0, da = 0, Aa = 0, ma = 0, pa = 0, ya = 0, va = 0, wa = 0;
                 for (M = _e - 4320 | 0, d = M, _e = d, Y = i[a + 8 >> 2], Se = (Y | 0) > 1 ? Y : 1, rt = 0 - s | 0, H = i[a >> 2], T = i[H + 4 >> 2], f = T + 2048 | 0, P = i[H + 32 >> 2], ie = i[H + 8 >> 2]; A = l << 2, h = ((D(l, f) << 2) + a | 0) + 92 | 0, i[A + (d + 4312 | 0) >> 2] = h, i[(d + 4304 | 0) + A >> 2] = ((rt << 2) + h | 0) - -8192, l = l + 1 | 0, (Se | 0) != (l | 0); )
                   ;
                 Ne = ((D(f, Y) << 2) + a | 0) + 92 | 0, ee = i[a + 20 >> 2], se = i[a + 52 >> 2];
@@ -63762,7 +63762,7 @@ function Kg() {
                     }
                     u = i[a + 48 >> 2], nt = x(0.800000011920929);
                   }
-                  for (l = u << 1, Qe = (l | 0) < 1024 ? l : 1024, l = Qe >> 1, pe = (l | 0) > 1 ? l : 1, oe = M - ((T << 2) + 15 & -16) | 0, A = oe, _e = A, ee = 1024 - Qe | 0, ie = 1024 - l | 0, We = Qe << 2, yt = (d - We | 0) + 4304 | 0, ye = (T | 0) / 2 | 0, Y = 1024 - u | 0, R = s + T | 0, Ut = R << 2, M = 2048 - s | 0, It = M << 2, et = A - (We + 15 & -16) | 0, _e = et, f = d + 208 | 0, te = i[H + 60 >> 2], Ot = 2047 - s << 2, Jt = 2046 - s << 2, $t = 2045 - s << 2, ii = 2044 - s << 2, Ai = 2043 - s << 2, fi = 2042 - s << 2, Ci = 2041 - s << 2, Bi = 2040 - s << 2, Ei = 2039 - s << 2, Ii = 2038 - s << 2, Qi = 2037 - s << 2, Ri = 2036 - s << 2, Gi = 2035 - s << 2, la = 2034 - s << 2, ca = 2033 - s << 2, ua = 2032 - s << 2, da = 2031 - s << 2, Aa = 2030 - s << 2, ma = 2029 - s << 2, pa = 2028 - s << 2, ya = 2027 - s << 2, va = 2026 - s << 2, wa = 2025 - s << 2, Ye = 2024 - s << 2, H = 0; ; ) {
+                  for (l = u << 1, Qe = (l | 0) < 1024 ? l : 1024, l = Qe >> 1, pe = (l | 0) > 1 ? l : 1, oe = M - ((T << 2) + 15 & -16) | 0, A = oe, _e = A, ee = 1024 - Qe | 0, ie = 1024 - l | 0, We = Qe << 2, yt = (d - We | 0) + 4304 | 0, ye = (T | 0) / 2 | 0, Y = 1024 - u | 0, R = s + T | 0, Ut = R << 2, M = 2048 - s | 0, Et = M << 2, et = A - (We + 15 & -16) | 0, _e = et, f = d + 208 | 0, te = i[H + 60 >> 2], Ot = 2047 - s << 2, Jt = 2046 - s << 2, $t = 2045 - s << 2, ii = 2044 - s << 2, Ai = 2043 - s << 2, fi = 2042 - s << 2, Ci = 2041 - s << 2, Bi = 2040 - s << 2, Ii = 2039 - s << 2, Ei = 2038 - s << 2, Qi = 2037 - s << 2, Ri = 2036 - s << 2, Gi = 2035 - s << 2, la = 2034 - s << 2, ca = 2033 - s << 2, ua = 2032 - s << 2, da = 2031 - s << 2, Aa = 2030 - s << 2, ma = 2029 - s << 2, pa = 2028 - s << 2, ya = 2027 - s << 2, va = 2026 - s << 2, wa = 2025 - s << 2, Ye = 2024 - s << 2, H = 0; ; ) {
                     for (h = i[(d + 4312 | 0) + (H << 2) >> 2], l = 0; A = l << 2, i[A + (d + 112 | 0) >> 2] = i[(A + h | 0) + 4e3 >> 2], l = l + 1 | 0, (l | 0) != 1048; )
                       ;
                     t: {
@@ -63777,10 +63777,10 @@ function Kg() {
                     if (Dt = (l << 2) + Ne | 0, Pu(yt, Dt, et, Qe, 24, i[a + 36 >> 2]), bt(yt, et, We), b = x(1), l = 0, Ae = x(1), (u | 0) >= 1)
                       for (; w = L[(l + ee << 2) + f >> 2], b = x(b + x(w * w)), w = L[(l + ie << 2) + f >> 2], Ae = x(Ae + x(w * w)), l = l + 1 | 0, (pe | 0) != (l | 0); )
                         ;
-                    if (l = _a(h, (s << 2) + h | 0, It), fe = x(0), w = x(0), re = (R | 0) < 1, !re)
+                    if (l = _a(h, (s << 2) + h | 0, Et), fe = x(0), w = x(0), re = (R | 0) < 1, !re)
                       for (ze = x(si(x((b > Ae ? Ae : b) / b))), b = x(nt * ze), A = 0, h = 0; P = (u | 0) > (h | 0), b = P ? b : x(ze * b), h = h - (P ? 0 : u) | 0, P = Y + h | 0, L[(A + M << 2) + l >> 2] = b * L[(P << 2) + f >> 2], h = h + 1 | 0, Ae = L[((P - s << 2) + l | 0) + 4096 >> 2], w = x(w + x(Ae * Ae)), A = A + 1 | 0, (R | 0) != (A | 0); )
                         ;
-                    i[d >> 2] = i[l + Ot >> 2], i[d + 4 >> 2] = i[l + Jt >> 2], i[d + 8 >> 2] = i[l + $t >> 2], i[d + 12 >> 2] = i[l + ii >> 2], i[d + 16 >> 2] = i[l + Ai >> 2], i[d + 20 >> 2] = i[l + fi >> 2], i[d + 24 >> 2] = i[l + Ci >> 2], i[d + 28 >> 2] = i[l + Bi >> 2], i[d + 32 >> 2] = i[l + Ei >> 2], i[d + 36 >> 2] = i[l + Ii >> 2], i[d + 40 >> 2] = i[l + Qi >> 2], i[d + 44 >> 2] = i[l + Ri >> 2], i[d + 48 >> 2] = i[l + Gi >> 2], i[d + 52 >> 2] = i[l + la >> 2], i[d + 56 >> 2] = i[l + ca >> 2], i[d + 60 >> 2] = i[l + ua >> 2], i[d + 64 >> 2] = i[l + da >> 2], i[d + 68 >> 2] = i[l + Aa >> 2], i[d + 72 >> 2] = i[l + ma >> 2], i[d + 76 >> 2] = i[l + pa >> 2], i[d + 80 >> 2] = i[l + ya >> 2], i[d + 84 >> 2] = i[l + va >> 2], i[d + 88 >> 2] = i[l + wa >> 2], i[d + 92 >> 2] = i[l + Ye >> 2], P = l - -8192 | 0, A = P + (rt << 2) | 0, yu(A, Dt, A, R, 24, d, i[a + 36 >> 2]), A = 0;
+                    i[d >> 2] = i[l + Ot >> 2], i[d + 4 >> 2] = i[l + Jt >> 2], i[d + 8 >> 2] = i[l + $t >> 2], i[d + 12 >> 2] = i[l + ii >> 2], i[d + 16 >> 2] = i[l + Ai >> 2], i[d + 20 >> 2] = i[l + fi >> 2], i[d + 24 >> 2] = i[l + Ci >> 2], i[d + 28 >> 2] = i[l + Bi >> 2], i[d + 32 >> 2] = i[l + Ii >> 2], i[d + 36 >> 2] = i[l + Ei >> 2], i[d + 40 >> 2] = i[l + Qi >> 2], i[d + 44 >> 2] = i[l + Ri >> 2], i[d + 48 >> 2] = i[l + Gi >> 2], i[d + 52 >> 2] = i[l + la >> 2], i[d + 56 >> 2] = i[l + ca >> 2], i[d + 60 >> 2] = i[l + ua >> 2], i[d + 64 >> 2] = i[l + da >> 2], i[d + 68 >> 2] = i[l + Aa >> 2], i[d + 72 >> 2] = i[l + ma >> 2], i[d + 76 >> 2] = i[l + pa >> 2], i[d + 80 >> 2] = i[l + ya >> 2], i[d + 84 >> 2] = i[l + va >> 2], i[d + 88 >> 2] = i[l + wa >> 2], i[d + 92 >> 2] = i[l + Ye >> 2], P = l - -8192 | 0, A = P + (rt << 2) | 0, yu(A, Dt, A, R, 24, d, i[a + 36 >> 2]), A = 0;
                     t: {
                       i: {
                         if (!re) {
@@ -63790,7 +63790,7 @@ function Kg() {
                             break i;
                           if (re)
                             break t;
-                          qt(l + It | 0, 0, Ut);
+                          qt(l + Et | 0, 0, Ut);
                           break t;
                         }
                         if (!(w > x(0)))
@@ -64810,7 +64810,7 @@ function Kg() {
                 if ((u | 0) >= 2)
                   for (ee = (te | 0) > 1 ? te : 1, b = i[h + 96 >> 2], s = i[h + 160 >> 2], d = 0; f = d + 1 | 0, R = f << 2, H = i[R + (h + 96 | 0) >> 2], b = H - b | 0, R = i[(h + 160 | 0) + R >> 2], s = R + s | 0, i[(d << 2) + h >> 2] = 0 - (b + s | 0), i[((d ^ -1) + u << 2) + h >> 2] = b - s, b = H, s = R, d = f, (ee | 0) != (d | 0); )
                     ;
-                Eu(a, h, 12, 17, u);
+                Iu(a, h, 12, 17, u);
                 e: {
                   if (Yr(a, u))
                     break e;
@@ -65114,7 +65114,7 @@ function Kg() {
                           break e;
                         if (M >>> 0 < 2 || (N[d >> 1] = s, s = 1, T = M - 1 | 0, (T | 0) == 1))
                           break t;
-                        for (u = (T << 1) + d | 0; N[(s << 1) + d >> 1] = Ie[u >> 1], s = s + 1 | 0, (T | 0) != (s | 0); )
+                        for (u = (T << 1) + d | 0; N[(s << 1) + d >> 1] = Ee[u >> 1], s = s + 1 | 0, (T | 0) != (s | 0); )
                           ;
                         break t;
                       }
@@ -65898,7 +65898,7 @@ function Kg() {
                           break i;
                         f = (l | 0) < (b | 0) ? b : l;
                       }
-                      d = f, l = d - M | 0, N[w >> 1] = l, N[A >> 1] = Ie[Y >> 1] + l;
+                      d = f, l = d - M | 0, N[w >> 1] = l, N[A >> 1] = Ee[Y >> 1] + l;
                     }
                     if (T = T + 1 | 0, (T | 0) == 20)
                       break;
@@ -66077,10 +66077,10 @@ function Kg() {
                       t: {
                         if ((A | 0) != 2 | i[a + 2396 >> 2] != 2 || (l = mt(s, 2960, 8), l << 16 < 1))
                           break t;
-                        u = (Ie[a + 2400 >> 1] + l | 0) - 9 | 0, N[a + 2762 >> 1] = u;
+                        u = (Ee[a + 2400 >> 1] + l | 0) - 9 | 0, N[a + 2762 >> 1] = u;
                         break e;
                       }
-                      l = a + 2762 | 0, N[l >> 1] = D(mt(s, 2928, 8), i[a + 2316 >> 2] >>> 1 | 0), u = mt(s, i[a + 2380 >> 2], 8) + Ie[l >> 1] | 0, N[l >> 1] = u;
+                      l = a + 2762 | 0, N[l >> 1] = D(mt(s, 2928, 8), i[a + 2316 >> 2] >>> 1 | 0), u = mt(s, i[a + 2380 >> 2], 8) + Ee[l >> 1] | 0, N[l >> 1] = u;
                     }
                     N[a + 2400 >> 1] = u, W[a + 2764 | 0] = mt(s, i[a + 2384 >> 2], 8), l = a + 2768 | 0, u = mt(s, 7081, 8), W[l | 0] = u, l = 1;
                     e: {
@@ -66398,7 +66398,7 @@ function Kg() {
                       if (!u || (f = ((u << 2) + s | 0) - 4 | 0, h = i[f >> 2], (h | 0) < 1))
                         break t;
                       for (w = a + 4176 | 0, P = i[a + 2332 >> 2], b = 0; ; ) {
-                        if (A = (b ^ -1) + u | 0, l = D(A, 10) + s | 0, l = (((N[l + 98 >> 1] + N[l + 96 >> 1] | 0) + N[l + 100 >> 1] | 0) + N[l + 102 >> 1] | 0) + N[l + 104 >> 1] | 0, (d | 0) < (l | 0) && (d = D(A << 16 >> 16, 10) + s | 0, N[w + 8 >> 1] = Ie[d + 104 >> 1], h = Ie[d + 100 >> 1] | Ie[d + 102 >> 1] << 16, d = Ie[d + 96 >> 1] | Ie[d + 98 >> 1] << 16, M = d, d = w, N[d >> 1] = M, N[d + 2 >> 1] = M >>> 16, N[d + 4 >> 1] = h, N[d + 6 >> 1] = h >>> 16, i[a + 4172 >> 2] = i[(A << 2) + s >> 2] << 8, h = i[f >> 2], d = l), b = b + 1 | 0, (b | 0) == (u | 0))
+                        if (A = (b ^ -1) + u | 0, l = D(A, 10) + s | 0, l = (((N[l + 98 >> 1] + N[l + 96 >> 1] | 0) + N[l + 100 >> 1] | 0) + N[l + 102 >> 1] | 0) + N[l + 104 >> 1] | 0, (d | 0) < (l | 0) && (d = D(A << 16 >> 16, 10) + s | 0, N[w + 8 >> 1] = Ee[d + 104 >> 1], h = Ee[d + 100 >> 1] | Ee[d + 102 >> 1] << 16, d = Ee[d + 96 >> 1] | Ee[d + 98 >> 1] << 16, M = d, d = w, N[d >> 1] = M, N[d + 2 >> 1] = M >>> 16, N[d + 4 >> 1] = h, N[d + 6 >> 1] = h >>> 16, i[a + 4172 >> 2] = i[(A << 2) + s >> 2] << 8, h = i[f >> 2], d = l), b = b + 1 | 0, (b | 0) == (u | 0))
                           break t;
                         if (!((D(b, P) | 0) < (h | 0)))
                           break;
@@ -66523,7 +66523,7 @@ function Kg() {
               }
               function xu(a, s, u, l, A, d) {
                 var h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0;
-                if (h = Ie[a + 4 >> 1] | Ie[a + 6 >> 1] << 16, N[s >> 1] = h, N[s + 2 >> 1] = h >>> 16, h = Ie[a + 8 >> 1] | Ie[a + 10 >> 1] << 16, N[u >> 1] = h, N[u + 2 >> 1] = h >>> 16, w = d << 1, h = w + s | 0, h = Ie[h >> 1] | Ie[h + 2 >> 1] << 16, N[a + 4 >> 1] = h, N[a + 6 >> 1] = h >>> 16, h = u + w | 0, h = Ie[h >> 1] | Ie[h + 2 >> 1] << 16, N[a + 8 >> 1] = h, N[a + 10 >> 1] = h >>> 16, w = A << 3, b = 65536 / (w | 0) | 0, P = i[l + 4 >> 2], R = i[l >> 2], (A | 0) >= 1)
+                if (h = Ee[a + 4 >> 1] | Ee[a + 6 >> 1] << 16, N[s >> 1] = h, N[s + 2 >> 1] = h >>> 16, h = Ee[a + 8 >> 1] | Ee[a + 10 >> 1] << 16, N[u >> 1] = h, N[u + 2 >> 1] = h >>> 16, w = d << 1, h = w + s | 0, h = Ee[h >> 1] | Ee[h + 2 >> 1] << 16, N[a + 4 >> 1] = h, N[a + 6 >> 1] = h >>> 16, h = u + w | 0, h = Ee[h >> 1] | Ee[h + 2 >> 1] << 16, N[a + 8 >> 1] = h, N[a + 10 >> 1] = h >>> 16, w = A << 3, b = 65536 / (w | 0) | 0, P = i[l + 4 >> 2], R = i[l >> 2], (A | 0) >= 1)
                   for (l = b << 16 >> 16, f = N[a + 2 >> 1], H = (D(l, P - f << 16 >> 16) >> 15) + 1 >> 1, M = N[a >> 1], Y = (D(R - M << 16 >> 16, l) >> 15) + 1 >> 1, T = (w | 0) > 1 ? w : 1, l = 0; A = l + 1 | 0, b = A << 1, h = b + u | 0, ee = h, ie = N[h >> 1] << 8, f = f + H | 0, h = f << 16 >> 16, b = N[s + b >> 1], h = (ie + D(h, b >> 5) | 0) + (D(b << 11 & 63488, h) >> 16) | 0, l = (l << 1) + s | 0, l = (N[l + 4 >> 1] + N[l >> 1] | 0) + (b << 1) | 0, M = M + Y | 0, b = M << 16 >> 16, l = (D(b, l >> 7) + h | 0) + (D(l << 9 & 65024, b) >> 16) | 0, b = (l >> 7) + 1 >> 1, N[ee >> 1] = (l | 0) > 8388479 ? 32767 : (b | 0) > -32768 ? b : -32768, l = A, (T | 0) != (l | 0); )
                     ;
                 if ((d | 0) > (w | 0))
@@ -66881,7 +66881,7 @@ function Kg() {
                 }
                 _e = d + 16 | 0;
               }
-              function Eu(a, s, u, l, A) {
+              function Iu(a, s, u, l, A) {
                 var d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0;
                 b = l - u | 0, M = b - 1 | 0, P = (A | 0) < 1;
                 e: {
@@ -66925,7 +66925,7 @@ function Kg() {
                   }
                 }
               }
-              function Iu(a, s, u, l, A, d) {
+              function Eu(a, s, u, l, A, d) {
                 a = a | 0, s = s | 0, u = u | 0, l = l | 0, A = A | 0, d = d | 0;
                 var h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0;
                 s = s << 2, ee = s + i[a + 64 >> 2] | 0, w = i[ee >> 2], ie = i[a + 60 >> 2] + s | 0, h = i[ie >> 2], Ae = i[l >> 2];
@@ -67341,7 +67341,7 @@ function Kg() {
                         s = i[u >> 2], i[u >> 2] = s + 4, u = N[s >> 1], s = u >> 31, i[a >> 2] = u, i[a + 4 >> 2] = s;
                         return;
                       case 5:
-                        s = i[u >> 2], i[u >> 2] = s + 4, s = Ie[s >> 1], i[a >> 2] = s, i[a + 4 >> 2] = 0;
+                        s = i[u >> 2], i[u >> 2] = s + 4, s = Ee[s >> 1], i[a >> 2] = s, i[a + 4 >> 2] = 0;
                         return;
                       case 6:
                         s = i[u >> 2], i[u >> 2] = s + 4, u = W[s | 0], s = u >> 31, i[a >> 2] = u, i[a + 4 >> 2] = s;
@@ -67714,7 +67714,7 @@ function Kg() {
               }
               function ju(a, s, u) {
                 var l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0;
-                if (h = _e - 80 | 0, _e = h, ln(h + 32 | 0, h - -64 | 0, u, W[s | 0]), A = Ie[u + 2 >> 1], b = A << 16 >> 16, w = (b | 0) < 1, !w)
+                if (h = _e - 80 | 0, _e = h, ln(h + 32 | 0, h - -64 | 0, u, W[s | 0]), A = Ee[u + 2 >> 1], b = A << 16 >> 16, w = (b | 0) < 1, !w)
                   for (f = N[u + 4 >> 1]; d = W[s + A | 0], l = d << 10, d = (d | 0) > 0 ? l - 102 | 0 : (l | 102) & d >> 31, l = A - 1 | 0, M = (D(d >> 16, f) + (D(le[l + (h - -64 | 0) | 0], M << 16 >> 16) >> 8) | 0) + (D(d & 65534, f) >> 16) | 0, N[(l << 1) + h >> 1] = M, d = (A | 0) > 1, A = l, !!d; )
                     ;
                 if (!w)
@@ -68200,7 +68200,7 @@ function Kg() {
                 if (h = _e - 16 | 0, _e = h, W[h + 15 | 0] = 0, (u | 0) >= 8)
                   for (f = D((l << 1) + A << 16 >> 16, 7) + 8448 | 0, u = u + 8 >> 4, l = (u | 0) > 1 ? u : 1; ; ) {
                     if (u = i[(b << 2) + d >> 2], (u | 0) >= 1)
-                      for (u = u & 31, W[h + 14 | 0] = le[(u >>> 0 < 6 ? u : 6) + f | 0], u = 0; A = (u << 1) + s | 0, N[A >> 1] >= 1 && (N[A >> 1] = D((mt(a, h + 14 | 0, 8) << 1) - 1 | 0, Ie[A >> 1])), u = u + 1 | 0, (u | 0) != 16; )
+                      for (u = u & 31, W[h + 14 | 0] = le[(u >>> 0 < 6 ? u : 6) + f | 0], u = 0; A = (u << 1) + s | 0, N[A >> 1] >= 1 && (N[A >> 1] = D((mt(a, h + 14 | 0, 8) << 1) - 1 | 0, Ee[A >> 1])), u = u + 1 | 0, (u | 0) != 16; )
                         ;
                     if (s = s + 32 | 0, b = b + 1 | 0, (b | 0) == (l | 0))
                       break;
@@ -68356,7 +68356,7 @@ function Kg() {
               function cd(a, s, u, l) {
                 var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0;
                 if (A = i[a + 8 >> 2], (A | 0) >= 1)
-                  for (w = ((u << 1) + l | 0) - 1 | 0, M = i[a + 104 >> 2], b = i[a + 32 >> 2], h = Ie[b >> 1]; P = h << 16, f = d + 1 | 0, h = N[(f << 1) + b >> 1], i[(d << 2) + s >> 2] = D(le[(D(A, w) + d | 0) + M | 0] - -64 | 0, D(h - (P >> 16) << u, l)) >> 2, d = f, A = i[a + 8 >> 2], (d | 0) < (A | 0); )
+                  for (w = ((u << 1) + l | 0) - 1 | 0, M = i[a + 104 >> 2], b = i[a + 32 >> 2], h = Ee[b >> 1]; P = h << 16, f = d + 1 | 0, h = N[(f << 1) + b >> 1], i[(d << 2) + s >> 2] = D(le[(D(A, w) + d | 0) + M | 0] - -64 | 0, D(h - (P >> 16) << u, l)) >> 2, d = f, A = i[a + 8 >> 2], (d | 0) < (A | 0); )
                     ;
               }
               function ud(a) {
@@ -68537,7 +68537,7 @@ function Kg() {
                 l = _e - 16 | 0, _e = l, i[l + 8 >> 2] = a, i[l + 4 >> 2] = u, i[l >> 2] = s, Sd(i[256], 1536, l), Le(), Le();
               }
               function wd(a, s, u, l, A) {
-                return a = a | 0, s = s | 0, u = u | 0, l = l | 0, A = A | 0, a = Id(a, s, u, l, A), u = ht, ir(u | 0), a | 0;
+                return a = a | 0, s = s | 0, u = u | 0, l = l | 0, A = A | 0, a = Ed(a, s, u, l, A), u = ht, ir(u | 0), a | 0;
               }
               function xd(a) {
                 a = a | 0, ni(i[a + 72 >> 2]), ni(i[a + 76 >> 2]), ni(i[a + 60 >> 2]), ni(i[a + 68 >> 2]), ni(i[a + 64 >> 2]), ni(a);
@@ -68573,7 +68573,7 @@ function Kg() {
               function bi(a, s, u, l) {
                 return l = dd(a, s, u, l), l;
               }
-              function Ed(a) {
+              function Id(a) {
                 return a = a | 0, a = _e - a & -16, _e = a, a | 0;
               }
               function pn(a, s, u, l) {
@@ -68582,7 +68582,7 @@ function Kg() {
               function to(a) {
                 return a ? (i[fa() >> 2] = a, -1) : 0;
               }
-              function Id(a, s, u, l, A) {
+              function Ed(a, s, u, l, A) {
                 return l = $i[a | 0](s, u, l, A) | 0, l;
               }
               function Pd(a) {
@@ -68639,7 +68639,7 @@ function Kg() {
               function Nd() {
               }
               Fe = le, di();
-              var $i = _t([null, Pd, Lu, md, Iu, Fu, Su, wu, Zu]);
+              var $i = _t([null, Pd, Lu, md, Eu, Fu, Su, wu, Zu]);
               function Hd() {
                 return it.byteLength / 65536 | 0;
               }
@@ -68655,7 +68655,7 @@ function Kg() {
                 __errno_location: fa,
                 stackSave: Rd,
                 stackRestore: Ld,
-                stackAlloc: Ed,
+                stackAlloc: Id,
                 malloc: qe,
                 free: ni,
                 __indirect_function_table: $i,
@@ -68711,19 +68711,19 @@ function Kg() {
         }
         return Fe;
       }
-      function E(Ce, Pe) {
+      function I(Ce, Pe) {
         return Ce ? B(F, Ce, Pe) : "";
       }
       typeof TextDecoder < "u" && new TextDecoder("utf-16le");
-      var I, F, O;
+      var E, F, O;
       function Z(Ce) {
-        I = Ce, r.HEAP8 = new Int8Array(Ce), r.HEAP16 = new Int16Array(Ce), r.HEAP32 = O = new Int32Array(Ce), r.HEAPU8 = F = new Uint8Array(Ce), r.HEAPU16 = new Uint16Array(Ce), r.HEAPU32 = new Uint32Array(Ce), r.HEAPF32 = new Float32Array(Ce), r.HEAPF64 = new Float64Array(Ce);
+        E = Ce, r.HEAP8 = new Int8Array(Ce), r.HEAP16 = new Int16Array(Ce), r.HEAP32 = O = new Int32Array(Ce), r.HEAPU8 = F = new Uint8Array(Ce), r.HEAPU16 = new Uint16Array(Ce), r.HEAPU32 = new Uint32Array(Ce), r.HEAPF32 = new Float32Array(Ce), r.HEAPF64 = new Float64Array(Ce);
       }
       var $ = r.INITIAL_MEMORY || 16777216;
       r.wasmMemory ? m = r.wasmMemory : m = new o.Memory({
         initial: $ / 65536,
         maximum: $ / 65536
-      }), m && (I = m.buffer), $ = I.byteLength, Z(I);
+      }), m && (E = m.buffer), $ = E.byteLength, Z(E);
       var ce, be = [], ue = [], de = [], me = [];
       ue.push({ func: function() {
         Gt();
@@ -68752,12 +68752,12 @@ function Kg() {
       function Be(Ce) {
         me.unshift(Ce);
       }
-      var Ee = 0, De = null;
+      var Ie = 0, De = null;
       function Oe(Ce) {
-        Ee++, r.monitorRunDependencies && r.monitorRunDependencies(Ee);
+        Ie++, r.monitorRunDependencies && r.monitorRunDependencies(Ie);
       }
       function Ke(Ce) {
-        if (Ee--, r.monitorRunDependencies && r.monitorRunDependencies(Ee), Ee == 0 && De) {
+        if (Ie--, r.monitorRunDependencies && r.monitorRunDependencies(Ie), Ie == 0 && De) {
           var Pe = De;
           De = null, Pe();
         }
@@ -68851,7 +68851,7 @@ function Kg() {
         var Ce = O[Yt.varargs - 4 >> 2];
         return Ce;
       }, getStr: function(Ce) {
-        var Pe = E(Ce);
+        var Pe = I(Ce);
         return Pe;
       }, get64: function(Ce, Pe) {
         return Ce;
@@ -68926,7 +68926,7 @@ function Kg() {
         Zt || Pt(), Zt || (De = Ce);
       };
       function Pt(Ce) {
-        if (Ee > 0 || (he(), Ee > 0))
+        if (Ie > 0 || (he(), Ie > 0))
           return;
         function Pe() {
           Zt || (Zt = !0, r.calledRun = !0, !g && (ve(), xe(), r.onRuntimeInitialized && r.onRuntimeInitialized(), ke()));

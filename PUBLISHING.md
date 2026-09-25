@@ -18,7 +18,7 @@
   - `vendor/embla-carousel.umd.js`
   - `.github/workflows/validate.yml`
 - Confirm the README renders:
-  - the HOMEii Flow logo
+  - the Maverick Music logo
   - the preview GIF
   - the screenshot tables
   - the HACS My Home Assistant button
@@ -28,7 +28,7 @@
 
 - Create a Git tag named `v5.9.2` for the current stable release or `vX.Y.Z` for a later stable release.
 - Create a GitHub release from that tag.
-- Title the release `HOMEii Music Flow 5.9.2` for the current stable release.
+- Title the release `Maverick Music 5.9.2` for the current stable release.
 - Use the matching section from `CHANGELOG.md` or the matching `RELEASE_NOTES_*.md` file as the release notes.
 - Tags with a prerelease suffix, such as `v5.8.2-beta.1`, should publish as GitHub pre-releases and must not be marked as Latest.
 - Do not attach a custom release zip asset for HACS. Keep the complete installable runtime in `dist/` and let HACS use the normal repository release/tag contents.
@@ -88,7 +88,7 @@ Then load:
 
 - Load the card after a hard browser refresh.
 - Verify main player, compact player, FLOW, Studio, queue, library, actions, settings, lyrics, announcements, history, recommendations, and night mode screens.
-- Verify `This device` creates a HOMEii Sendspin browser player and does not select an unrelated browser player.
+- Verify `This device` creates a Maverick Music Sendspin browser player and does not select an unrelated browser player.
 - Verify phone, tablet, and desktop layouts.
 - Verify mobile portrait, mobile landscape, tablet, desktop, kiosk, and visual-editor open/close layout recovery.
 - Verify ambient light sync, screensaver idle timing, POWER button behavior, Discovery mode, Up Next, and Night mode controls when enabled.
