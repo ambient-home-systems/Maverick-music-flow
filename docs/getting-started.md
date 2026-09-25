@@ -24,7 +24,7 @@ HOMEii Music Flow 6.0.0 is a visual frontend for HOMEii Flow Engine. It does not
 4. Add this repository:
 
 ```text
-https://github.com/r11a/homeii-music-flow
+https://github.com/ambient-home-systems/maverick-music-flow
 ```
 
 5. Select category **Dashboard**.

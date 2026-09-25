@@ -49,7 +49,7 @@
 
 - Quick link:
 
-`https://my.home-assistant.io/redirect/hacs_repository/?owner=r11a&repository=homeii-music-flow&category=plugin`
+`https://my.home-assistant.io/redirect/hacs_repository/?owner=ambient-home-systems&repository=maverick-music-flow&category=plugin`
 
 - Open Home Assistant.
 - Open HACS.

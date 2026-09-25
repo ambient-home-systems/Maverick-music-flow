@@ -32,7 +32,7 @@ Small fixes, documentation improvements, and clear bug fixes can go straight to 
 Clone the repository and install dependencies:
 
 ```bash
-git clone https://github.com/r11a/homeii-music-flow.git
+git clone https://github.com/ambient-home-systems/maverick-music-flow.git
 cd homeii-music-flow
 npm install
 ```
