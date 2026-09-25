@@ -22,13 +22,13 @@ import {
 describe("HOMEii Flow Engine client foundation", () => {
   it("pins the Engine integration domain and derives the runtime contract from it", () => {
     // Renaming the domain is a deliberate, coordinated card + Engine release.
-    expect(ENGINE_DOMAIN).toBe("homeii_flow");
+    expect(ENGINE_DOMAIN).toBe("maverick_music_flow");
     expect(ENGINE_COMMAND_PREFIX).toBe(ENGINE_DOMAIN);
     expect(ENGINE_REST_COMMAND_PATH).toBe(`${ENGINE_DOMAIN}/command/`);
     expect(ENGINE_EVENT_TYPE).toBe(`${ENGINE_DOMAIN}_music_assistant_event`);
     expect(ENGINE_ARTWORK_PATH).toBe(`/api/${ENGINE_DOMAIN}/artwork/`);
     expect(ENGINE_SENDSPIN_PATH).toBe(`/api/${ENGINE_DOMAIN}/sendspin/`);
-    expect(ENGINE_SCREENSAVER_PATH).toBe(`/${ENGINE_DOMAIN}/homeii-flow-system-screensaver.js`);
+    expect(ENGINE_SCREENSAVER_PATH).toBe(`/${ENGINE_DOMAIN}/maverick-music-flow-system-screensaver.js`);
   });
 
   it("normalizes Engine modes with required defaults for HOMEii Flow 6", () => {

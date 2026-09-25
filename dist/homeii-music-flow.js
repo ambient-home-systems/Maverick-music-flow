@@ -32610,7 +32610,7 @@ function Wm() {
     }
   };
 }
-const Ca = "homeii_flow", Ql = Ca, Dl = `${Ca}/command/`, Ll = `${Ca}_music_assistant_event`, zr = `/api/${Ca}/artwork/`, Tl = `/api/${Ca}/sendspin/`, Rl = `/${Ca}/homeii-flow-system-screensaver.js`, zl = Object.freeze(["required"]);
+const Ca = "maverick_music_flow", Ql = Ca, Dl = `${Ca}/command/`, Ll = `${Ca}_music_assistant_event`, zr = `/api/${Ca}/artwork/`, Tl = `/api/${Ca}/sendspin/`, Rl = `/${Ca}/maverick-music-flow-system-screensaver.js`, zl = Object.freeze(["required"]);
 function Fr(n = "required") {
   const e = String(n || "").trim().toLowerCase();
   return zl.includes(e) ? e : "required";

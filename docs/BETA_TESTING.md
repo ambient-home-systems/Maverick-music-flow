@@ -6,7 +6,7 @@ Use Music Flow **6.0.0-beta.1** with Flow Engine **1.0.0-beta.1**. This is an op
 
 1. Back up Home Assistant, dashboard YAML and the existing JavaScript resource/file.
 2. Confirm music plays on one speaker in native Music Assistant.
-3. Follow the [Engine setup](https://github.com/ambient-home-systems/maverick-music-flow-engine#installation). Install the complete `custom_components/homeii_flow` directory and restart HA.
+3. Follow the [Engine setup](https://github.com/ambient-home-systems/maverick-music-flow-engine#installation). Install the complete `custom_components/maverick_music_flow` directory and restart HA.
 4. In HA, open Settings → Devices & services → Add integration → HOMEii Flow Engine. The onboarding form explains the direct MA URL and MA API token. Keep instance/profile defaults for a single setup. Do not use the HA URL, ingress URL, or a Spotify key as the MA connection credentials.
 5. Submit and resolve any authentication/schema/network error before continuing. Confirm the Engine loads and exposes its entities.
 6. Follow the [card upgrade guide](BETA_GUIDE.md#safe-upgrade-from-593). Replace the existing resource; do not register old and new versions together. Reload the browser and verify both versions in diagnostics.

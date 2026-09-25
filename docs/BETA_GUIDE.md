@@ -80,7 +80,7 @@ An existing `entity` can remain as the preferred player. Preserve `card_id` valu
 
 ## Installation paths after publication
 
-**Engine manual installation:** copy the package's `custom_components/homeii_flow` directory into `/config/custom_components/homeii_flow`. The `manifest.json` must be directly inside that directory, not inside a second nested `homeii_flow` folder. Restart HA and add/configure the integration. See the [Engine repository](https://github.com/ambient-home-systems/maverick-music-flow-engine) for its installation and automation guide.
+**Engine manual installation:** copy the package's `custom_components/maverick_music_flow` directory into `/config/custom_components/maverick_music_flow`. The `manifest.json` must be directly inside that directory, not inside a second nested `maverick_music_flow` folder. Restart HA and add/configure the integration. See the [Engine repository](https://github.com/ambient-home-systems/maverick-music-flow-engine) for its installation and automation guide.
 
 **Card manual installation:** use the built `homeii-music-flow.js`, not the unbundled file in `src`. Put it under `/config/www/community/homeii-music-flow/` (or another deliberately chosen `www` directory) and register the corresponding `/local/...` URL as a JavaScript module. Update the existing resource to avoid duplicate registration.
 

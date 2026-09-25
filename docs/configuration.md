@@ -83,13 +83,13 @@ Every Home Assistant path, command type and event name the card shares with the 
 
 | Constant | Value |
 | --- | --- |
-| `ENGINE_DOMAIN` | `homeii_flow` |
-| `ENGINE_COMMAND_PREFIX` | `homeii_flow` (WebSocket command types, e.g. `homeii_flow/get_context`) |
-| `ENGINE_REST_COMMAND_PATH` | `homeii_flow/command/` (HTTP fallback) |
-| `ENGINE_EVENT_TYPE` | `homeii_flow_music_assistant_event` |
-| `ENGINE_ARTWORK_PATH` | `/api/homeii_flow/artwork/` |
-| `ENGINE_SENDSPIN_PATH` | `/api/homeii_flow/sendspin/` |
-| `ENGINE_SCREENSAVER_PATH` | `/homeii_flow/homeii-flow-system-screensaver.js` |
+| `ENGINE_DOMAIN` | `maverick_music_flow` |
+| `ENGINE_COMMAND_PREFIX` | `maverick_music_flow` (WebSocket command types, e.g. `maverick_music_flow/get_context`) |
+| `ENGINE_REST_COMMAND_PATH` | `maverick_music_flow/command/` (HTTP fallback) |
+| `ENGINE_EVENT_TYPE` | `maverick_music_flow_music_assistant_event` |
+| `ENGINE_ARTWORK_PATH` | `/api/maverick_music_flow/artwork/` |
+| `ENGINE_SENDSPIN_PATH` | `/api/maverick_music_flow/sendspin/` |
+| `ENGINE_SCREENSAVER_PATH` | `/maverick_music_flow/maverick-music-flow-system-screensaver.js` |
 
 `ENGINE_DOMAIN` must match the Engine's Home Assistant integration domain. If it ever changes, the card and the Engine must be released together; a card built for one domain cannot talk to an Engine registered under another.
 
