@@ -1,10 +1,6 @@
 # Maverick Music Documentation
 
-> **Preparing 6.0.0 Beta:** install Engine `1.0.0-beta.1` first. Read the [breaking upgrade and beta guide](BETA_GUIDE.md) before replacing 5.9.3. No beta release has been published by this preparation.
-
 Maverick Music is a premium Music Assistant dashboard card for Home Assistant. This documentation is the main place to learn how to install it, configure it, understand every major feature, and troubleshoot real-world Music Assistant setups.
-
-![Maverick Music preview](./media/homeii-flow-preview.gif)
 
 ## Quick Navigation
 
@@ -32,14 +28,14 @@ Maverick Music needs:
 
 - Home Assistant with dashboards/custom cards enabled.
 - Music Assistant installed and connected to Home Assistant.
-- Maverick Music Engine `1.0.0-beta.1` for the prepared 6.0.0 beta pair installed and loaded for Maverick Music 6.0.0 and newer.
+- Maverick Music Engine `1.0.0` installed and loaded.
 - At least one Music Assistant player exposed as a Home Assistant `media_player`.
 - HACS, or manual access to `/config/www/community/`.
 - A modern browser: Chrome, Edge, Safari, iOS WebKit, Android WebView, or a current Home Assistant Companion app.
 
 Optional features need optional setup:
 
-- **This device / Sendspin browser player:** disabled in 6.0.0 Engine-only mode so MA credentials remain server-side.
+- **This device / Sendspin browser player:** disabled in Engine-only mode so MA credentials remain server-side.
 - **Announcements:** a working Home Assistant TTS entity.
 - **Automation helper:** an `input_text` helper for the active Maverick Music player.
 - **Remote artwork:** served through the authenticated Maverick Music Engine artwork proxy; the browser does not need a Music Assistant URL.
@@ -65,11 +61,7 @@ For the most polished experience:
 - If multiple Maverick Music cards run in the same browser, give each one a unique `card_id`.
 - Keep Diagnostics available in the card settings. It is the fastest way to understand user reports.
 
-## Current Documentation Target
-
-Current documentation target: **Maverick Music 6.0.0 in progress**
-
-6.0.0 documentation highlights:
+## Architecture
 
 - Required Maverick Music Engine backend.
 - Card as visual interface, Engine as source of truth for players, queue, library, search, artwork, playback, schedules, timers, statistics, and diagnostics.
@@ -77,14 +69,14 @@ Current documentation target: **Maverick Music 6.0.0 in progress**
 - [Open a dashboard directly to a player with URL parameters](./configuration.md#open-a-dashboard-directly-to-a-player)
 - [Library Wheel and Queue Wheel](./features.md#library-wheel)
 - [Phone edge-to-edge mode](./layouts.md#edge-to-edge)
-- [Diagnostics v7](./diagnostics.md)
+- [Diagnostics](./diagnostics.md)
 - Group management and group-volume shortcuts
 - Radio source preference and favorites-only library filtering
 
 Release notes:
 
 - [Changelog](../CHANGELOG.md)
-- [Maverick Music 5.9.3](../RELEASE_NOTES_5.9.3.md)
+- [Release notes archive](./releases/)
 
 ## Community And Credits
 

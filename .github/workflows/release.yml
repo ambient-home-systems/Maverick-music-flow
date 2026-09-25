@@ -35,7 +35,7 @@ jobs:
           set -euo pipefail
           version="${TAG_NAME#v}"
           title="Maverick Music ${version}"
-          notes_file="RELEASE_NOTES_${version}.md"
+          notes_file="docs/releases/RELEASE_NOTES_${version}.md"
           is_prerelease=false
           if [[ "$version" == *-* ]]; then
             is_prerelease=true

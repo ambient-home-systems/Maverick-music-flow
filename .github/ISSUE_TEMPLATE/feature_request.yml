@@ -1,4 +1,4 @@
-name: Beta feedback or feature request
+name: Feature request
 description: Share a usability insight or a focused feature suggestion.
 body:
   - type: textarea
@@ -13,6 +13,18 @@ body:
     attributes:
       label: Suggested behavior
   - type: input
-    id: version
+    id: card_version
     attributes:
-      label: Card and Engine versions
+      label: Maverick Music card version
+  - type: input
+    id: engine_version
+    attributes:
+      label: Maverick Music Engine version
+  - type: input
+    id: ma_version
+    attributes:
+      label: Music Assistant version
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
