@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
-import '../src/homeii-music-flow.js';
+import '../src/maverick-music.js';
 vi.hoisted(()=>{vi.useFakeTimers();});
 afterEach(()=>vi.clearAllTimers());
 afterAll(()=>vi.useRealTimers());
-const prototype=globalThis.customElements.get('homeii-music-flow').prototype;
+const prototype=globalThis.customElements.get('maverick-music').prototype;
 const results=name=>({tracks:name ? [{name,uri:`library://track/${name}`}]:[]});
 function fixture(search) {
   const body=globalThis.document.createElement('div');
@@ -70,16 +70,16 @@ describe('search failure and late response handling',()=>{
     expect(body.querySelector('[role="alert"]')).toBeNull();
   });
   it('propagates Engine failures in strict interactive search',async()=>{
-    const card={_homeiiEngineEnabled:()=>true,_ensureHomeiiEngineReadyForAction:async()=>true,
-      _homeiiEngineSearch:async()=>{throw new Error('Offline');},_state:{},_debugLog:vi.fn(),_handleMusicAssistantIssue:vi.fn(),_emptySearchResults:()=>results()};
+    const card={_maverickEngineEnabled:()=>true,_ensureMaverickEngineReadyForAction:async()=>true,
+      _maverickEngineSearch:async()=>{throw new Error('Offline');},_state:{},_debugLog:vi.fn(),_handleMusicAssistantIssue:vi.fn(),_emptySearchResults:()=>results()};
     await expect(prototype._search.call(card,'music',{strict:true})).rejects.toThrow('Offline');
   });
 });
 describe('large library paging',()=>{
   function libraryFixture(command) {
     const card={_state:{engineCapabilities:{library_pagination:true}},_cache:{library:new Map()},
-      _homeiiEngineEnabled:()=>true,_ensureHomeiiEngineReadyForAction:async()=>true,
-      _homeiiEngineGetLibrary:vi.fn(command),_normalizeSearchItem:item=>item,
+      _maverickEngineEnabled:()=>true,_ensureMaverickEngineReadyForAction:async()=>true,
+      _maverickEngineGetLibrary:vi.fn(command),_normalizeSearchItem:item=>item,
       _debugLog:vi.fn(),_handleMusicAssistantIssue:vi.fn(),_m:text=>text};
     card._fetchLibrary=prototype._fetchLibrary;
     return card;
@@ -88,7 +88,7 @@ describe('large library paging',()=>{
     const items=Array.from({length:691},(_,index)=>({uri:`library://playlist/${index}`}));
     const card=libraryFixture(async({offset,limit})=>({items:items.slice(offset,offset+limit)}));
     expect(await card._fetchLibrary('playlist','sort_name',750)).toEqual(items);
-    expect(card._homeiiEngineGetLibrary.mock.calls.map(([args])=>[args.offset,args.limit])).toEqual([[0,500],[500,250]]);
+    expect(card._maverickEngineGetLibrary.mock.calls.map(([args])=>[args.offset,args.limit])).toEqual([[0,500],[500,250]]);
   });
   it('rejects a failed later page without reporting a partial library as complete',async()=>{
     const card=libraryFixture(async({offset})=>{if(offset)throw new Error('Page failed');return {items:Array.from({length:500},(_,index)=>({uri:`library://playlist/${index}`}))};});
@@ -104,6 +104,6 @@ describe('large library paging',()=>{
   it('does not send an unsupported offset to an older Engine',async()=>{
     const card=libraryFixture(async()=>({items:[]}));card._state.engineCapabilities={};
     await card._fetchLibrary('playlist','sort_name',250);
-    expect(card._homeiiEngineGetLibrary.mock.calls[0][0]).not.toHaveProperty('offset');
+    expect(card._maverickEngineGetLibrary.mock.calls[0][0]).not.toHaveProperty('offset');
   });
 });

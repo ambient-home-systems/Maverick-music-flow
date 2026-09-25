@@ -38,18 +38,18 @@ describe("shared MA queue preferences", () => {
   it("confirms a saved patch and preserves untouched server values", async () => {
     const { card, form } = setup();
     form.querySelector('[data-queue-setting="autoplay_enabled"]').checked = false;
-    card._homeiiEngineCommand = vi.fn(async () => ({ saved: true, entries: { ...entries, autoplay_enabled: { type: "boolean", value: false } } }));
+    card._maverickEngineCommand = vi.fn(async () => ({ saved: true, entries: { ...entries, autoplay_enabled: { type: "boolean", value: false } } }));
     await saveQueueSettings(card);
-    expect(card._homeiiEngineCommand).toHaveBeenCalledWith("queue/settings", { values: { autoplay_enabled: false } }, expect.any(Object));
+    expect(card._maverickEngineCommand).toHaveBeenCalledWith("queue/settings", { values: { autoplay_enabled: false } }, expect.any(Object));
     expect(form.textContent).toContain("Saved in Music Assistant");
     expect(card._queueSettingsSaving).toBe(false);
   });
   it("does not fabricate success or replay when the saved value is not confirmed", async () => {
     const { card, form } = setup();
     form.querySelector('[data-queue-setting="autoplay_enabled"]').checked = false;
-    card._homeiiEngineCommand = vi.fn(async () => ({ saved: true, entries }));
+    card._maverickEngineCommand = vi.fn(async () => ({ saved: true, entries }));
     await saveQueueSettings(card);
-    expect(card._homeiiEngineCommand).toHaveBeenCalledOnce();
+    expect(card._maverickEngineCommand).toHaveBeenCalledOnce();
     expect(card._toastError).toHaveBeenCalledOnce();
     expect(card._queueSettingsView.entries.autoplay_enabled.value).toBe(true);
     expect(form.querySelector("button").disabled).toBe(false);
@@ -58,16 +58,16 @@ describe("shared MA queue preferences", () => {
     const { card, form } = setup();
     form.querySelector('[data-queue-setting="autoplay_enabled"]').checked = false;
     let finish;
-    card._homeiiEngineCommand = vi.fn(() => new Promise((resolve) => { finish = resolve; }));
+    card._maverickEngineCommand = vi.fn(() => new Promise((resolve) => { finish = resolve; }));
     const first = saveQueueSettings(card);
     await saveQueueSettings(card);
-    expect(card._homeiiEngineCommand).toHaveBeenCalledOnce();
+    expect(card._maverickEngineCommand).toHaveBeenCalledOnce();
     finish({ saved: true, entries: { ...entries, autoplay_enabled: { value: false } } });
     await first;
   });
   it("does not overwrite a different screen after a delayed read", async () => {
     const { card, body } = setup();
-    card._homeiiEngineCommand = vi.fn(async () => ({ entries, can_edit: true }));
+    card._maverickEngineCommand = vi.fn(async () => ({ entries, can_edit: true }));
     card._callEngineMaCommand = vi.fn(async () => []);
     await loadQueueSettings(card, body, () => false);
     expect(body.querySelector("form")).toBe(null);
@@ -78,9 +78,9 @@ describe("shared MA queue preferences", () => {
     body.innerHTML = queueSettingsHtml(card, card._queueSettingsView);
     expect(body.querySelector('[data-queue-setting="crossfade_mode"]')).toBe(null);
     expect(body.querySelector("fieldset").disabled).toBe(true);
-    card._homeiiEngineCommand = vi.fn();
+    card._maverickEngineCommand = vi.fn();
     await saveQueueSettings(card);
-    expect(card._homeiiEngineCommand).not.toHaveBeenCalled();
+    expect(card._maverickEngineCommand).not.toHaveBeenCalled();
   });
 });
 describe("action hub", () => {
@@ -113,7 +113,7 @@ describe("action hub", () => {
   });
   it("preserves the selected playlist when its catalog fails to load", async () => {
     const { card, body } = setup();
-    card._homeiiEngineCommand = vi.fn(async () => ({ can_edit: true, entries: { ...entries, autoplay_playlist: { type: "string", value: "library://playlist/99" } } }));
+    card._maverickEngineCommand = vi.fn(async () => ({ can_edit: true, entries: { ...entries, autoplay_playlist: { type: "string", value: "library://playlist/99" } } }));
     card._callEngineMaCommand = vi.fn(async () => { throw new Error("offline"); });
     await loadQueueSettings(card, body, () => true);
     const form = body.querySelector("form");

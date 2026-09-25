@@ -3,7 +3,7 @@ export default function({allocatedHeight,effectiveHeight,uiScale,mainOpacity,pop
           :host {
             display:block;
             container-type:inline-size;
-            container-name:homeii-browser-host;
+            container-name:maverick-browser-host;
             margin:0 !important;
             padding:0 !important;
             background:transparent !important;
@@ -27,8 +27,8 @@ export default function({allocatedHeight,effectiveHeight,uiScale,mainOpacity,pop
             --ma-now-main-button-size: calc(82px * var(--ma-ui-scale));
             --ma-track-title-size: calc(24px * var(--ma-ui-scale));
             --ma-blur: blur(18px);
-            --homeii-font-family:var(--paper-font-body1_-_font-family, var(--primary-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif));
-            font-family:var(--homeii-font-family);
+            --maverick-font-family:var(--paper-font-body1_-_font-family, var(--primary-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif));
+            font-family:var(--maverick-font-family);
           }
           ha-card {
             background:transparent !important;
@@ -42,7 +42,7 @@ export default function({allocatedHeight,effectiveHeight,uiScale,mainOpacity,pop
           .card.rtl input,
           .card.rtl textarea,
           .card.rtl select {
-            font-family:var(--homeii-font-family);
+            font-family:var(--maverick-font-family);
           }
           .theme-dark {
             --ma-bg: rgba(18,20,26,${darkBgAlpha.toFixed(2)});
@@ -82,7 +82,7 @@ export default function({allocatedHeight,effectiveHeight,uiScale,mainOpacity,pop
             display:grid;
             grid-template-columns:220px minmax(0,1fr);
             container-type:inline-size;
-            container-name:homeii-browser-card;
+            container-name:maverick-browser-card;
             position:relative;
             width:100%;
             height:min(var(--ma-card-height), calc(100dvh - 24px));

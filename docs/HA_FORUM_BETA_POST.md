@@ -3,14 +3,14 @@
 Suggested category: Share your Projects. Post to the Home Assistant Community forum only; no Facebook publication is planned.
 
 ## Title
-[PUBLIC BETA] HOMEii Flow 6 — Your music. Within reach.
+[PUBLIC BETA] Maverick Music 6 — Your music. Within reach.
 
 ## Post
 > **PUBLIC BETA — not a stable release. Back up first. Install the Engine before upgrading 5.9.3.**
 
 Hi everyone,
 
-I’m opening the first opt-in beta of **HOMEii Music Flow 6.0**, together with **HOMEii Flow Engine 1.0**, and would love feedback from people using Music Assistant on real phones, tablets and speakers.
+I’m opening the first opt-in beta of **Maverick Music 6.0**, together with **Maverick Music Engine 1.0**, and would love feedback from people using Music Assistant on real phones, tablets and speakers.
 
 The focus is the listening experience: prominent artwork, artwork-driven colors, light/dark glass surfaces and contextual action wheels that keep common actions within reach. Browse your library, swipe through recommendations, manage the queue and choose the speaker without losing your place.
 

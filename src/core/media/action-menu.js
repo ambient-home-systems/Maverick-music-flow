@@ -56,7 +56,7 @@ export function actionIconSvg(card, name) {
     queue_transfer: '<path d="M3 4h12M3 8h9M3 12h6M8 17h13m-4-4 4 4-4 4"/><rect x="2" y="16" width="3" height="5" rx="1"/>',
     timer: '<circle cx="12" cy="13" r="8"/><path d="M9 2h6M12 9v5l3 2M18 5l2-2"/>',
     announcement: '<path d="M4 9h4l8-5v16l-8-5H4Z M8 15l1 5H6l-1-5M20 8a7 7 0 0 1 0 8"/>',
-    settings: '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2" fill="var(--homeii-surface,#18191c)"/><circle cx="16" cy="12" r="2" fill="var(--homeii-surface,#18191c)"/><circle cx="10" cy="18" r="2" fill="var(--homeii-surface,#18191c)"/>',
+    settings: '<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2" fill="var(--maverick-surface,#18191c)"/><circle cx="16" cy="12" r="2" fill="var(--maverick-surface,#18191c)"/><circle cx="10" cy="18" r="2" fill="var(--maverick-surface,#18191c)"/>',
     this_device: '<rect x="3" y="3" width="18" height="13" rx="2"/><path d="M8 21h8M12 16v5m-2-14 5 3-5 3Z"/>',
     play: '<path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none"/>',
     queue_next: '<path d="m4 6 9 6-9 6Z M17 6v12M21 9v6"/>',

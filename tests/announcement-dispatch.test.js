@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 function context() {
   return {
     _state: { mobileAnnouncementText: "Test" },
@@ -14,7 +14,7 @@ function context() {
     _announcementVolumePct: () => 20, _toast: vi.fn(), _toastError: vi.fn(), _toastSuccess: vi.fn(),
     _prepareAnnouncementVolumes: (targets) => targets.map((player) => ({ entityId: player.entity_id, targetVolumePct: 40 })),
     _scheduleAnnouncementVolumeRestore: vi.fn(),
-    _homeiiEngineAnnounce: vi.fn(async () => ({ ok: true, results: [{ player: "Computer", ok: true }, { player: "Kitchen", ok: true }] })),
+    _maverickEngineAnnounce: vi.fn(async () => ({ ok: true, results: [{ player: "Computer", ok: true }, { player: "Kitchen", ok: true }] })),
   };
 }
 describe("truthful announcement dispatch", () => {
@@ -22,8 +22,8 @@ describe("truthful announcement dispatch", () => {
     const card = context();
     card._prepareAnnouncementVolumes = () => [{ entityId: "Computer", targetVolumePct: 45 }, { entityId: "Kitchen", targetVolumePct: 70 }];
     await prototype._sendMobileAnnouncement.call(card);
-    expect(card._homeiiEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({ players: ["Computer"], volume: 45 }));
-    expect(card._homeiiEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({ players: ["Kitchen"], volume: 70 }));
+    expect(card._maverickEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({ players: ["Computer"], volume: 45 }));
+    expect(card._maverickEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({ players: ["Kitchen"], volume: 70 }));
     expect(card._scheduleAnnouncementVolumeRestore).not.toHaveBeenCalled();
   });
   it("lets MA restore audio without a browser volume timer", async () => {
@@ -35,14 +35,14 @@ describe("truthful announcement dispatch", () => {
   });
   it("does not announce success when only one target accepted the request", async () => {
     const card = context();
-    card._homeiiEngineAnnounce.mockResolvedValue({ ok: true, sent: true, results: [{ player: "Computer", ok: true }, { player: "Kitchen", ok: false }] });
+    card._maverickEngineAnnounce.mockResolvedValue({ ok: true, sent: true, results: [{ player: "Computer", ok: true }, { player: "Kitchen", ok: false }] });
     await prototype._sendMobileAnnouncement.call(card);
     expect(card._toastSuccess).not.toHaveBeenCalled();
     expect(card._toastError).toHaveBeenCalledWith(expect.stringContaining("Kitchen"));
   });
   it("rejects an empty acknowledgement", async () => {
     const card = context();
-    card._homeiiEngineAnnounce.mockResolvedValue({});
+    card._maverickEngineAnnounce.mockResolvedValue({});
     await prototype._sendMobileAnnouncement.call(card);
     expect(card._toastSuccess).not.toHaveBeenCalled();
     expect(card._toastError).toHaveBeenCalledOnce();
@@ -50,13 +50,13 @@ describe("truthful announcement dispatch", () => {
   it("suppresses duplicate dispatch while a request is pending and allows retry after failure", async () => {
     const card = context();
     let reject;
-    card._homeiiEngineAnnounce.mockImplementationOnce(() => new Promise((_, fail) => { reject = fail; }));
+    card._maverickEngineAnnounce.mockImplementationOnce(() => new Promise((_, fail) => { reject = fail; }));
     const first = prototype._sendMobileAnnouncement.call(card);
     await prototype._sendMobileAnnouncement.call(card);
-    expect(card._homeiiEngineAnnounce).toHaveBeenCalledOnce();
+    expect(card._maverickEngineAnnounce).toHaveBeenCalledOnce();
     reject(new Error("Connection lost"));
     await first;
     await prototype._sendMobileAnnouncement.call(card);
-    expect(card._homeiiEngineAnnounce).toHaveBeenCalledTimes(2);
+    expect(card._maverickEngineAnnounce).toHaveBeenCalledTimes(2);
   });
 });

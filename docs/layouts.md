@@ -1,6 +1,6 @@
 # Layouts And Mobile Modes
 
-HOMEii Music Flow can behave as a full music dashboard, a compact card, or a phone-first music screen.
+Maverick Music can behave as a full music dashboard, a compact card, or a phone-first music screen.
 
 ## Recommended Home Assistant Views
 
@@ -13,7 +13,7 @@ Best for:
 - large touchscreens
 - a clean app-like interface
 
-Panel view gives HOMEii Music Flow the most predictable space.
+Panel view gives Maverick Music the most predictable space.
 
 ### Section View
 
@@ -21,7 +21,7 @@ Best for:
 
 - modern Home Assistant dashboards
 - a full-width music section
-- combining HOMEii Music Flow with a small number of related cards
+- combining Maverick Music with a small number of related cards
 
 Use Section view when you want the card to feel large without taking over the entire dashboard.
 
@@ -30,25 +30,25 @@ Use Section view when you want the card to feel large without taking over the en
 Best for:
 
 - dashboards with many mixed cards
-- compact HOMEii Music Flow placement
+- compact Maverick Music placement
 - secondary music controls
 
-Masonry can resize cards unpredictably. If HOMEii Music Flow looks like a mini-player after saving the dashboard, try Panel or Section view.
+Masonry can resize cards unpredictably. If Maverick Music looks like a mini-player after saving the dashboard, try Panel or Section view.
 
 ## Phone Display Modes
 
-HOMEii Music Flow supports phone layout modes:
+Maverick Music supports phone layout modes:
 
 - **Auto:** the card chooses behavior based on available space.
 - **Full:** phone interface stays in the normal dashboard surface.
 - **Compact:** smaller player card for dashboards with multiple cards.
 - **Edge to edge:** phone interface occupies the viewport like a frontmost app.
 
-Use **Edge to edge** when HOMEii Music Flow is the main phone experience.
+Use **Edge to edge** when Maverick Music is the main phone experience.
 
 ## Compact To Fullscreen
 
-When compact mode expands, HOMEii Music Flow opens a full-screen surface.
+When compact mode expands, Maverick Music opens a full-screen surface.
 
 This is designed to prevent:
 

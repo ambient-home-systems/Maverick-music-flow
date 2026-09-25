@@ -4,21 +4,21 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$sourceFile = Join-Path $PSScriptRoot '../dist/homeii-music-flow.js'
+$sourceFile = Join-Path $PSScriptRoot '../dist/maverick-music.js'
 $sourceFile = (Resolve-Path -LiteralPath $sourceFile).Path
 $targetRoot = (Resolve-Path -LiteralPath $TargetDirectory).Path
-$targetFile = Join-Path $targetRoot 'homeii-music-flow.js'
-$stagedFile = Join-Path $targetRoot ('homeii-music-flow.' + [guid]::NewGuid().ToString('N') + '.pending')
+$targetFile = Join-Path $targetRoot 'maverick-music.js'
+$stagedFile = Join-Path $targetRoot ('maverick-music.' + [guid]::NewGuid().ToString('N') + '.pending')
 $sourceBytes = [System.IO.File]::ReadAllBytes($sourceFile)
 $sourceText = [System.Text.Encoding]::UTF8.GetString($sourceBytes)
-if ($sourceText -notmatch 'HOMEII_CARD_VERSION' -or $sourceText -notmatch 'customElements' -or $sourceBytes.Length -lt 100000) {
+if ($sourceText -notmatch 'MAVERICK_CARD_VERSION' -or $sourceText -notmatch 'customElements' -or $sourceBytes.Length -lt 100000) {
     throw 'The built card is missing expected runtime markers. Run build and tests first.'
 }
 $sourceHash = (Get-FileHash -LiteralPath $sourceFile -Algorithm SHA256).Hash
-$backupDirectory = Join-Path $env:TEMP ('homeii-deployment-backup-' + [guid]::NewGuid().ToString('N'))
+$backupDirectory = Join-Path $env:TEMP ('maverick-deployment-backup-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $backupDirectory | Out-Null
 if (Test-Path -LiteralPath $targetFile) {
-    Copy-Item -LiteralPath $targetFile -Destination (Join-Path $backupDirectory 'homeii-music-flow.js')
+    Copy-Item -LiteralPath $targetFile -Destination (Join-Path $backupDirectory 'maverick-music.js')
 }
 try {
     # Upload under a temporary name so browsers cannot read a partially copied script.

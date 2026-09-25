@@ -144,7 +144,7 @@ export async function _waitForSpeakerGroupConfirmation(ownerId, expectedMembers 
   do {
     let refreshed = false;
     try {
-      if (this._homeiiEngineRequired?.()) await this._refreshEnginePlayers({ force: true, requireFresh: true });
+      if (this._maverickEngineRequired?.()) await this._refreshEnginePlayers({ force: true, requireFresh: true });
       await this._loadPlayers();
       refreshed = true;
     } catch (_) {}
@@ -250,12 +250,12 @@ async function applySpeakerGroupFor(entityId, groupMembers = []) {
     return true;
   }
   if (!added.length && !removed.length) return false;
-  const canUseHomeiiEngineGroup = typeof this._homeiiEngineApplyGroup === "function"
-    && this._homeiiEngineEnabled?.()
-    && (this._state?.engineAvailable || this._homeiiEngineRequired?.());
-  if (canUseHomeiiEngineGroup) {
+  const canUseMaverickEngineGroup = typeof this._maverickEngineApplyGroup === "function"
+    && this._maverickEngineEnabled?.()
+    && (this._state?.engineAvailable || this._maverickEngineRequired?.());
+  if (canUseMaverickEngineGroup) {
     try {
-      await this._homeiiEngineApplyGroup({
+      await this._maverickEngineApplyGroup({
         owner: leaderId,
         entity_id: leaderId,
         members,
@@ -277,8 +277,8 @@ async function applySpeakerGroupFor(entityId, groupMembers = []) {
       }, 650);
       return true;
     } catch (engineError) {
-      this._debugLog?.("warn", "[HOMEii Flow] HOMEii Flow Engine group fallback failed", engineError);
-      if (this._homeiiEngineRequired?.()) throw engineError;
+      this._debugLog?.("warn", "[Maverick Music] Maverick Music Engine group fallback failed", engineError);
+      if (this._maverickEngineRequired?.()) throw engineError;
     }
   }
   const removalResults = removed.length
@@ -378,11 +378,11 @@ async function clearSpeakerGroupFor(entityId) {
   const player = this._playerByEntityId(ownerId) || this._playerByEntityId(requestedId);
   if (!player) return;
   const disconnect = async (targets) => {
-    if (this._homeiiEngineEnabled?.() && typeof this._homeiiEngineApplyGroup === "function") {
+    if (this._maverickEngineEnabled?.() && typeof this._maverickEngineApplyGroup === "function") {
       // A native LinkPlay follower may withdraw its AirPlay endpoint while
       // grouped. MA ignores unjoin addressed to that unavailable endpoint;
       // remove members through the reachable leader's native group API instead.
-      await this._homeiiEngineApplyGroup({owner:ownerId, entity_id:ownerId,
+      await this._maverickEngineApplyGroup({owner:ownerId, entity_id:ownerId,
         members:[], remove_members:targets.filter(id => id !== ownerId)});
       return;
     }

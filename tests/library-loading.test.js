@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { expect, it, vi } from "vitest";
-import { createHomeiiBaseMusicCard } from "../src/core/base-music-card.js";
+import { createMaverickBaseMusicCard } from "../src/core/base-music-card.js";
 
-const proto = createHomeiiBaseMusicCard({}).prototype;
+const proto = createMaverickBaseMusicCard({}).prototype;
 
 it("keeps provider IDs paired with their provider instead of inventing library IDs", () => {
   const card={_searchItemProviderMapping:()=>null,_parseMediaReference:()=>({item_id:"spotify-id",provider:"spotify"})};

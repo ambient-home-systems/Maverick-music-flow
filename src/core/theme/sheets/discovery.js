@@ -679,7 +679,7 @@ export default function() {
   transform:scale(.78);
   border-color:rgba(255,255,255,.34);
   border-inline-end-color:var(--ma-accent);
-  animation:homeiiLoadingSpin .74s linear infinite;
+  animation:maverickLoadingSpin .74s linear infinite;
 }
 .discovery-orb.library-action-loading .discovery-orb-play .ui-ic{
   opacity:.42;

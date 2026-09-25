@@ -2,7 +2,7 @@
 
 > **Preparing 6.0.0 Beta:** install Engine `1.0.0-beta.1` first. Read the [breaking upgrade and beta guide](BETA_GUIDE.md) before replacing 5.9.3. No beta release has been published by this preparation.
 
-This guide gets HOMEii Music Flow running in Home Assistant for the first time.
+This guide gets Maverick Music running in Home Assistant for the first time.
 
 ## Before You Install
 
@@ -10,11 +10,11 @@ Confirm these first:
 
 - Music Assistant is installed and running.
 - Music Assistant is connected to Home Assistant.
-- HOMEii Flow Engine `1.0.0-beta.1` for the prepared 6.0.0 beta pair is installed and loaded when using HOMEii Music Flow 6.0.0 or newer.
+- Maverick Music Engine `1.0.0-beta.1` for the prepared 6.0.0 beta pair is installed and loaded when using Maverick Music 6.0.0 or newer.
 - Home Assistant shows at least one Music Assistant player as a `media_player`.
-- You can control that player from Home Assistant before adding HOMEii Music Flow.
+- You can control that player from Home Assistant before adding Maverick Music.
 
-HOMEii Music Flow 6.0.0 is a visual frontend for HOMEii Flow Engine. It does not replace Music Assistant and it does not create players by itself, but it also does not run without the Engine.
+Maverick Music 6.0.0 is a visual frontend for Maverick Music Engine. It does not replace Music Assistant and it does not create players by itself, but it also does not run without the Engine.
 
 ## Install With HACS
 
@@ -28,19 +28,19 @@ https://github.com/ambient-home-systems/maverick-music-flow
 ```
 
 5. Select category **Dashboard**.
-6. Download **HOMEii Flow**.
+6. Download **Maverick Music**.
 7. Refresh the browser or restart Home Assistant if the card is not available immediately.
 
 Add the card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 If HACS does not add the resource automatically, add:
 
 ```text
-/hacsfiles/homeii-music-flow/homeii-music-flow.js
+/hacsfiles/maverick-music-flow/maverick-music.js
 ```
 
 ## Manual Install
@@ -48,20 +48,20 @@ If HACS does not add the resource automatically, add:
 1. Create this folder:
 
 ```text
-/config/www/community/homeii-music-flow/
+/config/www/community/maverick-music-flow/
 ```
 
 2. Copy the full contents of `dist/` into that folder.
 3. Add this Dashboard resource:
 
 ```text
-/local/community/homeii-music-flow/homeii-music-flow.js?v=6.0.0
+/local/community/maverick-music-flow/maverick-music.js?v=6.0.0
 ```
 
 4. Add the card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 ## First Card
@@ -69,13 +69,13 @@ type: custom:homeii-music-flow
 Minimal configuration:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 Recommended first configuration:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 language: auto
 theme_mode: auto
 phone_display_mode: auto
@@ -84,7 +84,7 @@ phone_display_mode: auto
 If you want the card to start on a specific player:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 entity: media_player.living_room
 ```
 
@@ -116,7 +116,7 @@ For phones:
 
 ## Reusable Dashboards
 
-HOMEii Music Flow includes two tools that make shared dashboards easier:
+Maverick Music includes two tools that make shared dashboards easier:
 
 - `card_id` for separating local settings between card instances.
 - URL player overrides for opening the same dashboard directly to a specific player.
@@ -124,7 +124,7 @@ HOMEii Music Flow includes two tools that make shared dashboards easier:
 Example card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: house-music
 ```
 
@@ -134,7 +134,7 @@ Example dashboard URL:
 https://homeassistant.example.com/lovelace/music?player=kitchen_sonos
 ```
 
-When the page opens, HOMEii Music Flow tries to select the player from the URL. This is useful when you reuse the same dashboard for different rooms, tablets, or users.
+When the page opens, Maverick Music tries to select the player from the URL. This is useful when you reuse the same dashboard for different rooms, tablets, or users.
 
 For the full rules, see [Configuration: Reusable Dashboards](./configuration.md#reusable-dashboards).
 

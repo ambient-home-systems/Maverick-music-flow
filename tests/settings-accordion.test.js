@@ -2,11 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // These tests exercise the real `_settingsAccordionOpenSet` /
 // `_persistSettingsAccordionOpen` / `_settingsLsKey` methods on a real
-// `homeii-music-flow` card instance — they do NOT mirror the method bodies.
+// `maverick-music` card instance — they do NOT mirror the method bodies.
 // Browser stubs mirror tests/runtime-baseline.test.js, plus an in-memory
 // localStorage shim so the methods can exercise real I/O.
 
-const STORAGE_KEY = "homeii_music_flow_settings_accordion_open";
+const STORAGE_KEY = "maverick_music_settings_accordion_open";
 
 const originalGlobals = {
   CustomEvent: globalThis.CustomEvent,
@@ -90,7 +90,7 @@ async function settleModule() {
 }
 
 function newCard() {
-  const CardCtor = globalThis.customElements.get("homeii-music-flow");
+  const CardCtor = globalThis.customElements.get("maverick-music");
   return new CardCtor();
 }
 
@@ -116,7 +116,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
   });
 
   it("returns empty Set when localStorage is empty", async () => {
-    await import("../src/homeii-music-flow.js?settings-accordion-empty");
+    await import("../src/maverick-music.js?settings-accordion-empty");
     await settleModule();
     const card = newCard();
     const result = card._settingsAccordionOpenSet();
@@ -125,7 +125,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
   });
 
   it("hydrates a Set from a JSON array in localStorage", async () => {
-    await import("../src/homeii-music-flow.js?settings-accordion-hydrate");
+    await import("../src/maverick-music.js?settings-accordion-hydrate");
     await settleModule();
     const card = newCard();
     globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(["display", "players_library"]));
@@ -136,7 +136,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
   });
 
   it("persists the set as a JSON array under the expected key", async () => {
-    await import("../src/homeii-music-flow.js?settings-accordion-persist");
+    await import("../src/maverick-music.js?settings-accordion-persist");
     await settleModule();
     const card = newCard();
     card._persistSettingsAccordionOpen(new Set(["voice_assistant"]));
@@ -144,7 +144,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
   });
 
   it("returns an empty Set without throwing when localStorage holds malformed JSON", async () => {
-    await import("../src/homeii-music-flow.js?settings-accordion-malformed");
+    await import("../src/maverick-music.js?settings-accordion-malformed");
     await settleModule();
     const card = newCard();
     globalThis.localStorage.setItem(STORAGE_KEY, "not json");
@@ -157,7 +157,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
   // New tests for the card_id namespacing (_settingsLsKey added at ~28273).
 
   it("namespaces the localStorage key with card_id when present", async () => {
-    await import("../src/homeii-music-flow.js?settings-accordion-cardid-namespaced");
+    await import("../src/maverick-music.js?settings-accordion-cardid-namespaced");
     await settleModule();
     const card = newCard();
     card._config = { ...(card._config || {}), card_id: "kitchen" };
@@ -179,7 +179,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
   });
 
   it("uses the unsuffixed key when card_id is absent (no migration)", async () => {
-    await import("../src/homeii-music-flow.js?settings-accordion-cardid-absent");
+    await import("../src/maverick-music.js?settings-accordion-cardid-absent");
     await settleModule();
     const card = newCard();
     card._config = { ...(card._config || {}) };
@@ -196,7 +196,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
   });
 
   it("renders the in-card settings menu with announcements and diagnostics", async () => {
-    await import("../src/homeii-music-flow.js?settings-menu-announcements-diagnostics");
+    await import("../src/maverick-music.js?settings-menu-announcements-diagnostics");
     await settleModule();
     const card = newCard();
     card._loadPlayers = vi.fn();
@@ -214,12 +214,12 @@ describe("settings accordion open-set persistence (real methods on real card)", 
     expect(html).toContain('data-menu-nav="diagnostics"');
   });
 
-  it("explains that HOMEii Flow 6 requires the Engine before direct browser settings", async () => {
-    await import("../src/homeii-music-flow.js?settings-direct-ma-without-ha-integration");
+  it("explains that Maverick Music 6 requires the Engine before direct browser settings", async () => {
+    await import("../src/maverick-music.js?settings-direct-ma-without-ha-integration");
     await settleModule();
     const card = newCard();
     card.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       ma_url: "http://192.168.1.50:8095",
       ma_token: "token",
     });
@@ -227,7 +227,7 @@ describe("settings accordion open-set persistence (real methods on real card)", 
 
     const message = card._musicAssistantRequiredMessage();
 
-    expect(message).toContain("HOMEii Flow 6 requires HOMEii Flow Engine");
+    expect(message).toContain("Maverick Music 6 requires Maverick Music Engine");
     expect(message).toContain("required connection snapshot");
   });
 });

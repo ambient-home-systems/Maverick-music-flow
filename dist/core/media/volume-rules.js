@@ -4,7 +4,7 @@ export async function renderVolumeRules(card, body) {
   const t=(en,he)=>card._esc(card._m(en,he));
   const page=card._state.menuPage;
   body.innerHTML=`<p role="status">${t("Loading volume limits…","טוען מגבלות ווליום…")}</p>`;
-  const result=await card._homeiiEngineCommand("volume_rules/get");
+  const result=await card._maverickEngineCommand("volume_rules/get");
   if (!body.isConnected || card._state.menuPage!==page) return;
   const players=(card._state.players || []).filter(isPlayerAvailable);
   if (!players.length) { body.innerHTML=`<p>${t("No available players","אין נגנים זמינים")}</p>`;return; }
@@ -26,8 +26,8 @@ export async function renderVolumeRules(card, body) {
     const player=fields.player.value;
     busy=true;form.querySelectorAll('button').forEach(button=>button.disabled=true);
     try {
-      if (remove) await card._homeiiEngineCommand("volume_rules/delete",{player});
-      else await card._homeiiEngineCommand("volume_rules/set",{player,max_volume:Number(fields.volume.value),start_time:fields.start.value,end_time:fields.end.value,enabled:fields.enabled.checked,days:[...form.querySelectorAll('[name="day"]:checked')].map(input=>Number(input.value))});
+      if (remove) await card._maverickEngineCommand("volume_rules/delete",{player});
+      else await card._maverickEngineCommand("volume_rules/set",{player,max_volume:Number(fields.volume.value),start_time:fields.start.value,end_time:fields.end.value,enabled:fields.enabled.checked,days:[...form.querySelectorAll('[name="day"]:checked')].map(input=>Number(input.value))});
       if (body.isConnected && card._state.menuPage===page) await renderVolumeRules(card,body);
     } catch(error) {status.textContent=card._mediaControlFailureMessage(error);form.querySelectorAll('button').forEach(button=>button.disabled=false);}
     finally {busy=false;}

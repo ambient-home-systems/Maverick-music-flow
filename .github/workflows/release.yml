@@ -31,7 +31,7 @@ jobs:
         run: |
           set -euo pipefail
           version="${TAG_NAME#v}"
-          title="HOMEii Music Flow ${version}"
+          title="Maverick Music ${version}"
           notes_file="RELEASE_NOTES_${version}.md"
           is_prerelease=false
           if [[ "$version" == *-* ]]; then
@@ -73,7 +73,7 @@ jobs:
             fi
           fi
           gh release upload "$TAG_NAME" \
-            dist/homeii-music-flow.js \
+            dist/maverick-music.js \
             dist/homeii-flow-icon.png \
             dist/homeii-flow-logo-v2.png \
             artifacts/HOMEii-Flow-Film-60s.mp4 \

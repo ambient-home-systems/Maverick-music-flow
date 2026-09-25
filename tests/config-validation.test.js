@@ -20,10 +20,10 @@ describe("config validators", () => {
     expect(() =>
       validateBaseCardEditorConfig({
         config_entry_id: "abc",
-        homeii_engine_mode: "required",
-        homeii_engine_instance_id: "main",
-        homeii_engine_profile_id: "living-room",
-        homeii_engine_timeout_ms: 3500,
+        engine_mode: "required",
+        engine_instance_id: "main",
+        engine_profile_id: "living-room",
+        engine_timeout_ms: 3500,
         ma_interface_target: "_self",
         height: 800,
         main_opacity: 0.9,
@@ -58,21 +58,40 @@ describe("config validators", () => {
 
     expect(() =>
       validateBaseCardEditorConfig({
-        homeii_engine_mode: "always",
+        engine_mode: "always",
       })
-    ).toThrow("homeii_engine_mode must be one of: required");
+    ).toThrow("engine_mode must be one of: required");
 
     expect(() =>
       validateBaseCardEditorConfig({
-        homeii_engine_timeout_ms: "fast",
+        engine_timeout_ms: "fast",
       })
-    ).toThrow("homeii_engine_timeout_ms must be a number");
+    ).toThrow("engine_timeout_ms must be a number");
 
     expect(() =>
       validateBaseCardEditorConfig({
         lrclib_lyrics_enabled: "yes",
       })
     ).toThrow("lrclib_lyrics_enabled must be a boolean");
+
+    expect(() =>
+      validateBaseCardEditorConfig({
+        homeii_engine_mode: "required",
+        homeii_engine_instance_id: "main",
+        homeii_engine_profile_id: "den",
+        homeii_engine_timeout_ms: 3500,
+      })
+    ).not.toThrow();
+    expect(() =>
+      validateBaseCardEditorConfig({
+        homeii_engine_mode: "always",
+      })
+    ).toThrow("homeii_engine_mode must be one of: required");
+    expect(() =>
+      validateBaseCardEditorConfig({
+        homeii_engine_timeout_ms: "fast",
+      })
+    ).toThrow("homeii_engine_timeout_ms must be a number");
   });
 
   it("accepts a valid card_id and rejects malformed ones", () => {

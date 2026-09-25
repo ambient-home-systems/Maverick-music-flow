@@ -11,7 +11,7 @@ function setup(page) {
 describe("listening tools", () => {
   it("discards statistics arriving after navigation", async () => {
     const {body,card} = setup("playback_stats"); let resolve;
-    card._homeiiEngineGetPlaybackStats = () => new Promise(done=>{resolve=done;});
+    card._maverickEngineGetPlaybackStats = () => new Promise(done=>{resolve=done;});
     const pending = renderListeningTools(card,body,"playback_stats");
     card._state.menuPage="players"; body.textContent="Players";
     resolve({today_minutes:12}); await pending;
@@ -19,10 +19,10 @@ describe("listening tools", () => {
   });
   it("shows actual Engine totals and readable failures", async () => {
     const {body,card} = setup("playback_stats");
-    card._homeiiEngineGetPlaybackStats = vi.fn().mockResolvedValue({today_minutes:12,today_sessions:2,players_today:[{friendly_name:"Kitchen",minutes:12}]});
+    card._maverickEngineGetPlaybackStats = vi.fn().mockResolvedValue({today_minutes:12,today_sessions:2,players_today:[{friendly_name:"Kitchen",minutes:12}]});
     await renderListeningTools(card,body,"playback_stats");
     expect(body.querySelector(".listening-stats-row").textContent).toContain("Kitchen");
-    card._homeiiEngineGetPlaybackStats.mockRejectedValue(new Error("Engine offline"));
+    card._maverickEngineGetPlaybackStats.mockRejectedValue(new Error("Engine offline"));
     await renderListeningTools(card,body,"playback_stats");
     expect(body.querySelector('[role="alert"]').textContent).toBe("Engine offline");
   });
@@ -53,12 +53,12 @@ it("recommendations use MA folders and reject late navigation responses",async()
 });
 it("system screensaver settings save directly to the Engine only on submit",async()=>{
  const {body,card}=setup("system_screensaver");
- card._homeiiEngineCommand=vi.fn().mockResolvedValue({config:{enabled:true,timeout_seconds:120,mode:"clock"}});
+ card._maverickEngineCommand=vi.fn().mockResolvedValue({config:{enabled:true,timeout_seconds:120,mode:"clock"}});
  await renderListeningTools(card,body,"system_screensaver");
  const form=body.querySelector('form');form.elements.timeout_seconds.value="180";
- expect(card._homeiiEngineCommand).toHaveBeenCalledTimes(1);
+ expect(card._maverickEngineCommand).toHaveBeenCalledTimes(1);
  form.dispatchEvent(new globalThis.Event("submit",{bubbles:true,cancelable:true}));await Promise.resolve();
- expect(card._homeiiEngineCommand).toHaveBeenLastCalledWith("screensaver/set",{enabled:true,timeout_seconds:180,mode:"clock",message:"",clock_mode:"digital",show_artwork:true,auto_lyrics_when_playing:true});
+ expect(card._maverickEngineCommand).toHaveBeenLastCalledWith("screensaver/set",{enabled:true,timeout_seconds:180,mode:"clock",message:"",clock_mode:"digital",show_artwork:true,auto_lyrics_when_playing:true});
 });
 it("group volume retains disconnected members for reconnection but never leaks across owners",async()=>{
  const {body,card}=setup("group_volume");let owner="a",members=["a","b"];

@@ -18,7 +18,7 @@ export async function setPlaybackSpeed(card, input) {
   if (!playbackSpeedHtml(card) || !Number.isFinite(speed) || speed < 0.5 || speed > 3) return;
   card._playbackSpeedPending = true; input.disabled = true;
   try {
-    await card._callHomeiiEnginePlayerCommand(player, "playback_speed", { speed });
+    await card._callMaverickEnginePlayerCommand(player, "playback_speed", { speed });
     const confirmed = await card._callEngineMaCommand("player_queues/get", { queue_id: queue.queue_id });
     const actual = Number(confirmed?.current_item?.playback_speed ?? confirmed?.playback_speed);
     if (actual !== speed) throw new Error(card._m("The playback speed was not confirmed by Music Assistant.", "מהירות ההאזנה לא אושרה על ידי Music Assistant."));
@@ -80,7 +80,7 @@ export async function toggleQueueAutoplay() {
     this._autoplayPendingPlayer = playerId;
     try {
       await this._renderMobileMenu();
-      await this._callHomeiiEnginePlayerCommand(playerId, "autoplay", { autoplay_enabled: enabled });
+      await this._callMaverickEnginePlayerCommand(playerId, "autoplay", { autoplay_enabled: enabled });
       if (this._state.selectedPlayer === playerId) await this._ensureQueueSnapshot(true);
     } catch (error) {
       this._toastError(this._mediaControlFailureMessage(error));

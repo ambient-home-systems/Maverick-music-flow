@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // These tests exercise the real `_refreshAfterSettingsChange` method on a real
-// `homeii-music-flow` card instance — they do NOT mirror the method body. The
+// `maverick-music` card instance — they do NOT mirror the method body. The
 // minimal browser stubs follow the pattern in tests/runtime-baseline.test.js.
 
 const originalGlobals = {
@@ -72,7 +72,7 @@ async function settleModule() {
 }
 
 function instrumentCard() {
-  const CardCtor = globalThis.customElements.get("homeii-music-flow");
+  const CardCtor = globalThis.customElements.get("maverick-music");
   const card = new CardCtor();
   // Stub only the surrounding dependencies — the body of
   // `_refreshAfterSettingsChange` itself still runs from the real source.
@@ -111,7 +111,7 @@ describe("_refreshAfterSettingsChange (real method on real card)", () => {
   });
 
   it("does NOT call _build() when quickActionsChanged is true", async () => {
-    await import("../src/homeii-music-flow.js?settings-refresh-quickactions-nobuild");
+    await import("../src/maverick-music.js?settings-refresh-quickactions-nobuild");
     await settleModule();
     const card = instrumentCard();
     card._refreshAfterSettingsChange({ quickActionsChanged: true });
@@ -119,7 +119,7 @@ describe("_refreshAfterSettingsChange (real method on real card)", () => {
   });
 
   it("does NOT call _init() when playerListChanged is true", async () => {
-    await import("../src/homeii-music-flow.js?settings-refresh-playerlist-noinit");
+    await import("../src/maverick-music.js?settings-refresh-playerlist-noinit");
     await settleModule();
     const card = instrumentCard();
     card._refreshAfterSettingsChange({ playerListChanged: true });
@@ -127,7 +127,7 @@ describe("_refreshAfterSettingsChange (real method on real card)", () => {
   });
 
   it("calls _loadPlayers() once when playerListChanged is true", async () => {
-    await import("../src/homeii-music-flow.js?settings-refresh-playerlist-loadplayers");
+    await import("../src/maverick-music.js?settings-refresh-playerlist-loadplayers");
     await settleModule();
     const card = instrumentCard();
     card._refreshAfterSettingsChange({ playerListChanged: true });
@@ -135,7 +135,7 @@ describe("_refreshAfterSettingsChange (real method on real card)", () => {
   });
 
   it("does NOT call _loadPlayers() when only quickActionsChanged is true", async () => {
-    await import("../src/homeii-music-flow.js?settings-refresh-quickactions-noloadplayers");
+    await import("../src/maverick-music.js?settings-refresh-quickactions-noloadplayers");
     await settleModule();
     const card = instrumentCard();
     card._refreshAfterSettingsChange({ quickActionsChanged: true });
@@ -143,7 +143,7 @@ describe("_refreshAfterSettingsChange (real method on real card)", () => {
   });
 
   it("falls back to _reopenSettingsMenuPreservingScroll when unknown is true", async () => {
-    await import("../src/homeii-music-flow.js?settings-refresh-unknown-fallback");
+    await import("../src/maverick-music.js?settings-refresh-unknown-fallback");
     await settleModule();
     const card = instrumentCard();
     card._refreshAfterSettingsChange({ unknown: true });
@@ -160,7 +160,7 @@ describe("_refreshAfterSettingsChange (real method on real card)", () => {
     // category, but the production method routes it through
     // _reopenSettingsMenuPreservingScroll instead. Source unchanged here —
     // we just align the assertion with the real method.
-    await import("../src/homeii-music-flow.js?settings-refresh-openmenu");
+    await import("../src/maverick-music.js?settings-refresh-openmenu");
     await settleModule();
     const categories = [
       "playerListChanged",
@@ -179,7 +179,7 @@ describe("_refreshAfterSettingsChange (real method on real card)", () => {
   // stub-mirror test was written.
 
   it("calls _syncActiveQuickActionRow({ force: true }) when quickActionsChanged is true", async () => {
-    await import("../src/homeii-music-flow.js?settings-refresh-quickactions-sync");
+    await import("../src/maverick-music.js?settings-refresh-quickactions-sync");
     await settleModule();
     const card = instrumentCard();
     card._refreshAfterSettingsChange({ quickActionsChanged: true });
@@ -188,7 +188,7 @@ describe("_refreshAfterSettingsChange (real method on real card)", () => {
   });
 
   it("calls _renderPlayerSummary() when playerListChanged is true", async () => {
-    await import("../src/homeii-music-flow.js?settings-refresh-playerlist-summary");
+    await import("../src/maverick-music.js?settings-refresh-playerlist-summary");
     await settleModule();
     const card = instrumentCard();
     card._refreshAfterSettingsChange({ playerListChanged: true });

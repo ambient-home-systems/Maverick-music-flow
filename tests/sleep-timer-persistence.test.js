@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 const state = () => ({ mobileSleepTimerEndsAt: Date.now() + 600000, mobileSleepTimerPlayer: "media_player.computer", mobileSleepTimerOrigin: "night" });
 function context() {
   return {
-    _state: state(), _homeiiEngineRequired: () => true, _homeiiEngineEnabled: () => true,
-    _homeiiEngineTimeoutMs: () => 5000, _syncSleepTimerToHomeiiEngine: vi.fn(async () => true),
+    _state: state(), _maverickEngineRequired: () => true, _maverickEngineEnabled: () => true,
+    _maverickEngineTimeoutMs: () => 5000, _syncSleepTimerToMaverickEngine: vi.fn(async () => true),
     _syncNightModeUi: vi.fn(), _syncSleepTimerChip: vi.fn(), _persistMobileAppearance: vi.fn(),
     _toastError: vi.fn(), _toast: vi.fn(), _m: (text) => text,
   };
@@ -17,22 +17,22 @@ describe("confirmed sleep timer persistence", () => {
   it("does not resurrect a timer removed from the authoritative Engine", async () => {
     const card = context();
     card._state.selectedPlayer = "media_player.computer";
-    card._homeiiEngineGetTimers = vi.fn(async () => ({ timers: [] }));
-    await prototype._hydrateSleepTimerFromHomeiiEngine.call(card);
+    card._maverickEngineGetTimers = vi.fn(async () => ({ timers: [] }));
+    await prototype._hydrateSleepTimerFromMaverickEngine.call(card);
     expect(card._state.mobileSleepTimerEndsAt).toBe(0);
-    expect(card._syncSleepTimerToHomeiiEngine).not.toHaveBeenCalled();
+    expect(card._syncSleepTimerToMaverickEngine).not.toHaveBeenCalled();
   });
   it("does not interpret a failed timer read as an empty server list", async () => {
     const card = context();
     const before = { ...card._state };
-    card._homeiiEngineGetTimers = vi.fn(async () => undefined);
-    await prototype._hydrateSleepTimerFromHomeiiEngine.call(card);
+    card._maverickEngineGetTimers = vi.fn(async () => undefined);
+    await prototype._hydrateSleepTimerFromMaverickEngine.call(card);
     expect(card._state).toEqual(before);
   });
   it("rolls back an unconfirmed timer without persisting a false active timer", async () => {
     const card = context();
     const before = { ...card._state };
-    card._syncSleepTimerToHomeiiEngine.mockResolvedValue(false);
+    card._syncSleepTimerToMaverickEngine.mockResolvedValue(false);
     expect(await prototype._saveSleepTimerState.call(card, { mobileSleepTimerEndsAt: Date.now() + 1800000 }, 30, "night")).toBe(false);
     expect(card._state).toEqual(before);
     expect(card._persistMobileAppearance).not.toHaveBeenCalled();
@@ -40,7 +40,7 @@ describe("confirmed sleep timer persistence", () => {
   it("restores state and unlocks controls after an unexpected persistence exception", async () => {
     const card = context();
     const before = { ...card._state };
-    card._syncSleepTimerToHomeiiEngine.mockRejectedValue(new Error("offline"));
+    card._syncSleepTimerToMaverickEngine.mockRejectedValue(new Error("offline"));
     await prototype._saveSleepTimerState.call(card, { mobileSleepTimerEndsAt: Date.now() + 1800000 }, 30, "night");
     expect(card._state).toEqual(before);
     expect(card._sleepTimerSavePending).toBe(false);
@@ -55,13 +55,13 @@ describe("confirmed sleep timer persistence", () => {
   });
   it("does not accept the old timer as confirmation of a changed deadline", async () => {
     const card = context();
-    card._homeiiEngineGetTimers = vi.fn(async () => ({ timers: [{ id: "sleep_computer", player: "media_player.computer", ends_at: new Date(Date.now() + 600000).toISOString() }] }));
-    expect(await prototype._confirmSleepTimerInHomeiiEngine.call(card, "sleep_computer", "media_player.computer", Date.now() + 1800000)).toBe(false);
+    card._maverickEngineGetTimers = vi.fn(async () => ({ timers: [{ id: "sleep_computer", player: "media_player.computer", ends_at: new Date(Date.now() + 600000).toISOString() }] }));
+    expect(await prototype._confirmSleepTimerInMaverickEngine.call(card, "sleep_computer", "media_player.computer", Date.now() + 1800000)).toBe(false);
   });
   it("keeps the displayed timer when cancellation is not confirmed", async () => {
     const card = context();
     const before = { ...card._state };
-    card._deleteSleepTimerFromHomeiiEngine = vi.fn(async () => false);
+    card._deleteSleepTimerFromMaverickEngine = vi.fn(async () => false);
     expect(await prototype._clearSleepTimer.call(card, true)).toBe(false);
     expect(card._state).toEqual(before);
     expect(card._toast).not.toHaveBeenCalled();
