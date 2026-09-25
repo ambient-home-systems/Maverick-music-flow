@@ -836,27 +836,9 @@ export default function() {
           padding:14px;
           overflow:auto;
         }
-        .menu-sheet.sheet-schedules {
-          height:calc(100% - 8px);
-          max-height:calc(100% - 8px);
-          margin-top:0;
-        }
         .menu-body.sheet-actions,
         .menu-body.sheet-simple {
           padding:16px 14px 20px;
-        }
-        .menu-body.sheet-schedules {
-          min-height:0;
-          padding:16px 14px 20px;
-          overflow:auto;
-        }
-        .menu-body.sheet-schedules .settings-shell {
-          min-height:0;
-          height:100%;
-          display:grid;
-          grid-template-rows:auto minmax(0,1fr);
-          align-content:start;
-          gap:14px;
         }
         `;
 }

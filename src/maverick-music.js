@@ -10,6 +10,11 @@ import { renderVolumeRules } from "./core/media/volume-rules.js";
 import { actionIconSvg, actionMenuHtml, mediaActionSheetHtml, handleMediaActionClick } from "./core/media/action-menu.js";
 import { immersivePlayerEnabled, immersivePlayerStage, immersivePlayerDock, bindImmersivePlayer, syncImmersivePlayer, commitImmersiveSwipe, reconcileImmersiveCovers } from "./core/media/immersive-player.js";
 import { loadQueueSettings, saveQueueSettings, updateQueueSettingVisibility } from "./core/media/queue-settings.js";
+import {
+  bindSleepTimerCorner, cycleSleepTimer, handleTimersFormChange, handleTimersMenuClick, isScheduleFormControl, isScheduleFormEditing,
+  loadScheduledStartPlaylists, markScheduleFormControlActive, normalizeScheduledStartSchedule, renderTimersPage, scheduledStartDays,
+  scheduledStartSchedules, sleepTimerFabHtml, sleepTimerId, sleepTimerRemainingLabel, sleepTimerRemainingMs, syncSleepTimerChip, syncSleepTimerState,
+} from "./core/media/timers.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -565,10 +570,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { this._state.mobileSchedulesTab = localStorage.getItem(this._lsKey("maverick_music_mobile_schedules_tab")) || "timers"; } catch (_) {}
     try {
       const schedules = JSON.parse(localStorage.getItem(this._lsKey("maverick_music_mobile_start_schedules")) || "[]");
-      if (Array.isArray(schedules)) this._state.mobileStartSchedules = schedules.map((schedule, index) => this._normalizeScheduledStartSchedule(schedule, index));
+      if (Array.isArray(schedules)) this._state.mobileStartSchedules = schedules.map((schedule, index) => normalizeScheduledStartSchedule(this, schedule, index));
     } catch (_) {}
     if (!this._state.mobileStartSchedules.length && this._state.mobileStartTimerEnabled) {
-      this._state.mobileStartSchedules = [this._normalizeScheduledStartSchedule({
+      this._state.mobileStartSchedules = [normalizeScheduledStartSchedule(this, {
         id: "schedule_legacy",
         enabled: true,
         time: this._state.mobileStartTimerTime,
@@ -1681,527 +1686,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     });
   }
 
-  _sleepTimerRemainingMs(now = Date.now()) {
-    return MaverickNightFoundation.sleepTimerRemainingMs(this._state.mobileSleepTimerEndsAt || 0, now);
-  }
-
-  _sleepTimerRemainingLabel() {
-    return MaverickNightFoundation.sleepTimerRemainingLabel(this._sleepTimerRemainingMs());
-  }
-
-  _sleepTimerFooterLabel() {
-    return MaverickNightFoundation.sleepTimerFooterLabel(this._sleepTimerRemainingMs());
-  }
-
-  _sleepTimerStartedFromNightMode() {
-    return MaverickNightFoundation.sleepTimerStartedFromNightMode(
-      this._sleepTimerRemainingMs(),
-      this._state.mobileSleepTimerOrigin || "",
-    );
-  }
-
-  _sleepTimerChipVisible() {
-    return MaverickNightFoundation.sleepTimerChipVisible(
-      this._sleepTimerRemainingMs(),
-      this._state.mobileSleepTimerOrigin || "",
-    );
-  }
-
-  _sleepTimerCornerInnerHtml() {
-    const label = this._sleepTimerFooterLabel();
-    const active = !!label && this._sleepTimerChipVisible();
-    if (!active) return "";
-    const menuOpen = !!this._state.mobileSleepTimerMenuOpen;
-    return `
-      <div class="sleep-timer-menu" id="sleepTimerMenu"${menuOpen ? `` : ` hidden`}>
-        <button class="sleep-timer-menu-btn" data-sleep-timer-add="15">+15</button>
-        <button class="sleep-timer-menu-btn" data-sleep-timer-add="30">+30</button>
-        <button class="sleep-timer-menu-btn" data-sleep-timer-add="60">+60</button>
-        <button class="sleep-timer-menu-btn danger" data-sleep-timer-clear>${this._esc(this._i18n("ui.cancel_2"))}</button>
-        <button class="sleep-timer-menu-btn ghost" data-sleep-timer-close>${this._esc(this._i18n("ui.close"))}</button>
-      </div>
-      <button class="sleep-timer-chip active" id="sleepTimerChip" title="${this._esc(this._i18n("ui.sleep_timer"))}">
-        ${this._iconSvg("timer")}
-        <span id="sleepTimerChipLabel">${this._esc(label)}</span>
-      </button>
-    `;
-  }
-
-  _scheduledStartDays() {
-    return this._normalizeNightModeDays(this._state.mobileStartTimerDays);
-  }
-
-  _newScheduledStartId() {
-    return `schedule_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-  }
-
-  _normalizeScheduledStartSchedule(schedule = {}, index = 0) {
-    const id = String(schedule?.id || "").trim() || `schedule_${index + 1}`;
-    const volume = Math.max(0, Math.min(100, Number(schedule?.volume ?? schedule?.mobileStartTimerVolume ?? 35) || 35));
-    const afterRun = ["disable", "off"].includes(String(schedule?.afterRun || schedule?.after_run || "").trim())
-      ? "disable"
-      : "keep";
-    return {
-      id,
-      enabled: schedule?.enabled !== false,
-      time: this._normalizeClockTime(schedule?.time || "07:00", "07:00"),
-      player: String(schedule?.player || "").trim(),
-      playlist: String(schedule?.playlist || "").trim(),
-      playlistName: String(schedule?.playlistName || "").trim(),
-      volume,
-      days: this._normalizeNightModeDays(schedule?.days),
-      lastRunKey: String(schedule?.lastRunKey || "").trim(),
-      afterRun,
-    };
-  }
-
-  _scheduledStartSchedules() {
-    const raw = Array.isArray(this._state.mobileStartSchedules) ? this._state.mobileStartSchedules : [];
-    const schedules = raw
-      .map((schedule, index) => this._normalizeScheduledStartSchedule(schedule, index))
-      .filter((schedule, index, list) => schedule.id && list.findIndex((candidate) => candidate.id === schedule.id) === index);
-    this._state.mobileStartSchedules = schedules;
-    return schedules;
-  }
-
-  _engineScheduleToScheduledStartSchedule(schedule = {}, index = 0) {
-    const mediaId = String(schedule?.media_id || schedule?.media_content_id || schedule?.playlist || "").trim();
-    return this._normalizeScheduledStartSchedule({
-      id: schedule?.id || schedule?.schedule_id || `engine_schedule_${index + 1}`,
-      enabled: schedule?.enabled !== false,
-      time: schedule?.time || "07:00",
-      player: schedule?.player || schedule?.entity_id || "",
-      playlist: mediaId,
-      playlistName: schedule?.playlistName || schedule?.playlist_name || schedule?.media_name || schedule?.name || "",
-      volume: schedule?.volume ?? 35,
-      days: schedule?.days,
-      lastRunKey: schedule?.lastRunKey || schedule?.last_run_key || "",
-      afterRun: schedule?.afterRun || schedule?.after_run || "keep",
-    }, index);
-  }
-
-  _scheduledStartEnginePayload(schedule = {}) {
-    const normalized = this._normalizeScheduledStartSchedule(schedule);
-    const playlistLabel = normalized.playlistName || this._scheduledStartPlaylistLabel(normalized) || "";
-    const mediaMode = normalized.playlist ? "selected" : "random_playlist";
-    return {
-      kind: "wake_playback",
-      action: "wake_playback",
-      schedule_id: String(normalized.id || "").trim(),
-      name: playlistLabel || this._i18n("ui.scheduled_start"),
-      player: this._scheduledStartPlayerId(normalized),
-      media_id: normalized.playlist,
-      playlist: normalized.playlist,
-      media_type: "playlist",
-      media_name: playlistLabel,
-      playlist_name: playlistLabel,
-      media_mode: mediaMode,
-      selection_mode: mediaMode,
-      enqueue: "play",
-      time: normalized.time,
-      days: this._normalizeNightModeDays(normalized.days),
-      volume: Math.max(0, Math.min(100, Number(normalized.volume || 35) || 35)),
-      enabled: normalized.enabled !== false,
-      after_run: normalized.afterRun || "keep",
-    };
-  }
-
-  _strictSchedulePlayers() {
-    const seen = new Set();
-    const players = [
-      ...(Array.isArray(this._state.configurableMusicAssistantPlayers) ? this._state.configurableMusicAssistantPlayers : []),
-      ...(Array.isArray(this._state.players) ? this._state.players : []),
-    ];
-    return players.filter((player) => {
-      const entityId = String(player?.entity_id || "").trim();
-      if (!entityId || seen.has(entityId) || !MaverickPlayersFoundation.isPlayerAvailable(player)) return false;
-      const strict = this._isDirectMaPlayer?.(player)
-        || MaverickPlayersFoundation.isMusicAssistantPlayer(player, this._hass?.entities?.[entityId]);
-      if (!strict) return false;
-      seen.add(entityId);
-      return true;
-    });
-  }
-
   async _maverickEngineReadyForPersistence() {
     if (!this._maverickEngineEnabled()) return false;
     const context = await this._refreshMaverickEngineContext({ force: true }).catch(() => null);
     return !!(context?.available || this._state.engineAvailable);
-  }
-
-  async _syncScheduleToMaverickEngine(schedule = {}, options = {}) {
-    if (!this._maverickEngineEnabled()) return false;
-    const payload = this._scheduledStartEnginePayload(schedule);
-    if (!payload.player) return false;
-    const ready = await this._maverickEngineReadyForPersistence();
-    if (!ready) {
-      if (this._maverickEngineRequired() || options.toast) {
-        this._toastError(this._m("Saved locally, but Maverick Music Engine did not confirm the schedule."));
-      }
-      return false;
-    }
-    try {
-      const result = await this._maverickEngineSetSchedule(payload, { required: true });
-      if (!result) return false;
-      const confirmed = await this._confirmScheduleInMaverickEngine(payload.schedule_id);
-      if (!confirmed && (this._maverickEngineRequired() || options.toast)) {
-        this._toastError("Maverick Music Engine accepted the schedule write, but it was not found when reading it back.");
-      }
-      return confirmed;
-    } catch (error) {
-      if (this._maverickEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine schedule sync failed");
-      return false;
-    }
-  }
-
-  async _confirmScheduleInMaverickEngine(scheduleId = "") {
-    const id = String(scheduleId || "").trim();
-    if (!id || !this._maverickEngineEnabled()) return false;
-    try {
-      const result = await this._maverickEngineGetSchedules({}, { required: true, timeoutMs: this._maverickEngineTimeoutMs() });
-      const schedules = Array.isArray(result?.schedules) ? result.schedules : [];
-      return schedules.some((schedule) => String(schedule?.id || schedule?.schedule_id || "").trim() === id);
-    } catch (_) {
-      return false;
-    }
-  }
-
-  async _deleteScheduleFromMaverickEngine(id = "", options = {}) {
-    const scheduleId = String(id || "").trim();
-    if (!scheduleId || !this._maverickEngineEnabled()) return false;
-    const ready = await this._maverickEngineReadyForPersistence();
-    if (!ready) return false;
-    try {
-      const result = await this._maverickEngineDeleteSchedule({ schedule_id: scheduleId }, { required: true });
-      return !!result;
-    } catch (error) {
-      if (this._maverickEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine schedule delete failed");
-      return false;
-    }
-  }
-
-  async _hydrateSchedulesFromMaverickEngine() {
-    if (!this._maverickEngineEnabled()) return false;
-    const result = await this._maverickEngineGetSchedules();
-    const engineSchedules = Array.isArray(result?.schedules) ? result.schedules : [];
-    if (!engineSchedules.length) {
-      this._scheduledStartSchedules().forEach((schedule) => this._syncScheduleToMaverickEngine(schedule).catch(() => {}));
-      return false;
-    }
-    const schedules = engineSchedules.map((schedule, index) => this._engineScheduleToScheduledStartSchedule(schedule, index));
-    this._state.mobileStartSchedules = schedules;
-    this._state.mobileStartTimerEnabled = schedules.some((schedule) => schedule.enabled !== false);
-    const editId = String(this._state.mobileStartScheduleEditId || "").trim();
-    if (editId && !schedules.some((schedule) => schedule.id === editId)) this._state.mobileStartScheduleEditId = "";
-    this._writeSchedulesToLocalStorage();
-    return true;
-  }
-
-  _activeScheduledStartSchedules() {
-    return this._scheduledStartSchedules().filter((schedule) => schedule.enabled !== false);
-  }
-
-  _scheduledStartPlayerId(schedule = null) {
-    const configured = String(schedule?.player || this._state.mobileStartTimerPlayer || "").trim();
-    if (configured && this._playerByEntityId(configured)) return configured;
-    return String(this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-  }
-
-  _scheduledStartMorningKeywords() {
-    return [
-      "morning", "sunrise", "coffee", "breakfast", "wake", "wakeup", "wake up",
-      "calm", "soft", "easy", "acoustic", "chill", "lofi", "lo-fi", "pleasant",
-    ];
-  }
-
-  async _loadScheduledStartPlaylists(force = false) {
-    const now = Date.now();
-    const cached = Array.isArray(this._state.mobileStartTimerPlaylists)
-      ? this._state.mobileStartTimerPlaylists
-      : [];
-    const fresh = cached.length && !force && (now - Number(this._state.mobileStartTimerPlaylistsFetchedAt || 0) < 10 * 60 * 1000);
-    if (fresh || this._state.mobileStartTimerPlaylistsLoading) return cached;
-    this._state.mobileStartTimerPlaylistsLoading = true;
-    try {
-      const [allPlaylists, likedPlaylists, randomPlaylists] = await Promise.allSettled([
-        this._fetchLibrary("playlist", "sort_name", 500, false),
-        this._fetchLibrary("playlist", "sort_name", 220, true),
-        this._fetchLibrary("playlist", "random", 80, false),
-      ]);
-      const playlists = [
-        ...(Array.isArray(allPlaylists.value) ? allPlaylists.value : []),
-        ...(Array.isArray(likedPlaylists.value) ? likedPlaylists.value : []),
-        ...(Array.isArray(randomPlaylists.value) ? randomPlaylists.value : []),
-      ]
-        .map((item) => this._normalizeMediaItem(item))
-        .filter((item) => String(item?.uri || "").trim())
-        .filter((item) => String(item?.media_type || "playlist").toLowerCase() === "playlist")
-        .filter((item, index, list) => list.findIndex((candidate) => String(candidate?.uri || "").trim() === String(item?.uri || "").trim()) === index);
-      this._state.mobileStartTimerPlaylists = playlists;
-      this._state.mobileStartTimerPlaylistsFetchedAt = Date.now();
-      if (!Array.isArray(this._state.mobileRecommendationPlaylists) || !this._state.mobileRecommendationPlaylists.length) {
-        this._state.mobileRecommendationPlaylists = playlists.slice(0, 24);
-        this._state.mobileRecommendationPlaylistsFetchedAt = Date.now();
-      }
-      return playlists;
-    } catch (_) {
-      return cached;
-    } finally {
-      this._state.mobileStartTimerPlaylistsLoading = false;
-    }
-  }
-
-  _scheduledStartPlaylistLabel(schedule = null) {
-    const selected = String(schedule?.playlist || this._state.mobileStartTimerPlaylist || "").trim();
-    if (!selected) return this._i18n("ui.random_gentle_morning_mix");
-    const playlists = Array.isArray(this._state.mobileStartTimerPlaylists) ? this._state.mobileStartTimerPlaylists : [];
-    const match = playlists.find((item) => String(item?.uri || "").trim() === selected);
-    return match?.name || match?.title || schedule?.playlistName || this._state.mobileStartTimerPlaylistName || this._i18n("ui.selected_playlist");
-  }
-
-  _scheduledStartPlaylistOptionsHtml(schedule = null) {
-    const selected = String(schedule?.playlist || this._state.mobileStartTimerPlaylist || "").trim();
-    const playlists = Array.isArray(this._state.mobileStartTimerPlaylists) ? this._state.mobileStartTimerPlaylists : [];
-    const selectedKnown = selected && playlists.some((item) => String(item?.uri || "").trim() === selected);
-    const options = [
-      `<option value="" ${selected ? "" : "selected"}>${this._esc(this._i18n("ui.random_gentle_morning_mix"))}</option>`,
-    ];
-    if (selected && !selectedKnown) {
-      options.push(`<option value="${this._esc(selected)}" selected>${this._esc(schedule?.playlistName || this._state.mobileStartTimerPlaylistName || this._i18n("ui.selected_playlist"))}</option>`);
-    }
-    playlists.forEach((item) => {
-      const uri = String(item?.uri || "").trim();
-      if (!uri) return;
-      const name = item.name || item.title || uri;
-      options.push(`<option value="${this._esc(uri)}" ${uri === selected ? "selected" : ""}>${this._esc(name)}</option>`);
-    });
-    return options.join("");
-  }
-
-  _pickScheduledStartPlaylist(playlists = [], schedule = null) {
-    const selected = String(schedule?.playlist || this._state.mobileStartTimerPlaylist || "").trim();
-    const candidates = (Array.isArray(playlists) ? playlists : [])
-      .map((item) => this._normalizeMediaItem(item))
-      .filter((item) => String(item?.uri || "").trim())
-      .filter((item) => String(item?.media_type || "playlist").toLowerCase() === "playlist");
-    if (!candidates.length) return null;
-    if (selected) {
-      const match = candidates.find((item) => String(item?.uri || "").trim() === selected);
-      if (match) return match;
-    }
-    const keywords = this._scheduledStartMorningKeywords();
-    const morningMatches = candidates.filter((item) => {
-      const haystack = [
-        item?.name,
-        item?.title,
-        item?.metadata?.description,
-        item?.description,
-        item?.provider_label,
-      ].filter(Boolean).join(" ").toLowerCase();
-      return keywords.some((keyword) => haystack.includes(keyword));
-    });
-    const pool = morningMatches.length ? morningMatches : candidates;
-    return pool[Math.floor(Math.random() * pool.length)] || null;
-  }
-
-  _scheduledStartStatusLabel() {
-    const schedules = this._scheduledStartSchedules();
-    const activeSchedules = schedules.filter((schedule) => schedule.enabled !== false);
-    if (!activeSchedules.length) {
-      return this._i18n("ui.no_scheduled_start_is_active");
-    }
-    if (activeSchedules.length > 1) {
-      return this._i18n("ui.scheduled_starts_active_count", { count: activeSchedules.length });
-    }
-    const schedule = activeSchedules[0];
-    const player = this._playerByEntityId(this._scheduledStartPlayerId(schedule));
-    const playerName = player?.attributes?.friendly_name || this._i18n("ui.selected_player_3");
-    const dayLabels = this._nightModeDayOptions()
-      .filter(([value]) => this._normalizeNightModeDays(schedule.days).includes(value))
-      .map(([, label]) => label)
-      .join(" ");
-    const time = this._normalizeClockTime(schedule.time || "07:00", "07:00");
-    const volume = Math.max(0, Math.min(100, Number(schedule.volume || 35) || 35));
-    const playlist = this._scheduledStartPlaylistLabel(schedule);
-    return `${time} · ${playerName} · ${playlist} · ${volume}% · ${dayLabels}`;
-  }
-
-  async _setScheduledStartFromMenu() {
-    const timeInput = this.$("scheduledStartTimeInput");
-    const playerSelect = this.$("scheduledStartPlayerSelect");
-    const playlistSelect = this.$("scheduledStartPlaylistSelect");
-    const volumeInput = this.$("scheduledStartVolumeInput");
-    const afterRunSelect = this.$("scheduledStartAfterRunSelect");
-    const checkedDays = Array.from(this.shadowRoot?.querySelectorAll("input[data-start-timer-day]:checked") || [])
-      .map((input) => Number(input.dataset.startTimerDay))
-      .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6);
-    const playerId = String(playerSelect?.value || this._state.selectedPlayer || "").trim();
-    if (!playerId) {
-      this._toastError(this._i18n("ui.select_a_player_first"));
-      return false;
-    }
-    const editId = String(this._state.mobileStartScheduleEditId || "").trim();
-    const schedule = this._normalizeScheduledStartSchedule({
-      id: editId && editId !== "__new__" ? editId : this._newScheduledStartId(),
-      enabled: true,
-      time: this._normalizeClockTime(timeInput?.value || "07:00", "07:00"),
-      player: playerId,
-      playlist: String(playlistSelect?.value || "").trim(),
-      playlistName: String(playlistSelect?.value || "").trim()
-      ? String(playlistSelect?.selectedOptions?.[0]?.textContent || "").trim()
-      : "",
-      volume: Math.max(0, Math.min(100, Number(volumeInput?.value || 35) || 35)),
-      days: this._normalizeNightModeDays(checkedDays),
-      lastRunKey: "",
-      afterRun: String(afterRunSelect?.value || "keep") === "disable" ? "disable" : "keep",
-    });
-    const schedules = this._scheduledStartSchedules();
-    const existingIndex = schedules.findIndex((item) => item.id === schedule.id);
-    if (existingIndex >= 0) schedules[existingIndex] = schedule;
-    else schedules.push(schedule);
-    this._state.mobileStartSchedules = schedules;
-    this._state.mobileStartScheduleEditId = "";
-    this._state.mobileStartTimerEnabled = schedules.some((item) => item.enabled !== false);
-    this._state.mobileStartTimerTime = schedule.time;
-    this._state.mobileStartTimerPlayer = schedule.player;
-    this._state.mobileStartTimerPlaylist = schedule.playlist;
-    this._state.mobileStartTimerPlaylistName = schedule.playlistName;
-    this._state.mobileStartTimerVolume = schedule.volume;
-    this._state.mobileStartTimerDays = schedule.days;
-    this._state.mobileStartTimerLastRunKey = schedule.lastRunKey;
-    this._state.mobileStartTimerAfterRun = schedule.afterRun || "keep";
-    this._persistMobileAppearance();
-    const engineSaved = await this._syncScheduleToMaverickEngine(schedule, { toast: true });
-    this._toastSuccess(engineSaved
-      ? this._m("Schedule saved to Maverick Music Engine")
-      : this._i18n("ui.scheduled_start_saved"));
-    return true;
-  }
-
-  async _clearScheduledStart(showToast = false) {
-    const editId = String(this._state.mobileStartScheduleEditId || "").trim();
-    if (editId && editId !== "__new__") {
-      this._state.mobileStartSchedules = this._scheduledStartSchedules().filter((schedule) => schedule.id !== editId);
-      await this._deleteScheduleFromMaverickEngine(editId, { toast: showToast });
-    } else if (!editId) {
-      await Promise.allSettled(this._scheduledStartSchedules().map((schedule) => this._deleteScheduleFromMaverickEngine(schedule.id, { toast: false })));
-      this._state.mobileStartSchedules = [];
-    }
-    this._state.mobileStartScheduleEditId = "";
-    this._state.mobileStartTimerEnabled = this._activeScheduledStartSchedules().length > 0;
-    this._state.mobileStartTimerLastRunKey = "";
-    this._persistMobileAppearance();
-    if (showToast) this._toast(this._i18n("ui.scheduled_start_cleared"));
-  }
-
-  _editScheduledStart(id = "") {
-    const schedule = this._scheduledStartSchedules().find((item) => item.id === id);
-    if (!schedule) return false;
-    this._state.mobileStartScheduleEditId = schedule.id;
-    this._state.mobileStartTimerEnabled = schedule.enabled !== false;
-    this._state.mobileStartTimerTime = schedule.time;
-    this._state.mobileStartTimerPlayer = schedule.player;
-    this._state.mobileStartTimerPlaylist = schedule.playlist;
-    this._state.mobileStartTimerPlaylistName = schedule.playlistName;
-    this._state.mobileStartTimerVolume = schedule.volume;
-    this._state.mobileStartTimerDays = schedule.days;
-    this._state.mobileStartTimerLastRunKey = schedule.lastRunKey || "";
-    this._state.mobileStartTimerAfterRun = schedule.afterRun || "keep";
-    return true;
-  }
-
-  _newScheduledStartDraft() {
-    this._state.mobileStartScheduleEditId = "__new__";
-    this._state.mobileStartTimerEnabled = false;
-    this._state.mobileStartTimerTime = "07:00";
-    this._state.mobileStartTimerPlayer = this._state.selectedPlayer || "";
-    this._state.mobileStartTimerPlaylist = "";
-    this._state.mobileStartTimerPlaylistName = "";
-    this._state.mobileStartTimerVolume = 35;
-    this._state.mobileStartTimerDays = [0, 1, 2, 3, 4, 5, 6];
-    this._state.mobileStartTimerLastRunKey = "";
-    this._state.mobileStartTimerAfterRun = "keep";
-  }
-
-  async _toggleScheduledStart(id = "") {
-    const schedules = this._scheduledStartSchedules();
-    const index = schedules.findIndex((schedule) => schedule.id === id);
-    if (index < 0) return false;
-    schedules[index] = { ...schedules[index], enabled: schedules[index].enabled === false };
-    this._state.mobileStartSchedules = schedules;
-    this._state.mobileStartTimerEnabled = schedules.some((item) => item.enabled !== false);
-    this._persistMobileAppearance();
-    await this._syncScheduleToMaverickEngine(schedules[index], { toast: true });
-    return true;
-  }
-
-  async _deleteScheduledStart(id = "") {
-    const schedules = this._scheduledStartSchedules().filter((schedule) => schedule.id !== id);
-    this._state.mobileStartSchedules = schedules;
-    if (this._state.mobileStartScheduleEditId === id) this._state.mobileStartScheduleEditId = "";
-    this._state.mobileStartTimerEnabled = schedules.some((item) => item.enabled !== false);
-    this._persistMobileAppearance();
-    await this._deleteScheduleFromMaverickEngine(id, { toast: true });
-    return true;
-  }
-
-  async _runScheduledStart(entityId, schedule = null) {
-    if (!entityId || this._state.mobileStartTimerRunPending) return;
-    this._state.mobileStartTimerRunPending = true;
-    try {
-      const activeSchedule = schedule ? this._normalizeScheduledStartSchedule(schedule) : null;
-      const volume = Math.max(0, Math.min(100, Number(activeSchedule?.volume ?? this._state.mobileStartTimerVolume ?? 35) || 35));
-      await this._setPlayerVolumeFor(entityId, volume / 100);
-      const playlists = await this._loadScheduledStartPlaylists();
-      const pick = this._pickScheduledStartPlaylist(playlists, activeSchedule);
-      let ok = false;
-      if (pick?.uri) {
-        ok = await this._playMediaOnPlayer(entityId, pick.uri, pick.media_type || "playlist", "play", {
-          label: pick.name || pick.title || this._i18n("ui.morning_mix"),
-          silent: true,
-        });
-      }
-      if (!ok) {
-        await this._callMaverickEnginePlayerCommand(entityId, "play");
-      }
-      const label = pick?.name || pick?.title || this._i18n("ui.scheduled_start");
-      this._toastSuccess(this._i18n("ui.scheduled_start_activated_label", { label }));
-    } catch (error) {
-      this._toastError(error?.message || this._i18n("ui.scheduled_start_failed"));
-    } finally {
-      this._state.mobileStartTimerRunPending = false;
-    }
-  }
-
-  _syncScheduledStartState(date = new Date()) {
-    const schedules = this._activeScheduledStartSchedules();
-    if (!schedules.length) return;
-    if (this._maverickEngineEnabled() && this._state.engineAvailable) return;
-    let changed = false;
-    schedules.forEach((schedule) => {
-      const time = this._normalizeClockTime(schedule.time || "07:00", "07:00");
-      const [hours, minutes] = time.split(":").map((part) => Number(part) || 0);
-      if (date.getHours() !== hours || date.getMinutes() !== minutes) return;
-      const enabledDays = new Set(this._normalizeNightModeDays(schedule.days));
-      if (!enabledDays.has(Number(date.getDay()))) return;
-      const runKey = `${schedule.id}-${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${time}`;
-      if (schedule.lastRunKey === runKey) return;
-      const entityId = this._scheduledStartPlayerId(schedule);
-      if (!entityId) return;
-      schedule.lastRunKey = runKey;
-      if (schedule.afterRun === "disable") schedule.enabled = false;
-      changed = true;
-      this._runScheduledStart(entityId, schedule).catch((error) => {
-        this._toastError(error?.message || this._i18n("ui.scheduled_start_failed"));
-      });
-    });
-    if (changed) {
-      const byId = new Map(this._state.mobileStartSchedules.map((schedule) => [schedule.id, schedule]));
-      schedules.forEach((schedule) => byId.set(schedule.id, schedule));
-      this._state.mobileStartSchedules = Array.from(byId.values());
-      this._state.mobileStartTimerEnabled = this._state.mobileStartSchedules.some((schedule) => schedule.enabled !== false);
-      this._persistMobileAppearance();
-    }
   }
 
   _tabletAutoFitEnabled() {
@@ -2256,193 +1744,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }));
   }
 
-  _maverickSleepTimerId(playerId = "") {
-    const safePlayer = String(playerId || "player").trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "") || "player";
-    return `sleep_${safePlayer}`;
-  }
-
-  async _syncSleepTimerToMaverickEngine(minutes = 15, source = "general", options = {}) {
-    if (!this._maverickEngineEnabled()) return false;
-    const playerId = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-    const target = Number(this._state.mobileSleepTimerEndsAt || 0);
-    if (!playerId || !target) return false;
-    const ready = await this._maverickEngineReadyForPersistence();
-    if (!ready) {
-      if (this._maverickEngineRequired() || options.toast) {
-        this._toastError(this._m("The Engine did not confirm the sleep timer."));
-      }
-      return false;
-    }
-    try {
-      const result = await this._maverickEngineSetTimer({
-        timer_id: this._maverickSleepTimerId(playerId),
-        timer_type: "sleep",
-        player: playerId,
-        action: "pause",
-        minutes: Math.max(1, Number(minutes) || Math.ceil(this._sleepTimerRemainingMs() / 60000) || 1),
-        ends_at: new Date(target).toISOString(),
-        origin: MaverickNightFoundation.normalizeSleepTimerOrigin(source),
-        enabled: true,
-      }, { required: true });
-      if (!result) {
-        this._toastError(this._m("The Engine did not confirm the sleep timer."));
-        return false;
-      }
-      const confirmed = await this._confirmSleepTimerInMaverickEngine(this._maverickSleepTimerId(playerId), playerId, target);
-      if (!confirmed && (this._maverickEngineRequired() || options.toast)) {
-        this._toastError("Maverick Music Engine accepted the timer write, but it was not found when reading it back.");
-      }
-      return confirmed;
-    } catch (error) {
-      if (this._maverickEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine timer sync failed");
-      return false;
-    }
-  }
-
-  async _confirmSleepTimerInMaverickEngine(timerId = "", playerId = "", expectedTarget = 0) {
-    const id = String(timerId || "").trim();
-    const player = String(playerId || "").trim();
-    if ((!id && !player) || !this._maverickEngineEnabled()) return false;
-    try {
-      const result = await this._maverickEngineGetTimers({}, { required: true, timeoutMs: this._maverickEngineTimeoutMs() });
-      const timers = Array.isArray(result?.timers) ? result.timers : [];
-      const now = Date.now();
-      return timers.some((timer) => {
-        const timerType = String(timer?.type || timer?.timer_type || "sleep");
-        const targetMs = Date.parse(timer?.ends_at || timer?.target_at || "");
-        const matchesId = id && String(timer?.id || timer?.timer_id || "").trim() === id;
-        const matchesPlayer = player && String(timer?.player || timer?.entity_id || "").trim() === player;
-        return timerType === "sleep" && timer.enabled !== false && (matchesId || matchesPlayer)
-          && Number.isFinite(targetMs) && targetMs > now
-          && (!expectedTarget || Math.abs(targetMs - expectedTarget) < 1000);
-      });
-    } catch (_) {
-      return false;
-    }
-  }
-
-  async _deleteSleepTimerFromMaverickEngine(playerId = "", options = {}) {
-    if (!this._maverickEngineEnabled()) return false;
-    const player = String(playerId || this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-    if (!player) return false;
-    const ready = await this._maverickEngineReadyForPersistence();
-    if (!ready) {
-      if (options.toast) this._toastError(this._m("The Engine could not confirm timer cancellation."));
-      return false;
-    }
-    try {
-      const result = await this._maverickEngineDeleteTimer({
-        timer_id: this._maverickSleepTimerId(player),
-        player,
-      }, { required: true });
-      if (!result) return false;
-      const confirmation = await this._maverickEngineGetTimers({}, { required: true, timeoutMs: this._maverickEngineTimeoutMs() });
-      if (!Array.isArray(confirmation?.timers)) throw new Error("Unable to confirm timer cancellation");
-      const remains = confirmation.timers.some((timer) => String(timer.id || timer.timer_id || "") === this._maverickSleepTimerId(player));
-      if (remains) throw new Error("The timer is still present in the Engine");
-      return true;
-    } catch (error) {
-      if (this._maverickEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine timer delete failed");
-      return false;
-    }
-  }
-
-  async _hydrateSleepTimerFromMaverickEngine() {
-    if (!this._maverickEngineEnabled()) return false;
-    const result = await this._maverickEngineGetTimers();
-    if (!Array.isArray(result?.timers)) return false;
-    const timers = result.timers;
-    const now = Date.now();
-    const selectedPlayer = String(this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-    const activeSleepTimers = timers
-      .filter((timer) => String(timer?.type || timer?.timer_type || "sleep") === "sleep")
-      .map((timer) => ({ ...timer, targetMs: Date.parse(timer?.ends_at || "") }))
-      .filter((timer) => timer.enabled !== false && Number.isFinite(timer.targetMs) && timer.targetMs > now)
-      .sort((a, b) => a.targetMs - b.targetMs);
-    const timer = (selectedPlayer ? activeSleepTimers.find((item) => String(item?.player || "") === selectedPlayer) : activeSleepTimers[0]) || null;
-    if (!timer) {
-      this._state.mobileSleepTimerEndsAt = 0;
-      this._state.mobileSleepTimerPlayer = "";
-      this._state.mobileSleepTimerOrigin = "";
-      this._persistMobileAppearance();
-      this._syncSleepTimerChip();
-      return false;
-    }
-    this._state.mobileSleepTimerEndsAt = timer.targetMs;
-    this._state.mobileSleepTimerPlayer = String(timer.player || selectedPlayer || "").trim();
-    this._state.mobileSleepTimerOrigin = MaverickNightFoundation.normalizeSleepTimerOrigin(timer.origin || "general");
-    this._persistMobileAppearance();
-    this._syncSleepTimerChip();
-    return true;
-  }
-
-  async _setSleepTimerMinutes(minutes = 15, source = "general") {
-    const amount = Math.max(1, Number(minutes) || 0);
-    const player = this._getSelectedPlayer();
-    if (!player?.entity_id) {
-      this._toastError(this._i18n("ui.select_a_player_first"));
-      return false;
-    }
-    const saved = await this._saveSleepTimerState({
-      mobileSleepTimerEndsAt: MaverickNightFoundation.createSleepTimerTargetAt(amount, Date.now()),
-      mobileSleepTimerPlayer: player.entity_id,
-      mobileSleepTimerOrigin: MaverickNightFoundation.normalizeSleepTimerOrigin(source),
-      mobileSleepTimerMenuOpen: false,
-    }, amount, source);
-    if (!saved) return false;
-    this._toastSuccess(this._i18n("ui.sleep_timer_set_minutes", { minutes: amount }));
-    return saved;
-  }
-
-  async _saveSleepTimerState(nextState, minutes, source) {
-    if (this._sleepTimerSavePending) {
-      this._toastError(this._m("A timer update is still in progress."));
-      return false;
-    }
-    this._sleepTimerSavePending = true;
-    const previous = Object.fromEntries(Object.keys(nextState).map((key) => [key, this._state[key]]));
-    Object.assign(this._state, nextState);
-    try {
-      const engineSaved = await this._syncSleepTimerToMaverickEngine(minutes, source, { toast: true });
-      if (!engineSaved && this._maverickEngineRequired()) {
-        Object.assign(this._state, previous);
-        return false;
-      }
-      this._persistMobileAppearance();
-      return { ok: true, engineSaved };
-    } catch (error) {
-      Object.assign(this._state, previous);
-      this._toastError(error?.message || this._m("Timer update failed."));
-      return false;
-    } finally {
-      this._sleepTimerSavePending = false;
-      this._syncNightModeUi();
-      this._syncSleepTimerChip();
-    }
-  }
-
-  async _addSleepTimerMinutes(minutes = 15) {
-    const amount = Math.max(1, Number(minutes) || 0);
-    const player = this._getSelectedPlayer();
-    const target = MaverickNightFoundation.extendSleepTimerTargetAt(
-      this._state.mobileSleepTimerEndsAt || 0,
-      amount,
-      Date.now(),
-    );
-    const saved = await this._saveSleepTimerState({
-      mobileSleepTimerEndsAt: target,
-      mobileSleepTimerPlayer: player?.entity_id || this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || "",
-    }, Math.ceil((target - Date.now()) / 60000), this._state.mobileSleepTimerOrigin || "general");
-    if (!saved) return false;
-    this._toastSuccess(this._i18n("ui.sleep_timer_added_minutes", { minutes: amount }));
-  }
-
-  _toggleSleepTimerMenu(force = null) {
-    const next = typeof force === "boolean" ? force : !this._state.mobileSleepTimerMenuOpen;
-    this._state.mobileSleepTimerMenuOpen = !!next && this._sleepTimerChipVisible();
-    this._syncSleepTimerChip();
-  }
-
   _cycleNightMode() {
     const order = ["auto", "on", "off"];
     const current = this._mobileNightMode();
@@ -2450,41 +1751,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._state.mobileNightMode = next;
     this._persistMobileAppearance();
     this._rebuildMobileUi({ reopenPage: this._state.menuOpen ? (this._state.menuPage || "settings") : "", reopenStudio: this._state.controlRoomOpen });
-  }
-
-  async _clearSleepTimer(showToast = false) {
-    if (this._sleepTimerSavePending) {
-      if (showToast) this._toastError(this._m("A timer update is still in progress."));
-      return false;
-    }
-    const timerPlayer = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-    const deleted = await this._deleteSleepTimerFromMaverickEngine(timerPlayer, { toast: showToast });
-    if (!deleted && this._maverickEngineRequired()) return false;
-    this._state.mobileSleepTimerEndsAt = 0;
-    this._state.mobileSleepTimerPlayer = "";
-    this._state.mobileSleepTimerOrigin = "";
-    this._state.mobileSleepTimerMenuOpen = false;
-    this._persistMobileAppearance();
-    this._syncNightModeUi();
-    this._syncSleepTimerChip();
-    if (showToast) {
-      this._toast(this._i18n("ui.sleep_timer_cleared"));
-    }
-  }
-
-  async _cycleSleepTimer(source = "general") {
-    const currentRemaining = this._sleepTimerRemainingMs();
-    const steps = [15, 30, 45, 60, 0];
-    const normalizedSource = MaverickNightFoundation.normalizeSleepTimerOrigin(source);
-    if (!currentRemaining) {
-      return this._setSleepTimerMinutes(steps[0], normalizedSource);
-    }
-    const nextStep = MaverickNightFoundation.nextSleepTimerStep(currentRemaining, steps);
-    if (!nextStep) {
-      await this._clearSleepTimer(true);
-      return;
-    }
-    return this._setSleepTimerMinutes(nextStep, normalizedSource === "night" ? normalizedSource : this._state.mobileSleepTimerOrigin || normalizedSource);
   }
 
   async _playNightMix() {
@@ -2675,33 +1941,15 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
   }
 
-  _syncSleepTimerState() {
-    const target = Number(this._state.mobileSleepTimerEndsAt || 0);
-    if (!target) return;
-    if (target > Date.now()) return;
-    const entityId = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || "").trim();
-    this._state.mobileSleepTimerEndsAt = 0;
-    this._state.mobileSleepTimerPlayer = "";
-    this._state.mobileSleepTimerOrigin = "";
-    this._state.mobileSleepTimerMenuOpen = false;
-    this._persistMobileAppearance();
-    this._syncSleepTimerChip();
-    this._syncNightModeUi();
-    if (entityId) {
-      this._callMaverickEnginePlayerCommand(entityId, "pause").catch(() => {});
-    }
-    this._toastSuccess(this._i18n("ui.sleep_timer_finished"));
-  }
-
   _syncNightModeUi() {
     const card = this.shadowRoot?.querySelector(".card");
     const active = this._isNightModeActive();
     const mode = this._mobileNightMode();
-    const sleepActive = this._sleepTimerRemainingMs() > 0;
+    const sleepActive = sleepTimerRemainingMs(this) > 0;
     if (this._state.mobileNightRenderedActive !== active || this._state.mobileNightRenderedMode !== mode) {
       this._state.mobileNightRenderedActive = active;
       this._state.mobileNightRenderedMode = mode;
-      if (this._isScheduleFormEditing()) {
+      if (isScheduleFormEditing(this)) {
         if (card) {
           card.classList.toggle("night-mode", active);
           card.classList.toggle("night-mode-enabled", mode !== "off");
@@ -2742,36 +1990,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       sleepBtn.hidden = mode !== "on";
       sleepBtn.classList.toggle("active", sleepActive);
       sleepBtn.title = sleepActive
-        ? this._i18n("ui.sleep_timer_active_remaining", { remaining: this._sleepTimerRemainingLabel() })
+        ? this._i18n("ui.sleep_timer_active_remaining", { remaining: sleepTimerRemainingLabel(this) })
         : this._i18n("ui.tap_to_start_a_sleep_timer");
     }
     const chillBtn = this.$("nightChillBtn");
     if (chillBtn) {
       chillBtn.hidden = mode !== "on";
-    }
-  }
-
-  _syncMobileTimerAction() {
-    const btn = this.$("mobileTimerBtn");
-    if (!btn) return;
-    const remainingLabel = this._sleepTimerFooterLabel();
-    const active = !!remainingLabel && this._sleepTimerChipVisible();
-    const configured = this._mobileQuickActions().includes("timer");
-    if (!active && !configured) {
-      btn.hidden = true;
-      btn.classList.add("hidden");
-      return;
-    }
-    const label = btn.querySelector(".mobile-timer-label");
-    btn.hidden = false;
-    btn.classList.remove("hidden");
-    btn.classList.toggle("active", active);
-    btn.title = active
-      ? this._i18n("ui.timer_active_remaining", { remaining: remainingLabel })
-      : this._i18n("ui.schedules");
-    if (label) {
-      label.hidden = !active;
-      label.textContent = active ? remainingLabel : "";
     }
   }
 
@@ -3613,7 +2837,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _systemMobileStatePayload() {
-    const schedules = this._scheduledStartSchedules();
+    const schedules = scheduledStartSchedules(this);
     const nightWindow = this._nightModeWindow();
     const sleepTimerEndsAt = Number(this._state.mobileSleepTimerEndsAt || 0) || 0;
     const payload = {
@@ -3656,7 +2880,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       || Object.prototype.hasOwnProperty.call(payload, "mobileSleepTimerEndsAt");
     if (!rawSchedules && !hasNightPayload && !hasSleepTimerPayload) return false;
     if (rawSchedules) {
-      const schedules = rawSchedules.map((schedule, index) => this._normalizeScheduledStartSchedule(schedule, index));
+      const schedules = rawSchedules.map((schedule, index) => normalizeScheduledStartSchedule(this, schedule, index));
       this._state.mobileStartSchedules = schedules;
       this._state.mobileStartTimerEnabled = schedules.some((schedule) => schedule.enabled !== false);
       const editId = String(payload.startScheduleEditId || "").trim();
@@ -3710,11 +2934,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._writeSchedulesToLocalStorage();
           if (this._built) {
             if (this._state.menuOpen && this._state.menuPage === "sleep_timer") await this._renderMobileMenu();
-            this._syncSleepTimerChip();
+            syncSleepTimerChip(this);
           }
           return true;
         }
-        if (this._scheduledStartSchedules().length) this._scheduleSystemMobileStatePersist(250);
+        if (scheduledStartSchedules(this).length) this._scheduleSystemMobileStatePersist(250);
       } catch (_) {
         return false;
       }
@@ -3730,9 +2954,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_playlist"), this._state.mobileStartTimerPlaylist || ""); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_playlist_name"), this._state.mobileStartTimerPlaylistName || ""); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_volume"), String(Math.max(0, Math.min(100, Number(this._state.mobileStartTimerVolume || 35) || 35)))); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_days"), JSON.stringify(this._scheduledStartDays())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_days"), JSON.stringify(scheduledStartDays(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_last_run"), this._state.mobileStartTimerLastRunKey || ""); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_schedules"), JSON.stringify(this._scheduledStartSchedules())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_schedules"), JSON.stringify(scheduledStartSchedules(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_schedules_tab"), this._state.mobileSchedulesTab || "timers"); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_mode"), this._mobileNightMode()); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_start"), this._normalizeClockTime(this._state.mobileNightModeStart || "22:00", "22:00")); } catch (_) {}
@@ -3764,35 +2988,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!this._hass) return false;
     await this._setHomeAssistantUserData(this._systemMobileStateKey(), this._systemMobileStatePayload());
     return true;
-  }
-
-  _syncSleepTimerChip() {
-    const card = this.shadowRoot?.querySelector(".card");
-    const remainingLabel = this._sleepTimerFooterLabel();
-    const active = !!remainingLabel && this._sleepTimerChipVisible();
-    const timerConfigured = this._mobileQuickActions().includes("timer");
-    const needsTemporaryTimerUi = !immersivePlayerEnabled(this) && active && !timerConfigured && (
-      (card?.classList.contains("layout-tablet") && !this.$("sleepTimerCorner"))
-      || (!card?.classList.contains("layout-tablet") && !this.$("mobileTimerBtn"))
-    );
-    if (needsTemporaryTimerUi) {
-      const reopenPage = this._state.menuOpen ? (this._state.menuPage || "sleep_timer") : "";
-      this._rebuildMobileUi({ reopenPage, reopenStudio: this._state.controlRoomOpen });
-      return;
-    }
-    card?.classList.toggle("has-sleep-timer", active);
-    this._syncMobileTimerAction();
-    const corner = this.$("sleepTimerCorner");
-    if (!corner) return;
-    if (!active) {
-      this._state.mobileSleepTimerMenuOpen = false;
-      if (corner.innerHTML !== "") corner.innerHTML = "";
-      corner.hidden = true;
-      return;
-    }
-    const nextHtml = this._sleepTimerCornerInnerHtml();
-    if (corner.innerHTML !== nextHtml) corner.innerHTML = nextHtml;
-    corner.hidden = false;
   }
 
   _persistMobileAppearance() {
@@ -5505,16 +4700,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       return `<button class="mobile-art-fab power-fab auxiliary-fab" data-auxiliary-index="${this._esc(index)}" title="${this._esc(label)}" aria-label="${this._esc(label)}">${this._iconSvg(icon)}</button>`;
     }
     switch (action) {
-      case "timer": {
-        const label = this._sleepTimerFooterLabel();
-        const active = !!label && this._sleepTimerChipVisible();
-        return `
-          <button class="mobile-art-fab mobile-timer-fab ${active ? "active" : ""}" id="mobileTimerBtn" title="${this._esc(this._i18n("ui.schedules"))}">
-            ${this._iconSvg("timer")}
-            <span class="mobile-timer-label" ${active ? "" : "hidden"}>${this._esc(active ? label : "")}</span>
-          </button>
-        `;
-      }
+      case "timer":
+        return sleepTimerFabHtml(this);
       case "home":
         return `<button class="mobile-art-fab" id="mobileHomeQuickBtn" title="${this._i18n("ui.home")}">${this._iconSvg("home")}</button>`;
       case "search":
@@ -7341,7 +6528,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.classList.toggle("compact-menu-open", this._compactMenuOverlayOpen());
     const nightMode = this._mobileNightMode();
     const nightActive = this._isNightModeActive();
-    const sleepTimerActive = this._sleepTimerRemainingMs() > 0;
+    const sleepTimerActive = sleepTimerRemainingMs(this) > 0;
     const showUpNext = this._mobileShowUpNextEnabled();
     const hasUpNextItem = !!this._mobileUpNextItem();
     const showUpNextInline = showUpNext && hasUpNextItem;
@@ -7747,7 +6934,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._applyBackgroundMotionStyles();
     this._setHistoryDrawerOpen(this._state.mobileHistoryDrawerOpen);
     this._syncRecentHistoryUi(true);
-    this._syncSleepTimerChip();
+    syncSleepTimerChip(this);
     this._syncControlRoomUi();
     this._syncVoiceAssistantDialog();
     this._restoreMobileMenuAfterBuild("build");
@@ -7905,7 +7092,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     });
     this.$("nightSleepBtn")?.addEventListener("click", async (e) => {
       if (!this._pressUiButton(e.currentTarget)) return;
-      await this._cycleSleepTimer("night");
+      await cycleSleepTimer(this, "night");
     });
     this.$("nightChillBtn")?.addEventListener("click", async (e) => {
       if (!this._pressUiButton(e.currentTarget)) return;
@@ -7950,29 +7137,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.mobileHistoryRenderedHtml = "";
       this._syncRecentHistoryUi();
     });
-    this.$("sleepTimerCorner")?.addEventListener("click", async (e) => {
-      const chipBtn = e.target.closest("#sleepTimerChip");
-      if (chipBtn) {
-        if (!this._pressUiButton(chipBtn)) return;
-        this._toggleSleepTimerMenu();
-        return;
-      }
-      const addBtn = e.target.closest("[data-sleep-timer-add]");
-      if (addBtn) {
-        await this._addSleepTimerMinutes(Number(addBtn.dataset.sleepTimerAdd || 15));
-        this._toggleSleepTimerMenu(false);
-        return;
-      }
-      const clearBtn = e.target.closest("[data-sleep-timer-clear]");
-      if (clearBtn) {
-        await this._clearSleepTimer(true);
-        return;
-      }
-      const closeBtn = e.target.closest("[data-sleep-timer-close]");
-      if (closeBtn) {
-        this._toggleSleepTimerMenu(false);
-      }
-    });
+    bindSleepTimerCorner(this);
     this.$("controlRoomCloseBtn")?.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopImmediatePropagation?.();
@@ -8536,12 +7701,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const libraryInput = e.target.closest?.("#controlRoomLibraryInput");
       if (!libraryInput) return;
       e.stopPropagation();
-    });
-    this.shadowRoot.querySelector(".card")?.addEventListener("click", (e) => {
-      const chip = e.target.closest?.("#sleepTimerChip");
-      const menu = e.target.closest?.("#sleepTimerMenu");
-      if (chip || menu) return;
-      if (this._state.mobileSleepTimerMenuOpen) this._toggleSleepTimerMenu(false);
     });
     this.shadowRoot.querySelectorAll("[data-mainbar-action]").forEach((btn) => btn.addEventListener("click", () => {
       const action = btn.dataset.mainbarAction;
@@ -9444,7 +8603,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _syncNowPlayingUI() {
     this.shadowRoot?.querySelector(".volume-wheel-popover")?._refreshVolumeState?.();
     if (this.$("immersiveActionsToggle")) queueMicrotask(() => syncImmersivePlayer(this));
-    this._syncSleepTimerState();
+    syncSleepTimerState(this);
     this._syncNightModeUi();
     const player = this._getSelectedPlayer();
     const currentQueueItem = this._state.maQueueState?.current_item || null;
@@ -10800,7 +9959,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       } catch (_) {}
     } else {
       const playlists = await Promise.allSettled([
-        this._loadScheduledStartPlaylists(),
+        loadScheduledStartPlaylists(this),
         this._fetchLibrary("playlist", "sort_name", 120, true),
         this._fetchLibrary("playlist", "random", 80, false),
       ]);
@@ -11009,205 +10168,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       return true;
     }
     return false;
-  }
-
-  _sleepTimerActionTile(label, minutes, tone = "queue") {
-    return `
-      <button class="menu-item action-tile tone-${this._esc(tone)}" data-sleep-timer-start="${this._esc(String(minutes))}">
-        <span class="menu-item-main">
-          <span class="menu-item-ico">${this._iconSvg("timer")}</span>
-          <span style="min-width:0;flex:1;">
-            <span class="menu-item-title">${this._esc(label)}</span>
-            <span class="menu-item-sub">${this._esc(this._i18n("ui.set_sleep_timer"))}</span>
-          </span>
-        </span>
-      </button>
-    `;
-  }
-
-  _sleepTimerMenuHtml() {
-    this._loadPlayers();
-    const remaining = this._sleepTimerRemainingLabel();
-    const active = this._sleepTimerRemainingMs() > 0;
-    const status = active
-      ? this._m(`Active for ${remaining}`)
-      : this._i18n("ui.no_sleep_timer_is_active");
-    const schedules = this._scheduledStartSchedules();
-    const editSchedule = schedules.find((schedule) => schedule.id === this._state.mobileStartScheduleEditId) || null;
-    const showWakeEditor = !!editSchedule || this._state.mobileStartScheduleEditId === "__new__";
-    const wakeDraftSchedule = showWakeEditor ? {
-      id: editSchedule?.id || "__new__",
-      time: this._state.mobileStartTimerTime || editSchedule?.time || "07:00",
-      player: this._state.mobileStartTimerPlayer || editSchedule?.player || "",
-      playlist: this._state.mobileStartTimerPlaylist ?? editSchedule?.playlist ?? "",
-      playlistName: this._state.mobileStartTimerPlaylistName ?? editSchedule?.playlistName ?? "",
-      volume: this._state.mobileStartTimerVolume ?? editSchedule?.volume ?? 35,
-      days: this._state.mobileStartTimerDays || editSchedule?.days,
-      afterRun: this._state.mobileStartTimerAfterRun || editSchedule?.afterRun || "keep",
-    } : editSchedule;
-    const scheduledTime = this._normalizeClockTime(wakeDraftSchedule?.time || "07:00", "07:00");
-    const scheduledPlayer = this._scheduledStartPlayerId(wakeDraftSchedule);
-    const scheduledVolume = Math.max(0, Math.min(100, Number(wakeDraftSchedule?.volume ?? 35) || 35));
-    const scheduledDays = new Set(this._normalizeNightModeDays(wakeDraftSchedule?.days || this._state.mobileStartTimerDays));
-    const scheduledAfterRun = String(wakeDraftSchedule?.afterRun || "keep") === "disable" ? "disable" : "keep";
-    const nightMode = this._mobileNightMode();
-    const nightWindow = this._nightModeWindow();
-    const nightDays = new Set(this._nightModeDays());
-    const activeTab = ["timers", "wake", "night"].includes(this._state.mobileSchedulesTab) ? this._state.mobileSchedulesTab : "timers";
-    const schedulePlayers = this._strictSchedulePlayers();
-    const playerOptions = schedulePlayers.map((player) => {
-      const name = player.attributes?.friendly_name || player.entity_id;
-      return `<option value="${this._esc(player.entity_id)}" ${player.entity_id === scheduledPlayer ? "selected" : ""}>${this._esc(name)}</option>`;
-    }).join("");
-    const scheduleRows = schedules.length ? `
-      <div class="schedule-list">
-        ${schedules.map((schedule) => {
-          const player = this._playerByEntityId(this._scheduledStartPlayerId(schedule));
-          const playerName = player?.attributes?.friendly_name || this._i18n("ui.selected_player_3");
-          const afterRunLabel = schedule.afterRun === "disable"
-            ? this._i18n("ui.turns_off_after_run")
-            : this._i18n("ui.stays_active");
-          const days = this._nightModeDayOptions()
-            .filter(([value]) => this._normalizeNightModeDays(schedule.days).includes(value))
-            .map(([, label]) => label)
-            .join(" ");
-          return `
-            <div class="schedule-row ${schedule.enabled === false ? "disabled" : ""} ${schedule.id === this._state.mobileStartScheduleEditId ? "editing" : ""}">
-              <button class="schedule-row-main" data-start-schedule-edit="${this._esc(schedule.id)}">
-                <span class="schedule-row-time">${this._esc(schedule.time)}</span>
-                <span class="schedule-row-copy">
-                  <span class="schedule-row-title">${this._esc(playerName)}</span>
-                  <span class="schedule-row-sub">${this._esc(`${this._scheduledStartPlaylistLabel(schedule)} · ${schedule.volume}% · ${afterRunLabel} · ${days}`)}</span>
-                </span>
-              </button>
-              <div class="schedule-row-actions">
-                <button class="settings-pill ${schedule.enabled !== false ? "active" : ""}" data-start-schedule-toggle="${this._esc(schedule.id)}">${this._esc(schedule.enabled !== false ? this._i18n("ui.on") : this._i18n("ui.off"))}</button>
-                <button class="settings-pill" data-start-schedule-delete="${this._esc(schedule.id)}">${this._iconSvg("trash")}</button>
-              </div>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    ` : `<div class="notice open">${this._i18n("ui.no_wake_schedules_yet")}</div>`;
-    const timersHtml = `
-      <div class="settings-group scheduled-start-card schedule-panel-card schedule-timers-card">
-        <div class="settings-label">${this._esc(this._i18n("ui.sleep_timer_2"))}</div>
-        <div class="settings-hint">${this._esc(status)}</div>
-        <div class="sleep-timer-action-row ${active ? "with-cancel" : ""}" aria-label="${this._esc(this._i18n("ui.sleep_timer_presets"))}">
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="15">${this._esc(this._m("15 min"))}</button>
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="30">${this._esc(this._m("30 min"))}</button>
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="60">${this._esc(this._m("60 min"))}</button>
-          ${active ? `<button class="sleep-timer-action-btn danger" data-sleep-timer-cancel>${this._esc(this._i18n("ui.cancel_2"))}</button>` : ``}
-        </div>
-      </div>
-    `;
-    const wakeHtml = `
-      <div class="wake-schedule-layout">
-        <div class="settings-group scheduled-start-card wake-schedule-list-card">
-          <div class="settings-label">${this._esc(this._i18n("ui.wake_schedules"))}</div>
-          <div class="settings-hint">${this._esc(this._scheduledStartStatusLabel())}</div>
-          ${scheduleRows}
-          <div class="settings-actions">
-            <button class="settings-pill" data-start-schedule-new>${this._esc(this._i18n("ui.new_schedule"))}</button>
-          </div>
-        </div>
-        ${showWakeEditor ? `<div class="settings-group scheduled-start-card wake-schedule-editor-card">
-          <div class="settings-label">${this._esc(editSchedule ? this._i18n("ui.edit_schedule") : this._i18n("ui.new_wake_schedule"))}</div>
-          <div class="scheduled-start-grid">
-            <label class="night-time-card" for="scheduledStartTimeInput">
-              <span class="night-time-label">${this._esc(this._i18n("ui.start_time"))}</span>
-              <input class="night-time-input" id="scheduledStartTimeInput" data-schedule-form-control type="time" value="${this._esc(scheduledTime)}" step="60" aria-label="${this._esc(this._i18n("ui.start_time"))}">
-            </label>
-            <label class="scheduled-start-field" for="scheduledStartPlayerSelect">
-              <span class="settings-label">${this._esc(this._i18n("ui.player_2"))}</span>
-              <select class="media-sort-select settings-select" id="scheduledStartPlayerSelect" data-schedule-form-control aria-label="${this._esc(this._i18n("ui.player_2"))}">
-                ${playerOptions || `<option value="">${this._esc(this._i18n("ui.no_players_found"))}</option>`}
-              </select>
-            </label>
-            <label class="scheduled-start-field" for="scheduledStartPlaylistSelect">
-              <span class="settings-label">${this._esc(this._i18n("ui.playlist"))}</span>
-              <select class="media-sort-select settings-select" id="scheduledStartPlaylistSelect" data-schedule-form-control aria-label="${this._esc(this._i18n("ui.playlist"))}">
-                ${this._scheduledStartPlaylistOptionsHtml(wakeDraftSchedule)}
-              </select>
-            </label>
-            <label class="scheduled-start-field" for="scheduledStartAfterRunSelect">
-              <span class="settings-label">${this._esc(this._i18n("ui.after_run"))}</span>
-              <select class="media-sort-select settings-select" id="scheduledStartAfterRunSelect" data-schedule-form-control aria-label="${this._esc(this._i18n("ui.after_run"))}">
-                <option value="keep" ${scheduledAfterRun === "keep" ? "selected" : ""}>${this._esc(this._i18n("ui.stay_active"))}</option>
-                <option value="disable" ${scheduledAfterRun === "disable" ? "selected" : ""}>${this._esc(this._i18n("ui.turn_off"))}</option>
-              </select>
-            </label>
-          </div>
-          <div class="settings-range scheduled-volume-field">
-            <div class="settings-label">${this._esc(this._i18n("ui.volume"))}</div>
-            <input id="scheduledStartVolumeInput" data-schedule-form-control type="range" min="0" max="100" step="1" value="${this._esc(String(scheduledVolume))}">
-            <div class="settings-value">${this._esc(String(scheduledVolume))}%</div>
-          </div>
-          <div class="settings-label">${this._esc(this._i18n("ui.active_days"))}</div>
-          <div class="settings-check-grid">
-            ${this._nightModeDayOptions().map(([value, label]) => `
-              <label class="settings-check-pill">
-                <input type="checkbox" data-schedule-form-control data-start-timer-day="${this._esc(String(value))}" ${scheduledDays.has(value) ? "checked" : ""}>
-                <span>${this._esc(label)}</span>
-              </label>`).join("")}
-          </div>
-          <div class="settings-actions">
-            <button class="settings-pill active" data-start-timer-save>${this._esc(editSchedule ? this._i18n("ui.save_schedule") : this._i18n("ui.create_schedule"))}</button>
-            ${editSchedule ? `<button class="settings-pill" data-start-timer-clear>${this._esc(this._i18n("ui.delete_schedule"))}</button>` : ``}
-          </div>
-        </div>` : ``}
-      </div>
-    `;
-    const nightScheduleControlsHtml = nightMode === "auto"
-      ? `
-        <div class="scheduled-start-grid two-col">
-          <label class="night-time-card" for="mobileNightStartInput">
-            <span class="night-time-label">${this._esc(this._i18n("ui.start_time_2"))}</span>
-            <input class="night-time-input" id="mobileNightStartInput" data-schedule-form-control type="time" value="${this._esc(nightWindow.start)}" step="60" aria-label="${this._esc(this._i18n("ui.start_time_2"))}">
-          </label>
-          <label class="night-time-card" for="mobileNightEndInput">
-            <span class="night-time-label">${this._esc(this._i18n("ui.end_time"))}</span>
-            <input class="night-time-input" id="mobileNightEndInput" data-schedule-form-control type="time" value="${this._esc(nightWindow.end)}" step="60" aria-label="${this._esc(this._i18n("ui.end_time"))}">
-          </label>
-        </div>
-        <div class="settings-label">${this._esc(this._i18n("ui.active_days"))}</div>
-        <div class="settings-check-grid">
-          ${this._nightModeDayOptions().map(([value, label]) => `
-            <label class="settings-check-pill">
-              <input type="checkbox" data-schedule-form-control data-setting-night-day="${this._esc(String(value))}" ${nightDays.has(value) ? "checked" : ""}>
-              <span>${this._esc(label)}</span>
-            </label>`).join("")}
-        </div>
-        <div class="settings-actions">
-          <button class="settings-pill active" data-setting-night-window-save>${this._esc(this._i18n("ui.apply_schedule"))}</button>
-        </div>
-      `
-      : `<div class="notice open">${this._esc(nightMode === "on"
-          ? this._i18n("ui.night_mode_stays_on_until_you_choose_another_mode")
-          : this._i18n("ui.night_mode_is_off_until_you_choose_another_mode"))}</div>`;
-    const nightHtml = `
-      <div class="settings-group scheduled-start-card schedule-panel-card schedule-night-card">
-        <div class="settings-label">${this._esc(this._i18n("ui.night_mode"))}</div>
-        <div class="settings-pills">
-          ${this._settingsPill(this._i18n("ui.off"), "off", nightMode, "data-setting-night-mode")}
-          ${this._settingsPill("Auto", "auto", nightMode, "data-setting-night-mode")}
-          ${this._settingsPill(this._i18n("ui.on"), "on", nightMode, "data-setting-night-mode")}
-        </div>
-        ${nightScheduleControlsHtml}
-      </div>
-    `;
-    return `
-      <div class="settings-shell">
-        <div class="schedule-tabs" role="tablist" aria-label="${this._esc(this._i18n("ui.schedules"))}">
-          <button class="settings-pill ${activeTab === "timers" ? "active" : ""}" data-schedule-tab="timers">${this._esc(this._i18n("ui.timers"))}</button>
-          <button class="settings-pill ${activeTab === "wake" ? "active" : ""}" data-schedule-tab="wake">${this._esc(this._i18n("ui.wake"))}</button>
-          <button class="settings-pill ${activeTab === "night" ? "active" : ""}" data-schedule-tab="night">${this._esc(this._i18n("ui.night"))}</button>
-        </div>
-        <div class="schedule-content">
-          ${activeTab === "wake" ? wakeHtml : activeTab === "night" ? nightHtml : timersHtml}
-        </div>
-      </div>
-    `;
   }
 
   _mainMenuHtml() {
@@ -13224,8 +12184,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const announcements = Array.isArray(announcementsResult.value?.announcements) ? announcementsResult.value.announcements : [];
       const activity = Array.isArray(activityResult.value?.activity) ? activityResult.value.activity : [];
       if (schedulesResult.status === "fulfilled" || timersResult.status === "fulfilled" || volumeRulesResult.status === "fulfilled" || announcementsResult.status === "fulfilled" || activityResult.status === "fulfilled") {
-        const localSchedules = this._scheduledStartSchedules();
-        const localSleepTimerActive = this._sleepTimerRemainingMs() > 0;
+        const localSchedules = scheduledStartSchedules(this);
+        const localSleepTimerActive = sleepTimerRemainingMs(this) > 0;
         add("info", "Engine orchestration store", `${schedules.length} schedule(s), ${timers.length} timer(s), ${volumeRules.length} volume rule(s), ${announcements.length} announcement record(s), ${activity.length} activity event(s) stored in Maverick Music Engine. Card state has ${localSchedules.length} schedule(s) and ${localSleepTimerActive ? 1 : 0} active sleep timer(s).`);
         if (schedules.length) {
           add("info", "Engine schedule controls", `${schedules.length} per-schedule Run now button(s) should be available on the Maverick Music Engine device page after HA reloads the integration.`);
@@ -13263,7 +12223,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         }
         if (localSleepTimerActive) {
           const timerPlayer = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-          const timerId = this._maverickSleepTimerId(timerPlayer);
+          const timerId = sleepTimerId(timerPlayer);
           const now = Date.now();
           const timerFound = timers.some((timer) => {
             const type = String(timer?.type || timer?.timer_type || "sleep");
@@ -16592,7 +15552,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!body || !title || !back || !aux || !close) return;
     const page = this._normalizeMobileMenuPage(this._state.menuPage || "main");
     if (page !== this._state.menuPage) this._state.menuPage = page;
-    if (page === "sleep_timer" && this._isScheduleFormEditing()) return;
+    if (page === "sleep_timer" && isScheduleFormEditing(this)) return;
     const renderStarted = typeof performance !== "undefined" && typeof performance.now === "function"
       ? performance.now()
       : Date.now();
@@ -17126,14 +16086,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (page === "players") body.innerHTML = this._playersMenuHtml();
     else if (page === "players_active") body.innerHTML = this._playersMenuHtml({ activeOnly: true });
     else if (page === "sleep_timer") {
-      body.innerHTML = this._loadingStateHtml(this._i18n("ui.loading_schedules"), { notice: true });
-      await Promise.allSettled([
-        this._hydrateSchedulesFromMaverickEngine(),
-        this._hydrateSleepTimerFromMaverickEngine(),
-      ]);
-      await this._loadScheduledStartPlaylists();
+      await renderTimersPage(this, body, isCurrentRender);
       if (!isCurrentRender()) return;
-      body.innerHTML = this._sleepTimerMenuHtml();
     }
     else if (page === "transfer") body.innerHTML = this._transferMenuHtml();
     else if (page === "saved_playlists" || page === "volume_rules") {
@@ -17227,8 +16181,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._refreshManualFrontPlayerHold(this._manualFrontContentHoldMs());
     }
     const scheduleFormControl = eventTarget.closest?.(".sheet-schedules input, .sheet-schedules select, .sheet-schedules textarea");
-    if (scheduleFormControl && this._isScheduleFormControl(scheduleFormControl)) {
-      this._markScheduleFormControlActive(scheduleFormControl);
+    if (scheduleFormControl && isScheduleFormControl(scheduleFormControl)) {
+      markScheduleFormControlActive(this, scheduleFormControl);
       e.stopPropagation();
       return;
     }
@@ -17522,99 +16476,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       await this._handleQueueAction(action, queueItemId, queueRow?.dataset.uri || "", queueRow?.dataset.sortIndex || "", targetPosition);
       return;
     }
-    const scheduleTabBtn = eventTarget.closest("[data-schedule-tab]");
-    if (scheduleTabBtn?.dataset.scheduleTab) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      const tab = String(scheduleTabBtn.dataset.scheduleTab || "");
-      this._state.mobileSchedulesTab = ["timers", "wake", "night"].includes(tab) ? tab : "timers";
-      this._persistMobileAppearance();
-      await this._renderMobileMenu();
-      return;
-    }
-    const startScheduleNewBtn = eventTarget.closest("[data-start-schedule-new]");
-    if (startScheduleNewBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startScheduleNewBtn);
-      this._state.mobileSchedulesTab = "wake";
-      this._newScheduledStartDraft();
-      this._persistMobileAppearance();
-      await this._renderMobileMenu();
-      return;
-    }
-    const startScheduleEditBtn = eventTarget.closest("[data-start-schedule-edit]");
-    if (startScheduleEditBtn?.dataset.startScheduleEdit) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startScheduleEditBtn);
-      this._state.mobileSchedulesTab = "wake";
-      this._editScheduledStart(startScheduleEditBtn.dataset.startScheduleEdit);
-      this._persistMobileAppearance();
-      await this._renderMobileMenu();
-      return;
-    }
-    const startScheduleToggleBtn = eventTarget.closest("[data-start-schedule-toggle]");
-    if (startScheduleToggleBtn?.dataset.startScheduleToggle) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startScheduleToggleBtn);
-      await this._toggleScheduledStart(startScheduleToggleBtn.dataset.startScheduleToggle);
-      await this._renderMobileMenu();
-      return;
-    }
-    const startScheduleDeleteBtn = eventTarget.closest("[data-start-schedule-delete]");
-    if (startScheduleDeleteBtn?.dataset.startScheduleDelete) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startScheduleDeleteBtn);
-      await this._deleteScheduledStart(startScheduleDeleteBtn.dataset.startScheduleDelete);
-      await this._renderMobileMenu();
-      return;
-    }
-    const sleepTimerStartBtn = eventTarget.closest("[data-sleep-timer-start]");
-    if (sleepTimerStartBtn?.dataset.sleepTimerStart) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._flashInteraction(sleepTimerStartBtn);
-      await this._setSleepTimerMinutes(Number(sleepTimerStartBtn.dataset.sleepTimerStart || 15), "general");
-      await this._renderMobileMenu();
-      return;
-    }
-    const sleepTimerCancelBtn = eventTarget.closest("[data-sleep-timer-cancel]");
-    if (sleepTimerCancelBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._flashInteraction(sleepTimerCancelBtn);
-      await this._clearSleepTimer(true);
-      await this._renderMobileMenu();
-      return;
-    }
-    const startTimerSaveBtn = eventTarget.closest("[data-start-timer-save]");
-    if (startTimerSaveBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startTimerSaveBtn);
-      await this._setScheduledStartFromMenu();
-      await this._renderMobileMenu();
-      return;
-    }
-    const startTimerClearBtn = eventTarget.closest("[data-start-timer-clear]");
-    if (startTimerClearBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startTimerClearBtn);
-      await this._clearScheduledStart(true);
-      await this._renderMobileMenu();
-      return;
-    }
+    if (await handleTimersMenuClick(this, e, eventTarget)) return;
     const action = eventTarget.closest("[data-menu-action]");
     if (action) {
       this._flashInteraction(action);
@@ -17881,20 +16743,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._build();
       this._init();
       this._openMobileMenu(this._state.menuPage || "sleep_timer");
-      return;
-    }
-    const sleepTimerBtn = eventTarget.closest("[data-setting-sleep-timer]");
-    if (sleepTimerBtn) {
-      this._flashInteraction(sleepTimerBtn);
-      await this._cycleSleepTimer();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
-    const sleepClearBtn = eventTarget.closest("[data-setting-sleep-clear]");
-    if (sleepClearBtn) {
-      this._flashInteraction(sleepClearBtn);
-      await this._clearSleepTimer(true);
-      this._reopenSettingsMenuPreservingScroll();
       return;
     }
     const compactModeBtn = eventTarget.closest("[data-setting-compact-mode]");
@@ -18462,7 +17310,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       clearBtn?.classList?.toggle("visible", !!String(libraryTabSearchInput.value || "").trim() || !!this._libraryTabSearchQuery(page));
       return;
     }
-    if (this._isScheduleFormControl(e.target)) this._markScheduleFormControlActive(e.target);
+    if (isScheduleFormControl(e.target)) markScheduleFormControlActive(this, e.target);
     if (e.type === "input" && e.target?.matches?.('input[type="checkbox"]')) return;
     if (e.target?.matches?.("[data-queue-move-auto]")) {
       await this._handleQueueMoveAutoChange(e);
@@ -18497,35 +17345,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.simpleWizard = state;
       return;
     }
-    if (e.target?.id === "scheduledStartTimeInput") {
-      if (e.target.value) this._state.mobileStartTimerTime = this._normalizeClockTime(e.target.value, this._state.mobileStartTimerTime || "07:00");
-      return;
-    }
-    if (e.target?.id === "scheduledStartPlayerSelect") {
-      this._state.mobileStartTimerPlayer = String(e.target.value || "").trim();
-      return;
-    }
-    if (e.target?.id === "scheduledStartPlaylistSelect") {
-      const playlist = String(e.target.value || "").trim();
-      this._state.mobileStartTimerPlaylist = playlist;
-      this._state.mobileStartTimerPlaylistName = playlist
-        ? String(e.target.selectedOptions?.[0]?.textContent || "").trim()
-        : "";
-      return;
-    }
-    if (e.target?.id === "scheduledStartAfterRunSelect") {
-      this._state.mobileStartTimerAfterRun = String(e.target.value || "keep") === "disable" ? "disable" : "keep";
-      return;
-    }
-    const startDayCheckbox = e.target?.closest?.("input[data-start-timer-day]");
-    if (startDayCheckbox) {
-      this._state.mobileStartTimerDays = this._normalizeNightModeDays(
-        Array.from(this.shadowRoot?.querySelectorAll("input[data-start-timer-day]:checked") || [])
-          .map((input) => Number(input.dataset.startTimerDay))
-          .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6)
-      );
-      return;
-    }
+    if (handleTimersFormChange(this, e)) return;
     const nightDayCheckbox = e.target?.closest?.("input[data-setting-night-day]");
     if (nightDayCheckbox) {
       this._state.mobileNightModeDays = this._normalizeNightModeDays(
@@ -18758,13 +17578,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.mobileVolumeStepPercent = MaverickMobileSettingsFoundation.clampMobileVolumeStepPercent(e.target.value || 5);
       this._persistMobileAppearance();
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
-      return;
-    }
-    if (e.target?.id === "scheduledStartVolumeInput") {
-      const pct = Math.max(0, Math.min(100, Number(e.target.value || 0)));
-      this._state.mobileStartTimerVolume = pct;
-      const valueEl = e.target.closest(".scheduled-volume-field")?.querySelector(".settings-value");
-      if (valueEl) valueEl.textContent = `${pct}%`;
       return;
     }
     if (e.target?.id === "mobileNightStartInput" || e.target?.id === "mobileNightEndInput") {

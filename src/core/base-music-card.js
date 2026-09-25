@@ -3,6 +3,7 @@ import { showToast } from "./media/feedback.js";
 import * as SpeakerGroups from "./media/speaker-groups.js";
 import { syncPlayerVolumeControls } from "./media/player-volume.js";
 import { syncScreenDock } from "./media/screen-dock.js";
+import { isScheduleFormEditing, loadScheduledStartPlaylists, syncScheduledStartState, syncSleepTimerChip, syncSleepTimerState } from "./media/timers.js";
 import { bindProgressSeek } from "./media/progress-seek.js";
 import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
@@ -3276,7 +3277,7 @@ export function createMaverickBaseMusicCard({
       this._state.mobileRecommendationPlaylistsLoading = true;
       try {
         const [playlistsResult, nativeResult] = await Promise.allSettled([
-          this._loadScheduledStartPlaylists(force),
+          loadScheduledStartPlaylists(this, force),
           this._loadNativeRecommendationEntries(force, 36),
         ]);
         const playlists = playlistsResult.status === "fulfilled" ? playlistsResult.value : [];
@@ -3889,35 +3890,6 @@ export function createMaverickBaseMusicCard({
       if (!options.silent) this._toast(this._i18n("ui.studio_closed"));
     }
 
-    _isScheduleFormControl(target) {
-      const el = target?.closest?.("input, select, textarea");
-      if (!el) return false;
-      const id = el.id || "";
-      if ([
-        "scheduledStartTimeInput",
-        "scheduledStartPlayerSelect",
-        "scheduledStartPlaylistSelect",
-        "scheduledStartAfterRunSelect",
-        "scheduledStartVolumeInput",
-        "mobileNightStartInput",
-        "mobileNightEndInput",
-      ].includes(id)) return true;
-      return el.dataset?.startTimerDay !== undefined || el.dataset?.settingNightDay !== undefined;
-    }
-
-    _markScheduleFormControlActive(target = null) {
-      if (!this._isScheduleFormControl(target)) return false;
-      this._state.mobileScheduleControlActiveUntil = Date.now() + 2500;
-      return true;
-    }
-
-    _isScheduleFormEditing() {
-      if (!this._state.menuOpen || this._state.menuPage !== "sleep_timer") return false;
-      const active = this.shadowRoot?.activeElement;
-      return this._isScheduleFormControl(active)
-        || Date.now() < Number(this._state.mobileScheduleControlActiveUntil || 0);
-    }
-
     _rebuildMobileUi(options = {}) {
       const reopenPage = typeof options.reopenPage === "string"
         ? options.reopenPage
@@ -3925,7 +3897,7 @@ export function createMaverickBaseMusicCard({
       const reopenStudio = typeof options.reopenStudio === "boolean"
         ? options.reopenStudio
         : !!this._state.controlRoomOpen;
-      if (!options.force && reopenPage === "sleep_timer" && this._isScheduleFormEditing()) return;
+      if (!options.force && reopenPage === "sleep_timer" && isScheduleFormEditing(this)) return;
       const previousMenuPage = this._state.menuPage || "main";
       const previousMenuScrollTop = reopenPage && reopenPage === previousMenuPage
         ? (this.$("mobileMenuBody")?.scrollTop || 0)
@@ -6902,7 +6874,7 @@ export function createMaverickBaseMusicCard({
         const responsiveImmersive = (this._state?.mobilePlayerDesign ?? this._config?.player_design ?? "immersive") === "immersive";
         if ((resizeStrategy.softSync || responsiveImmersive) && !layoutModeStale) {
           this._syncTabletAutoFitUi();
-          this._syncSleepTimerChip();
+          syncSleepTimerChip(this);
           this._syncSourceBadgesUi();
           this._syncRecentHistoryUi();
           this._syncControlRoomUi();
@@ -11572,10 +11544,10 @@ export function createMaverickBaseMusicCard({
     }
 
     _tickProgress() {
-      this._syncSleepTimerState();
-      this._syncScheduledStartState();
+      syncSleepTimerState(this);
+      syncScheduledStartState(this);
       this._syncNightModeUi();
-      this._syncSleepTimerChip();
+      syncSleepTimerChip(this);
       if (this._lyricsSessionActive()) this._syncLyricsForCurrentTrack();
       if (this._state.screensaverOpen) {
         this._syncScreensaverUi();
@@ -11600,8 +11572,8 @@ export function createMaverickBaseMusicCard({
       }
       this._updateNowPlayingInFlight = true;
       try {
-        this._syncSleepTimerState();
-        this._syncScheduledStartState();
+        syncSleepTimerState(this);
+        syncScheduledStartState(this);
         const enginePlayerSnapshotExpired = this._maverickEngineRequired?.()
           && Date.now() - Number(this._state?.enginePlayersLastAttemptAt || 0) >= 5000;
         if (enginePlayerSnapshotExpired && typeof this._refreshEnginePlayers === "function") {

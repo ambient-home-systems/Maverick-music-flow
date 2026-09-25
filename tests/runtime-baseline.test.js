@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { extractCardVersion } from "../src/core/version-utils.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } from "../src/core/engine-client.js";
+import { normalizeScheduledStartSchedule, scheduledStartEnginePayload } from "../src/core/media/timers.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -444,7 +445,7 @@ describe("runtime baseline", () => {
       profile_id: "kitchen",
       player: "media_player.kitchen",
     }));
-    expect(card._scheduledStartEnginePayload({ id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).toEqual(expect.objectContaining({
+    expect(scheduledStartEnginePayload(card, { id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).toEqual(expect.objectContaining({
       kind: "wake_playback",
       schedule_id: "488",
       player: "media_player.kitchen",
@@ -452,9 +453,9 @@ describe("runtime baseline", () => {
       playlist: "library://playlist/1",
       media_mode: "selected",
     }));
-    expect(card._scheduledStartEnginePayload({ id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).not.toHaveProperty("fallback_action");
-    expect(card._scheduledStartEnginePayload({ id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).not.toHaveProperty("id");
-    expect(card._scheduledStartEnginePayload({ id: "wake_random", player: "media_player.kitchen", playlist: "" })).toEqual(expect.objectContaining({
+    expect(scheduledStartEnginePayload(card, { id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).not.toHaveProperty("fallback_action");
+    expect(scheduledStartEnginePayload(card, { id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).not.toHaveProperty("id");
+    expect(scheduledStartEnginePayload(card, { id: "wake_random", player: "media_player.kitchen", playlist: "" })).toEqual(expect.objectContaining({
       schedule_id: "wake_random",
       player: "media_player.kitchen",
       media_id: "",
@@ -560,7 +561,7 @@ describe("runtime baseline", () => {
     });
 
     const sleepTimerEndsAt = Date.now() + 30 * 60 * 1000;
-    const schedule = card._normalizeScheduledStartSchedule({
+    const schedule = normalizeScheduledStartSchedule(card, {
       id: "wake_kitchen",
       enabled: true,
       time: "07:30",

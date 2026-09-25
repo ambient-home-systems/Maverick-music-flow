@@ -8,6 +8,7 @@ import sheet6 from "./sheets/queue-groups.js";
 import sheet7 from "./sheets/settings.js";
 import sheet8 from "./sheets/responsive.js";
 import sheet9 from "./sheets/studio.js";
+import timersSheet from "./sheets/timers.js";
 import sheet10 from "./sheets/queue-layout.js";
 import sheet11 from "./sheets/players.js";
 import sheet12 from "./sheets/discovery.js";
@@ -29,6 +30,7 @@ export function buildCardStyles(options) {
     sheet7(options),
     sheet8(options),
     sheet9(options),
+    timersSheet(options),
     sheet10(options),
     sheet11(options),
     sheet12(options),

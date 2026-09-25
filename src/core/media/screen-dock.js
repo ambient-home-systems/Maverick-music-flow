@@ -1,5 +1,6 @@
 import { actionIconSvg } from "./action-menu.js";
 import { bindImmersivePlayer } from "./immersive-player.js";
+import { clearSleepTimer, setSleepTimerMinutes, sleepTimerRemainingMs } from "./timers.js";
 
 // The same wheel interaction as the player, with screen-specific commands.
 export function screenActions(card, page) {
@@ -88,7 +89,7 @@ export function screenActions(card, page) {
     image:card._queueItemImageUrl(item, 100), item,
   }))];
   if (page === "sleep_timer") return [15,30,45,60,90,120].map(minutes => ({ id:`timer:${minutes}`, icon:"timer", value:String(minutes), label:card._m(`${minutes} min`) }))
-    .concat(card._sleepTimerRemainingMs() > 0 ? [nav("timer:cancel","close","Cancel timer")] : [], controls('[data-start-schedule-new]'));
+    .concat(sleepTimerRemainingMs(card) > 0 ? [nav("timer:cancel","close","Cancel timer")] : [], controls('[data-start-schedule-new]'));
   if (page.startsWith("library_") || page === "media_detail") return [
     ...(page === "media_detail" ? controls('.media-detail-hero-actions button') : []),
     ...(page === "library_radio" ? [nav("favorite_radios","heart_outline","Favorite stations")] : []),
@@ -200,8 +201,8 @@ export function syncScreenDock(card, sheet, page, closeScreen) {
           if (!action) throw new Error(card._m("Queue changed. Try again."));
           await card._playQueueItem(card._getQueueItemKey(action.item),card._getQueueItemUri(action.item),action.item.media_item?.media_type || "track",action.item.sort_index);
         } else if (id.startsWith("timer:")) {
-          if (id === "timer:cancel") await card._clearSleepTimer(true);
-          else await card._setSleepTimerMinutes(Number(id.split(":")[1]));
+          if (id === "timer:cancel") await clearSleepTimer(card, true);
+          else await setSleepTimerMinutes(card, Number(id.split(":")[1]));
           await card._renderMobileMenu();
         } else { dock._closeScreen?.(); card._openMobileMenu(id); }
     };

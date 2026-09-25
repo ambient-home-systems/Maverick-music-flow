@@ -529,33 +529,6 @@ export default function() {
 .history-drawer-close{width:34px;height:34px;min-width:34px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);color:inherit;display:grid;place-items:center;padding:0;cursor:pointer;}
 .history-drawer-close .ui-ic{width:16px;height:16px;}
 .theme-light .history-drawer-close{background:rgba(238,243,248,.86);border-color:rgba(143,159,181,.18);color:#1f2633;}
-.mobile-timer-fab,
-.mobile-timer-fab.active{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex-direction:row!important;width:auto!important;min-width:42px!important;height:42px!important;gap:6px!important;padding:0 11px!important;color:#fff!important;background:rgba(14,18,28,.34)!important;border-color:rgba(255,255,255,.16)!important;box-shadow:0 12px 24px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.08)!important;}
-.mobile-timer-fab[hidden],
-.mobile-timer-fab.hidden{display:none!important;}
-.theme-light .mobile-timer-fab,
-.theme-light .mobile-timer-fab.active{color:#1f2633!important;background:rgba(255,255,255,.76)!important;border-color:rgba(141,155,177,.22)!important;box-shadow:0 12px 26px rgba(111,126,150,.16)!important;}
-.mobile-timer-fab.active{min-width:78px!important;}
-.mobile-timer-fab .ui-ic{flex:0 0 auto!important;}
-.mobile-timer-fab .mobile-timer-label{display:inline-block!important;color:inherit!important;font-weight:950!important;direction:ltr!important;line-height:1!important;white-space:nowrap!important;}
-.mobile-timer-fab .mobile-timer-label[hidden]{display:none!important;}
-.card.layout-tablet .sleep-timer-corner,
-.card.layout-tablet .sleep-timer-corner.left,
-.card.layout-tablet .sleep-timer-corner.right{
-  top:auto!important;
-  bottom:22px!important;
-  left:auto!important;
-  right:76px!important;
-  transform:none!important;
-  justify-items:end!important;
-  align-items:center!important;
-  z-index:8!important;
-}
-.card.layout-tablet .sleep-timer-chip{
-  min-height:34px!important;
-  padding:0 12px!important;
-  gap:7px!important;
-}
 .card.layout-tablet > .home-shortcut-fab.tablet{
   position:absolute!important;
   top:18px!important;
@@ -572,19 +545,6 @@ export default function() {
 .top-settings-fab{
   display:none!important;
   pointer-events:none!important;
-}
-.card.layout-tablet > .sleep-timer-corner,
-.card.layout-tablet > .sleep-timer-corner.left,
-.card.layout-tablet > .sleep-timer-corner.right {
-  position:absolute!important;
-  inset:auto auto 22px 76px!important;
-  top:auto!important;
-  right:auto!important;
-  bottom:22px!important;
-  left:76px!important;
-  transform:none!important;
-  justify-items:start!important;
-  z-index:9!important;
 }
 .card.compact-expanded > .home-shortcut-fab.mobile,
 .card.compact-mode.compact-expanded > .home-shortcut-fab.mobile{
@@ -820,65 +780,6 @@ export default function() {
   border-color:rgba(220,72,72,.24);
   background:rgba(220,72,72,.11);
   color:#cf4d4d;
-}
-.card.layout-tablet .menu-sheet.sheet-schedules{width:min(calc(100% - 96px), 1080px)!important;max-width:min(calc(100% - 96px), 1080px)!important;height:calc(100% - 26px)!important;max-height:calc(100% - 26px)!important;}
-.card.layout-tablet .menu-body.sheet-schedules{justify-items:stretch!important;align-content:start!important;overflow:auto!important;padding:20px 28px 28px!important;scrollbar-gutter:stable!important;}
-.card.layout-tablet .menu-body.sheet-schedules .settings-shell{width:min(100%, 920px)!important;margin:0 auto!important;display:grid!important;grid-template-rows:auto auto!important;gap:18px!important;height:auto!important;min-height:auto!important;overflow:visible!important;}
-.card.layout-tablet .schedule-tabs{width:100%!important;max-width:none!important;}
-.card.layout-tablet .schedule-content{width:100%!important;display:grid!important;gap:16px!important;align-content:start!important;}
-.card.layout-tablet .schedule-panel-card,
-.card.layout-tablet .wake-schedule-layout,
-.card.layout-tablet .wake-schedule-list-card,
-.card.layout-tablet .wake-schedule-editor-card{width:100%!important;max-width:none!important;}
-.card.layout-tablet .wake-schedule-layout{height:auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:16px!important;overflow:visible!important;align-items:stretch!important;}
-.card.layout-tablet .wake-schedule-list-card{max-height:none!important;overflow:visible!important;}
-.card.layout-tablet .scheduled-start-grid,
-.card.layout-tablet .scheduled-start-grid.two-col,
-.card.layout-tablet .night-window-grid{grid-template-columns:minmax(0,1fr)!important;}
-.card.layout-tablet .sleep-timer-action-row,
-.card.layout-tablet .sleep-timer-action-row.with-cancel{grid-template-columns:repeat(3,minmax(0,1fr))!important;}
-.card.layout-tablet .sleep-timer-action-row.with-cancel .danger{grid-column:1 / -1!important;}
-.card.layout-tablet .menu-body.sheet-schedules .settings-group,
-.card.layout-tablet .menu-body.sheet-schedules .scheduled-start-card,
-.card.layout-tablet .menu-body.sheet-schedules .schedule-panel-card,
-.card.layout-tablet .menu-body.sheet-schedules .schedule-row,
-.card.layout-tablet .menu-body.sheet-schedules .settings-pill,
-.card.layout-tablet .menu-body.sheet-schedules .night-time-card,
-.card.layout-tablet .menu-body.sheet-schedules .scheduled-start-field,
-.card.layout-tablet .menu-body.sheet-schedules select,
-.card.layout-tablet .menu-body.sheet-schedules input{
-  animation:none!important;
-  transition:none!important;
-  transform:none!important;
-  will-change:auto!important;
-}
-.card.layout-tablet .menu-body.sheet-schedules select,
-.card.layout-tablet .menu-body.sheet-schedules input,
-.card.layout-tablet .menu-body.sheet-schedules .settings-pill,
-.card.layout-tablet .menu-body.sheet-schedules .night-time-card,
-.card.layout-tablet .menu-body.sheet-schedules .scheduled-start-field{
-  backdrop-filter:none!important;
-  -webkit-backdrop-filter:none!important;
-}
-.menu-body.sheet-schedules{
-  contain:layout paint;
-  overscroll-behavior:contain;
-}
-.menu-body.sheet-schedules select,
-.menu-body.sheet-schedules input,
-.menu-body.sheet-schedules .night-time-card,
-.menu-body.sheet-schedules .scheduled-start-field{
-  transform:none!important;
-  transition:none!important;
-  will-change:auto!important;
-}
-.menu-body.sheet-schedules select:focus,
-.menu-body.sheet-schedules input:focus{
-  scroll-margin-block:120px 160px;
-}
-.menu-body.sheet-schedules .settings-select{
-  min-height:58px;
-  line-height:1.2;
 }
 .this-device-strip{width:max-content;max-width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:7px 8px 7px 14px;margin:0 auto 12px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.07);box-shadow:inset 0 1px 0 rgba(255,255,255,.08);white-space:nowrap;direction:inherit;}
 .this-device-copy{min-width:0;display:inline-flex;align-items:center;gap:7px;text-align:start;}
