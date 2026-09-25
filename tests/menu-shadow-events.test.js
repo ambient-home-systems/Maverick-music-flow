@@ -46,7 +46,6 @@ describe("menu actions across a real shadow event boundary", () => {
     card.$ = (id) => shadow.getElementById(id);
     card._rememberMobileMenuScroll = vi.fn();
     card._shouldHoldManualFrontForContentSelection = () => false;
-    card._handleSimpleWizardClick = async () => false;
     card._hydrateImages = vi.fn();
     const outerClick = vi.fn();
     host.addEventListener("click", outerClick);
@@ -70,7 +69,6 @@ describe("menu actions across a real shadow event boundary", () => {
       _state: { menuStack: [] },
       _rememberMobileMenuScroll: vi.fn(),
       _shouldHoldManualFrontForContentSelection: () => false,
-      _handleSimpleWizardClick: async () => false,
       _selectPlayer: vi.fn(),
       _toast: vi.fn(),
       _i18n: (key) => key,
