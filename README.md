@@ -1,3 +1,4 @@
+<p align="center"><img src="docs/brand/homeii-flow-logo.svg" alt="Maverick Music logo" width="120"></p>
 <h1 align="center">Maverick Music</h1>
 <p align="center"><strong>Make your Home Assistant dashboard feel like a place for music.</strong><br>Artwork-driven atmosphere, contextual controls, and your Music Assistant library — across the screens in your home.</p>
 
