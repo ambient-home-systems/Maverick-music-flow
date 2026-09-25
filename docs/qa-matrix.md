@@ -5,7 +5,7 @@
 - Group confirmation must survive 5.5 seconds of fresh membership observations, rejecting a fleeting optimistic group.
 - 423 tests passed / 34 skipped; 50 files; lint and build passed.
 - MA was upgraded/restarted by the user during the initial test. Do not attribute that disconnect to closing the group screen.
-- Repeated direct MA test on 2.11.0b2: original Computer/Kitchen IDs (now named מרכז/מטבח) remained grouped and playing at every 5-second observation through 30 seconds. Removed only Kitchen test membership afterwards; Computer continued playing. Card acceptance also passed: apply via QA105, leave the group screen, then direct MA read still reports both playing and grouped. Reopening players shows group volume/count 2. Remaining upstream inconsistency: Kitchen reports `available:false` while `playback_state:playing` and `synced_to` references Computer; its tile is therefore hidden under the user’s unavailable-player rule. Do not fabricate availability.
+- Repeated direct MA test on 2.11.0b2: original Computer/Kitchen IDs (now named Center/Kitchen) remained grouped and playing at every 5-second observation through 30 seconds. Removed only Kitchen test membership afterwards; Computer continued playing. Card acceptance also passed: apply via QA105, leave the group screen, then direct MA read still reports both playing and grouped. Reopening players shows group volume/count 2. Remaining upstream inconsistency: Kitchen reports `available:false` while `playback_state:playing` and `synced_to` references Computer; its tile is therefore hidden under the user’s unavailable-player rule. Do not fabricate availability.
 - QA105 file copied over local SMB and verified SHA256: `6ef4bbb5c3219ac305a951f98f3902d765fa948c601b3f7de12d80f51fba16ef`. Resource activated and fresh browser DOM confirms `homeii-music-flow-qa105.js?v=6ef4bbb5`. QA104 preserved.
 
 ## QA104 — local installation, 2026-09-09
@@ -185,7 +185,7 @@ This matrix is the release gate for the `4.9.x` stabilization cycle. Every relea
 - Local bundle SHA256: `0B1E9E0BF7F53E02FDE28AF6F1A1D81E1FE578D71C76C5A148266ACD7D076F1E`. **Not deployed**; live remains QA101.
 - Live grouping comparison only touched Computer/Kitchen: both card-created and native-MA-created groups initially displayed two members and later reverted to separate players. Last native MA view showed Computer alone and Kitchen unchecked. No playback or volume commands were sent. Root cause and durable grouping remain open; freshness fix is not evidence that delayed group loss is solved.
 - Isolated npm ci verification did not complete: offline cache miss, then npm internal exit-handler failure online. CI itself has not run. These remain release gates, not successful clean-install evidence.
-- Current release checklist and limitations: [RELEASE_READINESS_6.0.0_HE.md](RELEASE_READINESS_6.0.0_HE.md). No tag, push, public release or claim of complete release readiness.
+- Current release checklist and limitations documented separately. No tag, push, public release or claim of complete release readiness.
 
 
 ## Post-QA105 — regression and native LinkPlay investigation (2026-09-09, local)
@@ -241,7 +241,7 @@ For Up2Stream/Rakoit generic LinkPlay devices with MA 2.11.0b2, check Settings >
 - Smart hub links announcements, timers/wake-up, schedules, listening stats, lighting, system screensaver and shared night preferences. Screensaver and lighting forms use existing Engine commands; night preferences add validated profile-scoped `interface/get`, `interface/set` and HA `set_interface_preferences`, stored in the existing Engine store and returned in context. Display night mode does not change music volume.
 - Group volume view reuses group/member controls, retains disconnected members for reconnection within the same leader session, and applies membership changes through the existing group path. No group operation was tested on physical devices in this candidate yet.
 - Optional `volume_wheel` editor toggle opens a rotary-style control with wheel/touch/keyboard and mute, using existing volume commands.
-- Engine lighting status includes last applied timestamp and media title. A backend-only test verifies different track colors without any browser, plus existing stale-track/disable/conflict tests. Live card shows a configured light named מזנון, but selected player was idle. Physical background-follow verification remains outstanding.
+- Engine lighting status includes last applied timestamp and media title. A backend-only test verifies different track colors without any browser, plus existing stale-track/disable/conflict tests. Live card shows a configured light named Kitchen, but selected player was idle. Physical background-follow verification remains outstanding.
 - Visual local checks: full catalogue and editor, light phone and dark wide layout, available-only player wheel. Not a complete device matrix. Local HA ports 445 and 8095 were unreachable in the final check; this candidate is NOT installed. QA106 remains the installed version.
 
 Validation: 435 card tests passed, 34 pre-existing skipped; affected suites rechecked after final fixes. Engine: 68 tests passed. ESLint and production build passed. New candidate remains local, not deployed or published.

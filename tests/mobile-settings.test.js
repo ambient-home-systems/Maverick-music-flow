@@ -36,7 +36,7 @@ import {
 describe("mobile settings foundation", () => {
   it("normalizes the visual mobile state payload", () => {
     const state = normalizeVisualMobileState({
-      language: "he",
+      language: "en",
       theme_mode: "light",
       performance_mode: true,
       mobile_dynamic_theme_mode: "STRONG",
@@ -126,7 +126,7 @@ describe("mobile settings foundation", () => {
       defaultAnnouncementPresets: ["Default A", "Default B", "Default C"],
     });
 
-    expect(state.lang).toBe("he");
+    expect(state.lang).toBe("en");
     expect(state.cardTheme).toBe("light");
     expect(state.performanceProfile).toBe("low");
     expect(state.performanceMode).toBe(true);

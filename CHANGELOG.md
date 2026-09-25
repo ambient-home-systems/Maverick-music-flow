@@ -46,7 +46,7 @@ Reliability audit (2026-09-07, not a public release):
 - Avoid replaying uncertain mutations over HTTP; distinguish queue read failures from confirmed empty queues.
 - Preserve absolute queue indices and explicit current-item metadata in partial snapshots.
 - Add a checksum-verified local deployment script that replaces the card only after the upload finishes.
-- Live installation findings and remaining release checks: [reliability audit](docs/RELIABILITY_AUDIT_2026_09_07_HE.md).
+- Live installation findings and remaining release checks documented in the September 7 reliability audit.
 
 Breaking change:
 
@@ -713,7 +713,7 @@ Bug fixes:
 
 Release packaging hotfix for the Simplified Chinese language option.
 
-- Fixes the visual-editor language dropdown not showing `简体中文 / Simplified Chinese` for some users after installing 5.6.0.
+- Fixes the visual-editor language dropdown not showing the Simplified Chinese option for some users after installing 5.6.0.
 - Root cause: the Chinese dictionary and `LANGUAGE_OPTIONS` were present in the release, but the main card imported `./localization/index.js` without a version query, so Home Assistant/browser cache could keep the older language-options module.
 - Adds release-time cache-busting to the packaged `dist/homeii-music-flow.js` localization import and to the dictionary imports inside `dist/localization/index.js`.
 - Keeps runtime behavior otherwise unchanged from 5.6.0.

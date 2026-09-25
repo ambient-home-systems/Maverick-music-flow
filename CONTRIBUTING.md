@@ -2,7 +2,7 @@
 
 Thank you for wanting to help improve Maverick Music.
 
-Maverick Music is not meant to be just another Home Assistant card. The goal is to make Music Assistant feel like a polished, visual, app-like music experience inside Home Assistant, especially for wall tablets, phones, multi-room homes, and Hebrew/RTL users. Contributions are welcome when they protect that direction.
+Maverick Music is not meant to be just another Home Assistant card. The goal is to make Music Assistant feel like a polished, visual, app-like music experience inside Home Assistant, especially for wall tablets, phones, and multi-room homes. Contributions are welcome when they protect that direction.
 
 ## Good Contributions
 
@@ -11,7 +11,6 @@ Good contributions usually do one of these things:
 - Make the card easier and more reliable to use in a real home.
 - Improve the touch experience on phones, tablets, and wall panels.
 - Improve Music Assistant integration without adding setup friction.
-- Improve RTL/Hebrew support and keep English support clean.
 - Fix HACS packaging, Home Assistant dashboard picker behavior, or browser compatibility.
 - Add focused tests around shared state, config defaults, media handling, or layout helpers.
 - Improve documentation, screenshots, release notes, or install guidance.
@@ -79,7 +78,7 @@ Maverick Music is designed for everyday touch use. When changing the interface:
 - Keep the current queue, player state, and selected action visible whenever possible.
 - Avoid modals when an inline or drawer interaction is clearer.
 - Make primary actions obvious and secondary actions quiet.
-- Test long Hebrew labels, RTL alignment, and narrow phone layouts.
+- Test long labels and narrow phone layouts.
 - Check that text does not overflow buttons, cards, headers, or bottom bars.
 - Keep phone, tablet, desktop, and wall-panel use cases in mind.
 
@@ -118,7 +117,6 @@ For UI changes, also smoke test in Home Assistant:
 - Test main player, compact player, FLOW, Studio, queue, library, actions, timers, settings, lyrics, history, and recommendations.
 - Test phone, tablet, and desktop widths.
 - Test dark and light themes.
-- Test RTL/Hebrew text where relevant.
 
 ## Pull Request Checklist
 

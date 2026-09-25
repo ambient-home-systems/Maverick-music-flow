@@ -1,7 +1,7 @@
 <h1 align="center">Maverick Music</h1>
 <p align="center"><strong>Make your Home Assistant dashboard feel like a place for music.</strong><br>Artwork-driven atmosphere, contextual controls and your Music Assistant library — across the screens in your home.</p>
 <p align="center"><img alt="Card release" src="https://img.shields.io/badge/Card-6.0.1-c89b56"><img alt="Matching Engine" src="https://img.shields.io/badge/Engine-1.0.1-41BDF5"><img alt="Stable release" src="https://img.shields.io/badge/Status-STABLE-2e7d32"></p>
-<p align="center"><a href="docs/INSTALL_STEP_BY_STEP.md">Install & upgrade</a> · <a href="docs/BETA_UPGRADE_HE.md">שדרוג בעברית</a> · <a href="https://github.com/ambient-home-systems/maverick-music-flow-engine">Required Engine</a> · <a href="docs/features.md">Features</a> · <a href="https://github.com/r11a/homeii-music-flow/issues">Support</a></p>
+<p align="center"><a href="docs/INSTALL_STEP_BY_STEP.md">Install & upgrade</a> · <a href="https://github.com/ambient-home-systems/maverick-music-flow-engine">Required Engine</a> · <a href="docs/features.md">Features</a> · <a href="https://github.com/r11a/homeii-music-flow/issues">Support</a></p>
 
 > [!WARNING]
 > **BREAKING CHANGE — STOP BEFORE UPGRADING FROM 5.9.3: INSTALL ENGINE 1.0.1 FIRST.**
@@ -47,7 +47,7 @@ The matching [Maverick Music Engine](https://github.com/ambient-home-systems/mav
 | Listen | Immersive artwork, seek controls, clearer volume, dedicated icons, contextual wheels and existing-layout selection |
 | Browse | Library, playlists, albums, artists, radio, podcasts, provider search and genre-based discovery |
 | Stay in control | Queue actions/reordering, player selection, capability-aware commands, group operations and transfer |
-| Make it yours | Dark/light glass themes, artwork backgrounds, bundled Heebo, RTL and community translations including German |
+| Make it yours | Dark/light glass themes, artwork backgrounds |
 | Go beyond the card | Engine timers, schedules, volume policies, HA entities, announcements and diagnostic services |
 | Explore MA's capabilities | Sendspin This device, synchronized lyrics when available, supported playback preferences and configured AI Radio DJ |
 
@@ -70,7 +70,6 @@ This release is published as **Latest**. Existing 5.9.3 installations must follo
 ## Documentation and community
 
 - [Full beta guide: requirements, installation, features, upgrade, rollback and test plan](docs/BETA_GUIDE.md)
-- [אזהרת שדרוג והוראות בעברית](docs/BETA_UPGRADE_HE.md)
 - [Engine installation, configuration, HA services and examples](https://github.com/ambient-home-systems/maverick-music-flow-engine)
 - [Configuration reference](docs/configuration.md) · [Feature reference](docs/features.md) · [Diagnostics](docs/diagnostics.md)
 - [6.0.1 release notes](RELEASE_NOTES_6.0.1.md)
@@ -89,7 +88,7 @@ The `6.0.0` card is paired with **Maverick Music Engine `1.0.0`**. The card is t
 
 For 6.0.0 the Engine is also the only authenticated Music Assistant transport. Library shelves and media details use persistent stale-while-revalidate caches, artwork uses stable same-origin proxy URLs, and long queue/library pages are rendered incrementally. This keeps credentials out of the browser and avoids duplicate WebSocket handshakes.
 
-The current reliability audit and validation scope are documented in [the September 7 audit](docs/RELIABILITY_AUDIT_2026_09_07_HE.md).
+The current reliability audit and validation scope are documented in the September 7 audit.
 
 There is no legacy frontend-only fallback in 6.0.0. Users who do not want to install the Engine should stay on the latest 5.9.x release.
 
@@ -444,7 +443,6 @@ If you explicitly enable `lrclib_lyrics_enabled: true`, and Music Assistant has 
 - Text-to-speech announcements
 - Preset announcement buttons
 - Voice dictation when the browser supports it
-- Automatic Hebrew/English language detection
 
 ### Mobile UX
 
@@ -455,7 +453,7 @@ If you explicitly enable `lrclib_lyrics_enabled: true`, and Music Assistant has 
 - Artwork swipe/browse support through Embla
 - Immediate artwork selection feedback while browsing covers
 - Mobile settings saved locally
-- Touch-sized controls and RTL-safe layout
+- Touch-sized controls
 
 ### Settings And Editor
 
@@ -480,7 +478,6 @@ If you explicitly enable `lrclib_lyrics_enabled: true`, and Music Assistant has 
 - Neutral missing-artwork fallback
 - Idle, unavailable, loading, paused, and playing states
 - Long title and long artist handling
-- Hebrew/RTL-safe metadata alignment
 - Main layout for tablet and desktop
 - Mobile layout for narrow screens
 - Immersive full player view
@@ -628,7 +625,6 @@ If you explicitly enable `lrclib_lyrics_enabled: true`, and Music Assistant has 
 - Automatic TTS entity fallback detection
 - Text-to-speech announcements
 - Music Assistant announcement playback fallback
-- Hebrew/English announcement language detection
 - Voice dictation when supported
 - Success/failure feedback
 
@@ -734,26 +730,10 @@ If you explicitly enable `lrclib_lyrics_enabled: true`, and Music Assistant has 
 - Responsive grid behavior
 - Tablet sheet sizing for library, search, queue, actions, players, group players, and settings
 
-### Language And RTL
+### Language
 
 - English labels
-- Hebrew labels
-- Auto language mode
-- Manual language toggle
-- RTL layout support
-- RTL-safe controls
-- Hebrew-friendly settings labels
-- Hebrew announcement flow
 - Editor locale helpers
-
-### Adding A Language
-
-- Start from `src/localization/en.js` and translate values only.
-- Register the new file in `src/localization/index.js`.
-- Add the language to `LANGUAGE_OPTIONS`.
-- Add the language code to `RTL_LANGUAGE_CODES` only for right-to-left languages.
-- Run `npm test`, `npm run build`, and `node scripts/release.mjs`.
-- Use `TRANSLATING.md` for the full string glossary and `HOW_TO_ADD_A_LANGUAGE.md` for the step-by-step release checklist.
 
 ### Reliability And Release Foundation
 
@@ -863,12 +843,8 @@ Credit and thanks:
 - [Home Assistant](https://www.home-assistant.io/) for the dashboard platform.
 - [HACS](https://www.hacs.xyz/) for the custom repository distribution path.
 - [Embla Carousel](https://www.embla-carousel.com/) for the packaged swipe foundation.
-- Daniel Eduardo Gonzalez ([@danielxb-ar](https://github.com/danielxb-ar)) for the Spanish translation.
-- Donatas / donatassmarterhome for the Lithuanian translation.
-- Julien Moreau B. / [jingle-jew](https://github.com/jingle-jew) for the French translation, French wording corrections, PR #34, PR #35, PR #36, Sendspin / Media Session improvements, and 5.7.x testing feedback.
-- [@Dieghito72](https://github.com/Dieghito72) for the Italian translation contribution.
-- [@gao19970120](https://github.com/gao19970120) for the Simplified Chinese translation contribution.
-- [@TheBamse](https://github.com/TheBamse) for the Danish translation contribution and performance-focused PRs.
+- Julien Moreau B. / [jingle-jew](https://github.com/jingle-jew) for PR #34, PR #35, PR #36, Sendspin / Media Session improvements, and 5.7.x testing feedback.
+- [@TheBamse](https://github.com/TheBamse) for performance-focused PRs.
 - Codex for helping turn a non-programmer's product and UX vision into a working release-ready card.
 
 ## Documentation
@@ -881,9 +857,3 @@ Credit and thanks:
 - [QA matrix](./docs/qa-matrix.md)
 - [Repo assets checklist](./docs/repo-assets-checklist.md)
 - [Changelog](./CHANGELOG.md)
-
-
-
-## German translation
-
-Thank you to [Richard Treichl (@rtreichl)](https://github.com/rtreichl) for contributing German language support in [PR #89](https://github.com/r11a/homeii-music-flow/pull/89).

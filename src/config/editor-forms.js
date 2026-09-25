@@ -491,11 +491,6 @@ export function getMobileEditorTexts() {
         { value: "auto", label: maverickEditorI18n("ui.auto_cloud_default") },
         { value: "en-US", label: "English (US)" },
         { value: "en-GB", label: "English (UK)" },
-        { value: "he-IL", label: maverickEditorI18n("ui.hebrew") },
-        { value: "de-DE", label: "Deutsch" },
-        { value: "fr-FR", label: "Français" },
-        { value: "es-ES", label: "Español" },
-        { value: "it-IT", label: "Italiano" },
       ],
       mobile_footer_mode: [
         { value: "icon", label: maverickEditorI18n("ui.icon_only") },

@@ -48,8 +48,3 @@ Thanks for helping shape the beta. Feedback and practical suggestions are welcom
 Before posting: confirm both releases are publicly downloadable, replace candidate-branch links with the published tag links, test the video link anonymously, and verify issue forms exist on each repository's default branch. Do not post while the Engine repo is private.
 
 
-## German translation
-
-Thank you to [Richard Treichl (@rtreichl)](https://github.com/rtreichl) for contributing German language support in [PR #89](https://github.com/ambient-home-systems/maverick-music-flow/pull/89).
-
-

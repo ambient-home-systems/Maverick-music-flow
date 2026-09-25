@@ -252,7 +252,6 @@ const messages = Object.freeze({
   "ui.group_volume": "Group volume",
   "ui.group_volume_up_energetic_mix": "Group, volume up, energetic mix",
   "ui.grouped_players": "Grouped players",
-  "ui.hebrew": "Hebrew",
   "ui.history": "History",
   "ui.history_tabs": "History tabs",
   "ui.home": "Home",
