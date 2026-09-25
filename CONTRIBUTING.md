@@ -90,9 +90,8 @@ HACS installs the package from `dist/`, so release safety matters.
 Before a release-oriented pull request is merged, confirm:
 
 - `npm run build` completes successfully.
-- `dist/maverick-music.js` exists.
-- `dist/sendspin-js/` exists when the local browser player is enabled.
-- `dist/vendor/embla-carousel.umd.js` exists when swipe browsing is enabled.
+- `dist/maverick-music.js` exists, is minified, starts with the license banner, and imports nothing from sibling paths (`npm test` runs `tests/dist-bundle.test.js` for this).
+- `dist/` contains nothing besides the bundle and the four brand images; `npm run build` must leave `git status` clean.
 - `dist/homeii-flow-logo.svg` exists.
 - `hacs.json` still points to `maverick-music.js`.
 - The card type remains:

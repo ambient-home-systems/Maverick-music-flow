@@ -795,9 +795,7 @@ Use the visual editor or in-card settings whenever possible.
 ## Project Structure
 
 ```text
-dist/maverick-music.js             self-contained HACS/manual runtime (includes Sendspin and Embla)
-dist/sendspin-js/                     source/license copy; not loaded by the production bundle
-dist/vendor/embla-carousel.umd.js     source/license copy; not loaded by the production bundle
+dist/maverick-music.js                minified, self-contained HACS/manual runtime with license banner (includes Sendspin and Embla)
 dist/homeii-flow-logo.svg             packaged legacy brand asset
 dist/homeii-flow-logo.png             packaged transparent Maverick Music logo
 dist/homeii-flow-icon.png             packaged Maverick Music app icon
@@ -814,7 +812,7 @@ docs/brand/                           logo and brand assets
 docs/qa-matrix.md                     viewport/theme/interaction release gate
 ```
 
-HACS installs the single `dist/maverick-music.js` dashboard resource. The production bundle inlines the Sendspin browser player and Embla carousel, does not load sibling JavaScript files, and does not fetch external web fonts. The extra files in `dist/` support manual inspection, licensing, and legacy manual installs; they are not runtime dependencies for HACS.
+HACS installs the single `dist/maverick-music.js` dashboard resource. The production bundle inlines the Sendspin browser player and Embla carousel, does not load sibling JavaScript files, and does not fetch external web fonts. Besides the bundle, `dist/` holds only the brand images; the license notices for the bundled third-party code are in the banner at the top of the bundle, and the Sendspin source and its Apache-2.0 license stay in `src/sendspin-js/`.
 
 ## Development
 

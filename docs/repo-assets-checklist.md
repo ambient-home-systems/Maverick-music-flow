@@ -17,7 +17,7 @@ The repo uses `docs/brand/` as the single source for logo assets. Screenshots an
 - The README should include an HACS install/download link:
   `https://www.hacs.xyz/docs/use/download/download/`
 - The README should explain that the HACS UI calls this repository type `Dashboard`, while the HACS backend/my-link category is `plugin`.
-- The README should mention that `dist/` includes `homeii-music-flow.js`, `sendspin-js/`, `vendor/embla-carousel.umd.js`, `homeii-flow-logo.svg`, `homeii-flow-logo.png`, and `homeii-flow-icon.png`.
+- The README should mention that `dist/` includes only `maverick-music.js`, `homeii-flow-logo.svg`, `homeii-flow-logo.png`, `homeii-flow-logo-v2.png`, and `homeii-flow-icon.png`.
 - The README should include Music Assistant and Sendspin credits.
 
 ## Still worth adding later
