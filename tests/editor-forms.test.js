@@ -20,7 +20,6 @@ function configureTestEditorForms() {
     detectEditorHebrew: () => false,
     visibleLanguageOptions: [
       { value: "en", label: "English" },
-      { value: "he", label: "Hebrew" },
     ],
     radioBrowserCountrySelectorOptions,
   });
@@ -42,7 +41,6 @@ describe("editor forms", () => {
 
     expect(language.selector.select.options).toEqual([
       { value: "en", label: "English" },
-      { value: "he", label: "Hebrew" },
     ]);
     const connectionSchema = JSON.stringify(form.schema.find((section) => section.name === "connection_section"));
     expect(connectionSchema).toContain("engine_mode");

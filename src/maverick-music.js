@@ -89,14 +89,7 @@ import {
   radioBrowserCountrySelectorOptions as maverickRadioBrowserCountrySelectorOptions,
 } from "./core/radio-browser-countries.js";
 
-const MAVERICK_VISIBLE_LANGUAGE_OPTIONS = Object.freeze([
-  ...MAVERICK_LANGUAGE_OPTIONS,
-  ...[
-    { value: "es", label: "Spanish" },
-    { value: "fr", label: "French" },
-    { value: "lt", label: "Lithuanian" },
-  ].filter((option) => !MAVERICK_LANGUAGE_OPTIONS.some((entry) => String(entry?.value || "").toLowerCase() === option.value)),
-]);
+const MAVERICK_VISIBLE_LANGUAGE_OPTIONS = MAVERICK_LANGUAGE_OPTIONS;
 
 function ensureHaEditorComponents() {
   try {
@@ -15825,11 +15818,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ["auto", this._i18n("ui.auto_cloud_default")],
       ["en-US", "English (US)"],
       ["en-GB", "English (UK)"],
-      ["he-IL", this._i18n("ui.hebrew")],
-      ["de-DE", "Deutsch"],
-      ["fr-FR", "Français"],
-      ["es-ES", "Español"],
-      ["it-IT", "Italiano"],
     ];
   }
 

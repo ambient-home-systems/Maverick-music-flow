@@ -28,7 +28,7 @@ Baseline: card 6.0.0-beta.1 and Engine 1.0.0-beta.1. Preserve published tags/ass
 ## Release discipline
 
 - [ ] Review actual diff and tests; do not include unrelated README whitespace or old untracked marketing artifacts.
-- [ ] Verify compact layout and affected screens on phone/tablet, light/dark, RTL/LTR; confirm diagnostics/settings discoverability.
+- [ ] Verify compact layout and affected screens on phone/tablet, light/dark; confirm diagnostics/settings discoverability.
 - [ ] Record remaining hardware limitations honestly, particularly CarPlay; no claim of resolution without actual validation.
 - [ ] Produce accurate changelog/install notes from completed work only; distinguish card and Engine changes.
 - [ ] Obtain release instruction before publishing Beta 2; do not overwrite Beta 1 or make stable users auto-upgrade.

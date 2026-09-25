@@ -9,7 +9,7 @@ Engine updated runtime.py plus new player_timing.py. HA configuration check pass
 
 ## Confirmed live findings and fixes
 - WiiM exposed stale player-level elapsed_time=0/timestamp while current_media held the newer paired clock. Engine and card now choose position and timestamp together from the newest valid snapshot, preserving zero. After restart, Center's progress advanced within the track rather than immediately showing its end.
-- User authorized Center (מרכז) and Kitchen (מטבח) for this round. Group persisted over multiple minutes, a page exit and a full dashboard refresh. MA read-only query confirmed Kitchen synced to Center.
+- User authorized Center and Kitchen for this round. Group persisted over multiple minutes, a page exit and a full dashboard refresh. MA read-only query confirmed Kitchen synced to Center.
 - Group volume changed both players; independent volumes were restored to Center 81%, Kitchen 46%. Kitchen mute/unmute confirmed through MA.
 - Disconnecting Kitchen via the group volume view succeeded; Kitchen remained available for reconnect. Final group was disconnected, matching the initial state.
 - A 15-minute timer on Kitchen survived HA restart and showed 8 minutes remaining. It was cancelled successfully afterward; no test timer remains.

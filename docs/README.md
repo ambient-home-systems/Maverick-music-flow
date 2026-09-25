@@ -90,4 +90,4 @@ Release notes:
 
 Maverick Music is an independent community project. It is not an official Home Assistant or Music Assistant project.
 
-Thanks to the Music Assistant, Home Assistant, HACS, Sendspin, and Embla projects, and to all community testers and translators who helped shape the card.
+Thanks to the Music Assistant, Home Assistant, HACS, Sendspin, and Embla projects, and to all community testers who helped shape the card.

@@ -30,7 +30,7 @@ describe("config validators", () => {
         popup_opacity: 0.75,
         cache_ttl: 1000,
         music_assistant_timeout_ms: 12000,
-        language: "he",
+        language: "en",
         theme_mode: "dark",
         rtl: true,
         hotel_mode: true,

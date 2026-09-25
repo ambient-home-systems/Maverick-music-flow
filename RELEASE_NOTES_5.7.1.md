@@ -19,7 +19,7 @@ HOMEii Flow 5.7.1 is a polish, safety, and hospitality release for the 5.7.x cyc
 5.7.1 closes the local 5.7.x polish cycle with a long list of practical fixes:
 
 - Adds Hotel Mode for protected shared dashboards.
-- Renames the user-facing Hebrew wording to "מצב מלון" instead of guest mode.
+- Renames the user-facing wording to "Hotel Mode" instead of guest mode.
 - Removes all main navigation items in Hotel Mode.
 - Keeps the HOMEII FLOW logo visible in Hotel Mode.
 - Keeps Hotel Mode focused on player controls, volume, search, artwork browsing, and player selection only.

@@ -63,12 +63,6 @@ Keep it short, ideally 8 to 15 seconds.
 - a few meaningful options visible
 - enough context to prove this is configurable without YAML-only friction
 
-### RTL/Hebrew screenshot
-
-- Hebrew labels
-- RTL layout alignment
-- controls still readable and balanced
-
 ## Capture tips
 
 - Use real artwork, not placeholders

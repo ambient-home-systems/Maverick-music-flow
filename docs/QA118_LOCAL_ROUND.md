@@ -40,7 +40,7 @@ SHA256: f88b975f0f2b60148ee2e970744bb78836a1b724f3d5b47e713c569b98007618
 - Physical group longevity and drag on actual touch hardware; tests must remain limited to Computer/Kitchen.
 - All device sizes and long running sessions cannot be certified by the preview matrix alone.
 - MA cannot supply waveform immediately for every newly streamed track; never claim an unconditional waveform guarantee.
-- Public beta release gates in RELEASE_READINESS_6.0.0_HE.md remain open; QA118 is a local test candidate.
+- Public beta release gates remain open; QA118 is a local test candidate.
 
 ## Architecture
 New live diagnostics, volume-rule view and Engine playlist persistence are separate modules. Existing playlist UI, group and preference modules are extended rather than duplicated. Main bundled file remains about 3.99 MB (~895 KB gzip); splitting source files does not itself reduce the download. Deferred code loading is not yet introduced because resource/cache compatibility needs its own verified change.
