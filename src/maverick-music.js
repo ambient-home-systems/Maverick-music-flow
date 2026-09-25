@@ -14117,8 +14117,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _voiceAssistantQueueIntent(transcript = "") {
     const normalized = this._normalizeVoiceCommandText(transcript);
     if (!normalized) return null;
-    const hasQueueWord = this._voiceCommandHasAny(normalized, ["queue", "current queue", "play queue", "music queue", "תור", "התור", "תור הניגון", "רשימת הניגון"]);
-    const hasTransferWord = this._voiceCommandHasAny(normalized, ["transfer", "move", "send", "move queue", "transfer queue", "העבר", "להעביר", "תעביר", "העבירי", "שלח", "לשלוח"]);
+    const hasQueueWord = this._voiceCommandHasAny(normalized, ["queue", "current queue", "play queue", "music queue"]);
+    const hasTransferWord = this._voiceCommandHasAny(normalized, ["transfer", "move", "send", "move queue", "transfer queue"]);
     const mentioned = this._voiceAssistantMentionedPlayers(transcript);
     if (!hasTransferWord || (!hasQueueWord && mentioned.length < 2)) return null;
     let sourcePlayer = null;
@@ -14141,12 +14141,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const normalized = this._normalizeVoiceCommandText(transcript);
     if (!normalized) return null;
     const mentioned = this._voiceAssistantMentionedPlayers(transcript);
-    const hasSpeakerWord = this._voiceCommandHasAny(normalized, ["speaker", "speakers", "player", "players", "room", "rooms", "רמקול", "רמקולים", "נגן", "נגנים", "חדר", "חדרים"]);
-    const hasGroupWord = this._voiceCommandHasAny(normalized, ["group", "group speakers", "join", "connect speakers", "link speakers", "ungroup", "disconnect group", "speaker group", "קבוצה", "קבוצת נגנים", "קבוצת רמקולים", "חבר רמקולים", "חיבור רמקולים", "ניתוק רמקולים"]);
-    const hasDisconnectWord = this._voiceCommandHasAny(normalized, ["ungroup", "disconnect group", "disconnect speakers", "unjoin", "clear group", "נתק", "תנתק", "לנתק", "הפרד", "להפריד", "בטל קבוצה"]);
-    const hasConnectWord = this._voiceCommandHasAny(normalized, ["group", "join", "connect", "link", "pair", "activate speakers", "start speakers", "חבר", "תחבר", "לחבר", "צרף", "לצרף", "קבץ", "לקבץ"]);
-    const allGroups = this._voiceCommandHasAny(normalized, ["all groups", "all speakers", "all players", "כל הקבוצות", "כל הרמקולים", "כל הנגנים", "כולם"]);
-    const speakerCountHint = this._voiceCommandHasAny(normalized, ["two speakers", "2 speakers", "שני רמקולים", "2 רמקולים", "שני נגנים", "2 נגנים"]);
+    const hasSpeakerWord = this._voiceCommandHasAny(normalized, ["speaker", "speakers", "player", "players", "room", "rooms"]);
+    const hasGroupWord = this._voiceCommandHasAny(normalized, ["group", "group speakers", "join", "connect speakers", "link speakers", "ungroup", "disconnect group", "speaker group"]);
+    const hasDisconnectWord = this._voiceCommandHasAny(normalized, ["ungroup", "disconnect group", "disconnect speakers", "unjoin", "clear group"]);
+    const hasConnectWord = this._voiceCommandHasAny(normalized, ["group", "join", "connect", "link", "pair", "activate speakers", "start speakers"]);
+    const allGroups = this._voiceCommandHasAny(normalized, ["all groups", "all speakers", "all players"]);
+    const speakerCountHint = this._voiceCommandHasAny(normalized, ["two speakers", "2 speakers"]);
     if (hasDisconnectWord && (hasGroupWord || hasSpeakerWord || allGroups || mentioned.length)) {
       if (allGroups) return { type: "group_disconnect_all" };
       const player = mentioned[0] || this._voiceAssistantDefaultPlayer();
@@ -14182,28 +14182,16 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (speakerGroupIntent) return speakerGroupIntent;
     const volumeIntent = this._voiceAssistantVolumeIntent(normalized);
     if (volumeIntent) return volumeIntent;
-    if (this._voiceCommandHasAny(normalized, ["next", "skip", "הבא", "דלג", "תדלג", "הרצועה הבאה", "השיר הבא"])) return { type: "next" };
-    if (this._voiceCommandHasAny(normalized, ["previous", "back", "last song", "הקודם", "אחורה", "הרצועה הקודמת", "השיר הקודם"])) return { type: "previous" };
-    if (this._voiceCommandHasAny(normalized, ["pause", "hold", "השהה", "תשהה", "השהיה"])) return { type: "pause" };
-    if (this._voiceCommandHasAny(normalized, ["stop", "turn off music", "עצור", "תעצור", "עצירה", "כבה מוזיקה"])) return { type: "stop" };
-    if (this._voiceCommandHasAny(normalized, ["resume", "continue", "play music", "המשך", "תמשיך", "המשך לנגן"])) return { type: "resume" };
+    if (this._voiceCommandHasAny(normalized, ["next", "skip"])) return { type: "next" };
+    if (this._voiceCommandHasAny(normalized, ["previous", "back", "last song"])) return { type: "previous" };
+    if (this._voiceCommandHasAny(normalized, ["pause", "hold"])) return { type: "pause" };
+    if (this._voiceCommandHasAny(normalized, ["stop", "turn off music"])) return { type: "stop" };
+    if (this._voiceCommandHasAny(normalized, ["resume", "continue", "play music"])) return { type: "resume" };
     const hasMusicVerb = this._voiceCommandHasAny(normalized, [
       "play",
       "put on",
       "listen to",
       "start music",
-      "נגן",
-      "תנגן",
-      "נגני",
-      "השמע",
-      "תשמיע",
-      "השמיעי",
-      "שים",
-      "שימי",
-      "להאזין",
-      "הפעל",
-      "תפעיל",
-      "הפעילי",
     ]);
     if (hasMusicVerb || forceMusic) {
       const query = this._extractVoiceAssistantMusicQuery(transcript, player);
@@ -14226,10 +14214,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _voiceAssistantCleanMusicPhrase(value = "", { allowStopWordFallback = false } = {}) {
     return MaverickVoiceMatchingFoundation.voiceAssistantCleanMusicPhrase(value, { allowStopWordFallback });
-  }
-
-  _voiceAssistantTransliterateHebrewToken(value = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantTransliterateHebrewToken(value);
   }
 
   _voiceAssistantLatinPhoneticKeys(value = "") {
