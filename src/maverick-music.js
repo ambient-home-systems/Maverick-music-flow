@@ -15,17 +15,11 @@ import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBod
 import {
   LANGUAGE_OPTIONS as MAVERICK_LANGUAGE_OPTIONS,
   detectLanguage as maverickDetectLanguage,
-  isRtlLanguage as maverickIsRtlLanguage,
   translate as maverickTranslate,
   translateText as maverickTranslateText,
 } from "./localization/index.js";
 import MaverickEmblaCarousel from "./vendor/embla-carousel.js";
 import { buildCardStyles } from "./core/theme/card-styles.js";
-import {
-  detectEditorHebrew as maverickDetectEditorHebrew,
-  isHebrewLanguageTag as maverickIsHebrewLanguageTag,
-  pickEditorLanguageCandidate as maverickPickEditorLanguageCandidate,
-} from "./core/editor-locale.js";
 import {
   assertBooleanIfDefined as maverickAssertBooleanIfDefined,
   assertNumberIfDefined as maverickAssertNumberIfDefined,
@@ -114,19 +108,12 @@ const MAVERICK_MOBILE_EDITOR_TAG = "maverick-music-editor-v601";
 const AMBIENT_LIGHT_PAIR_PLAYER_PREFIX = "__homeii_ambient_light_pair_player_";
 const AMBIENT_LIGHT_PAIR_LIGHTS_PREFIX = "__homeii_ambient_light_pair_lights_";
 
-const MaverickEditorLocale = Object.freeze({
-  isHebrewLanguageTag: maverickIsHebrewLanguageTag,
-  pickEditorLanguageCandidate: maverickPickEditorLanguageCandidate,
-  detectEditorHebrew: maverickDetectEditorHebrew,
-});
-
 const MaverickRevisionedSnapshotsFoundation = Object.freeze({
   ...MaverickRevisionedSnapshotsFoundationSource,
 });
 
 function maverickEditorI18n(key, params = {}, fallback = "") {
-  const language = MaverickEditorLocale.detectEditorHebrew() ? "he" : "en";
-  return maverickTranslate(language, key, params, fallback);
+  return maverickTranslate("en", key, params, fallback);
 }
 
 function maverickEditorSchemaName(schema = {}) {
@@ -239,7 +226,6 @@ configureMaverickEditorForms({
   maverickEditorI18n,
   maverickEditorLabelFor,
   maverickEditorHelperFor,
-  detectEditorHebrew: MaverickEditorLocale.detectEditorHebrew,
   visibleLanguageOptions: MAVERICK_VISIBLE_LANGUAGE_OPTIONS,
   radioBrowserCountrySelectorOptions: maverickRadioBrowserCountrySelectorOptions,
 });
@@ -275,7 +261,6 @@ const MaverickBaseMusicCard = createMaverickBaseMusicCard({
   maverickRadioBrowserCountryLabel,
   maverickCountryFlagEmoji,
   maverickDetectLanguage,
-  maverickIsRtlLanguage,
   maverickTranslate,
   maverickTranslateText,
 });
@@ -283,8 +268,6 @@ const MaverickBaseMusicCard = createMaverickBaseMusicCard({
 const MaverickBaseMusicEditor = createMaverickBaseMusicEditor({
   MaverickBaseMusicCard,
   ensureHaEditorComponents,
-  maverickIsRtlLanguage,
-  maverickDetectLanguage,
   MaverickConfigValidators,
   MaverickPlayersFoundation,
   MaverickMobileSettingsFoundation,
@@ -1110,7 +1093,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         defaultLibraryTabs: this._defaultMobileLibraryTabs(),
         defaultMainBarItems: this._defaultMobileMainBarItems(),
         defaultQuickActions: this._defaultMobileQuickActions(),
-        defaultAnnouncementPresets: this._defaultAnnouncementPresets(visualCfg.language || this._state.lang),
+        defaultAnnouncementPresets: this._defaultAnnouncementPresets(),
       }));
       if (previousEdgeReturnAvailable && this._state.mobileLayoutMode === "edge_to_edge") {
         this._state.mobileLayoutMode = "full";
@@ -1161,13 +1144,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     });
   }
 
-  _m(en, he, params = {}) {
-    return maverickTranslateText(
-      this._language(),
-      en,
-      params,
-      this._isHebrew() ? he : en,
-    );
+  _m(en, params = {}) {
+    return maverickTranslateText(this._language(), en, params);
   }
 
   _effectiveTheme() {
@@ -1857,7 +1835,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const ready = await this._maverickEngineReadyForPersistence();
     if (!ready) {
       if (this._maverickEngineRequired() || options.toast) {
-        this._toastError(this._m("Saved locally, but Maverick Music Engine did not confirm the schedule.", "נשמר מקומית, אבל Maverick Music Engine לא אישר את התזמון."));
+        this._toastError(this._m("Saved locally, but Maverick Music Engine did not confirm the schedule."));
       }
       return false;
     }
@@ -1932,7 +1910,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return [
       "morning", "sunrise", "coffee", "breakfast", "wake", "wakeup", "wake up",
       "calm", "soft", "easy", "acoustic", "chill", "lofi", "lo-fi", "pleasant",
-      "בוקר", "זריחה", "קפה", "ארוחת בוקר", "יקיצה", "רגוע", "רך", "נעים", "אקוסטי", "צ׳יל", "שקט",
     ];
   }
 
@@ -2095,7 +2072,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._persistMobileAppearance();
     const engineSaved = await this._syncScheduleToMaverickEngine(schedule, { toast: true });
     this._toastSuccess(engineSaved
-      ? this._m("Schedule saved to Maverick Music Engine", "התזמון נשמר ב-Maverick Music Engine")
+      ? this._m("Schedule saved to Maverick Music Engine")
       : this._i18n("ui.scheduled_start_saved"));
     return true;
   }
@@ -2291,7 +2268,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const ready = await this._maverickEngineReadyForPersistence();
     if (!ready) {
       if (this._maverickEngineRequired() || options.toast) {
-        this._toastError(this._m("The Engine did not confirm the sleep timer.", "ה־Engine לא אישר את שמירת הטיימר."));
+        this._toastError(this._m("The Engine did not confirm the sleep timer."));
       }
       return false;
     }
@@ -2307,7 +2284,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         enabled: true,
       }, { required: true });
       if (!result) {
-        this._toastError(this._m("The Engine did not confirm the sleep timer.", "ה־Engine לא אישר את שמירת הטיימר."));
+        this._toastError(this._m("The Engine did not confirm the sleep timer."));
         return false;
       }
       const confirmed = await this._confirmSleepTimerInMaverickEngine(this._maverickSleepTimerId(playerId), playerId, target);
@@ -2349,7 +2326,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!player) return false;
     const ready = await this._maverickEngineReadyForPersistence();
     if (!ready) {
-      if (options.toast) this._toastError(this._m("The Engine could not confirm timer cancellation.", "ה־Engine לא אישר את ביטול הטיימר."));
+      if (options.toast) this._toastError(this._m("The Engine could not confirm timer cancellation."));
       return false;
     }
     try {
@@ -2418,7 +2395,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   async _saveSleepTimerState(nextState, minutes, source) {
     if (this._sleepTimerSavePending) {
-      this._toastError(this._m("A timer update is still in progress.", "עדכון הטיימר עדיין מתבצע."));
+      this._toastError(this._m("A timer update is still in progress."));
       return false;
     }
     this._sleepTimerSavePending = true;
@@ -2434,7 +2411,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       return { ok: true, engineSaved };
     } catch (error) {
       Object.assign(this._state, previous);
-      this._toastError(error?.message || this._m("Timer update failed.", "עדכון הטיימר נכשל."));
+      this._toastError(error?.message || this._m("Timer update failed."));
       return false;
     } finally {
       this._sleepTimerSavePending = false;
@@ -2476,7 +2453,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   async _clearSleepTimer(showToast = false) {
     if (this._sleepTimerSavePending) {
-      if (showToast) this._toastError(this._m("A timer update is still in progress.", "עדכון הטיימר עדיין מתבצע."));
+      if (showToast) this._toastError(this._m("A timer update is still in progress."));
       return false;
     }
     const timerPlayer = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
@@ -3913,18 +3890,15 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return ["timer", "like", "lyrics", "queue", "queue_flow", "radio", "history"];
   }
 
-  _defaultAnnouncementPresets(lang = this._state?.lang || this._config?.language || "en") {
-    return MaverickEditorLocale.isHebrewLanguageTag(lang)
-      ? ["ארוחת הערב מוכנה", "נא להגיע לסלון", "יוצאים בעוד חמש דקות"]
-      : ["Dinner is ready", "Please come to the living room", "Leaving in five minutes"];
+  _defaultAnnouncementPresets() {
+    return ["Dinner is ready", "Please come to the living room", "Leaving in five minutes"];
   }
 
   _isDefaultAnnouncementPresetSet(presets = []) {
     if (!Array.isArray(presets) || !presets.length) return false;
     const normalize = (items) => items.slice(0, 3).map((item) => String(item || "").trim()).join("\n");
     const current = normalize(presets);
-    return current === normalize(this._defaultAnnouncementPresets("he"))
-      || current === normalize(this._defaultAnnouncementPresets("en"));
+    return current === normalize(this._defaultAnnouncementPresets());
   }
 
   _mobileHomeShortcutEnabled() {
@@ -4803,7 +4777,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (!this._pressUiButton(e.currentTarget)) return;
       const entry = this._currentMediaLikeMeta();
       if (!entry?.uri) {
-        this._toastError(this._m("No current track is available.", "אין כרגע שיר זמין."));
+        this._toastError(this._m("No current track is available."));
         return;
       }
       this._openMobileMediaActionMenu(entry);
@@ -5204,7 +5178,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (next) this._selectPlayer(next, true);
     this._loadPlayers();
     this._syncNowPlayingUI();
-    this._toast(next ? this._m("Player pinned to front", "הנגן ננעץ בחזית") : this._m("Front pin cleared", "הנעיצה בחזית בוטלה"));
+    this._toast(next ? this._m("Player pinned to front") : this._m("Front pin cleared"));
   }
 
   _mobileVolumeMode() {
@@ -5340,15 +5314,15 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _queueFlowLabel() {
-    return this._m("Queue wheel", "גלגל תור");
+    return this._m("Queue wheel");
   }
 
   _libraryFlowLabel(short = false) {
-    return short ? this._m("Wheel", "גלגל") : this._m("Library wheel", "גלגל ספריה");
+    return short ? this._m("Wheel") : this._m("Library wheel");
   }
 
   _artistAlbumFlowLabel(short = false) {
-    return short ? this._m("Album wheel", "גלגל אלבומים") : this._m("Artist album wheel", "גלגל אלבומי אמן");
+    return short ? this._m("Album wheel") : this._m("Artist album wheel");
   }
 
   _libraryFlowPageActive(page = this._state?.menuPage || "") {
@@ -5591,7 +5565,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const rowActions = layoutMode === "tablet"
       ? actions.filter((action) => action !== "history" && action !== "timer")
       : actions;
-    const historyEdgeClass = this._isHebrew() ? "left-edge" : "right-edge";
+    const historyEdgeClass = "right-edge";
     const historyToggleButtonHtml = layoutMode !== "tablet" && actions.includes("history")
       ? `<button class="history-toggle-fab ${historyEdgeClass}" id="historyToggleFab" title="${this._i18n("ui.recently_played_2")}" aria-expanded="false" hidden>${this._iconSvg("history")}</button>`
       : "";
@@ -6044,7 +6018,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const failed = playerIds.filter((_, index) => results[index].status === "rejected" || results[index].value === false);
     if (!failed.length) return true;
     const names = failed.map((id) => this._controlRoomPlayerName(id)).join(", ");
-    this._toastError(this._m(`The action failed for: ${names}`, `הפעולה נכשלה עבור: ${names}`));
+    this._toastError(this._m(`The action failed for: ${names}`));
     this._schedulePlayerStateRefresh(0);
     return false;
   }
@@ -7281,7 +7255,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _build() {
     this.classList.toggle("action-labels", this._mobileFooterMode() !== "icon");
-    const rtl = this._isHebrew();
     const visualTheme = this._visualTheme();
     const mobileLayoutMode = this._mobileLayoutMode();
     const compactMode = this._mobileCompactModeEnabled();
@@ -7469,9 +7442,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         <button class="volume-btn" id="btnMute" title="${this._i18n("ui.mute")}" aria-label="${this._i18n("ui.mute")}">${this._iconSvg("volume_high")}</button>
       </div>`;
     const compactCollapseFabHtml = compactPopupMode
-      ? `<button class="compact-collapse-fab ${rtl ? "rtl" : "ltr"}" id="compactCollapseBtn" title="${this._i18n("ui.collapse_compact_player")}" aria-label="${this._i18n("ui.collapse_compact_player")}">${actionIconSvg(this, "minimize")}</button>`
+      ? `<button class="compact-collapse-fab ltr" id="compactCollapseBtn" title="${this._i18n("ui.collapse_compact_player")}" aria-label="${this._i18n("ui.collapse_compact_player")}">${actionIconSvg(this, "minimize")}</button>`
       : ``;
-    const mobileEdgeCornerClass = rtl ? "rtl" : "ltr";
+    const mobileEdgeCornerClass = "ltr";
     const mobileEdgeOverlayOpen = !!(
       this._state.menuOpen
       || this._state.controlRoomOpen
@@ -7480,13 +7453,13 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       || this._state.mobileSmartVoice
     );
     const mobileEdgeExitHtml = mobileEdgeToEdgeMode && !mobileEdgeOverlayOpen
-      ? `<button class="mobile-edge-corner-btn mobile-edge-exit ${mobileEdgeCornerClass}" id="mobileEdgeExitBtn" title="${this._esc(this._m("Exit edge-to-edge", "יציאה מקצה לקצה"))}" aria-label="${this._esc(this._m("Exit edge-to-edge", "יציאה מקצה לקצה"))}">${actionIconSvg(this, "minimize")}</button>`
+      ? `<button class="mobile-edge-corner-btn mobile-edge-exit ${mobileEdgeCornerClass}" id="mobileEdgeExitBtn" title="${this._esc(this._m("Exit edge-to-edge"))}" aria-label="${this._esc(this._m("Exit edge-to-edge"))}">${actionIconSvg(this, "minimize")}</button>`
       : ``;
     const mobileEdgeReturnHtml = !mobileEdgeOverlayOpen && !visualEditorContext && !compactPopupLayoutMode && !compactTileMode && !mobileEdgeToEdgeMode && this._mobileLayoutMode() === "full" && (this._state.mobileEdgeReturnAvailable === true || layoutMode === "tablet")
-      ? `<button class="mobile-edge-corner-btn mobile-edge-return ${mobileEdgeCornerClass}" id="mobileEdgeEnterBtn" title="${this._esc(this._m("Back to edge-to-edge", "חזרה לקצה לקצה"))}" aria-label="${this._esc(this._m("Back to edge-to-edge", "חזרה לקצה לקצה"))}">${actionIconSvg(this, "maximize")}</button>`
+      ? `<button class="mobile-edge-corner-btn mobile-edge-return ${mobileEdgeCornerClass}" id="mobileEdgeEnterBtn" title="${this._esc(this._m("Back to edge-to-edge"))}" aria-label="${this._esc(this._m("Back to edge-to-edge"))}">${actionIconSvg(this, "maximize")}</button>`
       : ``;
     const homeShortcutFabHtml = ``;
-    const historyEdgeClass = rtl ? "left-edge" : "right-edge";
+    const historyEdgeClass = "right-edge";
     const footerButtons = [...mainBarButtons, mobileEdgeExitHtml || mobileEdgeReturnHtml].filter(Boolean);
     const footerHtml = footerButtons.length
       ? `<div class="footer-nav count-${footerButtons.length}">${footerButtons.join("")}</div>`
@@ -7497,7 +7470,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const floatingHistoryToggleFabHtml = layoutMode === "tablet" && quickActionsWithPower.includes("history") ? historyToggleButtonHtml : ``;
     const mobileHistoryToggleButtonHtml = layoutMode !== "tablet" && quickActionsWithPower.includes("history") ? historyToggleButtonHtml : ``;
     const sleepTimerCornerMarkup = !compactTileMode ? `
-      <div class="sleep-timer-corner ${rtl ? "left" : "right"}" id="sleepTimerCorner" hidden></div>
+      <div class="sleep-timer-corner right" id="sleepTimerCorner" hidden></div>
     ` : ``;
     const floatingSleepTimerCornerHtml = layoutMode === "tablet" && (quickActionsWithPower.includes("timer") || sleepTimerActive) ? sleepTimerCornerMarkup : ``;
     const tabletBrandWatermarkHtml = layoutMode === "tablet" && !compactTileMode
@@ -7622,13 +7595,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         ${volumeMode === "always" ? volumeHtml : ``}
       </div>`;
     const tabletNavRailHtml = `<aside class="tablet-rail">${playerFocusHtml}${footerHtml}</aside>`;
-    const tabletStageHtml = rtl
-      ? `<div class="tablet-shell"><div class="tablet-main">${centerHtml}${bottomHtml}</div>${tabletNavRailHtml}</div>`
-      : `<div class="tablet-shell">${tabletNavRailHtml}<div class="tablet-main">${centerHtml}${bottomHtml}</div></div>`;
+    const tabletStageHtml = `<div class="tablet-shell">${tabletNavRailHtml}<div class="tablet-main">${centerHtml}${bottomHtml}</div></div>`;
 
     this.shadowRoot.innerHTML = `
       <style>${buildCardStyles({ hostMinWidth, height, minCardHeight, fontScale: this._state.mobileFontScale || 1, iconScale: mobileIconScale.toFixed(2), customRgb: this._customRgb(), customText: this._customTextColor(), customColor: this._state.mobileCustomColor || "#e0a11b", fullInlineTargetHeight })}</style>
-      <div class="card ${rtl ? "rtl" : ""} theme-${visualTheme} layout-${layoutMode}${layoutProfileClass ? ` ${layoutProfileClass}` : ""} mobile-layout-${mobileLayoutMode}${mobileLayoutMode === "full" ? " mobile-layout-forced-full" : ""}${mobileLayoutMode === "compact" ? " mobile-layout-forced-compact" : ""}${mobileEdgeToEdgeMode ? " mobile-edge-to-edge" : ""} performance-profile-${performanceProfile}${performanceMode ? " performance-lite" : ""}${performanceUltraLite ? " performance-ultra-lite" : ""}${hotelMode ? " hotel-mode" : ""}${compactTileMode ? " compact-mode compact-collapsed" : compactMode ? " compact-expanded" : ""}${compactMiniWidget ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${compactTransitionClass}${nightActive ? " night-mode" : ""}${showNightRow ? " night-mode-enabled" : ""}${tabletAutoFit ? " tablet-auto-fit" : ""}${tabletDenseUi ? " tablet-fit-dense" : ""}${showNightRow ? " tablet-fit-night" : ""}${showUpNextInline ? " tablet-fit-up-next" : ""}${mobileDenseContent ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!hotelMode && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${layoutProfileStyle}--screensaver-clock-scale:${this._esc(screensaverClockSize.toFixed(2))};--screensaver-clock-x:${this._esc(screensaverClockX.toFixed(1))}%;--screensaver-clock-y:${this._esc(screensaverClockY.toFixed(1))}%;">
+      <div class="card theme-${visualTheme} layout-${layoutMode}${layoutProfileClass ? ` ${layoutProfileClass}` : ""} mobile-layout-${mobileLayoutMode}${mobileLayoutMode === "full" ? " mobile-layout-forced-full" : ""}${mobileLayoutMode === "compact" ? " mobile-layout-forced-compact" : ""}${mobileEdgeToEdgeMode ? " mobile-edge-to-edge" : ""} performance-profile-${performanceProfile}${performanceMode ? " performance-lite" : ""}${performanceUltraLite ? " performance-ultra-lite" : ""}${hotelMode ? " hotel-mode" : ""}${compactTileMode ? " compact-mode compact-collapsed" : compactMode ? " compact-expanded" : ""}${compactMiniWidget ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${compactTransitionClass}${nightActive ? " night-mode" : ""}${showNightRow ? " night-mode-enabled" : ""}${tabletAutoFit ? " tablet-auto-fit" : ""}${tabletDenseUi ? " tablet-fit-dense" : ""}${showNightRow ? " tablet-fit-night" : ""}${showUpNextInline ? " tablet-fit-up-next" : ""}${mobileDenseContent ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!hotelMode && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${layoutProfileStyle}--screensaver-clock-scale:${this._esc(screensaverClockSize.toFixed(2))};--screensaver-clock-x:${this._esc(screensaverClockX.toFixed(1))}%;--screensaver-clock-y:${this._esc(screensaverClockY.toFixed(1))}%;">
         <div class="bg" id="mobileBg"></div><div class="shade"></div><div class="glow"></div>
         ${compactCollapseFabHtml}
         ${homeShortcutFabHtml}
@@ -8018,8 +7989,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._toast(this._i18n("ui.at_least_one_player_must_stay_selected"));
         } else {
           this._toastSuccess(result === "removed"
-            ? this._m(`${name} removed from studio selection`, `${name} הוסר מבחירת הסטודיו`)
-            : this._m(`${name} added to studio selection`, `${name} נוסף לבחירת הסטודיו`));
+            ? this._m(`${name} removed from studio selection`)
+            : this._m(`${name} added to studio selection`));
         }
         return;
       }
@@ -8031,8 +8002,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         const entityId = primaryBtn.dataset.roomPrimary;
         this._setControlRoomPrimary(entityId);
         this._toastSuccess(this._m(
-          `Studio is now controlling ${this._controlRoomPlayerName(entityId)}`,
-          `הסטודיו שולט כעת בנגן ${this._controlRoomPlayerName(entityId)}`
+          `Studio is now controlling ${this._controlRoomPlayerName(entityId)}`
         ));
         return;
       }
@@ -8046,8 +8016,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         try {
           await this._togglePlayFor(entityId);
           this._toastSuccess(player?.state === "playing"
-            ? this._m(`${this._controlRoomPlayerName(entityId)} paused`, `${this._controlRoomPlayerName(entityId)} הושהה`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} started playing`, `${this._controlRoomPlayerName(entityId)} התחיל לנגן`));
+            ? this._m(`${this._controlRoomPlayerName(entityId)} paused`)
+            : this._m(`${this._controlRoomPlayerName(entityId)} started playing`));
           setTimeout(() => this._updateNowPlayingState(), 250);
         } catch (error) {
           this._toastError(error?.message || this._i18n("ui.playback_command_failed_2"));
@@ -8062,7 +8032,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         const entityId = nextBtn.dataset.roomNext;
         try {
           await this._playerCmdFor(entityId, "next");
-          this._toastSuccess(this._m(`${this._controlRoomPlayerName(entityId)} skipped to next`, `${this._controlRoomPlayerName(entityId)} עבר לרצועה הבאה`));
+          this._toastSuccess(this._m(`${this._controlRoomPlayerName(entityId)} skipped to next`));
           setTimeout(() => this._updateNowPlayingState(), 250);
         } catch (error) {
           this._toastError(error?.message || this._i18n("ui.next_track_failed"));
@@ -8079,8 +8049,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         try {
           if (!await this._toggleMuteFor(entityId)) return;
           this._toastSuccess(wasMuted
-            ? this._m(`${this._controlRoomPlayerName(entityId)} unmuted`, `${this._controlRoomPlayerName(entityId)} בוטלה ההשתקה`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} muted`, `${this._controlRoomPlayerName(entityId)} הושתק`));
+            ? this._m(`${this._controlRoomPlayerName(entityId)} unmuted`)
+            : this._m(`${this._controlRoomPlayerName(entityId)} muted`));
           setTimeout(() => this._updateNowPlayingState(), 160);
         } catch (error) {
           this._toastError(error?.message || this._i18n("ui.mute_command_failed"));
@@ -8096,8 +8066,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._syncControlRoomTransferDefaults();
         this._syncControlRoomUi();
         this._toast(this._m(
-          `Transfer source: ${this._controlRoomPlayerName(this._state.controlRoomTransferSource)}`,
-          `מקור להעברה: ${this._controlRoomPlayerName(this._state.controlRoomTransferSource)}`
+          `Transfer source: ${this._controlRoomPlayerName(this._state.controlRoomTransferSource)}`
         ));
         return;
       }
@@ -8111,8 +8080,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._state.controlRoomTransferTarget = targetId;
           this._syncControlRoomUi();
           this._toast(this._m(
-            `Transfer target: ${this._controlRoomPlayerName(targetId)}`,
-            `יעד להעברה: ${this._controlRoomPlayerName(targetId)}`
+            `Transfer target: ${this._controlRoomPlayerName(targetId)}`
           ));
         }
         return;
@@ -8188,7 +8156,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             else this._syncControlRoomUi({ force: true });
           }
           const messages = {
-            play: this._m(`Started ${entry.name || "media"} in Studio`, `${entry.name || "media"} התחיל לנגן בסטודיו`),
+            play: this._m(`Started ${entry.name || "media"} in Studio`),
             next: this._i18n("ui.will_play_next_in_studio"),
             add: this._i18n("ui.added_to_studio_queue"),
             radio_mode: this._i18n("ui.radio_mode_started"),
@@ -8218,7 +8186,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         const played = await this._playControlRoomLibraryEntry(entry);
         if (played) {
           this._state.controlRoomPanel = "";
-          this._toastSuccess(this._m(`Started ${entry.name || "media"} in Studio`, `${entry.name || "media"} התחיל לנגן בסטודיו`));
+          this._toastSuccess(this._m(`Started ${entry.name || "media"} in Studio`));
           setTimeout(() => this._updateNowPlayingState(), 350);
         } else {
           this._toastError(this._i18n("ui.could_not_start_playback_in_studio"));
@@ -8297,8 +8265,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._toast(this._i18n("ui.at_least_one_player_must_stay_selected"));
         } else {
           this._toastSuccess(result === "removed"
-            ? this._m(`${this._controlRoomPlayerName(entityId)} removed from selection`, `${this._controlRoomPlayerName(entityId)} הוסר מהבחירה`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} selected`, `${this._controlRoomPlayerName(entityId)} נבחר`));
+            ? this._m(`${this._controlRoomPlayerName(entityId)} removed from selection`)
+            : this._m(`${this._controlRoomPlayerName(entityId)} selected`));
         }
         return;
       }
@@ -8311,8 +8279,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         const wasVisible = this._controlRoomVisiblePlayerIds().includes(entityId);
         this._toggleControlRoomVisiblePlayer(entityId);
         this._toastSuccess(wasVisible
-          ? this._m(`${this._controlRoomPlayerName(entityId)} hidden from Studio`, `${this._controlRoomPlayerName(entityId)} הוסתר מהסטודיו`)
-          : this._m(`${this._controlRoomPlayerName(entityId)} shown in Studio`, `${this._controlRoomPlayerName(entityId)} shown התחיל לנגן בסטודיו`));
+          ? this._m(`${this._controlRoomPlayerName(entityId)} hidden from Studio`)
+          : this._m(`${this._controlRoomPlayerName(entityId)} shown in Studio`));
         return;
       }
       const dockBtn = e.target.closest("[data-room-selection-action]");
@@ -8359,8 +8327,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           const wasOpen = this._state.controlRoomPanel === action;
           this._toggleControlRoomPanel(action);
           this._toast(wasOpen
-            ? this._m(`${this._controlRoomPanelLabel(action)} closed`, `${this._controlRoomPanelLabel(action)} נסגר`)
-            : this._m(`${this._controlRoomPanelLabel(action)} opened`, `${this._controlRoomPanelLabel(action)} נפתח`));
+            ? this._m(`${this._controlRoomPanelLabel(action)} closed`)
+            : this._m(`${this._controlRoomPanelLabel(action)} opened`));
           return;
         }
         const primaryId = this._controlRoomPrimaryPlayerId();
@@ -8371,8 +8339,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           try {
             await this._togglePlayFor(primaryId);
             this._toastSuccess(player?.state === "playing"
-              ? this._m(`${this._controlRoomPlayerName(primaryId)} paused`, `${this._controlRoomPlayerName(primaryId)} הושהה`)
-              : this._m(`${this._controlRoomPlayerName(primaryId)} started playing`, `${this._controlRoomPlayerName(primaryId)} התחיל לנגן`));
+              ? this._m(`${this._controlRoomPlayerName(primaryId)} paused`)
+              : this._m(`${this._controlRoomPlayerName(primaryId)} started playing`));
             setTimeout(() => this._updateNowPlayingState(), 250);
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.playback_command_failed_2"));
@@ -8384,7 +8352,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._pressUiButton(dockBtn);
           try {
             await this._playerCmdFor(primaryId, "next");
-            this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} skipped to next`, `${this._controlRoomPlayerName(primaryId)} עבר לרצועה הבאה`));
+            this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} skipped to next`));
             setTimeout(() => this._updateNowPlayingState(), 250);
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.next_track_failed"));
@@ -8398,8 +8366,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           try {
             if (!await this._toggleMuteFor(primaryId)) return;
             this._toastSuccess(wasMuted
-              ? this._m(`${this._controlRoomPlayerName(primaryId)} unmuted`, `${this._controlRoomPlayerName(primaryId)} בוטלה ההשתקה`)
-              : this._m(`${this._controlRoomPlayerName(primaryId)} muted`, `${this._controlRoomPlayerName(primaryId)} הושתק`));
+              ? this._m(`${this._controlRoomPlayerName(primaryId)} unmuted`)
+              : this._m(`${this._controlRoomPlayerName(primaryId)} muted`));
             setTimeout(() => this._updateNowPlayingState(), 160);
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.mute_command_failed"));
@@ -8411,7 +8379,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._pressUiButton(dockBtn);
           try {
             await this._stopPlayer(primaryId);
-            this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} stopped`, `${this._controlRoomPlayerName(primaryId)} נעצר`));
+            this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} stopped`));
             setTimeout(() => this._updateNowPlayingState(), 250);
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.stop_command_failed"));
@@ -8426,8 +8394,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._pressUiButton(dockBtn);
           if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._togglePlayFor(entityId))) return;
           this._toastSuccess(this._m(
-            `Play / pause sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`,
-            `ניגון / השהיה נשלחו אל ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
+            `Play / pause sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
           ));
           setTimeout(() => this._updateNowPlayingState(), 250);
           return;
@@ -8436,8 +8403,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._pressUiButton(dockBtn);
           if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._playerCmdFor(entityId, "next"))) return;
           this._toastSuccess(this._m(
-            `Next sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`,
-            `מעבר לשיר הבא נשלח אל ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
+            `Next sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
           ));
           setTimeout(() => this._updateNowPlayingState(), 250);
           return;
@@ -8446,8 +8412,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._pressUiButton(dockBtn);
           if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._toggleMuteFor(entityId))) return;
           this._toastSuccess(this._m(
-            `Mute sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`,
-            `השתקה נשלחה אל ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
+            `Mute sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
           ));
           setTimeout(() => this._updateNowPlayingState(), 250);
           return;
@@ -8456,8 +8421,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._pressUiButton(dockBtn);
           if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._clearQueueForPlayer(entityId))) return;
           this._toastSuccess(this._m(
-            `Queues cleared for ${this._controlRoomPlayerCountLabel(selectedIds.length)}`,
-            `התורים נוקו עבור ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
+            `Queues cleared for ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
           ));
           this._loadControlRoomQueues(selectedIds).catch(() => {});
           setTimeout(() => this._updateNowPlayingState(), 250);
@@ -8925,7 +8889,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (action === "shuffle") return this._playMedia(entry.uri, entry.media_type || "album", "shuffle", { label });
     if (action === "library_add") {
       await this._callEngineMaCommand("music/library/add_item", { item:entry.uri });
-      this._toastSuccess(this._m("Saved to Music Assistant library", "נוסף לספריית Music Assistant"));
+      this._toastSuccess(this._m("Saved to Music Assistant library"));
       return true;
     }
     if (action === "details") {
@@ -9703,7 +9667,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       }
       this._renderEmpty(MaverickPlayersFoundation.isPlayerAvailable(player)
         ? this._i18n("ui.player_is_ready_nothing_is_playing_right_now")
-        : this._m("This player is offline. Choose an available player.", "הנגן אינו מחובר. בחר נגן זמין."), { wasEmptyMedia });
+        : this._m("This player is offline. Choose an available player."), { wasEmptyMedia });
       this._syncMobileUpNextUi(null);
       this.$("btnPlay")?.classList.remove("is-playing");
       this._renderPlayerSummary();
@@ -10238,7 +10202,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _musicStyleCatalog(options = {}) {
-    const t = (en, he, de = en) => this._discoveryGenreLabel(en, he, de);
+    const t = (en) => this._discoveryGenreLabel(en);
     const style = (id, icon, label, subtitle, queries, extra = {}) => ({
       id,
       key: id,
@@ -10250,182 +10214,182 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ...extra,
     });
     const styles = [
-      style("pop", "music_note", "Pop", t("Popular hits", "להיטים פופולריים"), ["pop hits playlist", "top pop playlist", "pop music"]),
-      style("indie-pop", "music_note", "Indie Pop", t("Fresh alternative pop", "פופ אלטרנטיבי רענן"), ["indie pop playlist", "fresh indie pop", "alternative pop"]),
-      style("k-pop", "music_note", "K-Pop", t("Korean pop", "פופ קוריאני"), ["k-pop playlist", "kpop hits", "korean pop"]),
-      style("j-pop", "music_note", "J-Pop", t("Japanese pop", "פופ יפני"), ["j-pop playlist", "jpop hits", "japanese pop"]),
-      style("hip-hop", "tracks", "Hip-Hop", t("Beats and flow", "ביטים וקצב"), ["hip hop playlist", "hip hop hits", "rap hip hop"]),
-      style("rap", "tracks", "Rap", t("Rap essentials", "מיטב הראפ"), ["rap playlist", "rap hits", "new rap"]),
-      style("trap", "tracks", "Trap", t("Modern trap", "טראפ עכשווי"), ["trap playlist", "trap hits", "modern trap"]),
-      style("rnb", "heart_filled", "R&B", t("Smooth rhythm", "R&B"), ["r&b playlist", "rnb hits", "smooth r&b"]),
-      style("soul", "heart_filled", "Soul", t("Warm vocals", "קולות חמים"), ["soul playlist", "neo soul", "soul classics"]),
-      style("funk", "radio", "Funk", t("Groove and bass", "גרוב ובאס"), ["funk playlist", "funk classics", "groove funk"]),
-      style("rock", "album", "Rock", t("Guitars and bands", "גיטרות ולהקות"), ["rock playlist", "rock hits", "rock music"]),
-      style("classic-rock", "album", "Classic Rock", t("Rock classics", "קלאסיקות רוק"), ["classic rock playlist", "rock classics", "70s rock"]),
-      style("alternative-rock", "album", "Alternative Rock", t("Alternative bands", "להקות אלטרנטיביות"), ["alternative rock playlist", "alt rock", "alternative music"]),
-      style("indie-rock", "album", "Indie Rock", t("Independent rock", "רוק עצמאי"), ["indie rock playlist", "indie bands", "garage rock"]),
-      style("punk", "album", "Punk", t("Fast guitars", "גיטרות מהירות"), ["punk rock playlist", "punk hits", "pop punk"]),
-      style("metal", "album", "Metal", t("Heavy guitars", "גיטרות כבדות"), ["metal playlist", "heavy metal", "metal hits"]),
-      style("electronic", "grid", "Electronic", t("Electronic music", "מוזיקה אלקטרונית"), ["electronic playlist", "electronica", "electronic music"]),
-      style("edm", "grid", "EDM", t("Festival energy", "EDM"), ["edm playlist", "edm hits", "festival edm"]),
-      style("house", "grid", "House", t("House music", "מוזיקת האוס"), ["house music playlist", "house hits", "club house"]),
-      style("deep-house", "grid", "Deep House", t("Deep club sound", "צליל מועדונים עמוק"), ["deep house playlist", "deep house music", "melodic house"]),
-      style("tech-house", "grid", "Tech House", t("Club groove", "גרוב למועדונים"), ["tech house playlist", "tech house music", "club tech house"]),
-      style("techno", "grid", "Techno", t("Driving electronic", "אלקטרוניקה קצבית"), ["techno playlist", "techno music", "melodic techno"]),
-      style("trance", "grid", "Trance", t("Uplifting trance", "טראנס מרומם"), ["trance playlist", "uplifting trance", "psytrance"]),
-      style("drum-bass", "grid", "Drum & Bass", t("Fast breaks", "מקצבים מהירים"), ["drum and bass playlist", "dnb playlist", "liquid drum and bass"]),
-      style("dubstep", "grid", "Dubstep", t("Bass drops", "באסים עוצמתיים"), ["dubstep playlist", "bass music", "dubstep hits"]),
-      style("dance", "radio", "Dance", t("Dance hits", "להיטי דאנס"), ["dance playlist", "dance hits", "dance pop"]),
-      style("disco", "radio", "Disco", t("Disco classics", "קלאסיקות דיסקו"), ["disco playlist", "disco classics", "nu disco"]),
-      style("party", "radio", this._i18n("ui.party"), t("Party hits", "להיטים למסיבה"), ["party hits playlist", "party music", "dance party"]),
-      style("workout", "stats", "Workout", t("Training energy", "אנרגיה לאימון"), ["workout playlist", "gym music", "running playlist"]),
-      style("jazz", "music_note", "Jazz", t("Jazz essentials", "מיטב הג׳אז"), ["jazz playlist", "smooth jazz", "vocal jazz"]),
-      style("blues", "music_note", "Blues", t("Blues classics", "קלאסיקות בלוז"), ["blues playlist", "blues classics", "modern blues"]),
-      style("classical", "album", "Classical", t("Classical music", "מוזיקה קלאסית"), ["classical music playlist", "classical essentials", "orchestra classical"]),
-      style("piano", "album", "Piano", t("Piano focus", "פסנתר לריכוז"), ["piano playlist", "classical piano", "peaceful piano"]),
-      style("ambient", "moon", "Ambient", t("Soundscapes", "נופי צליל"), ["ambient playlist", "ambient music", "soundscape"]),
-      style("chill", "moon", "Chill", t("Relaxed listening", "האזנה רגועה"), ["chill playlist", "chillout music", "relaxing chill"]),
-      style("lofi", "moon", "Lo-Fi", t("Lo-fi beats", "ביטים של לו־פיי"), ["lo-fi playlist", "lofi beats", "lo-fi hip hop"]),
-      style("acoustic", "album", "Acoustic", t("Unplugged sound", "צליל אקוסטי"), ["acoustic playlist", "unplugged music", "acoustic chill"]),
-      style("folk", "album", "Folk", t("Folk songs", "שירי פולק"), ["folk playlist", "singer songwriter", "indie folk"]),
-      style("country", "album", "Country", t("Country music", "מוזיקת קאנטרי"), ["country playlist", "country hits", "americana"]),
-      style("reggae", "radio", "Reggae", t("Island groove", "מקצבי איים"), ["reggae playlist", "reggae classics", "dancehall reggae"]),
-      style("latin", "radio", "Latin", t("Latin music", "מוזיקה לטינית"), ["latin playlist", "latin hits", "latin pop"]),
-      style("reggaeton", "radio", "Reggaeton", t("Latin urban", "אורבני לטיני"), ["reggaeton playlist", "reggaeton hits", "latin urban"]),
-      style("salsa", "radio", "Salsa", t("Salsa dance", "ריקודי סלסה"), ["salsa playlist", "salsa classics", "latin salsa"]),
-      style("bachata", "radio", "Bachata", t("Bachata rhythm", "מקצבי בצ׳אטה"), ["bachata playlist", "bachata hits", "latin bachata"]),
-      style("afrobeats", "radio", "Afrobeats", t("Afro rhythm", "מקצבים אפריקאיים"), ["afrobeats playlist", "afrobeats hits", "afropop"]),
-      style("amapiano", "radio", "Amapiano", t("South African groove", "גרוב דרום אפריקאי"), ["amapiano playlist", "amapiano hits", "afro house amapiano"]),
-      style("world", "radio", "World", t("Global sounds", "צלילים מהעולם"), ["world music playlist", "global music", "international playlist"]),
-      style("soundtrack", "album", "Soundtracks", t("Movies and series", "סרטים וסדרות"), ["soundtrack playlist", "movie soundtracks", "film music"]),
-      style("meditation", "moon", "Meditation", t("Calm focus", "ריכוז רגוע"), ["meditation music", "calm meditation", "relaxing instrumental"]),
-      style("sleep", "moon", "Sleep", t("Quiet night", "לילה שקט"), ["sleep music", "sleep playlist", "deep sleep music"]),
-      style("kids", "heart_filled", this._i18n("ui.kids"), t("Family music", "מוזיקה לכל המשפחה"), ["kids music playlist", "children songs", "family music kids"]),
-      style("israeli", "music_note", this._i18n("ui.israeli"), t("Israeli music", "מוזיקה ישראלית"), ["מוזיקה ישראלית","israeli music","israeli hits"]),
-      style("hebrew-hits", "music_note", t("Hebrew Hits", "להיטים בעברית"), t("Hebrew songs", "שירים בעברית"), ["להיטים בעברית","שירים בעברית","hebrew hits playlist"]),
-      style("mizrahi", "radio", t("Mizrahi", "מזרחית"), t("Mediterranean pop", "פופ ים תיכוני"), ["מוזיקה מזרחית","להיטים מזרחית","mizrahit music"]),
-      style("mediterranean", "radio", t("Mediterranean", "ים תיכונית"), t("Warm regional sound", "צליל ים תיכוני חם"), ["mediterranean music playlist","ים תיכונית","greek turkish mediterranean music"]),
-      style("arabic", "radio", t("Arabic", "ערבית"), t("Arabic music", "מוזיקה ערבית"), ["arabic music playlist", "arabic hits", "middle eastern music"]),
-      style("turkish", "radio", t("Turkish", "טורקית"), t("Turkish music", "מוזיקה טורקית"), ["turkish music playlist", "turkish pop", "turkish hits"]),
-      style("greek", "radio", t("Greek", "יוונית"), t("Greek music", "מוזיקה יוונית"), ["greek music playlist", "greek hits", "greek pop"]),
-      style("french", "radio", t("French", "צרפתית"), t("French music", "מוזיקה צרפתית"), ["french music playlist", "french pop", "chanson francaise"]),
-      style("spanish", "radio", t("Spanish", "ספרדית"), t("Spanish music", "מוזיקה ספרדית"), ["spanish music playlist", "spanish pop", "musica espanola"]),
-      style("singer-songwriter", "album", "Singer-Songwriter", t("Personal songs", "שירים אישיים"), ["singer songwriter playlist", "singer-songwriter", "acoustic singer songwriter"]),
-      style("soft-pop", "music_note", "Soft Pop", t("Soft pop songs", "שירי פופ רכים"), ["soft pop playlist", "soft pop hits", "easy pop"]),
-      style("pop-rock", "album", "Pop Rock", t("Pop guitars", "גיטרות פופ"), ["pop rock playlist", "pop rock hits", "guitar pop"]),
-      style("electropop", "grid", "Electropop", t("Electronic pop", "פופ אלקטרוני"), ["electropop playlist", "electro pop", "synth pop"]),
-      style("synth-pop", "grid", "Synth Pop", t("Synth classics", "קלאסיקות סינת׳"), ["synth pop playlist", "synthpop classics", "80s synth pop"]),
-      style("dream-pop", "moon", "Dream Pop", t("Dreamy pop", "פופ חלומי"), ["dream pop playlist", "dreamy indie pop", "shoegaze dream pop"]),
-      style("bedroom-pop", "music_note", "Bedroom Pop", t("Lo-fi pop", "פופ לו־פיי"), ["bedroom pop playlist", "lofi bedroom pop", "indie bedroom pop"]),
-      style("hyperpop", "grid", "Hyperpop", t("Maximal pop", "פופ עשיר ונועז"), ["hyperpop playlist", "hyper pop", "glitch pop"]),
-      style("emo", "heart_filled", "Emo", t("Emotional rock", "רוק רגשי"), ["emo playlist", "emo rock", "emo pop punk"]),
-      style("post-punk", "album", "Post-Punk", t("Angular guitars", "גיטרות חדות"), ["post-punk playlist", "post punk classics", "dark post punk"]),
-      style("new-wave", "grid", "New Wave", t("80s alternative", "אלטרנטיב משנות ה־80"), ["new wave playlist", "80s new wave", "new wave classics"]),
-      style("goth", "moon", "Goth", t("Dark wave sound", "צליל דארק וייב"), ["goth playlist", "gothic rock", "darkwave"]),
-      style("darkwave", "moon", "Darkwave", t("Dark synth sound", "סינתיסייזרים אפלים"), ["darkwave playlist", "dark wave", "coldwave"]),
-      style("industrial", "grid", "Industrial", t("Heavy electronic", "אלקטרוניקה כבדה"), ["industrial playlist", "industrial rock", "industrial electronic"]),
-      style("grunge", "album", "Grunge", t("90s guitars", "גיטרות משנות ה־90"), ["grunge playlist", "90s grunge", "grunge classics"]),
-      style("hard-rock", "album", "Hard Rock", t("Hard guitars", "גיטרות כבדות"), ["hard rock playlist", "hard rock hits", "arena rock"]),
-      style("soft-rock", "album", "Soft Rock", t("Soft rock classics", "קלאסיקות רוק רך"), ["soft rock playlist", "soft rock classics", "easy rock"]),
-      style("prog-rock", "album", "Progressive Rock", t("Progressive rock", "רוק מתקדם"), ["progressive rock playlist", "prog rock", "classic prog rock"]),
-      style("psychedelic-rock", "album", "Psychedelic Rock", t("Psych rock", "רוק פסיכדלי"), ["psychedelic rock playlist", "psych rock", "psychedelic music"]),
-      style("shoegaze", "moon", "Shoegaze", t("Wall of sound", "קיר צליל"), ["shoegaze playlist", "dream pop shoegaze", "shoegaze classics"]),
-      style("garage-rock", "album", "Garage Rock", t("Raw rock", "רוק מחוספס"), ["garage rock playlist", "garage rock revival", "raw rock"]),
-      style("surf-rock", "radio", "Surf Rock", t("Surf guitars", "גיטרות גלישה"), ["surf rock playlist", "surf guitar", "surf rock classics"]),
-      style("metalcore", "album", "Metalcore", t("Modern heavy", "צליל כבד עכשווי"), ["metalcore playlist", "modern metalcore", "metalcore hits"]),
-      style("death-metal", "album", "Death Metal", t("Extreme metal", "מטאל קיצוני"), ["death metal playlist", "death metal classics", "melodic death metal"]),
-      style("black-metal", "album", "Black Metal", t("Extreme dark metal", "מטאל קיצוני ואפל"), ["black metal playlist", "atmospheric black metal", "black metal classics"]),
-      style("progressive-metal", "album", "Progressive Metal", t("Technical metal", "מטאל טכני"), ["progressive metal playlist", "prog metal", "technical metal"]),
-      style("nu-metal", "album", "Nu Metal", t("90s heavy crossover", "צליל כבד משנות ה־90"), ["nu metal playlist", "nu metal hits", "rap metal"]),
-      style("folk-metal", "album", "Folk Metal", t("Folk heavy sound", "פולק כבד"), ["folk metal playlist", "celtic metal", "viking metal"]),
-      style("old-school-hip-hop", "tracks", "Old School Hip-Hop", t("Classic hip-hop", "היפ־הופ קלאסי"), ["old school hip hop playlist", "classic hip hop", "90s hip hop"]),
-      style("boom-bap", "tracks", "Boom Bap", t("Classic beats", "ביטים קלאסיים"), ["boom bap playlist", "boom bap hip hop", "90s rap boom bap"]),
-      style("conscious-rap", "tracks", "Conscious Rap", t("Lyrical rap", "ראפ לירי"), ["conscious rap playlist", "lyrical hip hop", "conscious hip hop"]),
-      style("drill", "tracks", "Drill", t("Drill rap", "ראפ דריל"), ["drill playlist", "drill rap", "uk drill"]),
-      style("grime", "tracks", "Grime", t("UK rap energy", "ראפ בריטי אנרגטי"), ["grime playlist", "uk grime", "grime hits"]),
-      style("phonk", "grid", "Phonk", t("Dark drift beats", "ביטים אפלים"), ["phonk playlist", "drift phonk", "dark phonk"]),
-      style("afro-trap", "tracks", "Afro Trap", t("Afro rap", "ראפ אפריקאי"), ["afro trap playlist", "afrotrap", "afro rap"]),
-      style("neo-soul", "heart_filled", "Neo Soul", t("Modern soul", "סול עכשווי"), ["neo soul playlist", "modern soul", "neo soul r&b"]),
-      style("motown", "heart_filled", "Motown", t("Motown classics", "קלאסיקות מוטאון"), ["motown playlist", "motown classics", "classic soul motown"]),
-      style("gospel", "heart_filled", "Gospel", t("Gospel vocals", "שירת גוספל"), ["gospel playlist", "gospel music", "soul gospel"]),
-      style("vocal-jazz", "music_note", "Vocal Jazz", t("Jazz vocals", "ג׳אז ווקאלי"), ["vocal jazz playlist", "jazz singers", "vocal jazz classics"]),
-      style("smooth-jazz", "music_note", "Smooth Jazz", t("Smooth jazz", "ג׳אז רך"), ["smooth jazz playlist", "smooth jazz hits", "jazz lounge"]),
-      style("bebop", "music_note", "Bebop", t("Bebop jazz", "ג׳אז ביבופ"), ["bebop playlist", "bebop jazz", "charlie parker style jazz"]),
-      style("swing", "music_note", "Swing", t("Swing jazz", "ג׳אז סווינג"), ["swing playlist", "swing jazz", "big band swing"]),
-      style("big-band", "music_note", "Big Band", t("Big band jazz", "ג׳אז ביג בנד"), ["big band playlist", "big band jazz", "swing orchestra"]),
-      style("latin-jazz", "radio", "Latin Jazz", t("Latin jazz", "ג׳אז לטיני"), ["latin jazz playlist", "latin jazz classics", "bossa jazz"]),
-      style("jazz-fusion", "grid", "Jazz Fusion", t("Fusion jazz", "ג׳אז פיוז׳ן"), ["jazz fusion playlist", "fusion jazz", "jazz rock fusion"]),
-      style("opera", "album", "Opera", t("Opera voices", "קולות אופרה"), ["opera playlist", "opera classics", "classical opera"]),
-      style("orchestral", "album", "Orchestral", t("Orchestra music", "מוזיקה תזמורתית"), ["orchestral playlist", "orchestra music", "symphony playlist"]),
-      style("chamber", "album", "Chamber Music", t("Small ensemble", "הרכב קאמרי"), ["chamber music playlist", "classical chamber", "string quartet"]),
-      style("baroque", "album", "Baroque", t("Baroque classical", "מוזיקת בארוק"), ["baroque playlist", "baroque classical", "bach baroque"]),
-      style("romantic-classical", "album", "Romantic Classical", t("Romantic era", "התקופה הרומנטית"), ["romantic classical playlist", "romantic era classical", "chopin liszt classical"]),
-      style("film-score", "album", "Film Score", t("Cinematic score", "פסקולים קולנועיים"), ["film score playlist", "cinematic score", "movie score"]),
-      style("synthwave", "grid", "Synthwave", t("Retro synths", "סינתיסייזרים של פעם"), ["synthwave playlist", "retrowave", "80s synthwave"]),
-      style("retrowave", "grid", "Retrowave", t("Retro electronic", "אלקטרוניקה נוסטלגית"), ["retrowave playlist", "retro wave", "outrun synthwave"]),
-      style("downtempo", "moon", "Downtempo", t("Slow electronic", "אלקטרוניקה איטית"), ["downtempo playlist", "downtempo electronic", "chill downtempo"]),
-      style("trip-hop", "moon", "Trip-Hop", t("Moody beats", "ביטים אווירתיים"), ["trip hop playlist", "trip-hop classics", "downtempo trip hop"]),
-      style("chillhop", "moon", "Chillhop", t("Chill beats", "ביטים רגועים"), ["chillhop playlist", "chill hop beats", "lofi chillhop"]),
-      style("future-bass", "grid", "Future Bass", t("Bright bass", "באסים בהירים"), ["future bass playlist", "future bass hits", "melodic bass"]),
-      style("uk-garage", "grid", "UK Garage", t("UK club sound", "צליל מועדונים בריטי"), ["uk garage playlist", "ukg playlist", "2-step garage"]),
-      style("breakbeat", "grid", "Breakbeat", t("Broken beats", "מקצבים שבורים"), ["breakbeat playlist", "breaks playlist", "electro breaks"]),
-      style("hardstyle", "grid", "Hardstyle", t("Hard dance", "דאנס כבד"), ["hardstyle playlist", "hard dance", "hardstyle hits"]),
-      style("minimal-techno", "grid", "Minimal Techno", t("Minimal club", "מינימל למועדונים"), ["minimal techno playlist", "minimal techno", "minimal electronic"]),
-      style("progressive-house", "grid", "Progressive House", t("Melodic house", "האוס מלודי"), ["progressive house playlist", "melodic progressive house", "progressive house hits"]),
-      style("electro", "grid", "Electro", t("Electro beats", "ביטים אלקטרוניים"), ["electro playlist", "electro music", "electro dance"]),
-      style("idm", "grid", "IDM", t("Experimental electronic", "IDM"), ["idm playlist", "intelligent dance music", "experimental electronic"]),
-      style("ska", "radio", "Ska", t("Ska rhythm", "מקצבי סקא"), ["ska playlist", "ska classics", "ska punk"]),
-      style("dancehall", "radio", "Dancehall", t("Dancehall reggae", "רגאיי דאנסהול"), ["dancehall playlist", "dancehall reggae", "dancehall hits"]),
-      style("dub", "radio", "Dub", t("Dub reggae", "דאב רגאיי"), ["dub playlist", "dub reggae", "roots dub"]),
-      style("roots-reggae", "radio", "Roots Reggae", t("Roots reggae", "רוטס רגאיי"), ["roots reggae playlist", "roots reggae classics", "reggae roots"]),
-      style("afro-house", "grid", "Afro House", t("Afro club sound", "אפרו למועדונים"), ["afro house playlist", "afro house music", "afro tech house"]),
-      style("afropop", "radio", "Afropop", t("African pop", "פופ אפריקאי"), ["afropop playlist", "african pop", "afropop hits"]),
-      style("highlife", "radio", "Highlife", t("West African sound", "צלילי מערב אפריקה"), ["highlife playlist", "ghana highlife", "west african highlife"]),
-      style("soukous", "radio", "Soukous", t("Congo guitar sound", "גיטרות מקונגו"), ["soukous playlist", "congolese music", "african soukous"]),
-      style("cumbia", "radio", "Cumbia", t("Cumbia rhythm", "מקצבי קומביה"), ["cumbia playlist", "cumbia classics", "latin cumbia"]),
-      style("tango", "radio", "Tango", t("Tango classics", "קלאסיקות טנגו"), ["tango playlist", "argentine tango", "tango classics"]),
-      style("bossa-nova", "music_note", "Bossa Nova", t("Brazilian jazz", "ג׳אז ברזילאי"), ["bossa nova playlist", "bossa nova classics", "brazilian bossa"]),
-      style("samba", "radio", "Samba", t("Brazilian samba", "סמבה ברזילאית"), ["samba playlist", "brazilian samba", "samba classics"]),
-      style("mpb", "radio", "MPB", t("Brazilian popular music", "MPB"), ["mpb playlist", "brazilian mpb", "musica popular brasileira"]),
-      style("flamenco", "radio", "Flamenco", t("Spanish guitar", "גיטרה ספרדית"), ["flamenco playlist", "flamenco guitar", "spanish flamenco"]),
-      style("bollywood", "radio", "Bollywood", t("Indian cinema", "קולנוע הודי"), ["bollywood playlist", "bollywood hits", "hindi film songs"]),
-      style("indian-classical", "album", "Indian Classical", t("Indian classical", "קלאסית הודית"), ["indian classical music", "hindustani classical", "carnatic classical"]),
-      style("punjabi", "radio", "Punjabi", t("Punjabi hits", "להיטים פנג׳אביים"), ["punjabi playlist", "punjabi hits", "bhangra punjabi"]),
-      style("bhangra", "radio", "Bhangra", t("Bhangra dance", "ריקודי בהנגרה"), ["bhangra playlist", "bhangra hits", "punjabi bhangra"]),
-      style("city-pop", "grid", "City Pop", t("Japanese city pop", "סיטי פופ יפני"), ["city pop playlist", "japanese city pop", "80s city pop"]),
-      style("mandopop", "music_note", "Mandopop", t("Mandarin pop", "פופ מנדריני"), ["mandopop playlist", "mandarin pop", "chinese pop"]),
-      style("cantopop", "music_note", "Cantopop", t("Cantonese pop", "פופ קנטונזי"), ["cantopop playlist", "cantonese pop", "hong kong pop"]),
-      style("korean-indie", "music_note", "Korean Indie", t("Korean indie", "אינדי קוריאני"), ["korean indie playlist", "k-indie", "korean indie pop"]),
-      style("persian", "radio", "Persian", t("Persian music", "מוזיקה פרסית"), ["persian music playlist", "persian pop", "iranian music"]),
-      style("focus", "moon", "Focus", t("Music for focus", "מוזיקה לריכוז"), ["focus playlist", "deep focus music", "instrumental focus"]),
-      style("study", "moon", "Study", t("Study music", "מוזיקה ללימודים"), ["study playlist", "study music", "concentration music"]),
-      style("coffeehouse", "album", "Coffeehouse", t("Coffeehouse mood", "אווירת בית קפה"), ["coffeehouse playlist", "coffee shop music", "acoustic coffeehouse"]),
-      style("dinner", "heart_filled", "Dinner", t("Dinner music", "מוזיקה לארוחה"), ["dinner playlist", "dinner music", "restaurant lounge"]),
-      style("romance", "heart_filled", "Romance", t("Love songs", "שירי אהבה"), ["romantic playlist", "love songs", "romance music"]),
-      style("sad", "moon", "Sad", t("Sad songs", "שירים עצובים"), ["sad songs playlist", "melancholy music", "heartbreak playlist"]),
-      style("happy", "radio", "Happy", t("Feel-good songs", "שירים למצב רוח טוב"), ["happy playlist", "feel good music", "happy songs"]),
-      style("summer", "radio", "Summer", t("Summer songs", "שירי קיץ"), ["summer playlist", "summer hits", "beach music"]),
-      style("beach", "radio", "Beach", t("Beach music", "מוזיקה לחוף"), ["beach playlist", "beach music", "tropical playlist"]),
-      style("road-trip", "radio", "Road Trip", t("Driving music", "מוזיקה לנהיגה"), ["road trip playlist", "driving music", "car playlist"]),
-      style("gaming", "grid", "Gaming", t("Gaming music", "מוזיקה למשחקים"), ["gaming playlist", "gaming music", "electronic gaming"]),
-      style("anime", "music_note", "Anime", t("Anime songs", "שירי אנימה"), ["anime playlist", "anime songs", "anime openings"]),
-      style("50s", "radio", "50s", t("1950s music", "מוזיקה משנות ה־50"), ["50s playlist", "1950s music", "50s rock and roll"]),
-      style("60s", "radio", "60s", t("1960s music", "מוזיקה משנות ה־60"), ["60s playlist", "1960s music", "60s hits"]),
-      style("70s", "radio", "70s", t("1970s music", "מוזיקה משנות ה־70"), ["70s playlist", "1970s hits", "70s rock disco"]),
-      style("80s", "grid", "80s", t("1980s music", "מוזיקה משנות ה־80"), ["80s playlist", "1980s hits", "80s pop rock"]),
-      style("90s", "album", "90s", t("1990s music", "מוזיקה משנות ה־90"), ["90s playlist", "1990s hits", "90s pop rock"]),
-      style("2000s", "music_note", "2000s", t("2000s music", "מוזיקה משנות ה־2000"), ["2000s playlist", "2000s hits", "00s music"]),
-      style("2010s", "music_note", "2010s", t("2010s music", "מוזיקה משנות ה־2010"), ["2010s playlist", "2010s hits", "10s music"]),
-      style("2020s", "music_note", "2020s", t("2020s music", "מוזיקה משנות ה־2020"), ["2020s playlist", "2020s hits", "new music hits"]),
-      style("israeli-rock", "album", t("Israeli Rock", "רוק ישראלי"), t("Israeli bands", "להקות ישראליות"), ["רוק ישראלי","israeli rock","להקות רוק ישראליות"]),
-      style("israeli-pop", "music_note", t("Israeli Pop", "פופ ישראלי"), t("Israeli pop hits", "להיטי פופ ישראלי"), ["פופ ישראלי","israeli pop","להיטי פופ ישראלי"]),
-      style("israeli-rap", "tracks", t("Israeli Rap", "ראפ ישראלי"), t("Hebrew rap", "ראפ בעברית"), ["ראפ ישראלי","היפ הופ ישראלי","israeli rap"]),
-      style("israeli-indie", "album", t("Israeli Indie", "אינדי ישראלי"), t("Local indie", "אינדי מקומי"), ["אינדי ישראלי","israeli indie","אינדי מקומי"]),
-      style("sephardic", "radio", t("Sephardic", "ספרדית מסורתית"), t("Sephardic music", "מוזיקה ספרדית מסורתית"), ["sephardic music","מוזיקה ספרדית מסורתית","ladino music"]),
-      style("klezmer", "radio", "Klezmer", t("Jewish folk", "פולק יהודי"), ["klezmer playlist", "klezmer music", "jewish folk music"]),
-      style("jewish", "radio", t("Jewish", "יהודית"), t("Jewish music", "מוזיקה יהודית"), ["jewish music playlist","מוזיקה יהודית","jewish songs"]),
-      style("hasidic", "radio", t("Hasidic", "חסידית"), t("Hasidic music", "מוזיקה חסידית"), ["hasidic music","מוזיקה חסידית","chassidic music"]),
-      style("piyyut", "music_note", t("Piyyut", "פיוט"), t("Traditional liturgy", "פיוטים ותפילות"), ["פיוטים","piyyut","traditional jewish liturgy"]),
+      style("pop", "music_note", "Pop", t("Popular hits"), ["pop hits playlist", "top pop playlist", "pop music"]),
+      style("indie-pop", "music_note", "Indie Pop", t("Fresh alternative pop"), ["indie pop playlist", "fresh indie pop", "alternative pop"]),
+      style("k-pop", "music_note", "K-Pop", t("Korean pop"), ["k-pop playlist", "kpop hits", "korean pop"]),
+      style("j-pop", "music_note", "J-Pop", t("Japanese pop"), ["j-pop playlist", "jpop hits", "japanese pop"]),
+      style("hip-hop", "tracks", "Hip-Hop", t("Beats and flow"), ["hip hop playlist", "hip hop hits", "rap hip hop"]),
+      style("rap", "tracks", "Rap", t("Rap essentials"), ["rap playlist", "rap hits", "new rap"]),
+      style("trap", "tracks", "Trap", t("Modern trap"), ["trap playlist", "trap hits", "modern trap"]),
+      style("rnb", "heart_filled", "R&B", t("Smooth rhythm"), ["r&b playlist", "rnb hits", "smooth r&b"]),
+      style("soul", "heart_filled", "Soul", t("Warm vocals"), ["soul playlist", "neo soul", "soul classics"]),
+      style("funk", "radio", "Funk", t("Groove and bass"), ["funk playlist", "funk classics", "groove funk"]),
+      style("rock", "album", "Rock", t("Guitars and bands"), ["rock playlist", "rock hits", "rock music"]),
+      style("classic-rock", "album", "Classic Rock", t("Rock classics"), ["classic rock playlist", "rock classics", "70s rock"]),
+      style("alternative-rock", "album", "Alternative Rock", t("Alternative bands"), ["alternative rock playlist", "alt rock", "alternative music"]),
+      style("indie-rock", "album", "Indie Rock", t("Independent rock"), ["indie rock playlist", "indie bands", "garage rock"]),
+      style("punk", "album", "Punk", t("Fast guitars"), ["punk rock playlist", "punk hits", "pop punk"]),
+      style("metal", "album", "Metal", t("Heavy guitars"), ["metal playlist", "heavy metal", "metal hits"]),
+      style("electronic", "grid", "Electronic", t("Electronic music"), ["electronic playlist", "electronica", "electronic music"]),
+      style("edm", "grid", "EDM", t("Festival energy"), ["edm playlist", "edm hits", "festival edm"]),
+      style("house", "grid", "House", t("House music"), ["house music playlist", "house hits", "club house"]),
+      style("deep-house", "grid", "Deep House", t("Deep club sound"), ["deep house playlist", "deep house music", "melodic house"]),
+      style("tech-house", "grid", "Tech House", t("Club groove"), ["tech house playlist", "tech house music", "club tech house"]),
+      style("techno", "grid", "Techno", t("Driving electronic"), ["techno playlist", "techno music", "melodic techno"]),
+      style("trance", "grid", "Trance", t("Uplifting trance"), ["trance playlist", "uplifting trance", "psytrance"]),
+      style("drum-bass", "grid", "Drum & Bass", t("Fast breaks"), ["drum and bass playlist", "dnb playlist", "liquid drum and bass"]),
+      style("dubstep", "grid", "Dubstep", t("Bass drops"), ["dubstep playlist", "bass music", "dubstep hits"]),
+      style("dance", "radio", "Dance", t("Dance hits"), ["dance playlist", "dance hits", "dance pop"]),
+      style("disco", "radio", "Disco", t("Disco classics"), ["disco playlist", "disco classics", "nu disco"]),
+      style("party", "radio", this._i18n("ui.party"), t("Party hits"), ["party hits playlist", "party music", "dance party"]),
+      style("workout", "stats", "Workout", t("Training energy"), ["workout playlist", "gym music", "running playlist"]),
+      style("jazz", "music_note", "Jazz", t("Jazz essentials"), ["jazz playlist", "smooth jazz", "vocal jazz"]),
+      style("blues", "music_note", "Blues", t("Blues classics"), ["blues playlist", "blues classics", "modern blues"]),
+      style("classical", "album", "Classical", t("Classical music"), ["classical music playlist", "classical essentials", "orchestra classical"]),
+      style("piano", "album", "Piano", t("Piano focus"), ["piano playlist", "classical piano", "peaceful piano"]),
+      style("ambient", "moon", "Ambient", t("Soundscapes"), ["ambient playlist", "ambient music", "soundscape"]),
+      style("chill", "moon", "Chill", t("Relaxed listening"), ["chill playlist", "chillout music", "relaxing chill"]),
+      style("lofi", "moon", "Lo-Fi", t("Lo-fi beats"), ["lo-fi playlist", "lofi beats", "lo-fi hip hop"]),
+      style("acoustic", "album", "Acoustic", t("Unplugged sound"), ["acoustic playlist", "unplugged music", "acoustic chill"]),
+      style("folk", "album", "Folk", t("Folk songs"), ["folk playlist", "singer songwriter", "indie folk"]),
+      style("country", "album", "Country", t("Country music"), ["country playlist", "country hits", "americana"]),
+      style("reggae", "radio", "Reggae", t("Island groove"), ["reggae playlist", "reggae classics", "dancehall reggae"]),
+      style("latin", "radio", "Latin", t("Latin music"), ["latin playlist", "latin hits", "latin pop"]),
+      style("reggaeton", "radio", "Reggaeton", t("Latin urban"), ["reggaeton playlist", "reggaeton hits", "latin urban"]),
+      style("salsa", "radio", "Salsa", t("Salsa dance"), ["salsa playlist", "salsa classics", "latin salsa"]),
+      style("bachata", "radio", "Bachata", t("Bachata rhythm"), ["bachata playlist", "bachata hits", "latin bachata"]),
+      style("afrobeats", "radio", "Afrobeats", t("Afro rhythm"), ["afrobeats playlist", "afrobeats hits", "afropop"]),
+      style("amapiano", "radio", "Amapiano", t("South African groove"), ["amapiano playlist", "amapiano hits", "afro house amapiano"]),
+      style("world", "radio", "World", t("Global sounds"), ["world music playlist", "global music", "international playlist"]),
+      style("soundtrack", "album", "Soundtracks", t("Movies and series"), ["soundtrack playlist", "movie soundtracks", "film music"]),
+      style("meditation", "moon", "Meditation", t("Calm focus"), ["meditation music", "calm meditation", "relaxing instrumental"]),
+      style("sleep", "moon", "Sleep", t("Quiet night"), ["sleep music", "sleep playlist", "deep sleep music"]),
+      style("kids", "heart_filled", this._i18n("ui.kids"), t("Family music"), ["kids music playlist", "children songs", "family music kids"]),
+      style("israeli", "music_note", this._i18n("ui.israeli"), t("Israeli music"), ["israeli music","israeli hits","israeli music playlist"]),
+      style("hebrew-hits", "music_note", t("Hebrew Hits"), t("Hebrew songs"), ["hebrew hits playlist","hebrew hits","hebrew songs"]),
+      style("mizrahi", "radio", t("Mizrahi"), t("Mediterranean pop"), ["mizrahi music","mizrahi hits","mizrahit music"]),
+      style("mediterranean", "radio", t("Mediterranean"), t("Warm regional sound"), ["mediterranean music playlist","mediterranean music","greek turkish mediterranean music"]),
+      style("arabic", "radio", t("Arabic"), t("Arabic music"), ["arabic music playlist", "arabic hits", "middle eastern music"]),
+      style("turkish", "radio", t("Turkish"), t("Turkish music"), ["turkish music playlist", "turkish pop", "turkish hits"]),
+      style("greek", "radio", t("Greek"), t("Greek music"), ["greek music playlist", "greek hits", "greek pop"]),
+      style("french", "radio", t("French"), t("French music"), ["french music playlist", "french pop", "chanson francaise"]),
+      style("spanish", "radio", t("Spanish"), t("Spanish music"), ["spanish music playlist", "spanish pop", "musica espanola"]),
+      style("singer-songwriter", "album", "Singer-Songwriter", t("Personal songs"), ["singer songwriter playlist", "singer-songwriter", "acoustic singer songwriter"]),
+      style("soft-pop", "music_note", "Soft Pop", t("Soft pop songs"), ["soft pop playlist", "soft pop hits", "easy pop"]),
+      style("pop-rock", "album", "Pop Rock", t("Pop guitars"), ["pop rock playlist", "pop rock hits", "guitar pop"]),
+      style("electropop", "grid", "Electropop", t("Electronic pop"), ["electropop playlist", "electro pop", "synth pop"]),
+      style("synth-pop", "grid", "Synth Pop", t("Synth classics"), ["synth pop playlist", "synthpop classics", "80s synth pop"]),
+      style("dream-pop", "moon", "Dream Pop", t("Dreamy pop"), ["dream pop playlist", "dreamy indie pop", "shoegaze dream pop"]),
+      style("bedroom-pop", "music_note", "Bedroom Pop", t("Lo-fi pop"), ["bedroom pop playlist", "lofi bedroom pop", "indie bedroom pop"]),
+      style("hyperpop", "grid", "Hyperpop", t("Maximal pop"), ["hyperpop playlist", "hyper pop", "glitch pop"]),
+      style("emo", "heart_filled", "Emo", t("Emotional rock"), ["emo playlist", "emo rock", "emo pop punk"]),
+      style("post-punk", "album", "Post-Punk", t("Angular guitars"), ["post-punk playlist", "post punk classics", "dark post punk"]),
+      style("new-wave", "grid", "New Wave", t("80s alternative"), ["new wave playlist", "80s new wave", "new wave classics"]),
+      style("goth", "moon", "Goth", t("Dark wave sound"), ["goth playlist", "gothic rock", "darkwave"]),
+      style("darkwave", "moon", "Darkwave", t("Dark synth sound"), ["darkwave playlist", "dark wave", "coldwave"]),
+      style("industrial", "grid", "Industrial", t("Heavy electronic"), ["industrial playlist", "industrial rock", "industrial electronic"]),
+      style("grunge", "album", "Grunge", t("90s guitars"), ["grunge playlist", "90s grunge", "grunge classics"]),
+      style("hard-rock", "album", "Hard Rock", t("Hard guitars"), ["hard rock playlist", "hard rock hits", "arena rock"]),
+      style("soft-rock", "album", "Soft Rock", t("Soft rock classics"), ["soft rock playlist", "soft rock classics", "easy rock"]),
+      style("prog-rock", "album", "Progressive Rock", t("Progressive rock"), ["progressive rock playlist", "prog rock", "classic prog rock"]),
+      style("psychedelic-rock", "album", "Psychedelic Rock", t("Psych rock"), ["psychedelic rock playlist", "psych rock", "psychedelic music"]),
+      style("shoegaze", "moon", "Shoegaze", t("Wall of sound"), ["shoegaze playlist", "dream pop shoegaze", "shoegaze classics"]),
+      style("garage-rock", "album", "Garage Rock", t("Raw rock"), ["garage rock playlist", "garage rock revival", "raw rock"]),
+      style("surf-rock", "radio", "Surf Rock", t("Surf guitars"), ["surf rock playlist", "surf guitar", "surf rock classics"]),
+      style("metalcore", "album", "Metalcore", t("Modern heavy"), ["metalcore playlist", "modern metalcore", "metalcore hits"]),
+      style("death-metal", "album", "Death Metal", t("Extreme metal"), ["death metal playlist", "death metal classics", "melodic death metal"]),
+      style("black-metal", "album", "Black Metal", t("Extreme dark metal"), ["black metal playlist", "atmospheric black metal", "black metal classics"]),
+      style("progressive-metal", "album", "Progressive Metal", t("Technical metal"), ["progressive metal playlist", "prog metal", "technical metal"]),
+      style("nu-metal", "album", "Nu Metal", t("90s heavy crossover"), ["nu metal playlist", "nu metal hits", "rap metal"]),
+      style("folk-metal", "album", "Folk Metal", t("Folk heavy sound"), ["folk metal playlist", "celtic metal", "viking metal"]),
+      style("old-school-hip-hop", "tracks", "Old School Hip-Hop", t("Classic hip-hop"), ["old school hip hop playlist", "classic hip hop", "90s hip hop"]),
+      style("boom-bap", "tracks", "Boom Bap", t("Classic beats"), ["boom bap playlist", "boom bap hip hop", "90s rap boom bap"]),
+      style("conscious-rap", "tracks", "Conscious Rap", t("Lyrical rap"), ["conscious rap playlist", "lyrical hip hop", "conscious hip hop"]),
+      style("drill", "tracks", "Drill", t("Drill rap"), ["drill playlist", "drill rap", "uk drill"]),
+      style("grime", "tracks", "Grime", t("UK rap energy"), ["grime playlist", "uk grime", "grime hits"]),
+      style("phonk", "grid", "Phonk", t("Dark drift beats"), ["phonk playlist", "drift phonk", "dark phonk"]),
+      style("afro-trap", "tracks", "Afro Trap", t("Afro rap"), ["afro trap playlist", "afrotrap", "afro rap"]),
+      style("neo-soul", "heart_filled", "Neo Soul", t("Modern soul"), ["neo soul playlist", "modern soul", "neo soul r&b"]),
+      style("motown", "heart_filled", "Motown", t("Motown classics"), ["motown playlist", "motown classics", "classic soul motown"]),
+      style("gospel", "heart_filled", "Gospel", t("Gospel vocals"), ["gospel playlist", "gospel music", "soul gospel"]),
+      style("vocal-jazz", "music_note", "Vocal Jazz", t("Jazz vocals"), ["vocal jazz playlist", "jazz singers", "vocal jazz classics"]),
+      style("smooth-jazz", "music_note", "Smooth Jazz", t("Smooth jazz"), ["smooth jazz playlist", "smooth jazz hits", "jazz lounge"]),
+      style("bebop", "music_note", "Bebop", t("Bebop jazz"), ["bebop playlist", "bebop jazz", "charlie parker style jazz"]),
+      style("swing", "music_note", "Swing", t("Swing jazz"), ["swing playlist", "swing jazz", "big band swing"]),
+      style("big-band", "music_note", "Big Band", t("Big band jazz"), ["big band playlist", "big band jazz", "swing orchestra"]),
+      style("latin-jazz", "radio", "Latin Jazz", t("Latin jazz"), ["latin jazz playlist", "latin jazz classics", "bossa jazz"]),
+      style("jazz-fusion", "grid", "Jazz Fusion", t("Fusion jazz"), ["jazz fusion playlist", "fusion jazz", "jazz rock fusion"]),
+      style("opera", "album", "Opera", t("Opera voices"), ["opera playlist", "opera classics", "classical opera"]),
+      style("orchestral", "album", "Orchestral", t("Orchestra music"), ["orchestral playlist", "orchestra music", "symphony playlist"]),
+      style("chamber", "album", "Chamber Music", t("Small ensemble"), ["chamber music playlist", "classical chamber", "string quartet"]),
+      style("baroque", "album", "Baroque", t("Baroque classical"), ["baroque playlist", "baroque classical", "bach baroque"]),
+      style("romantic-classical", "album", "Romantic Classical", t("Romantic era"), ["romantic classical playlist", "romantic era classical", "chopin liszt classical"]),
+      style("film-score", "album", "Film Score", t("Cinematic score"), ["film score playlist", "cinematic score", "movie score"]),
+      style("synthwave", "grid", "Synthwave", t("Retro synths"), ["synthwave playlist", "retrowave", "80s synthwave"]),
+      style("retrowave", "grid", "Retrowave", t("Retro electronic"), ["retrowave playlist", "retro wave", "outrun synthwave"]),
+      style("downtempo", "moon", "Downtempo", t("Slow electronic"), ["downtempo playlist", "downtempo electronic", "chill downtempo"]),
+      style("trip-hop", "moon", "Trip-Hop", t("Moody beats"), ["trip hop playlist", "trip-hop classics", "downtempo trip hop"]),
+      style("chillhop", "moon", "Chillhop", t("Chill beats"), ["chillhop playlist", "chill hop beats", "lofi chillhop"]),
+      style("future-bass", "grid", "Future Bass", t("Bright bass"), ["future bass playlist", "future bass hits", "melodic bass"]),
+      style("uk-garage", "grid", "UK Garage", t("UK club sound"), ["uk garage playlist", "ukg playlist", "2-step garage"]),
+      style("breakbeat", "grid", "Breakbeat", t("Broken beats"), ["breakbeat playlist", "breaks playlist", "electro breaks"]),
+      style("hardstyle", "grid", "Hardstyle", t("Hard dance"), ["hardstyle playlist", "hard dance", "hardstyle hits"]),
+      style("minimal-techno", "grid", "Minimal Techno", t("Minimal club"), ["minimal techno playlist", "minimal techno", "minimal electronic"]),
+      style("progressive-house", "grid", "Progressive House", t("Melodic house"), ["progressive house playlist", "melodic progressive house", "progressive house hits"]),
+      style("electro", "grid", "Electro", t("Electro beats"), ["electro playlist", "electro music", "electro dance"]),
+      style("idm", "grid", "IDM", t("Experimental electronic"), ["idm playlist", "intelligent dance music", "experimental electronic"]),
+      style("ska", "radio", "Ska", t("Ska rhythm"), ["ska playlist", "ska classics", "ska punk"]),
+      style("dancehall", "radio", "Dancehall", t("Dancehall reggae"), ["dancehall playlist", "dancehall reggae", "dancehall hits"]),
+      style("dub", "radio", "Dub", t("Dub reggae"), ["dub playlist", "dub reggae", "roots dub"]),
+      style("roots-reggae", "radio", "Roots Reggae", t("Roots reggae"), ["roots reggae playlist", "roots reggae classics", "reggae roots"]),
+      style("afro-house", "grid", "Afro House", t("Afro club sound"), ["afro house playlist", "afro house music", "afro tech house"]),
+      style("afropop", "radio", "Afropop", t("African pop"), ["afropop playlist", "african pop", "afropop hits"]),
+      style("highlife", "radio", "Highlife", t("West African sound"), ["highlife playlist", "ghana highlife", "west african highlife"]),
+      style("soukous", "radio", "Soukous", t("Congo guitar sound"), ["soukous playlist", "congolese music", "african soukous"]),
+      style("cumbia", "radio", "Cumbia", t("Cumbia rhythm"), ["cumbia playlist", "cumbia classics", "latin cumbia"]),
+      style("tango", "radio", "Tango", t("Tango classics"), ["tango playlist", "argentine tango", "tango classics"]),
+      style("bossa-nova", "music_note", "Bossa Nova", t("Brazilian jazz"), ["bossa nova playlist", "bossa nova classics", "brazilian bossa"]),
+      style("samba", "radio", "Samba", t("Brazilian samba"), ["samba playlist", "brazilian samba", "samba classics"]),
+      style("mpb", "radio", "MPB", t("Brazilian popular music"), ["mpb playlist", "brazilian mpb", "musica popular brasileira"]),
+      style("flamenco", "radio", "Flamenco", t("Spanish guitar"), ["flamenco playlist", "flamenco guitar", "spanish flamenco"]),
+      style("bollywood", "radio", "Bollywood", t("Indian cinema"), ["bollywood playlist", "bollywood hits", "hindi film songs"]),
+      style("indian-classical", "album", "Indian Classical", t("Indian classical"), ["indian classical music", "hindustani classical", "carnatic classical"]),
+      style("punjabi", "radio", "Punjabi", t("Punjabi hits"), ["punjabi playlist", "punjabi hits", "bhangra punjabi"]),
+      style("bhangra", "radio", "Bhangra", t("Bhangra dance"), ["bhangra playlist", "bhangra hits", "punjabi bhangra"]),
+      style("city-pop", "grid", "City Pop", t("Japanese city pop"), ["city pop playlist", "japanese city pop", "80s city pop"]),
+      style("mandopop", "music_note", "Mandopop", t("Mandarin pop"), ["mandopop playlist", "mandarin pop", "chinese pop"]),
+      style("cantopop", "music_note", "Cantopop", t("Cantonese pop"), ["cantopop playlist", "cantonese pop", "hong kong pop"]),
+      style("korean-indie", "music_note", "Korean Indie", t("Korean indie"), ["korean indie playlist", "k-indie", "korean indie pop"]),
+      style("persian", "radio", "Persian", t("Persian music"), ["persian music playlist", "persian pop", "iranian music"]),
+      style("focus", "moon", "Focus", t("Music for focus"), ["focus playlist", "deep focus music", "instrumental focus"]),
+      style("study", "moon", "Study", t("Study music"), ["study playlist", "study music", "concentration music"]),
+      style("coffeehouse", "album", "Coffeehouse", t("Coffeehouse mood"), ["coffeehouse playlist", "coffee shop music", "acoustic coffeehouse"]),
+      style("dinner", "heart_filled", "Dinner", t("Dinner music"), ["dinner playlist", "dinner music", "restaurant lounge"]),
+      style("romance", "heart_filled", "Romance", t("Love songs"), ["romantic playlist", "love songs", "romance music"]),
+      style("sad", "moon", "Sad", t("Sad songs"), ["sad songs playlist", "melancholy music", "heartbreak playlist"]),
+      style("happy", "radio", "Happy", t("Feel-good songs"), ["happy playlist", "feel good music", "happy songs"]),
+      style("summer", "radio", "Summer", t("Summer songs"), ["summer playlist", "summer hits", "beach music"]),
+      style("beach", "radio", "Beach", t("Beach music"), ["beach playlist", "beach music", "tropical playlist"]),
+      style("road-trip", "radio", "Road Trip", t("Driving music"), ["road trip playlist", "driving music", "car playlist"]),
+      style("gaming", "grid", "Gaming", t("Gaming music"), ["gaming playlist", "gaming music", "electronic gaming"]),
+      style("anime", "music_note", "Anime", t("Anime songs"), ["anime playlist", "anime songs", "anime openings"]),
+      style("50s", "radio", "50s", t("1950s music"), ["50s playlist", "1950s music", "50s rock and roll"]),
+      style("60s", "radio", "60s", t("1960s music"), ["60s playlist", "1960s music", "60s hits"]),
+      style("70s", "radio", "70s", t("1970s music"), ["70s playlist", "1970s hits", "70s rock disco"]),
+      style("80s", "grid", "80s", t("1980s music"), ["80s playlist", "1980s hits", "80s pop rock"]),
+      style("90s", "album", "90s", t("1990s music"), ["90s playlist", "1990s hits", "90s pop rock"]),
+      style("2000s", "music_note", "2000s", t("2000s music"), ["2000s playlist", "2000s hits", "00s music"]),
+      style("2010s", "music_note", "2010s", t("2010s music"), ["2010s playlist", "2010s hits", "10s music"]),
+      style("2020s", "music_note", "2020s", t("2020s music"), ["2020s playlist", "2020s hits", "new music hits"]),
+      style("israeli-rock", "album", t("Israeli Rock"), t("Israeli bands"), ["israeli rock","israeli rock bands","israeli rock playlist"]),
+      style("israeli-pop", "music_note", t("Israeli Pop"), t("Israeli pop hits"), ["israeli pop","israeli pop hits","israeli pop playlist"]),
+      style("israeli-rap", "tracks", t("Israeli Rap"), t("Hebrew rap"), ["israeli rap","israeli hip hop","hebrew rap"]),
+      style("israeli-indie", "album", t("Israeli Indie"), t("Local indie"), ["israeli indie","israeli indie playlist","israeli indie bands"]),
+      style("sephardic", "radio", t("Sephardic"), t("Sephardic music"), ["sephardic music","traditional sephardic music","ladino music"]),
+      style("klezmer", "radio", "Klezmer", t("Jewish folk"), ["klezmer playlist", "klezmer music", "jewish folk music"]),
+      style("jewish", "radio", t("Jewish"), t("Jewish music"), ["jewish music playlist","jewish music","jewish songs"]),
+      style("hasidic", "radio", t("Hasidic"), t("Hasidic music"), ["hasidic music","hasidic songs","chassidic music"]),
+      style("piyyut", "music_note", t("Piyyut"), t("Traditional liturgy"), ["piyyut","piyyutim","traditional jewish liturgy"]),
     ];
     return options.includeCustom
       ? [...styles, style("custom", "search", this._i18n("ui.free_style"), this._i18n("ui.type_anything"), [])]
@@ -10472,7 +10436,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _simpleWizardSelectedPlayerNames(entityIds = []) {
     const ids = Array.isArray(entityIds) ? entityIds : [];
-    if (ids.length > 1) return this._m(`${ids.length} players`, `${ids.length} נגנים`);
+    if (ids.length > 1) return this._m(`${ids.length} players`);
     const player = this._playerByEntityId(ids[0]);
     return player?.attributes?.friendly_name || ids[0] || this._i18n("ui.selected_player_3");
   }
@@ -10538,7 +10502,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         <div class="simple-wizard-source-grid">
           <button class="simple-wizard-source ${source === "genre" ? "active" : ""}" data-simple-source="genre">
             <span>${this._iconSvg("wand")}</span>
-            <strong>${this._esc(this._m("Style", "סגנון"))}</strong>
+            <strong>${this._esc(this._m("Style"))}</strong>
           </button>
           <button class="simple-wizard-source ${source === "content" ? "active" : ""}" data-simple-source="content">
             <span>${this._iconSvg("library_music")}</span>
@@ -10547,8 +10511,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         </div>
         ${source === "genre" ? `
           <label class="simple-wizard-search simple-wizard-category-picker">
-            <span>${this._esc(this._m("Style", "סגנון"))}</span>
-            <select id="simpleWizardGenreSelect" class="media-sort-select settings-select simple-wizard-select" aria-label="${this._esc(this._m("Style", "סגנון"))}">
+            <span>${this._esc(this._m("Style"))}</span>
+            <select id="simpleWizardGenreSelect" class="media-sort-select settings-select simple-wizard-select" aria-label="${this._esc(this._m("Style"))}">
               ${genreOptions.map((genre) => `<option value="${this._esc(genre.id)}" ${selectedGenre === genre.id ? "selected" : ""}>${this._esc(genre.label)}</option>`).join("")}
             </select>
           </label>
@@ -11046,7 +11010,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const remaining = this._sleepTimerRemainingLabel();
     const active = this._sleepTimerRemainingMs() > 0;
     const status = active
-      ? this._m(`Active for ${remaining}`, `פעיל למשך ${remaining}`)
+      ? this._m(`Active for ${remaining}`)
       : this._i18n("ui.no_sleep_timer_is_active");
     const schedules = this._scheduledStartSchedules();
     const editSchedule = schedules.find((schedule) => schedule.id === this._state.mobileStartScheduleEditId) || null;
@@ -11110,9 +11074,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         <div class="settings-label">${this._esc(this._i18n("ui.sleep_timer_2"))}</div>
         <div class="settings-hint">${this._esc(status)}</div>
         <div class="sleep-timer-action-row ${active ? "with-cancel" : ""}" aria-label="${this._esc(this._i18n("ui.sleep_timer_presets"))}">
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="15">${this._esc(this._m("15 min", "15 דק׳"))}</button>
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="30">${this._esc(this._m("30 min", "30 דק׳"))}</button>
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="60">${this._esc(this._m("60 min", "60 דק׳"))}</button>
+          <button class="sleep-timer-action-btn" data-sleep-timer-start="15">${this._esc(this._m("15 min"))}</button>
+          <button class="sleep-timer-action-btn" data-sleep-timer-start="30">${this._esc(this._m("30 min"))}</button>
+          <button class="sleep-timer-action-btn" data-sleep-timer-start="60">${this._esc(this._m("60 min"))}</button>
           ${active ? `<button class="sleep-timer-action-btn danger" data-sleep-timer-cancel>${this._esc(this._i18n("ui.cancel_2"))}</button>` : ``}
         </div>
       </div>
@@ -11251,7 +11215,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const playing = players.filter((p) => p.state === "playing").length;
       const available = players.length;
       const thisDeviceTitle = options.thisDeviceTitle || this._i18n("ui.player_on_this_device");
-      return `<div class="player-choice-summary"><div class="player-choice-counts" dir="${this._isHebrew() ? "rtl" : "ltr"}"><span>${this._m("Available", "זמינים")}: <bdi>${available}</bdi></span><span>${this._m("Playing now", "מנגנים כעת")}: <bdi>${playing}</bdi></span></div><button class="player-this-device-cta" data-menu-action="${this._esc(options.thisDeviceActionName || "connect_this_device")}" title="${this._esc(thisDeviceTitle)}" aria-label="${this._esc(thisDeviceTitle)}"><span class="player-this-device-icon">${this._iconSvg("this_device")}</span><span class="player-this-device-copy"><strong>${this._esc(thisDeviceTitle)}</strong><small>${this._esc(this._m("Listen through this phone, tablet or browser", "האזנה דרך הטלפון, הטאבלט או הדפדפן הזה"))}</small></span><span class="player-this-device-arrow" aria-hidden="true">${this._isHebrew() ? "‹" : "›"}</span></button></div>`;
+      return `<div class="player-choice-summary"><div class="player-choice-counts" dir="ltr"><span>${this._m("Available")}: <bdi>${available}</bdi></span><span>${this._m("Playing now")}: <bdi>${playing}</bdi></span></div><button class="player-this-device-cta" data-menu-action="${this._esc(options.thisDeviceActionName || "connect_this_device")}" title="${this._esc(thisDeviceTitle)}" aria-label="${this._esc(thisDeviceTitle)}"><span class="player-this-device-icon">${this._iconSvg("this_device")}</span><span class="player-this-device-copy"><strong>${this._esc(thisDeviceTitle)}</strong><small>${this._esc(this._m("Listen through this phone, tablet or browser"))}</small></span><span class="player-this-device-arrow" aria-hidden="true">›</span></button></div>`;
     }
     const queueCount = this._getNowPlayingQueueItems().length || Number(this._state.maQueueState?.items || 0) || 0;
     return `
@@ -11292,7 +11256,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _discoveryGenreFallbackOptions() {
     return [
-      { key: "all", label: this._i18n("ui.all", {}, this._discoveryGenreLabel("All", "הכול", "Alle")), query: "" },
+      { key: "all", label: this._i18n("ui.all", {}, this._discoveryGenreLabel("All")), query: "" },
     ];
   }
 
@@ -11351,102 +11315,99 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     };
   }
 
-  _discoveryGenreLabel(en, he, de = en) {
-    const lang = this._language();
-    if (lang === "he") return he;
-    if (lang === "de") return de;
-    return en;
+  _discoveryGenreLabel(en) {
+    return this._i18n(en, {}, en);
   }
 
   _discoveryPopularGenreProfiles() {
     return [
-      { key: "pop", label: this._discoveryGenreLabel("Pop", "פופ", "Pop"), query: "pop", aliases: ["pop", "pop music", "afropop", "synthpop", "synth pop", "k-pop", "kpop", "j-pop", "jpop", "israeli pop"], children: [
-        { key: "dance-pop", label: this._discoveryGenreLabel("Dance Pop", "דאנס פופ", "Dance-Pop"), query: "dance pop" },
-        { key: "k-pop", label: this._discoveryGenreLabel("K-Pop", "קיי־פופ", "K-Pop"), query: "k-pop" },
-        { key: "indie-pop", label: this._discoveryGenreLabel("Indie Pop", "אינדי פופ", "Indie-Pop"), query: "indie pop" },
-        { key: "israeli-pop", label: this._discoveryGenreLabel("Israeli Pop", "פופ ישראלי", "Israelischer Pop"), query: "israeli pop" },
+      { key: "pop", label: this._discoveryGenreLabel("Pop"), query: "pop", aliases: ["pop", "pop music", "afropop", "synthpop", "synth pop", "k-pop", "kpop", "j-pop", "jpop", "israeli pop"], children: [
+        { key: "dance-pop", label: this._discoveryGenreLabel("Dance Pop"), query: "dance pop" },
+        { key: "k-pop", label: this._discoveryGenreLabel("K-Pop"), query: "k-pop" },
+        { key: "indie-pop", label: this._discoveryGenreLabel("Indie Pop"), query: "indie pop" },
+        { key: "israeli-pop", label: this._discoveryGenreLabel("Israeli Pop"), query: "israeli pop" },
       ] },
-      { key: "hip-hop", label: this._discoveryGenreLabel("Hip-Hop", "היפ־הופ", "Hip-Hop"), query: "hip hop", aliases: ["hip hop", "hip-hop", "hiphop", "rap", "trap"], children: [
-        { key: "rap", label: this._discoveryGenreLabel("Rap", "ראפ", "Rap"), query: "rap" },
-        { key: "trap", label: this._discoveryGenreLabel("Trap", "טראפ", "Trap"), query: "trap" },
-        { key: "old-school", label: this._discoveryGenreLabel("Old School", "אולד סקול", "Old School"), query: "old school hip hop" },
-        { key: "israeli-rap", label: this._discoveryGenreLabel("Israeli Rap", "ראפ ישראלי", "Israelischer Rap"), query: "israeli rap" },
+      { key: "hip-hop", label: this._discoveryGenreLabel("Hip-Hop"), query: "hip hop", aliases: ["hip hop", "hip-hop", "hiphop", "rap", "trap"], children: [
+        { key: "rap", label: this._discoveryGenreLabel("Rap"), query: "rap" },
+        { key: "trap", label: this._discoveryGenreLabel("Trap"), query: "trap" },
+        { key: "old-school", label: this._discoveryGenreLabel("Old School"), query: "old school hip hop" },
+        { key: "israeli-rap", label: this._discoveryGenreLabel("Israeli Rap"), query: "israeli rap" },
       ] },
-      { key: "rock", label: this._discoveryGenreLabel("Rock", "רוק", "Rock"), query: "rock", aliases: ["rock", "classic rock", "alt rock", "alternative rock", "hard rock", "soft rock", "punk"], children: [
-        { key: "classic-rock", label: this._discoveryGenreLabel("Classic Rock", "רוק קלאסי", "Classic Rock"), query: "classic rock" },
-        { key: "alternative-rock", label: this._discoveryGenreLabel("Alternative Rock", "רוק אלטרנטיבי", "Alternative Rock"), query: "alternative rock" },
-        { key: "indie-rock", label: this._discoveryGenreLabel("Indie Rock", "אינדי רוק", "Indie-Rock"), query: "indie rock" },
-        { key: "punk", label: this._discoveryGenreLabel("Punk", "פאנק רוק", "Punk"), query: "punk rock" },
+      { key: "rock", label: this._discoveryGenreLabel("Rock"), query: "rock", aliases: ["rock", "classic rock", "alt rock", "alternative rock", "hard rock", "soft rock", "punk"], children: [
+        { key: "classic-rock", label: this._discoveryGenreLabel("Classic Rock"), query: "classic rock" },
+        { key: "alternative-rock", label: this._discoveryGenreLabel("Alternative Rock"), query: "alternative rock" },
+        { key: "indie-rock", label: this._discoveryGenreLabel("Indie Rock"), query: "indie rock" },
+        { key: "punk", label: this._discoveryGenreLabel("Punk"), query: "punk rock" },
       ] },
-      { key: "electronic", label: this._discoveryGenreLabel("Electronic", "אלקטרונית", "Elektronisch"), query: "electronic", aliases: ["electronic", "electronica", "edm", "house", "deep house", "tech house", "afro house", "afro tech", "techno", "trance", "dubstep", "drum and bass", "dnb"], children: [
-        { key: "house", label: this._discoveryGenreLabel("House", "האוס", "House"), query: "house music" },
-        { key: "techno", label: this._discoveryGenreLabel("Techno", "טכנו", "Techno"), query: "techno" },
-        { key: "trance", label: this._discoveryGenreLabel("Trance", "טראנס", "Trance"), query: "trance" },
-        { key: "edm", label: this._discoveryGenreLabel("EDM", "EDM", "EDM"), query: "edm" },
+      { key: "electronic", label: this._discoveryGenreLabel("Electronic"), query: "electronic", aliases: ["electronic", "electronica", "edm", "house", "deep house", "tech house", "afro house", "afro tech", "techno", "trance", "dubstep", "drum and bass", "dnb"], children: [
+        { key: "house", label: this._discoveryGenreLabel("House"), query: "house music" },
+        { key: "techno", label: this._discoveryGenreLabel("Techno"), query: "techno" },
+        { key: "trance", label: this._discoveryGenreLabel("Trance"), query: "trance" },
+        { key: "edm", label: this._discoveryGenreLabel("EDM"), query: "edm" },
       ] },
-      { key: "dance", label: this._discoveryGenreLabel("Dance", "דאנס", "Dance"), query: "dance", aliases: ["dance", "club", "disco", "dance pop", "party"], children: [
-        { key: "party", label: this._discoveryGenreLabel("Party", "מסיבה", "Party"), query: "party hits" },
-        { key: "club", label: this._discoveryGenreLabel("Club", "מועדונים", "Club"), query: "club dance" },
-        { key: "disco", label: this._discoveryGenreLabel("Disco", "דיסקו", "Disco"), query: "disco" },
-        { key: "workout", label: this._discoveryGenreLabel("Workout", "אימון", "Training"), query: "workout dance" },
+      { key: "dance", label: this._discoveryGenreLabel("Dance"), query: "dance", aliases: ["dance", "club", "disco", "dance pop", "party"], children: [
+        { key: "party", label: this._discoveryGenreLabel("Party"), query: "party hits" },
+        { key: "club", label: this._discoveryGenreLabel("Club"), query: "club dance" },
+        { key: "disco", label: this._discoveryGenreLabel("Disco"), query: "disco" },
+        { key: "workout", label: this._discoveryGenreLabel("Workout"), query: "workout dance" },
       ] },
-      { key: "rnb", label: this._discoveryGenreLabel("R&B", "R&B", "R&B"), query: "r&b", aliases: ["r&b", "rnb", "rhythm and blues", "afro r&b"], children: [
-        { key: "contemporary", label: this._discoveryGenreLabel("Contemporary", "עכשווי", "Zeitgenoessisch"), query: "contemporary r&b" },
-        { key: "slow-jams", label: this._discoveryGenreLabel("Slow Jams", "שירים איטיים", "Slow Jams"), query: "slow jams" },
-        { key: "rnb-hits", label: this._discoveryGenreLabel("R&B Hits", "להיטי R&B", "R&B-Hits"), query: "r&b hits" },
+      { key: "rnb", label: this._discoveryGenreLabel("R&B"), query: "r&b", aliases: ["r&b", "rnb", "rhythm and blues", "afro r&b"], children: [
+        { key: "contemporary", label: this._discoveryGenreLabel("Contemporary"), query: "contemporary r&b" },
+        { key: "slow-jams", label: this._discoveryGenreLabel("Slow Jams"), query: "slow jams" },
+        { key: "rnb-hits", label: this._discoveryGenreLabel("R&B Hits"), query: "r&b hits" },
       ] },
-      { key: "soul", label: this._discoveryGenreLabel("Soul", "סול", "Soul"), query: "soul", aliases: ["soul", "neo soul", "afro soul"], children: [
-        { key: "neo-soul", label: this._discoveryGenreLabel("Neo Soul", "נאו סול", "Neo Soul"), query: "neo soul" },
-        { key: "funk", label: this._discoveryGenreLabel("Funk", "פאנק", "Funk"), query: "funk soul" },
-        { key: "motown", label: this._discoveryGenreLabel("Motown", "מוטאון", "Motown"), query: "motown soul" },
+      { key: "soul", label: this._discoveryGenreLabel("Soul"), query: "soul", aliases: ["soul", "neo soul", "afro soul"], children: [
+        { key: "neo-soul", label: this._discoveryGenreLabel("Neo Soul"), query: "neo soul" },
+        { key: "funk", label: this._discoveryGenreLabel("Funk"), query: "funk soul" },
+        { key: "motown", label: this._discoveryGenreLabel("Motown"), query: "motown soul" },
       ] },
-      { key: "jazz", label: this._discoveryGenreLabel("Jazz", "ג׳אז", "Jazz"), query: "jazz", aliases: ["jazz", "smooth jazz", "vocal jazz", "bebop"], children: [
-        { key: "smooth", label: this._discoveryGenreLabel("Smooth Jazz", "ג׳אז רך", "Smooth Jazz"), query: "smooth jazz" },
-        { key: "vocal", label: this._discoveryGenreLabel("Vocal Jazz", "ג׳אז ווקאלי", "Vocal Jazz"), query: "vocal jazz" },
-        { key: "fusion", label: this._discoveryGenreLabel("Fusion", "פיוז׳ן", "Fusion"), query: "jazz fusion" },
+      { key: "jazz", label: this._discoveryGenreLabel("Jazz"), query: "jazz", aliases: ["jazz", "smooth jazz", "vocal jazz", "bebop"], children: [
+        { key: "smooth", label: this._discoveryGenreLabel("Smooth Jazz"), query: "smooth jazz" },
+        { key: "vocal", label: this._discoveryGenreLabel("Vocal Jazz"), query: "vocal jazz" },
+        { key: "fusion", label: this._discoveryGenreLabel("Fusion"), query: "jazz fusion" },
       ] },
-      { key: "israeli", label: this._i18n("ui.israeli"), query: "israeli hebrew", aliases: ["israeli", "israel", "hebrew", "ישראל", "ישראלית", "עברית"], children: [
-        { key: "mizrahi", label: this._discoveryGenreLabel("Mizrahi", "מזרחית", "Mizrahi"), query: "מוזיקה מזרחית" },
-        { key: "hebrew-hits", label: this._discoveryGenreLabel("Hebrew Hits", "להיטים בעברית", "Hebraeische Hits"), query: "להיטים בעברית" },
-        { key: "israeli-rock", label: this._discoveryGenreLabel("Israeli Rock", "רוק ישראלי", "Israelischer Rock"), query: "רוק ישראלי" },
+      { key: "israeli", label: this._i18n("ui.israeli"), query: "israeli hebrew", aliases: ["israeli", "israel", "hebrew"], children: [
+        { key: "mizrahi", label: this._discoveryGenreLabel("Mizrahi"), query: "mizrahi music" },
+        { key: "hebrew-hits", label: this._discoveryGenreLabel("Hebrew Hits"), query: "hebrew hits" },
+        { key: "israeli-rock", label: this._discoveryGenreLabel("Israeli Rock"), query: "israeli rock" },
       ] },
-      { key: "chill", label: this._discoveryGenreLabel("Chill", "צ׳יל", "Chill"), query: "chill", aliases: ["chill", "chillout", "chill out", "lofi", "lo-fi", "lounge", "relax", "relaxing"], children: [
-        { key: "lofi", label: this._discoveryGenreLabel("Lo-Fi", "לו־פיי", "Lo-Fi"), query: "lo-fi chill" },
-        { key: "lounge", label: this._discoveryGenreLabel("Lounge", "לאונג׳", "Lounge"), query: "lounge chill" },
-        { key: "acoustic", label: this._discoveryGenreLabel("Acoustic", "אקוסטי", "Akustisch"), query: "acoustic chill" },
-        { key: "sleep", label: this._discoveryGenreLabel("Sleep", "שינה", "Schlaf"), query: "sleep music" },
+      { key: "chill", label: this._discoveryGenreLabel("Chill"), query: "chill", aliases: ["chill", "chillout", "chill out", "lofi", "lo-fi", "lounge", "relax", "relaxing"], children: [
+        { key: "lofi", label: this._discoveryGenreLabel("Lo-Fi"), query: "lo-fi chill" },
+        { key: "lounge", label: this._discoveryGenreLabel("Lounge"), query: "lounge chill" },
+        { key: "acoustic", label: this._discoveryGenreLabel("Acoustic"), query: "acoustic chill" },
+        { key: "sleep", label: this._discoveryGenreLabel("Sleep"), query: "sleep music" },
       ] },
-      { key: "classical", label: this._discoveryGenreLabel("Classical", "קלאסית", "Klassik"), query: "classical", aliases: ["classical", "classical music", "orchestra", "orchestral", "piano", "opera"], children: [
-        { key: "piano", label: this._discoveryGenreLabel("Piano", "פסנתר", "Klavier"), query: "classical piano" },
-        { key: "orchestra", label: this._discoveryGenreLabel("Orchestra", "תזמורת", "Orchester"), query: "orchestra classical" },
-        { key: "opera", label: this._discoveryGenreLabel("Opera", "אופרה", "Oper"), query: "opera" },
+      { key: "classical", label: this._discoveryGenreLabel("Classical"), query: "classical", aliases: ["classical", "classical music", "orchestra", "orchestral", "piano", "opera"], children: [
+        { key: "piano", label: this._discoveryGenreLabel("Piano"), query: "classical piano" },
+        { key: "orchestra", label: this._discoveryGenreLabel("Orchestra"), query: "orchestra classical" },
+        { key: "opera", label: this._discoveryGenreLabel("Opera"), query: "opera" },
       ] },
-      { key: "latin", label: this._discoveryGenreLabel("Latin", "לטינית", "Latin"), query: "latin", aliases: ["latin", "reggaeton", "salsa", "bachata", "bossa nova", "latino"], children: [
-        { key: "reggaeton", label: this._discoveryGenreLabel("Reggaeton", "רגאטון", "Reggaeton"), query: "reggaeton" },
-        { key: "salsa", label: this._discoveryGenreLabel("Salsa", "סלסה", "Salsa"), query: "salsa" },
-        { key: "bachata", label: this._discoveryGenreLabel("Bachata", "בצ׳אטה", "Bachata"), query: "bachata" },
-        { key: "latin-pop", label: this._discoveryGenreLabel("Latin Pop", "פופ לטיני", "Latin Pop"), query: "latin pop" },
+      { key: "latin", label: this._discoveryGenreLabel("Latin"), query: "latin", aliases: ["latin", "reggaeton", "salsa", "bachata", "bossa nova", "latino"], children: [
+        { key: "reggaeton", label: this._discoveryGenreLabel("Reggaeton"), query: "reggaeton" },
+        { key: "salsa", label: this._discoveryGenreLabel("Salsa"), query: "salsa" },
+        { key: "bachata", label: this._discoveryGenreLabel("Bachata"), query: "bachata" },
+        { key: "latin-pop", label: this._discoveryGenreLabel("Latin Pop"), query: "latin pop" },
       ] },
-      { key: "afro", label: this._discoveryGenreLabel("Afro", "אפרו", "Afro"), query: "afro", aliases: ["afro", "afrobeats", "afrobeat", "afropop", "afropiano", "amapiano", "afro house", "afro tech", "afro soul", "afro r&b", "afroswing"], children: [
-        { key: "afrobeats", label: this._discoveryGenreLabel("Afrobeats", "אפרוביטס", "Afrobeats"), query: "afrobeats" },
-        { key: "amapiano", label: this._discoveryGenreLabel("Amapiano", "אמאפיאנו", "Amapiano"), query: "amapiano" },
-        { key: "afro-house", label: this._discoveryGenreLabel("Afro House", "אפרו האוס", "Afro House"), query: "afro house" },
-        { key: "afropop", label: this._discoveryGenreLabel("Afropop", "אפרופופ", "Afropop"), query: "afropop" },
+      { key: "afro", label: this._discoveryGenreLabel("Afro"), query: "afro", aliases: ["afro", "afrobeats", "afrobeat", "afropop", "afropiano", "amapiano", "afro house", "afro tech", "afro soul", "afro r&b", "afroswing"], children: [
+        { key: "afrobeats", label: this._discoveryGenreLabel("Afrobeats"), query: "afrobeats" },
+        { key: "amapiano", label: this._discoveryGenreLabel("Amapiano"), query: "amapiano" },
+        { key: "afro-house", label: this._discoveryGenreLabel("Afro House"), query: "afro house" },
+        { key: "afropop", label: this._discoveryGenreLabel("Afropop"), query: "afropop" },
       ] },
-      { key: "indie", label: this._discoveryGenreLabel("Indie", "אינדי", "Indie"), query: "indie", aliases: ["indie", "indie pop", "indie rock"], children: [
-        { key: "indie-pop", label: this._discoveryGenreLabel("Indie Pop", "אינדי פופ", "Indie-Pop"), query: "indie pop" },
-        { key: "indie-rock", label: this._discoveryGenreLabel("Indie Rock", "אינדי רוק", "Indie-Rock"), query: "indie rock" },
-        { key: "alternative", label: this._discoveryGenreLabel("Alternative", "אלטרנטיבי", "Alternative"), query: "alternative music" },
+      { key: "indie", label: this._discoveryGenreLabel("Indie"), query: "indie", aliases: ["indie", "indie pop", "indie rock"], children: [
+        { key: "indie-pop", label: this._discoveryGenreLabel("Indie Pop"), query: "indie pop" },
+        { key: "indie-rock", label: this._discoveryGenreLabel("Indie Rock"), query: "indie rock" },
+        { key: "alternative", label: this._discoveryGenreLabel("Alternative"), query: "alternative music" },
       ] },
-      { key: "metal", label: this._discoveryGenreLabel("Metal", "מטאל", "Metal"), query: "metal", aliases: ["metal", "heavy metal", "death metal", "black metal"], children: [
-        { key: "heavy", label: this._discoveryGenreLabel("Heavy Metal", "הבי מטאל", "Heavy Metal"), query: "heavy metal" },
-        { key: "alternative", label: this._discoveryGenreLabel("Alternative Metal", "מטאל אלטרנטיבי", "Alternative Metal"), query: "alternative metal" },
+      { key: "metal", label: this._discoveryGenreLabel("Metal"), query: "metal", aliases: ["metal", "heavy metal", "death metal", "black metal"], children: [
+        { key: "heavy", label: this._discoveryGenreLabel("Heavy Metal"), query: "heavy metal" },
+        { key: "alternative", label: this._discoveryGenreLabel("Alternative Metal"), query: "alternative metal" },
       ] },
-      { key: "country", label: this._discoveryGenreLabel("Country", "קאנטרי", "Country"), query: "country", aliases: ["country", "americana", "bluegrass"] },
-      { key: "reggae", label: this._discoveryGenreLabel("Reggae", "רגאיי", "Reggae"), query: "reggae", aliases: ["reggae", "dancehall", "dub"] },
-      { key: "folk", label: this._discoveryGenreLabel("Folk", "פולק", "Folk"), query: "folk", aliases: ["folk", "singer songwriter", "singer-songwriter", "acoustic"] },
-      { key: "ambient", label: this._discoveryGenreLabel("Ambient", "אמביינט", "Ambient"), query: "ambient", aliases: ["ambient", "new age", "soundscape"] },
-      { key: "kids", label: this._i18n("ui.kids"), query: "kids", aliases: ["kids", "children", "childrens", "family", "ילדים"] },
+      { key: "country", label: this._discoveryGenreLabel("Country"), query: "country", aliases: ["country", "americana", "bluegrass"] },
+      { key: "reggae", label: this._discoveryGenreLabel("Reggae"), query: "reggae", aliases: ["reggae", "dancehall", "dub"] },
+      { key: "folk", label: this._discoveryGenreLabel("Folk"), query: "folk", aliases: ["folk", "singer songwriter", "singer-songwriter", "acoustic"] },
+      { key: "ambient", label: this._discoveryGenreLabel("Ambient"), query: "ambient", aliases: ["ambient", "new age", "soundscape"] },
+      { key: "kids", label: this._i18n("ui.kids"), query: "kids", aliases: ["kids", "children", "childrens", "family"] },
     ];
   }
 
@@ -11763,7 +11724,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const track = available ? (p.attributes?.media_title || p.attributes?.media_artist || "") : this._i18n("ui.disconnected");
     const activityIcon = `<span class="player-premium-bars eq-icon ${activePlayback ? "is-active" : "is-static"}" aria-label="${this._esc(this._playerStateLabel(p))}"><span></span><span></span><span></span></span>`;
     const pinHtml = showFrontPin
-      ? `<button type="button" class="player-premium-side player-front-pin ${frontPinned ? "active" : ""}" data-front-pin-player="${this._esc(p.entity_id)}" title="${this._esc(frontPinned ? this._m("Clear front pin", "בטל נעיצה בחזית") : this._m("Pin player to front", "נעץ נגן בחזית"))}" aria-pressed="${frontPinned ? "true" : "false"}">${this._iconSvg("pin")}</button>`
+      ? `<button type="button" class="player-premium-side player-front-pin ${frontPinned ? "active" : ""}" data-front-pin-player="${this._esc(p.entity_id)}" title="${this._esc(frontPinned ? this._m("Clear front pin") : this._m("Pin player to front"))}" aria-pressed="${frontPinned ? "true" : "false"}">${this._iconSvg("pin")}</button>`
       : ``;
     if (immersivePlayerEnabled(this) && attrs.includes("data-menu-player=")) {
       return playerChoiceHtml(this, p, { attrs, active, available, name: friendlyName, track, art, pinHtml });
@@ -12054,9 +12015,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             ${this._settingsPill(this._i18n("ui.off_2"), "off", micMode, "data-setting-mic-mode")}
             ${this._settingsPill(this._i18n("ui.smart"), "smart", micMode, "data-setting-mic-mode")}
           </div>
-          <div class="settings-label">${this._m("Player design", "עיצוב הנגן")}</div>
+          <div class="settings-label">${this._m("Player design")}</div>
           <div class="settings-pills">
-            ${this._settingsPill(this._m("Classic", "קלאסי"), "classic", immersivePlayerEnabled(this) ? "immersive" : "classic", "data-setting-player-design")}
+            ${this._settingsPill(this._m("Classic"), "classic", immersivePlayerEnabled(this) ? "immersive" : "classic", "data-setting-player-design")}
             ${this._settingsPill("Immersive", "immersive", immersivePlayerEnabled(this) ? "immersive" : "classic", "data-setting-player-design")}
           </div>
           <div class="settings-label">${this._i18n("ui.footer_style")}</div>
@@ -12147,7 +12108,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             ${this._settingsPill(this._i18n("ui.grid"), "grid", libraryDefaultLayout, "data-setting-library-default-layout")}
             ${this._settingsPill(this._i18n("ui.list"), "list", libraryDefaultLayout, "data-setting-library-default-layout")}
           </div>
-          <div class="settings-hint">${this._i18n("ui.choose_how_library_pages_open_grid_or_list_can_still_be_changed_manually", {}, this._m("Choose how library pages open. You can still switch Grid/List inside the library.", "בחר איך דפי הספרייה נפתחים. עדיין אפשר להחליף Grid/List בתוך הספרייה."))}</div>
+          <div class="settings-hint">${this._i18n("ui.choose_how_library_pages_open_grid_or_list_can_still_be_changed_manually", {}, this._m("Choose how library pages open. You can still switch Grid/List inside the library."))}</div>
           <div class="settings-check-grid">
             ${tabOptions.map(([value, label]) => `
               <label class="settings-check-pill">
@@ -12157,12 +12118,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           </div>
           <div class="settings-label">${this._esc(this._i18n("ui.radio_source", {}, "Radio source"))}</div>
           <select class="media-sort-select settings-select" id="mobileRadioSourceModeSelect" aria-label="${this._esc(this._i18n("ui.radio_source", {}, "Radio source"))}">
-            <option value="combined" ${radioSourceMode === "combined" ? "selected" : ""}>${this._esc(this._m("Combined", "משולב"))}</option>
-            <option value="ma_first" ${radioSourceMode === "ma_first" ? "selected" : ""}>${this._esc(this._m("Music Assistant first", "Music Assistant ראשון"))}</option>
-            <option value="ma_only" ${radioSourceMode === "ma_only" ? "selected" : ""}>${this._esc(this._m("Music Assistant only", "Music Assistant בלבד"))}</option>
-            <option value="radiobrowser_only" ${radioSourceMode === "radiobrowser_only" ? "selected" : ""}>${this._esc(this._m("RadioBrowser only", "RadioBrowser בלבד"))}</option>
+            <option value="combined" ${radioSourceMode === "combined" ? "selected" : ""}>${this._esc(this._m("Combined"))}</option>
+            <option value="ma_first" ${radioSourceMode === "ma_first" ? "selected" : ""}>${this._esc(this._m("Music Assistant first"))}</option>
+            <option value="ma_only" ${radioSourceMode === "ma_only" ? "selected" : ""}>${this._esc(this._m("Music Assistant only"))}</option>
+            <option value="radiobrowser_only" ${radioSourceMode === "radiobrowser_only" ? "selected" : ""}>${this._esc(this._m("RadioBrowser only"))}</option>
           </select>
-          <div class="settings-hint">${this._esc(this._m("Controls whether the Radio library page uses Music Assistant stations, RadioBrowser stations, or both.", "קובע אם דף הרדיו משתמש בתחנות Music Assistant, בתחנות RadioBrowser, או בשניהם."))}</div>
+          <div class="settings-hint">${this._esc(this._m("Controls whether the Radio library page uses Music Assistant stations, RadioBrowser stations, or both."))}</div>
           <div class="settings-label">Radio Browser</div>
           <select class="media-sort-select settings-select" id="mobileRadioCountrySelect" aria-label="${this._esc(this._i18n("ui.radio_browser_country"))}">
             ${radioCountryOptions.map(([value, label]) => `<option value="${this._esc(value)}" ${value === radioCountry ? "selected" : ""}>${this._esc(label)}</option>`).join("")}
@@ -12461,7 +12422,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           <div class="settings-label">Music Assistant</div>
           <div class="settings-actions">
             <button class="settings-pill active" data-menu-action="open_app">${this._i18n("ui.open_full_interface")}</button>
-            <button class="settings-pill" data-menu-nav="diagnostics">${this._esc(this._m("Diagnostics", "אבחון"))}</button>
+            <button class="settings-pill" data-menu-nav="diagnostics">${this._esc(this._m("Diagnostics"))}</button>
           </div>
         </div>`;
   }
@@ -13067,10 +13028,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const list = Array.isArray(items) ? items : [];
     const failures = list.filter((item) => item.status === "fail").length;
     const warnings = list.filter((item) => item.status === "warn").length;
-    if (!list.length) return this._m("Run a quick Music Assistant health check.", "הרץ בדיקת תקינות מהירה ל-Music Assistant.");
-    if (failures) return this._m(`${failures} check${failures === 1 ? "" : "s"} need attention.`, `${failures} בדיקות דורשות טיפול.`);
-    if (warnings) return this._m(`${warnings} check${warnings === 1 ? "" : "s"} need review.`, `${warnings} בדיקות דורשות בדיקה.`);
-    return this._m("All core checks passed.", "כל הבדיקות המרכזיות עברו.");
+    if (!list.length) return this._m("Run a quick Music Assistant health check.");
+    if (failures) return this._m(`${failures} check${failures === 1 ? "" : "s"} need attention.`);
+    if (warnings) return this._m(`${warnings} check${warnings === 1 ? "" : "s"} need review.`);
+    return this._m("All core checks passed.");
   }
 
   _diagnosticRowHtml(item = {}) {
@@ -13095,17 +13056,17 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return `
       <div class="settings-shell diagnostics-shell">
         <div class="settings-group diagnostics-card">
-          <div class="settings-label">${this._esc(this._m("Maverick Music Diagnostics", "אבחון Maverick Music"))}</div>
-          <div class="settings-hint">${this._esc(this._m("Diagnostic v7 checks Maverick Music Engine, browser context, configured entity, player selection, search providers, group state, queue UI/API alignment, authenticated artwork loading, rendered artwork DOM, and Engine cache performance.", "Diagnostic v7 בודק את Maverick Music Engine, דפדפן, ישות מוגדרת, בחירת נגן, ספקי חיפוש, מצב קבוצה, התאמת תור UI/API, טעינת עטיפות מאומתת, מצב תמונות ב-DOM וביצועי מטמון Engine."))}</div>
+          <div class="settings-label">${this._esc(this._m("Maverick Music Diagnostics"))}</div>
+          <div class="settings-hint">${this._esc(this._m("Diagnostic v7 checks Maverick Music Engine, browser context, configured entity, player selection, search providers, group state, queue UI/API alignment, authenticated artwork loading, rendered artwork DOM, and Engine cache performance."))}</div>
           <div class="settings-actions diagnostics-actions">
-            <button class="settings-pill active" data-menu-action="run_diagnostics" ${running ? "disabled" : ""}>${this._esc(running ? this._m("Running...", "מריץ...") : this._m("Run diagnostics", "הרץ אבחון"))}</button>
-            <button class="settings-pill" data-menu-action="copy_diagnostics" ${items.length ? "" : "disabled"}>${this._esc(this._m("Copy report", "העתק דוח"))}</button>
+            <button class="settings-pill active" data-menu-action="run_diagnostics" ${running ? "disabled" : ""}>${this._esc(running ? this._m("Running...") : this._m("Run diagnostics"))}</button>
+            <button class="settings-pill" data-menu-action="copy_diagnostics" ${items.length ? "" : "disabled"}>${this._esc(this._m("Copy report"))}</button>
           </div>
           <div class="diagnostic-summary">${this._esc(this._diagnosticsSummary(items))}</div>
-          ${ranAtText ? `<div class="settings-hint">${this._esc(this._m("Last run", "הרצה אחרונה"))}: ${this._esc(ranAtText)}</div>` : ""}
+          ${ranAtText ? `<div class="settings-hint">${this._esc(this._m("Last run"))}: ${this._esc(ranAtText)}</div>` : ""}
         </div>
-        ${running ? `<div class="notice open">${this._esc(this._m("Running checks...", "מריץ בדיקות..."))}</div>` : ""}
-        ${items.length ? `<div class="diagnostics-list">${items.map((item) => this._diagnosticRowHtml(item)).join("")}</div>` : `<div class="notice open">${this._esc(this._m("No diagnostics have been run yet.", "עדיין לא הורץ אבחון."))}</div>`}
+        ${running ? `<div class="notice open">${this._esc(this._m("Running checks..."))}</div>` : ""}
+        ${items.length ? `<div class="diagnostics-list">${items.map((item) => this._diagnosticRowHtml(item)).join("")}</div>` : `<div class="notice open">${this._esc(this._m("No diagnostics have been run yet."))}</div>`}
       </div>`;
   }
 
@@ -13477,11 +13438,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           if (!copyWithTextarea()) throw _;
         }
       } else {
-        if (!copyWithTextarea()) throw new Error(this._m("Clipboard is unavailable", "הלוח אינו זמין"));
+        if (!copyWithTextarea()) throw new Error(this._m("Clipboard is unavailable"));
       }
-      this._toastSuccess(this._m("Diagnostics report copied", "דוח האבחון הועתק"));
+      this._toastSuccess(this._m("Diagnostics report copied"));
     } catch (error) {
-      this._toastError(error?.message || this._m("Could not copy diagnostics report", "לא ניתן להעתיק את דוח האבחון"));
+      this._toastError(error?.message || this._m("Could not copy diagnostics report"));
     }
   }
 
@@ -13615,8 +13576,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!browse?.albums?.length) return "";
     return `
       <label class="media-detail-album-picker">
-        <span class="media-detail-picker-label">${this._esc(this._m("Album", "אלבום"))}</span>
-        <select id="mediaDetailAlbumSelect" aria-label="${this._esc(this._m("Select album", "בחר אלבום"))}">
+        <span class="media-detail-picker-label">${this._esc(this._m("Album"))}</span>
+        <select id="mediaDetailAlbumSelect" aria-label="${this._esc(this._m("Select album"))}">
           ${browse.albums.map((album, index) => `
             <option value="${this._esc(String(index))}" ${index === browse.index ? "selected" : ""}>${this._esc(this._albumSelectLabel(album, index))}</option>
           `).join("")}
@@ -13637,11 +13598,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const fallbackIcon = isPodcast ? "podcast" : mediaType === "playlist" ? "playlist" : "album";
     const tracks = Array.isArray(detail.tracks) ? detail.tracks : [];
     const loading = !!detail.loading;
-    const itemLabel = isPodcast ? this._m("Episodes", "פרקים") : this._i18n("ui.tracks");
+    const itemLabel = isPodcast ? this._m("Episodes") : this._i18n("ui.tracks");
     const trackCount = tracks.length ? `${tracks.length} ${itemLabel.toLowerCase()}` : "";
     const emptyCopy = detail.error || (isPodcast
-      ? this._m("No episodes were returned by the provider.", "הספק לא החזיר פרקים לפודקאסט הזה.")
-      : this._m("No tracks were returned. You can still play it.", "לא חזרו רצועות. עדיין אפשר להפעיל."));
+      ? this._m("No episodes were returned by the provider.")
+      : this._m("No tracks were returned. You can still play it."));
     const detailEntry = this._mediaDetailEntryData({ ...detail, image: art, image_url: art }, mediaType, detail);
     const detailDataAttrs = this._mediaDetailDataAttrs(detailEntry);
     const detailLiked = this._isEntryLiked(detailEntry);
@@ -13686,7 +13647,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const groups = new Map();
     (Array.isArray(albums) ? albums : []).forEach((album) => {
       const year = this._mediaYearValue(album);
-      const key = year ? String(year) : this._m("Unknown year", "שנה לא ידועה");
+      const key = year ? String(year) : this._m("Unknown year");
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(album);
     });
@@ -13696,13 +13657,13 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (Number.isFinite(leftYear) && Number.isFinite(rightYear)) return rightYear - leftYear;
       if (Number.isFinite(leftYear)) return -1;
       if (Number.isFinite(rightYear)) return 1;
-      return String(left).localeCompare(String(right), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: true });
+      return String(left).localeCompare(String(right), undefined, { sensitivity: "base", numeric: true });
     });
   }
 
   _artistInfoPopupHtml(title = "", description = "") {
     const body = String(description || "").trim()
-      || this._m("Music Assistant did not return detailed artist information yet.", "Music Assistant עדיין לא החזיר מידע מפורט על האמן.");
+      || this._m("Music Assistant did not return detailed artist information yet.");
     return `
       <div class="artist-info-backdrop" data-artist-info-close="1">
         <div class="artist-info-dialog" role="dialog" aria-modal="true" aria-label="${this._esc(title || this._i18n("ui.artist"))}">
@@ -13724,11 +13685,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const albums = Array.isArray(detail.albums) ? detail.albums : [];
     const playlists = Array.isArray(detail.playlists) ? detail.playlists : [];
     const loading = !!detail.loading;
-    const emptyCopy = detail.error || this._m("No albums were returned for this artist.", "לא חזרו אלבומים עבור האמן הזה.");
+    const emptyCopy = detail.error || this._m("No albums were returned for this artist.");
     const searchQuery = detail.artistSearchQuery || "";
     const searchOpen = !!detail.artistSearchOpen;
     const albumGroups = this._artistAlbumYearGroups(albums);
-    const artistRadioTitle = this._m("Start artist radio", "הפעל רדיו אמן");
+    const artistRadioTitle = this._m("Start artist radio");
     return `
       <div class="media-detail-shell artist-detail-shell">
         <div class="artist-detail-hero">
@@ -13740,7 +13701,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           <span class="artist-detail-actions">
             <button class="artist-hero-icon-btn" data-artist-radio="1" data-media-uri="${this._esc(detail.uri || artistInfo.uri || "")}" data-media-type="artist" data-media-name="${this._esc(title)}" title="${this._esc(artistRadioTitle)}" aria-label="${this._esc(artistRadioTitle)}">${this._iconSvg("radio")}</button>
             <button class="artist-hero-icon-btn" data-artist-search-toggle="1" title="${this._esc(this._i18n("ui.search"))}" aria-label="${this._esc(this._i18n("ui.search"))}" aria-expanded="${searchOpen ? "true" : "false"}">${this._iconSvg("search")}</button>
-            <button class="artist-info-btn" data-artist-info-open="1" title="${this._esc(this._m("Artist info", "מידע על אמן"))}" aria-label="${this._esc(this._m("Artist info", "מידע על אמן"))}">${this._iconSvg("info")}</button>
+            <button class="artist-info-btn" data-artist-info-open="1" title="${this._esc(this._m("Artist info"))}" aria-label="${this._esc(this._m("Artist info"))}">${this._iconSvg("info")}</button>
           </span>
         </div>
         ${detail.artistInfoOpen ? this._artistInfoPopupHtml(title, description) : ``}
@@ -13748,7 +13709,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           <div class="artist-detail-search">
             <div class="media-search-shell artist-search-shell">
               <span>${this._iconSvg("search")}</span>
-              <input id="artistDetailSearchInput" type="text" value="${this._esc(searchQuery)}" placeholder="${this._esc(this._m("Search another artist", "חיפוש אמן נוסף"))}">
+              <input id="artistDetailSearchInput" type="text" value="${this._esc(searchQuery)}" placeholder="${this._esc(this._m("Search another artist"))}">
               <button class="chip-btn artist-search-btn" data-artist-detail-search title="${this._esc(this._i18n("ui.search"))}"><span>${this._esc(this._i18n("ui.search"))}</span></button>
             </div>
           </div>
@@ -13774,10 +13735,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
                 : `<div class="notice open media-detail-empty">${this._esc(emptyCopy)}</div>`}
             </div>
             <div class="artist-detail-section">
-              <div class="media-section-title">${this._esc(this._m("Artist playlist recommendations", "המלצות פלייליסטים לאמן"))}</div>
+              <div class="media-section-title">${this._esc(this._m("Artist playlist recommendations"))}</div>
               ${playlists.length
                 ? this._mediaItemsListHtml(playlists, "playlist", { layout: "list" })
-                : `<div class="notice open media-detail-empty">${this._esc(this._m("No playlist recommendations were returned yet.", "עדיין לא חזרו המלצות פלייליסטים."))}</div>`}
+                : `<div class="notice open media-detail-empty">${this._esc(this._m("No playlist recommendations were returned yet."))}</div>`}
             </div>
           `}
       </div>
@@ -13796,14 +13757,14 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const artists = Array.isArray(results.artists) ? results.artists : [];
       const artist = artists.find((item) => MaverickMediaQueueFoundation.normalizeComparableText(item?.name || "") === normalizedQuery) || artists[0];
       if (!artist) {
-        this._toastError(this._m("No artist was found.", "לא נמצא אמן."));
+        this._toastError(this._m("No artist was found."));
         return false;
       }
       const opened = this._openLibraryMediaDetail({ ...artist, media_type: "artist" }, sourceEl, { replaceCurrentDetail: true });
-      if (!opened) this._toastError(this._m("This artist cannot be opened from the returned result.", "לא ניתן לפתוח את האמן מהתוצאה שחזרה."));
+      if (!opened) this._toastError(this._m("This artist cannot be opened from the returned result."));
       return opened;
     } catch (error) {
-      this._toastError(error?.message || this._m("Artist search failed.", "חיפוש האמן נכשל."));
+      this._toastError(error?.message || this._m("Artist search failed."));
       return false;
     } finally {
       sourceEl?.removeAttribute?.("aria-busy");
@@ -14033,7 +13994,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _voiceAssistantRecognitionLanguage() {
-    if (this._isHebrew()) return "he-IL";
     try {
       const languages = Array.isArray(window.navigator?.languages)
         ? window.navigator.languages
@@ -14157,8 +14117,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _voiceAssistantQueueIntent(transcript = "") {
     const normalized = this._normalizeVoiceCommandText(transcript);
     if (!normalized) return null;
-    const hasQueueWord = this._voiceCommandHasAny(normalized, ["queue", "current queue", "play queue", "music queue", "תור", "התור", "תור הניגון", "רשימת הניגון"]);
-    const hasTransferWord = this._voiceCommandHasAny(normalized, ["transfer", "move", "send", "move queue", "transfer queue", "העבר", "להעביר", "תעביר", "העבירי", "שלח", "לשלוח"]);
+    const hasQueueWord = this._voiceCommandHasAny(normalized, ["queue", "current queue", "play queue", "music queue"]);
+    const hasTransferWord = this._voiceCommandHasAny(normalized, ["transfer", "move", "send", "move queue", "transfer queue"]);
     const mentioned = this._voiceAssistantMentionedPlayers(transcript);
     if (!hasTransferWord || (!hasQueueWord && mentioned.length < 2)) return null;
     let sourcePlayer = null;
@@ -14181,12 +14141,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const normalized = this._normalizeVoiceCommandText(transcript);
     if (!normalized) return null;
     const mentioned = this._voiceAssistantMentionedPlayers(transcript);
-    const hasSpeakerWord = this._voiceCommandHasAny(normalized, ["speaker", "speakers", "player", "players", "room", "rooms", "רמקול", "רמקולים", "נגן", "נגנים", "חדר", "חדרים"]);
-    const hasGroupWord = this._voiceCommandHasAny(normalized, ["group", "group speakers", "join", "connect speakers", "link speakers", "ungroup", "disconnect group", "speaker group", "קבוצה", "קבוצת נגנים", "קבוצת רמקולים", "חבר רמקולים", "חיבור רמקולים", "ניתוק רמקולים"]);
-    const hasDisconnectWord = this._voiceCommandHasAny(normalized, ["ungroup", "disconnect group", "disconnect speakers", "unjoin", "clear group", "נתק", "תנתק", "לנתק", "הפרד", "להפריד", "בטל קבוצה"]);
-    const hasConnectWord = this._voiceCommandHasAny(normalized, ["group", "join", "connect", "link", "pair", "activate speakers", "start speakers", "חבר", "תחבר", "לחבר", "צרף", "לצרף", "קבץ", "לקבץ"]);
-    const allGroups = this._voiceCommandHasAny(normalized, ["all groups", "all speakers", "all players", "כל הקבוצות", "כל הרמקולים", "כל הנגנים", "כולם"]);
-    const speakerCountHint = this._voiceCommandHasAny(normalized, ["two speakers", "2 speakers", "שני רמקולים", "2 רמקולים", "שני נגנים", "2 נגנים"]);
+    const hasSpeakerWord = this._voiceCommandHasAny(normalized, ["speaker", "speakers", "player", "players", "room", "rooms"]);
+    const hasGroupWord = this._voiceCommandHasAny(normalized, ["group", "group speakers", "join", "connect speakers", "link speakers", "ungroup", "disconnect group", "speaker group"]);
+    const hasDisconnectWord = this._voiceCommandHasAny(normalized, ["ungroup", "disconnect group", "disconnect speakers", "unjoin", "clear group"]);
+    const hasConnectWord = this._voiceCommandHasAny(normalized, ["group", "join", "connect", "link", "pair", "activate speakers", "start speakers"]);
+    const allGroups = this._voiceCommandHasAny(normalized, ["all groups", "all speakers", "all players"]);
+    const speakerCountHint = this._voiceCommandHasAny(normalized, ["two speakers", "2 speakers"]);
     if (hasDisconnectWord && (hasGroupWord || hasSpeakerWord || allGroups || mentioned.length)) {
       if (allGroups) return { type: "group_disconnect_all" };
       const player = mentioned[0] || this._voiceAssistantDefaultPlayer();
@@ -14222,28 +14182,16 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (speakerGroupIntent) return speakerGroupIntent;
     const volumeIntent = this._voiceAssistantVolumeIntent(normalized);
     if (volumeIntent) return volumeIntent;
-    if (this._voiceCommandHasAny(normalized, ["next", "skip", "הבא", "דלג", "תדלג", "הרצועה הבאה", "השיר הבא"])) return { type: "next" };
-    if (this._voiceCommandHasAny(normalized, ["previous", "back", "last song", "הקודם", "אחורה", "הרצועה הקודמת", "השיר הקודם"])) return { type: "previous" };
-    if (this._voiceCommandHasAny(normalized, ["pause", "hold", "השהה", "תשהה", "השהיה"])) return { type: "pause" };
-    if (this._voiceCommandHasAny(normalized, ["stop", "turn off music", "עצור", "תעצור", "עצירה", "כבה מוזיקה"])) return { type: "stop" };
-    if (this._voiceCommandHasAny(normalized, ["resume", "continue", "play music", "המשך", "תמשיך", "המשך לנגן"])) return { type: "resume" };
+    if (this._voiceCommandHasAny(normalized, ["next", "skip"])) return { type: "next" };
+    if (this._voiceCommandHasAny(normalized, ["previous", "back", "last song"])) return { type: "previous" };
+    if (this._voiceCommandHasAny(normalized, ["pause", "hold"])) return { type: "pause" };
+    if (this._voiceCommandHasAny(normalized, ["stop", "turn off music"])) return { type: "stop" };
+    if (this._voiceCommandHasAny(normalized, ["resume", "continue", "play music"])) return { type: "resume" };
     const hasMusicVerb = this._voiceCommandHasAny(normalized, [
       "play",
       "put on",
       "listen to",
       "start music",
-      "נגן",
-      "תנגן",
-      "נגני",
-      "השמע",
-      "תשמיע",
-      "השמיעי",
-      "שים",
-      "שימי",
-      "להאזין",
-      "הפעל",
-      "תפעיל",
-      "הפעילי",
     ]);
     if (hasMusicVerb || forceMusic) {
       const query = this._extractVoiceAssistantMusicQuery(transcript, player);
@@ -14266,10 +14214,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _voiceAssistantCleanMusicPhrase(value = "", { allowStopWordFallback = false } = {}) {
     return MaverickVoiceMatchingFoundation.voiceAssistantCleanMusicPhrase(value, { allowStopWordFallback });
-  }
-
-  _voiceAssistantTransliterateHebrewToken(value = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantTransliterateHebrewToken(value);
   }
 
   _voiceAssistantLatinPhoneticKeys(value = "") {
@@ -14513,15 +14457,15 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         return { handled: false, ok: false, message: "" };
       }
       const actionLabel = ({
-        next: this._m("next track", "הרצועה הבאה"),
-        previous: this._m("previous track", "הרצועה הקודמת"),
-        pause: this._m("pause", "השהיה"),
-        resume: this._m("play", "ניגון"),
-        stop: this._m("stop", "עצירה"),
-        mute: this._m("mute", "השתקה"),
-        unmute: this._m("unmute", "ביטול השתקה"),
-        volume_set: this._m("volume", "עוצמת קול"),
-        volume_delta: this._m("volume", "עוצמת קול"),
+        next: this._m("next track"),
+        previous: this._m("previous track"),
+        pause: this._m("pause"),
+        resume: this._m("play"),
+        stop: this._m("stop"),
+        mute: this._m("mute"),
+        unmute: this._m("unmute"),
+        volume_set: this._m("volume"),
+        volume_delta: this._m("volume"),
       })[intent.type] || this._i18n("ui.voice_command_executed");
       const message = this._i18n("ui.voice_command_completed_action", { action: actionLabel });
       this._toastSuccess(message);
@@ -14964,7 +14908,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     } catch (_) {}
     const recognition = new SpeechRecognition();
     this._voiceRecognition = recognition;
-    recognition.lang = this._isHebrew() ? "he-IL" : "en-US";
+    recognition.lang = "en-US";
     recognition.interimResults = true;
     recognition.continuous = false;
     recognition.maxAlternatives = 1;
@@ -15096,7 +15040,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const mode = this._state.mobileLibrarySort || "name_asc";
     const copy = [...items];
     if (mode === "name_desc") {
-      return copy.sort((a, b) => String(b?.name || "").localeCompare(String(a?.name || ""), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: true }));
+      return copy.sort((a, b) => String(b?.name || "").localeCompare(String(a?.name || ""), undefined, { sensitivity: "base", numeric: true }));
     }
     if (mode === "date_desc") {
       const ranked = copy.map((item, index) => ({ item, index, date: this._itemDateValue(item) }));
@@ -15118,7 +15062,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       });
       return ranked.map((entry) => entry.item);
     }
-    return copy.sort((a, b) => String(a?.name || "").localeCompare(String(b?.name || ""), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: true }));
+    return copy.sort((a, b) => String(a?.name || "").localeCompare(String(b?.name || ""), undefined, { sensitivity: "base", numeric: true }));
   }
 
   _libraryTabSearchPageKey(page = this._state.menuPage) {
@@ -15379,12 +15323,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return `
       <div class="media-results library-tab-search-results">
         <div>
-          <div class="media-section-title">${this._esc(this._m("In library", "בספרייה"))}</div>
-          ${hasLibrary ? this._mediaItemsListHtml(libraryItems, mediaType, { librarySkin: true }) : `<div class="notice open">${this._esc(this._m("No local library matches yet.", "לא נמצאו התאמות בספרייה המקומית."))}</div>`}
+          <div class="media-section-title">${this._esc(this._m("In library"))}</div>
+          ${hasLibrary ? this._mediaItemsListHtml(libraryItems, mediaType, { librarySkin: true }) : `<div class="notice open">${this._esc(this._m("No local library matches yet."))}</div>`}
         </div>
         ${providerLoading || providerError || hasProvider ? `
           <div>
-            <div class="media-section-title">${this._esc(this._m("Content providers", "ספקי תוכן"))}</div>
+            <div class="media-section-title">${this._esc(this._m("Content providers"))}</div>
             ${providerLoading ? this._loadingStateHtml(this._i18n("ui.searching"), { notice: true }) : providerError ? `<div class="notice open">${this._esc(providerError)}</div>` : this._mediaItemsListHtml(providerItems, mediaType, { librarySkin: true })}
           </div>
         ` : ""}
@@ -15749,7 +15693,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     completed = true;
     if (!isCurrentSearch()) return;
     if (providerError || libraryError) {
-      const notice = `<div class="notice open" role="alert">${this._esc(this._m(hasInterimResults ? "Some search sources could not be loaded. Try again." : "Search could not be completed. Try again.", hasInterimResults ? "חלק ממקורות החיפוש לא נטענו. נסה שוב." : "לא ניתן להשלים את החיפוש. נסה שוב."))}</div><button class="chip-btn" data-menu-action="retry_library">${this._esc(this._m("Retry", "נסה שוב"))}</button>`;
+      const notice = `<div class="notice open" role="alert">${this._esc(this._m(hasInterimResults ? "Some search sources could not be loaded. Try again." : "Search could not be completed. Try again."))}</div><button class="chip-btn" data-menu-action="retry_library">${this._esc(this._m("Retry"))}</button>`;
       if (hasInterimResults) resultsHost.insertAdjacentHTML("beforeend", notice);
       else resultsHost.innerHTML = notice;
     } else if (!hasInterimResults) {
@@ -15831,10 +15775,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return this._normalizeAnnouncementLanguage(this._state.mobileAnnouncementTtsLanguage || this._config?.announcement_tts_language || "auto");
   }
 
-  _announcementLanguageCode(text = "") {
+  _announcementLanguageCode() {
     const configured = this._announcementLanguageSetting();
     if (configured !== "auto") return configured;
-    return /[\u0590-\u05FF]/.test(String(text || "")) ? "he-IL" : "";
+    return "";
   }
 
   _announcementRecognitionLanguageCode() {
@@ -15845,7 +15789,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const lang = this._hass?.locale?.language || this._hass?.language || browserLanguage || "";
       if (lang) return String(lang);
     } catch (_) {}
-    return this._isHebrew() ? "he-IL" : "en-US";
+    return "en-US";
   }
 
   _announcementPayloadWithLanguage(payload = {}, language = "") {
@@ -15856,10 +15800,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return next;
   }
 
-  _preferredAnnouncementSayService(message = "") {
+  _preferredAnnouncementSayService() {
     const services = Object.keys(this._hass?.services?.tts || {});
-    const hasHebrew = /[\u0590-\u05FF]/.test(String(message || ""));
-    if (hasHebrew && services.includes("google_translate_say")) return "google_translate_say";
     return services.find((service) => service === "google_translate_say" || service.endsWith("_say")) || "";
   }
 
@@ -15978,7 +15920,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ? this._i18n("ui.all_players_2")
       : (targets[0]?.attributes?.friendly_name || targets[0]?.entity_id || this._selectedPlayerName());
     const preview = message.length > 72 ? `${message.slice(0, 69)}...` : message;
-    const language = this._announcementLanguageCode(message);
+    const language = this._announcementLanguageCode();
     this._toast(this._i18n("ui.announcement_to_player_preview", {
       player: playerName,
       preview,
@@ -16013,7 +15955,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (!acknowledged || failures.length) {
         const names = targetEntityIds.filter((id) => !results.some((item) => item?.player === id && item?.ok === true))
           .map((id) => targets.find((player) => player.entity_id === id)?.attributes?.friendly_name || id);
-        throw new Error(`${this._m("Announcement not confirmed", "הכריזה לא אושרה")}: ${names.join(", ") || playerName}`);
+        throw new Error(`${this._m("Announcement not confirmed")}: ${names.join(", ") || playerName}`);
       }
       this._toastSuccess(this._i18n("ui.announcement_sent_to_player", { player: playerName }));
     } catch (error) {
@@ -16073,12 +16015,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _groupPlayerStatusText(checked = false, connected = false, isOwner = false) {
-    if (isOwner && connected && !checked) return this._m("Disconnects all", "מנתק הכל");
-    if (isOwner && connected) return this._m("Master", "מוביל");
-    if (checked && !connected) return this._m("Will join", "יצטרף");
-    if (!checked && connected) return this._m("Will remove", "יוסר");
+    if (isOwner && connected && !checked) return this._m("Disconnects all");
+    if (isOwner && connected) return this._m("Master");
+    if (checked && !connected) return this._m("Will join");
+    if (!checked && connected) return this._m("Will remove");
     if (checked || connected) return this._i18n("ui.connected");
-    return this._m("Tap to join", "לחץ לצירוף");
+    return this._m("Tap to join");
   }
 
   _groupChangeSummaryText(groupDelta = null) {
@@ -16086,14 +16028,14 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const parts = [];
     const ownerRemoved = !!(delta.ownerRemoved || (delta.owner && delta.removed?.includes?.(delta.owner)));
     if (ownerRemoved) {
-      parts.push(this._m("Master removal disconnects all", "הסרת המוביל תנתק את כל הקבוצה"));
+      parts.push(this._m("Master removal disconnects all"));
       return parts.join(" · ");
     }
     if (delta.added?.length) {
-      parts.push(this._m(`${delta.added.length} to join`, delta.added.length === 1 ? "1 יצטרף" : `${delta.added.length} יצטרפו`));
+      parts.push(this._m(`${delta.added.length} to join`));
     }
     if (delta.removed?.length) {
-      parts.push(this._m(`${delta.removed.length} to remove`, delta.removed.length === 1 ? "1 יוסר" : `${delta.removed.length} יוסרו`));
+      parts.push(this._m(`${delta.removed.length} to remove`));
     }
     return parts.filter(Boolean).join(" · ");
   }
@@ -16110,7 +16052,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
     const applyButton = this.shadowRoot?.querySelector("[data-menu-action=\"apply_group\"]");
     if (applyButton) {
-      applyButton.textContent = this._m("Update group", "עדכן קבוצה");
+      applyButton.textContent = this._m("Update group");
       applyButton.toggleAttribute("disabled", !hasChanges);
     }
   }
@@ -16150,13 +16092,13 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ? `<p class="group-members-summary">${this._esc(connectedNames.join(" · "))}</p>`
       : "";
     return `
-      <div class="group-setup-intro"><h3>${this._esc(this._m("Listen together", "להאזין יחד"))}</h3><p>${this._esc(this._m("Select the speakers, then apply. Playback follows the group leader.", "בחר את הרמקולים ואז אשר. הניגון ימשיך לפי הנגן המוביל."))}</p></div>
+      <div class="group-setup-intro"><h3>${this._esc(this._m("Listen together"))}</h3><p>${this._esc(this._m("Select the speakers, then apply. Playback follows the group leader."))}</p></div>
       ${connectedRow}
       <div class="group-change-row" data-group-change-summary ${changeSummary ? "" : "hidden"}>${this._esc(changeSummary)}</div>
       ${groupCount > 1 ? `
         <details class="group-volume-card"><summary>${this._esc(this._i18n("ui.group_volume"))}</summary>
           <div class="group-volume-title">${this._esc(this._i18n("ui.group_volume"))}<span>${this._esc(String(groupCount))}</span></div>
-          ${!groupVolumeAvailable ? `<div class="player-volume-unavailable" role="status">${this._esc(this._m("Not all members report a volume. Use the available player controls below.", "לא כל חברי הקבוצה מדווחים עוצמה. ניתן להשתמש בשליטה הזמינה לכל נגן בהמשך."))}</div>` : `          <div class="player-volume-row">
+          ${!groupVolumeAvailable ? `<div class="player-volume-unavailable" role="status">${this._esc(this._m("Not all members report a volume. Use the available player controls below."))}</div>` : `          <div class="player-volume-row">
             <button class="player-mini-mute ${this._isGroupMuted(selected) ? "active" : ""}" data-group-mute="${this._esc(selected?.entity_id || "")}" title="${this._esc(this._i18n("ui.mute"))}">${this._iconSvg(this._isGroupMuted(selected) ? "volume_mute" : this._volumeIconName(selected))}</button>
             <input class="player-mini-volume" data-group-volume="${this._esc(selected?.entity_id || "")}" type="range" min="0" max="100" value="${groupVol}" style="--vol-pct:${groupVol}%">
             <button type="button" class="player-mini-value player-volume-percent" data-group-volume-wheel="${this._esc(selected?.entity_id || "")}" aria-label="${this._esc(this._i18n("ui.group_volume"))}">${groupVol}%</button>
@@ -16180,7 +16122,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           <div data-group-player="${this._esc(p.entity_id)}" class="group-player-card ${checked ? "checked" : ""} ${statusClass}" data-group-connected="${connected ? "true" : "false"}" data-group-owner="${isOwner ? "true" : "false"}">
             <label class="group-player-row player-premium-head ${checked ? "checked" : ""}">
               <span class="group-player-toggle ${checked ? "checked" : ""}" aria-hidden="true">${this._iconSvg(this._groupPlayerStatusIcon(checked, connected, isOwner))}</span>
-              <span class="player-premium-art" ${available ? 'data-group-drag-art draggable="true"' : ''} title="${this._esc(this._m("Drag onto another player to connect","גרור לנגן אחר לחיבור"))}">
+              <span class="player-premium-art" ${available ? 'data-group-drag-art draggable="true"' : ''} title="${this._esc(this._m("Drag onto another player to connect"))}">
                 ${art ? this._imgHtml(art, "", { loading: "lazy", fetchpriority: "low" }) : this._iconSvg("speaker")}
                 ${playerGroupCount ? `<span class="player-group-badge">${this._esc(playerGroupCount)}</span>` : ``}
               </span>
@@ -16194,15 +16136,15 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
               </span>
               <input class="group-player-check" type="checkbox" data-menu-group-player="${this._esc(p.entity_id)}" data-group-owner="${isOwner ? "true" : "false"}" ${checked ? "checked" : ""} ${!available && !connected ? "disabled" : ""}>
             </label>
-            ${available && !isOwner ? `<button type="button" class="group-quick-connect" data-group-quick="${this._esc(p.entity_id)}">${actionIconSvg(this, connected ? "group_remove" : "group_add")}<span>${this._esc(connected ? this._m("Disconnect","ניתוק") : this._m("Connect","חיבור"))}</span></button>` : ""}
+            ${available && !isOwner ? `<button type="button" class="group-quick-connect" data-group-quick="${this._esc(p.entity_id)}">${actionIconSvg(this, connected ? "group_remove" : "group_add")}<span>${this._esc(connected ? this._m("Disconnect") : this._m("Connect"))}</span></button>` : ""}
             ${available ? playerVolumeControlsHtml(this, p, { inline: true }) : ""}
           </div>
         `;
       }).join("")}
       </div>
       <div class="group-actions">
-        <button class="action-btn" data-menu-action="apply_group" ${hasChanges ? "" : "disabled"}>${this._esc(groupCount > 1 ? this._m("Update group", "עדכן קבוצה") : this._m("Create group", "צור קבוצה"))}</button>
-        ${groupCount > 1 ? `<button class="group-disconnect-all-btn" data-menu-action="clear_group">${this._esc(this._m("Disconnect all", "נתק הכול"))}</button>` : ""}
+        <button class="action-btn" data-menu-action="apply_group" ${hasChanges ? "" : "disabled"}>${this._esc(groupCount > 1 ? this._m("Update group") : this._m("Create group"))}</button>
+        ${groupCount > 1 ? `<button class="group-disconnect-all-btn" data-menu-action="clear_group">${this._esc(this._m("Disconnect all"))}</button>` : ""}
       </div>
     `;
   }
@@ -16492,8 +16434,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const visibleQueueItems = queueItems.length ? queueItems : flowItems;
     const refreshFailed = this._state.queueSnapshotError?.entityId === this._state.selectedPlayer;
     const statusNotice = this._queuePlaybackOptionsHtml() + (refreshFailed ? `<div class="notice open" role="status">${this._esc(visibleQueueItems.length
-      ? this._m("Queue refresh failed. Showing the last confirmed queue; retrying automatically.", "רענון התור נכשל. מוצג התור האחרון שאומת; מנסה שוב אוטומטית.")
-      : this._m("Could not load the queue. Retrying automatically.", "לא ניתן לטעון את התור. מנסה שוב אוטומטית."))}</div>` : "");
+      ? this._m("Queue refresh failed. Showing the last confirmed queue; retrying automatically.")
+      : this._m("Could not load the queue. Retrying automatically."))}</div>` : "");
     if (this._mobileQueueFlowMenuActive()) return statusNotice + this._queueFlowPickerHtml(flowItems);
     if (!visibleQueueItems.length && refreshFailed) return statusNotice;
     if (!visibleQueueItems.length) return statusNotice + `<div class="notice open">${this._i18n("ui.queue_is_empty")}</div>`;
@@ -16513,7 +16455,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const queueLead = this._esc(String(displayPosition));
       return `
         <div class="queue-row ${current ? "active" : ""} ${expanded ? "expanded" : ""}" data-queue-item-id="${this._esc(key)}" data-uri="${this._esc(item.media_item?.uri || "")}" data-type="track" data-sort-index="${this._esc(item.sort_index ?? "")}" data-queue-position="${this._esc(String(displayPosition))}">
-          <button class="queue-index queue-drag-handle" data-queue-drag title="${this._esc(this._m("Drag to reorder; use Actions to choose a position", "גרור לשינוי סדר; בתפריט הפעולות ניתן לבחור מיקום"))}" aria-label="${this._esc(this._m("Reorder", "שינוי סדר"))} ${queueLead}"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg></button>
+          <button class="queue-index queue-drag-handle" data-queue-drag title="${this._esc(this._m("Drag to reorder; use Actions to choose a position"))}" aria-label="${this._esc(this._m("Reorder"))} ${queueLead}"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg></button>
           <div class="menu-thumb" ${img ? `data-img="${this._esc(img)}" data-placeholder="album"` : ""}>${this._iconSvg("album")}</div>
           <div class="queue-meta">
             <div class="queue-title">${this._esc(item.media_item?.name || item.name || "")}</div>
@@ -16749,7 +16691,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       return;
     }
     if (page === "discovery") {
-      this._setMobileMenuHeader(this._i18n("ui.discover_music", {}, this._m("Discover", "גילוי מוזיקה")), this._menuPageIcon(page));
+      this._setMobileMenuHeader(this._i18n("ui.discover_music", {}, this._m("Discover")), this._menuPageIcon(page));
       const previous = this._discoveryLastView;
       const sameSelection = previous?.activeCategory?.key === this._discoveryCategory().key
         && previous?.selectedProvider === (this._state.discoveryProviderPath || "all");
@@ -16759,7 +16701,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         discovery = await this._loadDiscoverySections();
         if (isCurrentRender()) this._discoveryLastView = discovery;
       } catch (error) {
-        discovery = { providers: this._discoveryLastView?.providers || [], sections: [], error: this._m("Unable to load this source. Please retry.", "לא ניתן לטעון את המקור. נסה שוב.") };
+        discovery = { providers: this._discoveryLastView?.providers || [], sections: [], error: this._m("Unable to load this source. Please retry.") };
         this._debugLog("warn", "[Maverick Music] Discovery source failed", error);
       }
       if (!isCurrentRender()) return;
@@ -16777,7 +16719,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       return;
     }
     if (page === "queue_settings") {
-      this._setMobileMenuHeader(this._m("Playback preferences", "העדפות ניגון"), "settings");
+      this._setMobileMenuHeader(this._m("Playback preferences"), "settings");
       if (previousRenderedPage !== page || !body.querySelector(".queue-settings-form")) {
         await loadQueueSettings(this, body, isCurrentRender);
       }
@@ -16791,7 +16733,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       return;
     }
     if (page === "diagnostics") {
-      this._setMobileMenuHeader(this._m("Diagnostics", "אבחון"), this._menuPageIcon(page));
+      this._setMobileMenuHeader(this._m("Diagnostics"), this._menuPageIcon(page));
       mountLiveDiagnostics(this, body);
       finishMenuRender();
       return;
@@ -16849,7 +16791,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         ? (this._state.libraryVisibleLimits?.[limitKey] || 60)
         : (limitMap[meta.type] || 250);
       const loadMoreHtml = count => this._state.engineCapabilities?.library_pagination && count >= limit
-        ? `<button type="button" class="chip-btn" data-library-load-more="${this._esc(limitKey)}" data-library-current-limit="${limit}">${this._esc(this._m("Load more from Music Assistant", "טען עוד מ־Music Assistant"))}</button>` : "";
+        ? `<button type="button" class="chip-btn" data-library-load-more="${this._esc(limitKey)}" data-library-current-limit="${limit}">${this._esc(this._m("Load more from Music Assistant"))}</button>` : "";
       const cacheKey = tabSearchQuery
         ? `tab-search:${meta.type}:${orderBy}:${limit}:${favoritesOnly}:${tabSearchQuery.toLowerCase()}`
         : `${meta.type}:${orderBy}:${limit}:${favoritesOnly}`;
@@ -16872,11 +16814,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         if (page !== "library_radio") {
           if (!isCurrentRender()) return;
           delete body.dataset.libraryLoadingKey;
-          body.innerHTML = this._libraryShellHtml(`<div class="notice open" role="alert">${this._esc(error?.message || this._m("Could not load the library.", "לא ניתן לטעון את הספרייה."))}</div><button class="chip-btn" data-menu-action="retry_library">${this._esc(this._m("Retry", "נסה שוב"))}</button>`, page);
+          body.innerHTML = this._libraryShellHtml(`<div class="notice open" role="alert">${this._esc(error?.message || this._m("Could not load the library."))}</div><button class="chip-btn" data-menu-action="retry_library">${this._esc(this._m("Retry"))}</button>`, page);
           finishMenuRender();
           return;
         }
-        libraryError = error?.message || this._m("Could not load Music Assistant radio.", "לא ניתן לטעון רדיו מ-Music Assistant.");
+        libraryError = error?.message || this._m("Could not load Music Assistant radio.");
       }
       if (body.dataset.libraryLoadingKey === cacheKey) delete body.dataset.libraryLoadingKey;
       if (!isCurrentRender()) return;
@@ -17153,21 +17095,21 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
     else if (page === "transfer") body.innerHTML = this._transferMenuHtml();
     else if (page === "saved_playlists" || page === "volume_rules") {
-      this._setMobileMenuHeader(page === "volume_rules" ? this._m("Volume limits","מגבלות ווליום") : this._m("Engine playlists","רשימות במנוע"), page === "volume_rules" ? "volume" : "playlist");
+      this._setMobileMenuHeader(page === "volume_rules" ? this._m("Volume limits") : this._m("Engine playlists"), page === "volume_rules" ? "volume" : "playlist");
       if (page === "volume_rules") await renderVolumeRules(this, body);
       else await renderSavedPlaylists(this, body);
       if (isCurrentRender()) finishMenuRender();
       return;
     }
     else if (["playback_stats", "group_volume", "lighting", "favorite_radios", "smart", "recommendations", "system_screensaver", "night_preferences"].includes(page)) {
-      const headings = {night_preferences:["Night display", "תצוגת לילה", "settings"], system_screensaver:["System screensaver", "שומר מסך מערכתי", "clock"], smart:["Smart", "חכם", "studio"], recommendations:["Recommendations", "המלצות", "compass"], playback_stats:["Listening statistics", "סטטיסטיקות האזנה", "stats"], lighting:["Lighting", "תאורה", "lightbulb"], group_volume:["Group volume", "ווליום משותף", "speaker_group"], favorite_radios:["Favorite stations", "תחנות מועדפות", "radio"]};
-      const [en, he, icon] = headings[page];
-      this._setMobileMenuHeader(this._m(en, he), icon);
+      const headings = {night_preferences:["Night display", "settings"], system_screensaver:["System screensaver", "clock"], smart:["Smart", "studio"], recommendations:["Recommendations", "compass"], playback_stats:["Listening statistics", "stats"], lighting:["Lighting", "lightbulb"], group_volume:["Group volume", "speaker_group"], favorite_radios:["Favorite stations", "radio"]};
+      const [en, icon] = headings[page];
+      this._setMobileMenuHeader(this._m(en), icon);
       await renderListeningTools(this, body, page);
       if (!isCurrentRender()) return;
     }
     else if (page === "ai_radio") {
-      this._setMobileMenuHeader(this._m("AI Radio", "רדיו AI"), "radio");
+      this._setMobileMenuHeader(this._m("AI Radio"), "radio");
       await renderAiRadio(this, body);
       if (!isCurrentRender()) return;
     }
@@ -17286,7 +17228,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           silent: true,
           sourceEl: artistRadioBtn,
         });
-        if (ok) this._toastSuccess(this._m("Artist radio started", "רדיו אמן הופעל"));
+        if (ok) this._toastSuccess(this._m("Artist radio started"));
       } finally {
         this._clearLibraryInteractionFeedback(feedbackEl);
       }
@@ -17667,12 +17609,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         return;
       }
       if (action.dataset.menuAction === "apply_group") {
-        const ok = await this._runMenuButtonLoading(action, this._m("Updating group", "מעדכן קבוצה"), () => this._applySpeakerGroup(), { kind: "connect" });
+        const ok = await this._runMenuButtonLoading(action, this._m("Updating group"), () => this._applySpeakerGroup(), { kind: "connect" });
         if (ok) return this._state.menuPage === "group_volume" ? this._renderMobileMenu() : this._closeMobileMenu();
         return;
       }
       if (action.dataset.menuAction === "clear_group") {
-        const ok = await this._runMenuButtonLoading(action, this._m("Disconnecting all", "מנתק הכל"), () => this._clearSpeakerGroup(), { kind: "disconnect" });
+        const ok = await this._runMenuButtonLoading(action, this._m("Disconnecting all"), () => this._clearSpeakerGroup(), { kind: "disconnect" });
         if (ok) return this._closeMobileMenu();
         return;
       }
@@ -17802,7 +17744,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         ambientLightBtn.setAttribute("aria-busy", "true");
         try {
           await setArtworkLighting(this, ambientLightBtn.dataset.settingAmbientLight === "on");
-          this._toastSuccess(this._m("Lighting preference saved in Engine", "העדפת התאורה נשמרה במנוע"));
+          this._toastSuccess(this._m("Lighting preference saved in Engine"));
           if (["lighting", "settings"].includes(this._state.menuPage)) await this._renderMobileMenu();
         } catch (error) { this._toastError(this._mediaControlFailureMessage(error)); }
         finally { this._lightingSaving = false; ambientLightBtn.removeAttribute("aria-busy"); }

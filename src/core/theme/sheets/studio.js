@@ -8,11 +8,6 @@ export default function() {
 .card.layout-tablet .queue-list{max-width:920px;margin-inline:auto;}
 .card.layout-tablet .queue-row{min-height:88px!important;}
 .card.layout-tablet .active-player-chip .bars,.card.layout-tablet .active-player-card .bars{display:none!important;}
-.card.layout-tablet.rtl,.card.layout-tablet.rtl button,.card.layout-tablet.rtl input,.card.layout-tablet.rtl textarea,.card.layout-tablet.rtl select{font-family:var(--maverick-font-family)!important;}
-.card.layout-tablet.rtl .hero-title,.card.layout-tablet.rtl .menu-title,.card.layout-tablet.rtl .player-premium-name,.card.layout-tablet.rtl .player-premium-kicker,.card.layout-tablet.rtl .settings-label,.card.layout-tablet.rtl .menu-item-title{font-family:var(--maverick-font-family)!important;}
-.card.layout-tablet.rtl .players-premium-grid{direction:ltr!important;}
-.card.layout-tablet.rtl .player-menu-card{direction:ltr!important;text-align:start!important;}
-.card.layout-tablet.rtl .player-premium-head{grid-template-columns:64px minmax(0,1fr)!important;}
 .card.layout-tablet .player-menu-card{min-height:142px!important;padding:20px 16px 10px!important;gap:8px!important;}
 .card.layout-tablet .player-premium-head{padding:10px 50px 0 0!important;}
 .card.layout-tablet .player-premium-side{top:10px!important;right:12px!important;left:auto!important;}
@@ -25,9 +20,6 @@ export default function() {
 .card.layout-tablet .player-mini-volume::-webkit-slider-thumb{width:11px!important;height:11px!important;}
 .card.layout-tablet .player-mini-volume::-moz-range-thumb{width:11px!important;height:11px!important;}
 .card.layout-tablet .player-mini-value{min-width:34px!important;font-size:11px!important;font-weight:800!important;}
-.card.layout-tablet.rtl .player-premium-copy{direction:rtl;text-align:right;}
-.card.layout-tablet.rtl .player-volume-row{grid-template-columns:26px minmax(0,1fr) 36px!important;}
-.card.layout-tablet.rtl .player-mini-value{text-align:end!important;}
 .theme-light .player-menu-card{color:#1f2633!important;}
 .theme-light .player-premium-name{color:#16202d!important;}
 .theme-light .player-premium-kicker{color:#6c7889!important;}
@@ -572,12 +564,7 @@ export default function() {
   z-index:72!important;
   pointer-events:auto!important;
 }
-.card.layout-tablet.rtl > .home-shortcut-fab.tablet{
-  inset:18px auto auto 18px!important;
-  right:auto!important;
-  left:18px!important;
-}
-.card.layout-tablet:not(.rtl) > .home-shortcut-fab.tablet{
+.card.layout-tablet > .home-shortcut-fab.tablet {
   inset:18px 18px auto auto!important;
   right:18px!important;
   left:auto!important;
@@ -586,22 +573,9 @@ export default function() {
   display:none!important;
   pointer-events:none!important;
 }
-.card.layout-tablet.rtl > .sleep-timer-corner,
-.card.layout-tablet.rtl > .sleep-timer-corner.left,
-.card.layout-tablet.rtl > .sleep-timer-corner.right{
-  position:absolute!important;
-  inset:auto 76px 22px auto!important;
-  top:auto!important;
-  right:76px!important;
-  bottom:22px!important;
-  left:auto!important;
-  transform:none!important;
-  justify-items:end!important;
-  z-index:9!important;
-}
-.card.layout-tablet:not(.rtl) > .sleep-timer-corner,
-.card.layout-tablet:not(.rtl) > .sleep-timer-corner.left,
-.card.layout-tablet:not(.rtl) > .sleep-timer-corner.right{
+.card.layout-tablet > .sleep-timer-corner,
+.card.layout-tablet > .sleep-timer-corner.left,
+.card.layout-tablet > .sleep-timer-corner.right {
   position:absolute!important;
   inset:auto auto 22px 76px!important;
   top:auto!important;

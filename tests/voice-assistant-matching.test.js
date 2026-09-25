@@ -52,24 +52,24 @@ function createCard() {
   return card;
 }
 
-describe("Hebrew command routing", () => {
+describe("command routing", () => {
   it.each([
-    ["השיר הבא", "next"], ["הרצועה הקודמת", "previous"],
-    ["השהה", "pause"], ["עצור", "stop"], ["המשך לנגן", "resume"],
+    ["next song", "next"], ["previous track", "previous"],
+    ["pause", "pause"], ["stop", "stop"], ["resume playing", "resume"],
   ])("routes %s to %s", (text, type) => {
     const card = createCard();
     card._voiceAssistantMentionedPlayers = () => [];
     expect(card._voiceAssistantCommandIntent(text).type).toBe(type);
   });
-  it("recognizes a Hebrew queue transfer without changing player order", () => {
+  it("recognizes a queue transfer without changing player order", () => {
     const card = createCard();
     card._voiceAssistantMentionedPlayers = () => [{ entity_id: "media_player.computer" }, { entity_id: "media_player.kitchen" }];
-    expect(card._voiceAssistantQueueIntent("העבר את התור מ־Computer אל Kitchen")).toEqual({ type: "queue_transfer", sourcePlayerId: "media_player.computer", targetPlayerId: "media_player.kitchen" });
+    expect(card._voiceAssistantQueueIntent("transfer the queue from Computer to Kitchen")).toEqual({ type: "queue_transfer", sourcePlayerId: "media_player.computer", targetPlayerId: "media_player.kitchen" });
   });
-  it("recognizes explicit Hebrew group disconnection", () => {
+  it("recognizes explicit group disconnection", () => {
     const card = createCard();
     card._voiceAssistantMentionedPlayers = () => [];
-    expect(card._voiceAssistantSpeakerGroupIntent("נתק את כל הרמקולים")).toEqual({ type: "group_disconnect_all" });
+    expect(card._voiceAssistantSpeakerGroupIntent("ungroup all speakers")).toEqual({ type: "group_disconnect_all" });
   });
 });
 
@@ -358,73 +358,51 @@ describe("voice assistant music matching", () => {
         {
           uri: "spotify://track/wrong",
           media_type: "track",
-          name: "באמצע הלילה",
-          artist: "סתם וגודי",
+          name: "Middle of the Night",
+          artist: "Stam and Goody",
         },
       ],
-    }, "את השיר מישל של נועם בתן");
+    }, "the song michelle by noam bettan");
 
     expect(result).toBe(null);
   });
 
-  it("prefers the song and artist that match the spoken Hebrew request", () => {
+  it("prefers the song and artist that match the spoken request", () => {
     const card = createCard();
     const result = card._voiceAssistantBestCandidate({
       tracks: [
         {
           uri: "spotify://track/wrong",
           media_type: "track",
-          name: "באמצע הלילה",
-          artist: "סתם וגודי",
+          name: "Middle of the Night",
+          artist: "Stam and Goody",
         },
         {
           uri: "spotify://track/michelle",
-          media_type: "track",
-          name: "מישל",
-          artist: "נועם בתן",
-        },
-      ],
-    }, "נגן את השיר מישל של נועם בתן");
-
-    expect(result?.uri).toBe("spotify://track/michelle");
-  });
-
-  it("matches Hebrew speech against Latin Music Assistant metadata", () => {
-    const card = createCard();
-    const result = card._voiceAssistantBestCandidate({
-      tracks: [
-        {
-          uri: "spotify://track/wrong",
-          media_type: "track",
-          name: "באמצע הלילה",
-          artist: "סתם וגודי",
-        },
-        {
-          uri: "spotify://track/michelle-latin",
           media_type: "track",
           name: "Michelle",
           artist: "Noam Bettan",
         },
       ],
-    }, "נגן את השיר מישל של נועם בתן");
+    }, "play the song michelle by noam bettan");
 
-    expect(result?.uri).toBe("spotify://track/michelle-latin");
+    expect(result?.uri).toBe("spotify://track/michelle");
   });
 
-  it("accepts natural artist-only Hebrew requests such as songs by an artist", () => {
+  it("accepts natural artist-only requests such as songs by an artist", () => {
     const card = createCard();
     const result = card._voiceAssistantBestCandidate({
       tracks: [
         {
           uri: "spotify://track/idan",
           media_type: "track",
-          name: "בראשית",
+          name: "Bereshit",
           media_item: {
-            artists: [{ name: "עידן רייכל" }],
+            artists: [{ name: "Idan Raichel" }],
           },
         },
       ],
-    }, "נגן שירים של עידן רייכל");
+    }, "play songs by idan raichel");
 
     expect(result?.uri).toBe("spotify://track/idan");
   });
@@ -462,10 +440,10 @@ describe("voice assistant music matching", () => {
       return true;
     };
 
-    const result = await card._playVoiceAssistantMusic("פלייליסט של שלמה ארצי", player);
+    const result = await card._playVoiceAssistantMusic("playlist by shlomo artzi", player);
 
     expect(result.ok).toBe(true);
-    expect(calls).toContainEqual(["focused", "שלמה ארצי", "playlist"]);
+    expect(calls).toContainEqual(["focused", "playlist shlomo artzi", "playlist"]);
     expect(played).toEqual({
       entityId: "media_player.office",
       uri: "spotify://playlist/shlomo",
@@ -502,7 +480,7 @@ describe("voice assistant music matching", () => {
       return true;
     };
 
-    const result = await card._playVoiceAssistantMusic("פלייליסט של שלמה ארצי", player);
+    const result = await card._playVoiceAssistantMusic("playlist by shlomo artzi", player);
 
     expect(result.ok).toBe(true);
     expect(played).toEqual({
@@ -519,10 +497,10 @@ describe("voice assistant music matching", () => {
         {
           uri: "spotify://track/michelle-no-artist",
           media_type: "track",
-          name: "מישל",
+          name: "Michelle",
         },
       ],
-    }, "נגן את השיר מישל של נועם בתן");
+    }, "play the song michelle by noam bettan");
 
     expect(result?.uri).toBe("spotify://track/michelle-no-artist");
   });

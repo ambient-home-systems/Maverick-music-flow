@@ -502,8 +502,7 @@ export default `          .now-layout {
   .card.layout-tablet .wake-schedule-editor-card{overflow:visible!important;}
   .card.layout-tablet .scheduled-start-grid{grid-template-columns:minmax(0,1fr)!important;}
   .card.layout-tablet .sleep-timer-corner{inset-block-end:22px!important;inset-block-start:auto!important;transform:none!important;justify-items:end!important;z-index:8!important;}
-  .card.layout-tablet.rtl .sleep-timer-corner{inset-inline-end:76px!important;inset-inline-start:auto!important;}
-  .card.layout-tablet:not(.rtl) .sleep-timer-corner{inset-inline-start:76px!important;inset-inline-end:auto!important;}
+  .card.layout-tablet .sleep-timer-corner {inset-inline-start:76px!important;inset-inline-end:auto!important;}
   .card.layout-tablet .queue-list{max-width:920px;margin-inline:auto;}
   .card.layout-tablet .queue-row{min-height:88px!important;}
   .card.layout-tablet .active-player-chip .bars,.card.layout-tablet .active-player-card .bars{display:none!important;}

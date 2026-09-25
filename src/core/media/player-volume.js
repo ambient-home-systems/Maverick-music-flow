@@ -1,11 +1,11 @@
 import { playerVolumeValue, playerCanSetVolume } from "../state/players.js";
 
 export function playerVolumeControlsHtml(card, player, { inline = false } = {}) {
-  if (!playerCanSetVolume(player)) return `<div class="player-volume-unavailable" role="status">${card._esc(card._m("Independent volume control is unavailable", "שליטה עצמאית בעוצמה אינה זמינה"))}</div>`;
+  if (!playerCanSetVolume(player)) return `<div class="player-volume-unavailable" role="status">${card._esc(card._m("Independent volume control is unavailable"))}</div>`;
   const volume = Math.round(playerVolumeValue(player) * 100);
   const muted = card._isMuted(player);
-  const label = card._m("Volume", "עוצמה");
-  const muteLabel = card._m(muted ? "Unmute" : "Mute", muted ? "בטל השתקה" : "השתק");
+  const label = card._m("Volume");
+  const muteLabel = card._m(muted ? "Unmute" : "Mute");
   return `<div class="player-volume-row ${inline ? "group-inline-volume" : ""}">
     <button class="player-mini-mute ${muted ? "active" : ""}" data-player-mute="${card._esc(player.entity_id)}" aria-pressed="${muted}" title="${card._esc(muteLabel)}" aria-label="${card._esc(muteLabel)}">${card._iconSvg(card._volumeIconName(player))}</button>
     <input class="player-mini-volume" data-player-volume="${card._esc(player.entity_id)}" aria-label="${card._esc(`${label}: ${player.attributes?.friendly_name || player.entity_id}`)}" type="range" min="0" max="100" value="${volume}" style="--vol-pct:${volume}%">
@@ -40,8 +40,8 @@ export function openVolumeWheel(card, {entityId = null, group = false} = {}) {
   let value = currentVolume(player), start = null;
   const angle = event => { const rect = dial.getBoundingClientRect(); return Math.atan2(event.clientY - rect.top - rect.height / 2, event.clientX - rect.left - rect.width / 2); };
   const panel = document.createElement("section"); panel.className = "volume-wheel-popover";
-  panel.setAttribute("role","dialog"); panel.setAttribute("aria-label",card._m("Volume","עוצמה"));
-  panel.innerHTML = `<button data-volume-close aria-label="${card._esc(card._m("Close","סגור"))}">${card._iconSvg("close")}</button><div class="volume-wheel-dial" role="slider" tabindex="0" aria-label="${card._esc(card._m("Volume","עוצמה"))}" aria-valuemin="0" aria-valuemax="100"><output></output></div><button data-volume-mute aria-label="${card._esc(card._m("Mute","השתק"))}">${card._iconSvg("volume_mute")}</button>`;
+  panel.setAttribute("role","dialog"); panel.setAttribute("aria-label",card._m("Volume"));
+  panel.innerHTML = `<button data-volume-close aria-label="${card._esc(card._m("Close"))}">${card._iconSvg("close")}</button><div class="volume-wheel-dial" role="slider" tabindex="0" aria-label="${card._esc(card._m("Volume"))}" aria-valuemin="0" aria-valuemax="100"><output></output></div><button data-volume-mute aria-label="${card._esc(card._m("Mute"))}">${card._iconSvg("volume_mute")}</button>`;
   const dial = panel.querySelector("[role=slider]");
   const muteButton = panel.querySelector("[data-volume-mute]");
   const refreshMute = () => {
@@ -51,7 +51,7 @@ export function openVolumeWheel(card, {entityId = null, group = false} = {}) {
     const muted = group ? card._isGroupMuted(current) : card._isMuted(current);
     muteButton.innerHTML = card._iconSvg(muted ? "volume_mute" : card._volumeIconName(current));
     muteButton.setAttribute("aria-pressed", String(muted));
-    muteButton.setAttribute("aria-label", card._m(muted ? "Unmute" : "Mute", muted ? "בטל השתקה" : "השתק"));
+    muteButton.setAttribute("aria-label", card._m(muted ? "Unmute" : "Mute"));
     muteButton.classList.toggle("active", muted);
     if(start === null){value=currentVolume(current);draw();}
     fit();
@@ -87,7 +87,7 @@ export function openVolumeWheel(card, {entityId = null, group = false} = {}) {
   dial.onpointerup = dial.onpointercancel = () => {start=null;};
   panel.onkeydown = event => {if(event.key === "Escape") panel.remove();};
   const heading=document.createElement("div");heading.className="volume-wheel-title";
-  heading.textContent=group ? card._m("Group volume","ווליום קבוצה") : player.attributes?.friendly_name || card._m("Volume","עוצמה");
+  heading.textContent=group ? card._m("Group volume") : player.attributes?.friendly_name || card._m("Volume");
   panel.insertBefore(heading,dial);
   host.append(panel); draw(); refreshMute(); dial.focus({preventScroll:true});
 }
@@ -143,7 +143,7 @@ export function syncPlayerVolumeControls(entityId, pct, options = {}) {
       this.shadowRoot?.querySelectorAll("[data-player-mute]")?.forEach((button) => {
         if (button.dataset.playerMute !== playerId) return;
         button.classList.toggle("active", muted);
-        const label = this._m(muted ? "Unmute" : "Mute", muted ? "בטל השתקה" : "השתק");
+        const label = this._m(muted ? "Unmute" : "Mute");
         button.setAttribute("aria-pressed", String(muted));
         button.setAttribute("aria-label", label);
         button.title = label;

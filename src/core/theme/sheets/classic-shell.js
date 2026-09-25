@@ -37,13 +37,6 @@ export default function({allocatedHeight,effectiveHeight,uiScale,mainOpacity,pop
             overflow:hidden !important;
             border-radius:var(--ma-radius-xl);
           }
-          .card.rtl,
-          .card.rtl button,
-          .card.rtl input,
-          .card.rtl textarea,
-          .card.rtl select {
-            font-family:var(--maverick-font-family);
-          }
           .theme-dark {
             --ma-bg: rgba(18,20,26,${darkBgAlpha.toFixed(2)});
             --ma-sidebar: rgba(14,16,22,${darkSidebarAlpha.toFixed(2)});
@@ -97,7 +90,6 @@ export default function({allocatedHeight,effectiveHeight,uiScale,mainOpacity,pop
             backdrop-filter: var(--ma-blur);
             -webkit-backdrop-filter: var(--ma-blur);
           }
-          .card.rtl { direction:rtl; }
           .sidebar {
             min-width:0;
             display:flex;
@@ -216,8 +208,6 @@ export default function({allocatedHeight,effectiveHeight,uiScale,mainOpacity,pop
           }
           .np-sub,.media-sub,.track-sub,.queue-artist,.mini-queue-artist { font-size:11px; color:var(--ma-text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
           .controls,.now-controls-main { display:flex; align-items:center; justify-content:center; gap:8px; }
-          .card.rtl .controls,.card.rtl .now-controls-main { direction:ltr; }
-          .card.rtl .volume-row,.card.rtl .now-volume { direction:ltr; }
           .controls {
             margin-bottom:0;
             gap:14px;

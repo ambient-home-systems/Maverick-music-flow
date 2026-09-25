@@ -39,12 +39,7 @@ export default function() {
         .theme-light .toast.error { background:rgba(255,241,241,.94); border-color:rgba(218,82,82,.24); }
         .hidden-tools { display:none !important; }
         .maverick-local-audio { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; inset:auto auto 0 0; }
-        .rtl .player-chip,.rtl .menu-item-main,.rtl .menu-list-item,.rtl .queue-row,.rtl .media-category-row,.rtl .media-search-shell { direction:rtl; }
-        .rtl .controls,.rtl .accent-row,.rtl .time-row,.rtl .queue-actions { direction:ltr; }
-        .rtl .media-search-shell input {
-          text-align:right;
-        }
-        .card:not(.rtl) .media-search-shell input {
+        .card .media-search-shell input {
           direction:ltr;
           text-align:left;
         }
@@ -278,19 +273,12 @@ export default function() {
           gap:14px !important;
           align-items:center;
         }
-        .card.aspect-wide:not(.layout-tablet).rtl .hero-split-shell {
-          direction:rtl;
-        }
         .card.aspect-wide:not(.layout-tablet) .hero-info,
         .card.aspect-wide:not(.layout-tablet) .hero-copy {
           justify-items:start;
           text-align:start;
           max-width:100%;
           gap:6px;
-        }
-        .card.aspect-wide:not(.layout-tablet).rtl .hero-info,
-        .card.aspect-wide:not(.layout-tablet).rtl .hero-copy {
-          text-align:right;
         }
         .card.aspect-wide:not(.layout-tablet) .hero-title {
           font-size:calc(22px * var(--v2-font-scale));
@@ -467,18 +455,11 @@ export default function() {
           gap:12px !important;
           align-items:center;
         }
-        .card.height-tight:not(.layout-tablet).rtl .hero-split-shell {
-          direction:rtl;
-        }
         .card.height-tight:not(.layout-tablet) .hero-info,
         .card.height-tight:not(.layout-tablet) .hero-copy {
           justify-items:start;
           text-align:start;
           max-width:100%;
-        }
-        .card.height-tight:not(.layout-tablet).rtl .hero-info,
-        .card.height-tight:not(.layout-tablet).rtl .hero-copy {
-          text-align:right;
         }
         .card.height-tight:not(.layout-tablet) .art-stack-view,
         .card.height-tight:not(.layout-tablet) .art-stack-viewport,

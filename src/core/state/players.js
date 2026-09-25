@@ -7,8 +7,6 @@ const GENERIC_PLAYER_TOKENS = new Set([
   "browser",
   "music",
   "assistant",
-  "\u05e8\u05de\u05e7\u05d5\u05dc\u05d9\u05dd",
-  "\u05e0\u05d2\u05df",
 ]);
 
 export const genericPlayerTokens = GENERIC_PLAYER_TOKENS;
@@ -24,10 +22,6 @@ const GENERIC_PLAYER_NAME_KEYS = new Set([
   "media renderer",
   "home assistant media player",
   "esphome media player",
-  "\u05e0\u05d2\u05df",
-  "\u05e0\u05d2\u05df \u05de\u05d3\u05d9\u05d4",
-  "\u05e8\u05de\u05e7\u05d5\u05dc",
-  "\u05e8\u05de\u05e7\u05d5\u05dc\u05d9\u05dd",
 ]);
 
 function normalizedPlayerDisplayKey(value = "") {
@@ -245,14 +239,14 @@ export function favoriteButtonEntityForPlayer({
   if (configured && hassStates?.[configured]) return configured;
   if (hassStates?.[fallbackEntity]) {
     const selectedName = `${player?.entity_id || ""} ${player?.attributes?.friendly_name || ""}`.toLowerCase();
-    if (!selectedName || selectedName.includes("bathroom") || selectedName.includes("\u05de\u05e7\u05dc\u05d7\u05ea")) {
+    if (!selectedName || selectedName.includes("bathroom")) {
       return fallbackEntity;
     }
   }
   const buttons = Object.values(hassStates || {}).filter((entity) => {
     if (!entity?.entity_id?.startsWith("button.")) return false;
     const search = `${entity.entity_id} ${entity.attributes?.friendly_name || ""}`.toLowerCase();
-    return search.includes("favorite") || search.includes("\u05d0\u05d4\u05d5\u05d1") || search.includes("\u05d0\u05d4\u05d1\u05ea\u05d9");
+    return search.includes("favorite");
   });
   if (!buttons.length) return "";
   if (buttons.length === 1) return buttons[0]?.entity_id || "";
@@ -264,12 +258,12 @@ export function favoriteButtonEntityForPlayer({
     .map((entity) => {
       const haystack = `${entity.entity_id} ${entity.attributes?.friendly_name || ""}`.toLowerCase();
       const score = tokens.reduce((sum, token) => sum + (haystack.includes(token) ? 1 : 0), 0);
-      const currentSongBoost = /(current|song|track|playing|\u05e0\u05d5\u05db\u05d7\u05d9|\u05de\u05ea\u05e0\u05d2\u05df)/.test(haystack) ? 0.5 : 0;
+      const currentSongBoost = /(current|song|track|playing)/.test(haystack) ? 0.5 : 0;
       return { entity_id: entity.entity_id, score: score + currentSongBoost };
     })
     .sort((left, right) => right.score - left.score);
   if (scored[0]?.score > 0) return scored[0].entity_id;
-  const genericCurrent = buttons.find((entity) => /(current|song|track|playing|\u05e0\u05d5\u05db\u05d7\u05d9|\u05de\u05ea\u05e0\u05d2\u05df)/.test(`${entity.entity_id} ${entity.attributes?.friendly_name || ""}`.toLowerCase()));
+  const genericCurrent = buttons.find((entity) => /(current|song|track|playing)/.test(`${entity.entity_id} ${entity.attributes?.friendly_name || ""}`.toLowerCase()));
   if (genericCurrent?.entity_id) return genericCurrent.entity_id;
   return "";
 }

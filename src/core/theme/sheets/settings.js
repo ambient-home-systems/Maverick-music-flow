@@ -153,12 +153,6 @@ export default function() {
         .theme-light .schedule-row-sub {
           color:rgba(55,68,85,.62);
         }
-        .rtl .settings-pills,
-        .rtl .settings-actions,
-        .rtl .settings-range {
-          direction:rtl;
-          justify-content:flex-start;
-        }
         .settings-pill {
           min-height:42px;
           padding:0 16px;
@@ -690,9 +684,6 @@ export default function() {
           gap:12px;
           align-items:center;
         }
-        .rtl .settings-color-row {
-          direction:rtl;
-        }
         .settings-check-grid {
           display:grid;
           gap:10px;
@@ -795,19 +786,6 @@ export default function() {
           font-size:11px;
           font-weight:900;
           letter-spacing:0;
-        }
-        .rtl .settings-fixed-badge {
-          margin-inline-start:0;
-          margin-inline-end:auto;
-        }
-        .rtl .settings-check-pill {
-          direction:rtl;
-          justify-content:flex-start;
-          text-align:right;
-        }
-        .rtl .settings-select {
-          direction:rtl;
-          text-align:right;
         }
         .settings-color-picker {
           width:54px;

@@ -43,7 +43,7 @@ it("returns artist albums before slow recommendations and skips redundant fallba
     _libraryMediaDetailCommandArgsList:()=>[{item_id:"1",provider:"library"}],
     _libraryMediaItemsFromPayload:raw=>Array.isArray(raw)?raw:[],
     _normalizeArtistAlbumCandidate:x=>x,_dedupeArtistAlbums:x=>x,_mediaYearValue:x=>x.year,
-    _isHebrew:()=>false,_search:vi.fn(),_fetchLibrary:vi.fn(),
+    _search:vi.fn(),_fetchLibrary:vi.fn(),
     _callEngineMaCommand:vi.fn(async command=>command==="music/item_by_uri"?{name:"Artist"}:[album]),
     _loadArtistPlaylistRecommendations:()=>new Promise(resolve=>{finish=resolve;})};
   card._loadLibraryArtistDetail=entry=>proto._loadLibraryArtistDetail.call(card,entry);

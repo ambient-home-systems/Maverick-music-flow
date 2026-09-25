@@ -5,8 +5,6 @@ export function createMaverickBaseMusicEditor(deps = {}) {
   const {
     MaverickBaseMusicCard,
     ensureHaEditorComponents,
-    maverickIsRtlLanguage,
-    maverickDetectLanguage,
     MaverickConfigValidators,
     MaverickPlayersFoundation,
     MaverickMobileSettingsFoundation,
@@ -80,13 +78,6 @@ return class MaverickBaseMusicEditor extends HTMLElement {
 
   _getCardCtor() {
     return MaverickBaseMusicCard;
-  }
-
-  _isHebrew() {
-    return maverickIsRtlLanguage(maverickDetectLanguage({
-      configLanguage: this._config?.language || "en",
-      hass: this._hass,
-    }));
   }
 
   _esc(value) {
@@ -518,7 +509,6 @@ return class MaverickBaseMusicEditor extends HTMLElement {
         ${interfaceStyles}
         :host {
           display:block;
-          direction:${this._isHebrew() ? "rtl" : "ltr"};
         }
         .editor-shell {
           display:grid;
@@ -806,7 +796,6 @@ return class MaverickBaseMusicEditor extends HTMLElement {
 
   _syncEditorLiveContext() {
     this._ensureEditorShell();
-    this.style.direction = this._isHebrew() ? "rtl" : "ltr";
     this._refreshEditorShellClasses();
     if (this._editorUsePathBtn) {
       this._editorUsePathBtn.textContent = maverickEditorI18n("ui.use_current_view_for_home_button");
@@ -960,8 +949,8 @@ return class MaverickBaseMusicEditor extends HTMLElement {
         const index = Number(displayMatch[1]) - 1;
         if (Number.isInteger(index) && index >= 0) {
           const lower = displayValue.toLowerCase();
-          if (lower.includes("player") || lower.includes("נגן")) return { type: "player", index };
-          if (lower.includes("light") || lower.includes("licht") || lower.includes("תאור")) return { type: "lights", index };
+          if (lower.includes("player")) return { type: "player", index };
+          if (lower.includes("light")) return { type: "lights", index };
         }
       }
     }
@@ -1202,7 +1191,7 @@ return class MaverickBaseMusicEditor extends HTMLElement {
     };
     const result = (Array.isArray(schema) ? schema : []).map(cloneItem).filter(Boolean);
     const connection = result.find(item => item.name === "connection_section");
-    if (connection) connection.title = this._isHebrew() ? "מנוע והגדרות מתקדמות" : "Engine & advanced";
+    if (connection) connection.title = "Engine & advanced";
     const general = result.find(item => item.name === "general_section");
     const generalGrid = general?.schema?.find(item => item.name === "general_grid");
     if (generalGrid) {
@@ -1212,7 +1201,7 @@ return class MaverickBaseMusicEditor extends HTMLElement {
       const order = general.schema.find(item => item.name === "player_order_grid");
       general.schema = general.schema.filter(item => item.name !== "player_order_grid");
       if (order) players.push(order);
-      if (players.length) result.splice(result.indexOf(general) + 1, 0, {type:"expandable",name:"players_section",title:this._isHebrew() ? "נגנים" : "Players",flatten:true,schema:players});
+      if (players.length) result.splice(result.indexOf(general) + 1, 0, {type:"expandable",name:"players_section",title:"Players",flatten:true,schema:players});
     }
     return result;
   }
@@ -1258,7 +1247,7 @@ return class MaverickBaseMusicEditor extends HTMLElement {
         const options = sections.map(item => `<option value="${this._esc(item.name)}">${this._esc(item.title || computeEditorLabel(item))}</option>`).join("");
         if (selector.innerHTML !== options) selector.innerHTML = options;
         selector.value = this._editorSection;
-        this._editorRoot.querySelector(".editor-section-nav label").textContent = this._isHebrew() ? "מה תרצה להתאים?" : "What would you like to adjust?";
+        this._editorRoot.querySelector(".editor-section-nav label").textContent = "What would you like to adjust?";
       }
       if (basics) {
         basics.hass = this._hass;

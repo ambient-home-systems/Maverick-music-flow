@@ -68,9 +68,6 @@ export default function() {
           justify-content:flex-start;
           padding:max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom)) 14px;
         }
-        .card.layout-tablet.rtl .menu-backdrop {
-          justify-content:flex-start;
-        }
         .queue-action-backdrop {
           position:fixed; inset:0; z-index:85; display:none; align-items:center; justify-content:center;
           padding:max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));

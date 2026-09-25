@@ -86,9 +86,6 @@ export default function() {
           grid-template-columns:repeat(2,minmax(0,1fr));
           gap:16px;
         }
-        .card.layout-tablet.rtl .players-premium-grid {
-          direction:rtl;
-        }
         .card.layout-tablet .player-menu-card {
           min-height:144px;
           padding:18px;
@@ -101,18 +98,11 @@ export default function() {
           box-shadow:0 24px 48px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.12);
           text-align:start;
         }
-        .card.layout-tablet.rtl .player-menu-card {
-          direction:rtl;
-          text-align:right;
-        }
         .card.layout-tablet .player-premium-head {
           display:grid;
           grid-template-columns:64px minmax(0,1fr);
           gap:14px;
           align-items:center;
-        }
-        .card.layout-tablet.rtl .player-premium-head {
-          grid-template-columns:minmax(0,1fr) 64px;
         }
         .card.layout-tablet .player-premium-art {
           width:58px;
@@ -134,9 +124,6 @@ export default function() {
           gap:12px;
           align-items:center;
           padding-top:4px;
-        }
-        .card.layout-tablet.rtl .player-volume-row {
-          grid-template-columns:minmax(0,1fr) 44px;
         }
         .card.layout-tablet .queue-list {
           width:min(100%, 780px);
@@ -806,8 +793,7 @@ export default function() {
           -webkit-backdrop-filter:blur(14px);
         }
         .top-settings-fab,
-        .top-settings-fab.ltr,
-        .top-settings-fab.rtl {
+        .top-settings-fab.ltr {
           right:18px;
           left:auto;
           inset-inline-start:auto;
@@ -835,8 +821,7 @@ export default function() {
         .home-shortcut-fab.mobile { inset-block-start:18px; }
         .home-shortcut-fab.tablet { inset-block-end:22px; }
         .home-shortcut-fab,
-        .home-shortcut-fab.ltr,
-        .home-shortcut-fab.rtl {
+        .home-shortcut-fab.ltr {
           right:18px;
           left:auto;
           inset-inline-start:auto;
@@ -1246,7 +1231,6 @@ export default function() {
           flex-shrink:0;
         }
         .menu-title-icon .ui-ic { width:20px; height:20px; }
-        .rtl .menu-title { flex-direction:row-reverse; }
         .menu-aux-btn .ui-ic { width:20px; height:20px; }
         .menu-title.clickable { cursor:pointer; }
         .menu-body { overflow:auto; padding:16px; display:grid; gap:12px; align-content:start; min-height:0; position:relative; }
@@ -1681,9 +1665,6 @@ export default function() {
           }
           .lyrics-title-wrap {
             gap:4px;
-            text-align:center;
-          }
-          .rtl .lyrics-title-wrap {
             text-align:center;
           }
           .lyrics-title,

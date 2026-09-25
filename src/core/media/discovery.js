@@ -74,12 +74,12 @@ export async function loadDiscoverySections() {
       this._fetchRadioBrowserStations("", 16, { tag: query }),
     ];
     const pending = Promise.allSettled(tasks).then((results) => {
-    const names = [this._m("From music providers", "מספקי המוזיקה"), this._m("From your MA library", "מספריית MA שלך"), this._m("Radio for this genre", "רדיו לז׳אנר הזה")];
+    const names = [this._m("From music providers"), this._m("From your MA library"), this._m("Radio for this genre")];
     const sections = results.map((result, index) => ({
       name: names[index], type: index === 2 ? "radio" : "playlist",
-      description: index === 0 && providerSearchFailed ? this._m("Some providers could not be searched. Available genre collections are shown.", "לא ניתן היה לחפש בחלק מהספקים. מוצגות קטגוריות הז׳אנר הזמינות.") : index === 0 && providerSearchFallback ? this._m("Provider genre collections, with playlist search where a genre collection is unavailable.", "קטגוריות ז׳אנר מהספקים, ובמקורות ללא קטגוריה זמינה — חיפוש פלייליסטים.") : "",
+      description: index === 0 && providerSearchFailed ? this._m("Some providers could not be searched. Available genre collections are shown.") : index === 0 && providerSearchFallback ? this._m("Provider genre collections, with playlist search where a genre collection is unavailable.") : "",
       items: result.status === "fulfilled" ? normalize(result.value) : [],
-      error: result.status === "rejected" ? this._m("This source could not be loaded. Retry.", "לא ניתן לטעון את המקור הזה. נסה שוב.") : "",
+      error: result.status === "rejected" ? this._m("This source could not be loaded. Retry.") : "",
     }));
       const result = { categories, activeCategory, providers, selectedProvider, sections };
       this._cache.library.set(resultKey, { ts: Date.now(), items: result });
@@ -123,26 +123,26 @@ export function discoveryMenuHtml({ categories = this._discoveryCategoryOptions(
     return `
       <div class="discovery-catalog">
         <div class="discovery-catalog-toolbar">
-          <label class="discovery-category-select"><span>${this._esc(this._m("Genre", "ז׳אנר"))}</span>
-            <select class="media-sort-select settings-select" id="discoveryCategorySelect" aria-label="${this._esc(this._m("Genre", "ז׳אנר"))}">
+          <label class="discovery-category-select"><span>${this._esc(this._m("Genre"))}</span>
+            <select class="media-sort-select settings-select" id="discoveryCategorySelect" aria-label="${this._esc(this._m("Genre"))}">
               ${categories.map((item) => `<option value="${this._esc(item.key)}" ${item.key === activeCategory.key ? "selected" : ""}>${this._esc(item.label)}</option>`).join("")}
             </select>
           </label>
-          <label class="discovery-category-select"><span>${this._esc(this._m("Music providers", "ספקי מוזיקה"))}</span>
-            <select class="media-sort-select settings-select" id="discoveryProviderSelect" aria-label="${this._esc(this._m("Music providers", "ספקי מוזיקה"))}">
-              <option value="all" ${selectedProvider === "all" ? "selected" : ""}>${this._esc(this._m("All connected providers", "כל הספקים המחוברים"))}</option>
+          <label class="discovery-category-select"><span>${this._esc(this._m("Music providers"))}</span>
+            <select class="media-sort-select settings-select" id="discoveryProviderSelect" aria-label="${this._esc(this._m("Music providers"))}">
+              <option value="all" ${selectedProvider === "all" ? "selected" : ""}>${this._esc(this._m("All connected providers"))}</option>
               ${providers.map((item) => `<option value="${this._esc(item.path)}" ${item.path === selectedProvider ? "selected" : ""}>${this._esc(item.name)}</option>`).join("")}
             </select>
           </label>
         </div>
-        <div class="discovery-catalog-heading"><div><h2>${this._iconSvg(activeCategory.icon || "music_note")} ${this._esc(activeCategory.label)}</h2><p>${this._esc(this._m("Music providers, your library and radio — matched to your genre", "ספקי מוזיקה, הספרייה שלך ורדיו — לפי הז׳אנר שבחרת"))}</p></div></div>
+        <div class="discovery-catalog-heading"><div><h2>${this._iconSvg(activeCategory.icon || "music_note")} ${this._esc(activeCategory.label)}</h2><p>${this._esc(this._m("Music providers, your library and radio — matched to your genre"))}</p></div></div>
         ${this._discoveryPlayerFocusHtml()}
-        ${loading ? this._loadingStateHtml(this._m("Finding music for your genre", "מחפש מוזיקה לז׳אנר שבחרת"), { notice: true }) : ""}
-        ${error ? `<div class="notice open" role="alert">${this._esc(error)}<button class="chip-btn" data-discovery-retry>${this._esc(this._m("Retry", "נסה שוב"))}</button></div>` : ""}
+        ${loading ? this._loadingStateHtml(this._m("Finding music for your genre"), { notice: true }) : ""}
+        ${error ? `<div class="notice open" role="alert">${this._esc(error)}<button class="chip-btn" data-discovery-retry>${this._esc(this._m("Retry"))}</button></div>` : ""}
         ${sections.map((section) => `<section class="discovery-result-section"><h3>${this._esc(section.name)}</h3>${section.description ? `<p class="settings-hint">${this._esc(section.description)}</p>` : ""}${section.error
-          ? `<div class="notice open" role="alert">${this._esc(section.error)} <button class="chip-btn" data-discovery-retry>${this._esc(this._m("Retry", "נסה שוב"))}</button></div>`
+          ? `<div class="notice open" role="alert">${this._esc(section.error)} <button class="chip-btn" data-discovery-retry>${this._esc(this._m("Retry"))}</button></div>`
           : section.items.length ? this._mediaItemsListHtml(section.items, section.type, { layout: "grid", librarySkin: true, virtual: false })
-          : `<div class="notice open">${this._esc(this._m("No matches for this genre in this source.", "לא נמצאו במקור הזה התאמות לז׳אנר הנבחר."))}</div>`}</section>`).join("")}
+          : `<div class="notice open">${this._esc(this._m("No matches for this genre in this source."))}</div>`}</section>`).join("")}
       </div>
     `;
   }

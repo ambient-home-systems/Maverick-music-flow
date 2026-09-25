@@ -17,7 +17,6 @@ function configureTestEditorForms() {
     },
     maverickEditorLabelFor: (schema = {}, labels = {}) => labels?.[schema?.name] || schema?.label || schema?.title || schema?.name || "",
     maverickEditorHelperFor: (schema = {}, helpers = {}) => helpers?.[schema?.name] || schema?.helper || "",
-    detectEditorHebrew: () => false,
     visibleLanguageOptions: [
       { value: "en", label: "English" },
     ],

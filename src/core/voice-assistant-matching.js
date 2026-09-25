@@ -21,37 +21,6 @@ export const VOICE_ASSISTANT_MUSIC_STOP_WORDS = Object.freeze([
   "to",
   "track",
   "tracks",
-  "את",
-  "אלבום",
-  "אמן",
-  "בבקשה",
-  "האלבום",
-  "השיר",
-  "הום",
-  "הפעל",
-  "השמע",
-  "זמר",
-  "זמרת",
-  "ל",
-  "לי",
-  "מאת",
-  "מוזיקה",
-  "מוסיקה",
-  "נגן",
-  "נגני",
-  "פלייליסט",
-  "רצועה",
-  "שים",
-  "שימי",
-  "של",
-  "שיר",
-  "שירים",
-  "תנגן",
-  "תנגני",
-  "תפעיל",
-  "תפעילי",
-  "תשמיע",
-  "תשמיעי",
 ]);
 
 const VOICE_ASSISTANT_MUSIC_COMMAND_TERMS = Object.freeze([
@@ -63,22 +32,6 @@ const VOICE_ASSISTANT_MUSIC_COMMAND_TERMS = Object.freeze([
   "listen to",
   "start",
   "music",
-  "בבקשה",
-  "היי",
-  "היי הום אסיסטנט",
-  "הום אסיסטנט",
-  "נגן",
-  "נגני",
-  "תנגן",
-  "תנגני",
-  "שים",
-  "שימי",
-  "השמע",
-  "תשמיע",
-  "תשמיעי",
-  "הפעל",
-  "תפעיל",
-  "תפעילי",
 ]);
 
 export function normalizeVoiceCommandText(value = "") {
@@ -86,7 +39,7 @@ export function normalizeVoiceCommandText(value = "") {
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[.,!?;:"'`׳״()[\]{}]/g, " ")
+    .replace(/[.,!?;:"'`()[\]{}]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -98,7 +51,6 @@ export function voiceCommandHasAny(normalizedText = "", terms = []) {
   return terms.some((term) => {
     const needle = normalizeVoiceCommandText(term);
     if (!needle) return false;
-    if (/[\u0590-\u05ff]/.test(needle)) return text.includes(needle);
     return haystack.includes(` ${needle} `) || text === needle;
   });
 }
@@ -107,7 +59,6 @@ export function voiceAssistantAliasIndex(normalizedText = "", alias = "") {
   const text = normalizeVoiceCommandText(normalizedText);
   const needle = normalizeVoiceCommandText(alias);
   if (!text || !needle) return -1;
-  if (/[\u0590-\u05ff]/.test(needle)) return text.indexOf(needle);
   const index = ` ${text} `.indexOf(` ${needle} `);
   return index >= 0 ? Math.max(0, index) : -1;
 }
@@ -133,21 +84,21 @@ export function extractVoiceAssistantMusicQuery(transcript = "", aliases = []) {
 
 export function voiceAssistantVolumeIntent(normalizedText = "") {
   const normalized = normalizeVoiceCommandText(normalizedText);
-  if (voiceCommandHasAny(normalized, ["unmute", "sound on", "בטל השתקה", "להחזיר קול", "תחזיר קול"])) return { type: "unmute" };
-  if (voiceCommandHasAny(normalized, ["mute", "silence", "השתק", "להשתיק", "שקט"])) return { type: "mute" };
-  const hasVolumeWord = voiceCommandHasAny(normalized, ["volume", "sound", "ווליום", "עוצמה", "עוצמת קול"]);
+  if (voiceCommandHasAny(normalized, ["unmute", "sound on"])) return { type: "unmute" };
+  if (voiceCommandHasAny(normalized, ["mute", "silence"])) return { type: "mute" };
+  const hasVolumeWord = voiceCommandHasAny(normalized, ["volume", "sound"]);
   if (!hasVolumeWord) return null;
-  if (voiceCommandHasAny(normalized, ["half", "חצי"])) return { type: "volume_set", level: 0.5 };
-  if (voiceCommandHasAny(normalized, ["max", "maximum", "מקסימום", "הכי חזק"])) return { type: "volume_set", level: 1 };
+  if (voiceCommandHasAny(normalized, ["half"])) return { type: "volume_set", level: 0.5 };
+  if (voiceCommandHasAny(normalized, ["max", "maximum"])) return { type: "volume_set", level: 1 };
   const numberMatch = normalized.match(/(\d{1,3})/);
   if (numberMatch) {
     const pct = Math.max(0, Math.min(100, Number(numberMatch[1]) || 0));
     return { type: "volume_set", level: pct / 100 };
   }
-  if (voiceCommandHasAny(normalized, ["up", "higher", "louder", "increase", "הגבר", "להגביר", "חזק יותר"])) {
+  if (voiceCommandHasAny(normalized, ["up", "higher", "louder", "increase"])) {
     return { type: "volume_delta", delta: 0.1 };
   }
-  if (voiceCommandHasAny(normalized, ["down", "lower", "quieter", "decrease", "הנמך", "להנמיך", "חלש יותר"])) {
+  if (voiceCommandHasAny(normalized, ["down", "lower", "quieter", "decrease"])) {
     return { type: "volume_delta", delta: -0.1 };
   }
   return null;
@@ -155,12 +106,11 @@ export function voiceAssistantVolumeIntent(normalizedText = "") {
 
 export function voiceAssistantRequestedMediaType(query = "") {
   const normalized = normalizeVoiceCommandText(query);
-  if (voiceCommandHasAny(normalized, ["playlist", "play list", "פלייליסט", "רשימת השמעה"])) return { type: "playlist", explicit: true };
-  if (voiceCommandHasAny(normalized, ["album", "אלבום"])) return { type: "album", explicit: true };
-  if (voiceCommandHasAny(normalized, ["artist", "singer", "אמן", "זמר", "זמרת"])) return { type: "artist", explicit: true };
-  if (voiceCommandHasAny(normalized, ["radio", "station", "רדיו", "תחנה"])) return { type: "radio", explicit: true };
-  if (voiceCommandHasAny(normalized, ["song", "track", "שיר", "רצועה", "by"])) return { type: "track", explicit: true };
-  if (` ${normalized} `.includes(" של ") || ` ${normalized} `.includes(" מאת ")) return { type: "track", explicit: true };
+  if (voiceCommandHasAny(normalized, ["playlist", "play list"])) return { type: "playlist", explicit: true };
+  if (voiceCommandHasAny(normalized, ["album"])) return { type: "album", explicit: true };
+  if (voiceCommandHasAny(normalized, ["artist", "singer"])) return { type: "artist", explicit: true };
+  if (voiceCommandHasAny(normalized, ["radio", "station"])) return { type: "radio", explicit: true };
+  if (voiceCommandHasAny(normalized, ["song", "track", "by"])) return { type: "track", explicit: true };
   return { type: "track", explicit: false };
 }
 
@@ -190,19 +140,8 @@ export function voiceAssistantCleanMusicPhrase(value = "", { allowStopWordFallba
   return tokens.join(" ") || (allowStopWordFallback ? normalized : "");
 }
 
-export function voiceAssistantTransliterateHebrewToken(value = "") {
-  const map = {
-    א: "a", ב: "b", ג: "g", ד: "d", ה: "h", ו: "o", ז: "z", ח: "h", ט: "t",
-    י: "i", כ: "k", ך: "k", ל: "l", מ: "m", ם: "m", נ: "n", ן: "n", ס: "s",
-    ע: "a", פ: "p", ף: "p", צ: "tz", ץ: "tz", ק: "k", ר: "r", ש: "sh", ת: "t",
-  };
-  return Array.from(String(value || ""))
-    .map((char) => map[char] ?? char)
-    .join("");
-}
-
 export function voiceAssistantLatinPhoneticKeys(value = "") {
-  const raw = voiceAssistantTransliterateHebrewToken(value)
+  const raw = String(value || "")
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
@@ -234,8 +173,7 @@ export function voiceAssistantTextHasToken(normalizedText = "", token = "") {
   const haystack = normalizeVoiceCommandText(normalizedText);
   const needle = normalizeVoiceCommandText(token);
   if (!haystack || !needle) return false;
-  if (/[\u0590-\u05ff]/.test(needle) && haystack.includes(needle)) return true;
-  if (!/[\u0590-\u05ff]/.test(needle) && (` ${haystack} `.includes(` ${needle} `) || haystack.includes(needle))) return true;
+  if (` ${haystack} `.includes(` ${needle} `) || haystack.includes(needle)) return true;
   const needleKeys = voiceAssistantLatinPhoneticKeys(needle);
   if (!needleKeys.length) return false;
   return haystack
@@ -260,7 +198,7 @@ export function voiceAssistantMatchedTokenCount(tokens = [], normalizedText = ""
 export function voiceAssistantMusicQueryParts(query = "") {
   const normalized = normalizeVoiceCommandText(query);
   if (!normalized) return { query: "", title: "", artist: "" };
-  const separators = [" של ", " מאת ", " by ", " from ", " ל "];
+  const separators = [" by ", " from "];
   for (const separator of separators) {
     const padded = ` ${normalized} `;
     const index = padded.indexOf(separator);

@@ -125,7 +125,6 @@ ${liveDiagnosticsStyles}
   #mobileMenu .discovery-catalog-folder span { flex:1; min-width:0; overflow-wrap:anywhere; }
   #mobileMenu .discovery-catalog-folder .ui-ic { width:20px; height:20px; flex:none; }
   #mobileMenu .discovery-catalog-folder .ui-ic:last-child { transform:rotate(180deg); width:16px; }
-  .rtl #mobileMenu .discovery-catalog-folder .ui-ic:last-child { transform:none; }
   #mobileMenu .discovery-catalog .chip-btn { min-width:44px; min-height:44px; border-radius:14px; border:1px solid var(--ma-border,#ffffff24); background:var(--ma-panel,#20242b); color:var(--ma-text-1); box-shadow:none; }
   @media(max-width:520px) { #mobileMenu .discovery-catalog-toolbar { grid-template-columns:minmax(0,1fr); } }
   :host(:not(.action-labels)) :is(.players-action-label,.queue-head-transfer-label) { display:none; }
@@ -249,7 +248,6 @@ ${liveDiagnosticsStyles}
   .card .queue-playback-options .chip-btn svg { display:block!important; width:27px!important; height:27px!important; flex:0 0 27px; opacity:1!important; }
   .card .group-setup-intro { padding:4px 0 12px; text-align:start; }
   .card .group-change-row[hidden] { display:none!important; }
-  .card.rtl .group-setup-intro,.card.rtl .group-members-summary { direction:rtl; text-align:right; }
   .card #mobileMenu .group-player-card { min-width:0!important; width:100%!important; max-width:100%!important; box-sizing:border-box; }
   .card #mobileMenu .group-player-card .player-premium-copy { min-width:0!important; }
   .card #mobileMenu .players-premium-grid:has(.group-player-card) { width:100%!important; max-width:100%!important; min-width:0!important; grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))!important; gap:12px!important; margin:12px 0!important; box-sizing:border-box; }
@@ -533,7 +531,6 @@ ${liveDiagnosticsStyles}
     .card .player-choice-button { min-height:100px; padding:14px; gap:12px; }
     .card .player-choice-symbol { width:62px; height:62px; border-radius:12px; }
     .card .player-choice-name { font-size:17px; font-weight:600; line-height:1.4; }
-    .card.rtl .player-choice-name,.card.rtl .player-choice-track { text-align:right; }
     .card .player-choice-state { flex-wrap:wrap; color:var(--maverick-surface-text); }
     .card .player-choice-track { font-size:13px; line-height:1.5; white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
     .card .player-choice-check { width:22px; height:22px; }
@@ -619,7 +616,6 @@ ${liveDiagnosticsStyles}
   .card .smart-settings input[type="checkbox"] { min-height:20px; width:20px; accent-color:var(--ma-accent); }
   .card .smart-settings input[type="time"],.card .volume-wheel-dial { direction:ltr; }
   .card .smart-settings button[type="submit"] { flex-basis:100%; cursor:pointer; background:color-mix(in srgb,var(--ma-accent) 20%,transparent); }
-  .card.rtl :is(.smart-hub,.smart-settings,.listening-lighting,.recommendation-home,.fan-catalogue,.group-volume-card,.group-player-card) { direction:rtl; }
   .card :is(.player-premium-name,.recommendation-shelf strong,.recommendation-shelf span) { unicode-bidi:plaintext; text-align:start; }
   .card .volume-wheel-popover { border-radius:28px; }
   .card .volume-wheel-dial:active { cursor:grabbing; }
@@ -689,7 +685,6 @@ ${liveDiagnosticsStyles}
   .card.player-design-immersive .media-action-layout [data-media-popup="play"] { background:var(--flow-control-selected)!important; color:var(--maverick-surface-text)!important; border:1px solid color-mix(in srgb,var(--ma-accent) 65%,transparent)!important; }
   .card.player-design-immersive .media-action-layout.with-labels [data-media-popup="play"] { grid-column:auto; }
   .card.player-design-immersive :is(.menu-body,.control-room-tray) :is(select,input:not([type=range]):not([type=checkbox]):not([type=radio]),textarea) { box-sizing:border-box; max-width:100%; min-width:0; min-height:44px; border:1px solid var(--maverick-surface-border); border-radius:var(--flow-control-radius); background:var(--flow-control-bg); color:var(--maverick-surface-text); font:inherit; padding:10px 12px; }
-  .card.player-design-immersive.rtl :is(.menu-body,.history-drawer,.media-action-layout,.control-room-tray) { direction:rtl; }
   .card.player-design-immersive :is(.menu-body,.history-drawer,.media-action-layout) :is(p,h2,h3,label) { text-shadow:none!important; }
   .card.player-design-immersive #mobileMenu :is(.album-detail-shell,.artist-detail-shell) { width:100%; max-width:960px; margin-inline:auto; min-width:0; }
   .card.player-design-immersive #mobileMenu .album-detail-player { position:relative; top:auto; display:grid; grid-template-columns:clamp(110px,28cqw,240px) minmax(0,1fr); align-items:center; gap:24px; border:0!important; background:transparent!important; box-shadow:none!important; backdrop-filter:none; padding:12px 0 24px; border-radius:0; }
@@ -738,7 +733,6 @@ ${liveDiagnosticsStyles}
   .card.player-design-immersive .fan-catalogue header button { flex-direction:row; min-height:44px; font-family:var(--maverick-font-family); font-size:13px; font-weight:400; border:0; border-radius:14px; background:var(--flow-control-bg); }
   .card.player-design-immersive .fan-catalogue header [data-catalogue-back] { width:44px; padding:10px; background:transparent; }
   .card.player-design-immersive .fan-catalogue header [data-catalogue-back] svg { width:22px; height:22px; }
-  .card.player-design-immersive.rtl .fan-catalogue header [data-catalogue-back] svg { transform:scaleX(-1); }
   .card.player-design-immersive .fan-catalogue-list { width:100%; max-width:960px; margin-inline:auto; grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr)); }
   .card.player-design-immersive .fan-catalogue-list [data-catalogue-action] { font:500 14px/1.45 var(--maverick-font-family); }
 

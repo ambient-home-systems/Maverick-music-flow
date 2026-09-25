@@ -323,15 +323,13 @@ describe("runtime baseline", () => {
     expectMaverickRuntimeRegistered(packageVersion);
   });
 
-  it("counts playing players only within the available population and separates RTL labels", async () => {
+  it("counts playing players only within the available population", async () => {
     await import("../src/maverick-music.js?runtime-player-counts");
     const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.mobilePlayerDesign = "immersive";
     card._state.players = [{state:"playing"}, {state:"idle"}, {state:"playing",available:false}];
-    card._isHebrew = () => true;
     const html = card._playersActionHubHtml();
-    expect(html).toContain('dir="rtl"');
     expect(html).toContain('<bdi>2</bdi>');
     expect(html).toContain('<bdi>1</bdi>');
     expect(html).not.toContain('<bdi>3</bdi>');

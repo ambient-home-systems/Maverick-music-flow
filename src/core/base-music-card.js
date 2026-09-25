@@ -33,7 +33,6 @@ export function createMaverickBaseMusicCard({
   maverickRadioBrowserCountryLabel,
   maverickCountryFlagEmoji,
   maverickDetectLanguage,
-  maverickIsRtlLanguage,
   maverickTranslate,
   maverickTranslateText,
 }) {
@@ -150,7 +149,6 @@ export function createMaverickBaseMusicCard({
     setConfig(config) {
       const engineConfig = normalizeEngineConfigKeys(config);
       const nextConfig = {
-        rtl: true,
         language: "en",
         cache_ttl: 300000,
         music_assistant_timeout_ms: 12000,
@@ -595,7 +593,6 @@ export function createMaverickBaseMusicCard({
       return {
         config_entry_id: "",
         active_player_helper_entity: "",
-        rtl: true,
         language: "en",
         show_ma_button: true,
         ma_interface_url: "/music-assistant",
@@ -633,21 +630,12 @@ export function createMaverickBaseMusicCard({
       });
     }
 
-    _isHebrew() {
-      return maverickIsRtlLanguage(this._language());
-    }
-
     _i18n(key, params = {}, fallback = "") {
       return maverickTranslate(this._language(), key, params, fallback);
     }
 
-    _m(en, he, params = {}) {
-      return maverickTranslateText(
-        this._language(),
-        en,
-        params,
-        this._isHebrew() ? he : en,
-      );
+    _m(en, params = {}) {
+      return maverickTranslateText(this._language(), en, params);
     }
 
     _effectiveTheme() {
@@ -670,29 +658,25 @@ export function createMaverickBaseMusicCard({
 
     _directMaIngressMessage() {
       return this._localText(
-        "The configured ma_url points to the Home Assistant Music Assistant ingress page, not the direct Music Assistant API. Maverick Music 6 uses Maverick Music Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
-        "כתובת ma_url שהוגדרה מצביעה למסך ה-ingress של Music Assistant בתוך Home Assistant, ולא ל-API הישיר של Music Assistant. השאר ma_url ריק לשימוש רגיל דרך Home Assistant, או השתמש בכתובת Web Server ישירה, למשל http://host:8095."
+        "The configured ma_url points to the Home Assistant Music Assistant ingress page, not the direct Music Assistant API. Maverick Music 6 uses Maverick Music Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095."
       );
     }
 
     _directMaUnavailableMessage(status = 0, error = null) {
       if (status === 404 || status === 405) {
         return this._localText(
-          "The configured ma_url does not expose the Music Assistant direct API. Maverick Music 6 uses Maverick Music Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095.",
-          "כתובת ma_url שהוגדרה לא חושפת את ה-API הישיר של Music Assistant. השאר ma_url ריק לשימוש רגיל דרך Home Assistant, או השתמש בכתובת Web Server ישירה, למשל http://host:8095."
+          "The configured ma_url does not expose the Music Assistant direct API. Maverick Music 6 uses Maverick Music Engine as the required backend; leave ma_url empty unless you need Sendspin/local-device browser playback, or use the Music Assistant Web Server URL, for example http://host:8095."
         );
       }
       const detail = String(error?.message || error || "").trim();
       const lower = detail.toLowerCase();
       if (!status && (lower.includes("failed to fetch") || lower.includes("networkerror") || lower.includes("cors") || lower.includes("preflight"))) {
         return this._localText(
-          "Direct Music Assistant API is blocked by the browser before Maverick Music receives a response. This is usually CORS/preflight or local-network browser access. Maverick Music 6 routes core playback through Maverick Music Engine; leave ma_url empty unless you need Sendspin/local-device browser playback.",
           "Direct Music Assistant API is blocked by the browser before Maverick Music receives a response. This is usually CORS/preflight or local-network browser access. Maverick Music 6 routes core playback through Maverick Music Engine; leave ma_url empty unless you need Sendspin/local-device browser playback."
         );
       }
       return this._localText(
-        `Direct Music Assistant API is not reachable${detail ? `: ${detail}` : ""}`,
-        `ה-API הישיר של Music Assistant לא זמין${detail ? `: ${detail}` : ""}`
+        `Direct Music Assistant API is not reachable${detail ? `: ${detail}` : ""}`
       );
     }
 
@@ -714,8 +698,7 @@ export function createMaverickBaseMusicCard({
 
     _maMixedContentMessage() {
       return this._localText(
-        "The dashboard is HTTPS but Music Assistant is configured with HTTP only. Add music_assistant_external_url with an HTTPS Music Assistant URL, or open Home Assistant over HTTP on the local network.",
-        "הדשבורד פתוח ב-HTTPS אבל Music Assistant מוגדר רק ב-HTTP. הוסף music_assistant_external_url עם כתובת HTTPS של Music Assistant, או פתח את Home Assistant ב-HTTP ברשת המקומית."
+        "The dashboard is HTTPS but Music Assistant is configured with HTTP only. Add music_assistant_external_url with an HTTPS Music Assistant URL, or open Home Assistant over HTTP on the local network."
       );
     }
 
@@ -760,7 +743,6 @@ export function createMaverickBaseMusicCard({
     _timeoutMessage(label = "Request") {
       return this._m(
         `${label} did not respond in time. Check Music Assistant and try again.`,
-        `${label} לא החזיר תשובה בזמן. בדוק את Music Assistant ונסה שוב.`,
       );
     }
 
@@ -1522,7 +1504,6 @@ export function createMaverickBaseMusicCard({
       }
       this._cache.library.clear();
       this._clearImageBlobCache();
-      const rtl = this._isHebrew();
       const theme = this._effectiveTheme();
       const visualTheme = theme;
       const configuredHeight = Math.max(420, this._configuredCardHeightFallback(760));
@@ -1549,7 +1530,7 @@ export function createMaverickBaseMusicCard({
   ${interfaceStyles}
   </style>
 
-        <div class="card ${rtl ? "rtl" : ""} theme-${visualTheme}${theme === "custom" ? " theme-custom" : ""}${this._isHotelMode() ? " hotel-mode" : ""}${layoutProfileClass ? ` ${layoutProfileClass}` : ""}" style="${layoutProfileStyle}--v2-custom-text:${this._state.mobileCustomTextTone === "dark" ? "#1f2633" : "#ffffff"};">
+        <div class="card theme-${visualTheme}${theme === "custom" ? " theme-custom" : ""}${this._isHotelMode() ? " hotel-mode" : ""}${layoutProfileClass ? ` ${layoutProfileClass}` : ""}" style="${layoutProfileStyle}--v2-custom-text:${this._state.mobileCustomTextTone === "dark" ? "#1f2633" : "#ffffff"};">
           <aside class="sidebar">
             <div class="brand">
               <button class="brand-icon" id="brandPlayersBtn" title="${this._i18n("ui.open_music_assistant")}">▶</button>
@@ -1647,8 +1628,8 @@ export function createMaverickBaseMusicCard({
                     <div class="group-list" id="groupList"></div>
                   </div>
                   <div class="group-actions">
-                    <button class="chip-btn" id="applyGroupBtn">${this._esc(this._m("Update group", "עדכן קבוצה"))}</button>
-                    <button class="chip-btn warn" id="unGroupBtn">${this._esc(this._m("Disconnect all", "נתק הכל"))}</button>
+                    <button class="chip-btn" id="applyGroupBtn">${this._esc(this._m("Update group"))}</button>
+                    <button class="chip-btn warn" id="unGroupBtn">${this._esc(this._m("Disconnect all"))}</button>
                   </div>
                 </div>
               </div>
@@ -1727,8 +1708,8 @@ export function createMaverickBaseMusicCard({
       this.$("content").addEventListener("change", (e) => this._handleQueueMoveAutoChange(e));
       this.$("content").addEventListener("contextmenu", this._boundContentContext);
       this.$("groupList").addEventListener("change", (e) => this._handleGroupChange(e));
-      this.$("applyGroupBtn").addEventListener("click", (event) => this._runMenuButtonLoading(event.currentTarget, this._m("Updating group", "מעדכן קבוצה"), () => this._applySpeakerGroup(), { kind: "connect" }));
-      this.$("unGroupBtn").addEventListener("click", (event) => this._runMenuButtonLoading(event.currentTarget, this._m("Disconnecting all", "מנתק הכל"), () => this._clearSpeakerGroup(), { kind: "disconnect" }));
+      this.$("applyGroupBtn").addEventListener("click", (event) => this._runMenuButtonLoading(event.currentTarget, this._m("Updating group"), () => this._applySpeakerGroup(), { kind: "connect" }));
+      this.$("unGroupBtn").addEventListener("click", (event) => this._runMenuButtonLoading(event.currentTarget, this._m("Disconnecting all"), () => this._clearSpeakerGroup(), { kind: "disconnect" }));
       this.$("groupModalClose").addEventListener("click", () => this._closeGroupModal());
       this.$("groupModal").addEventListener("click", (e) => { if (e.target === this.$("groupModal")) this._closeGroupModal(); });
       this.$("playerModalClose").addEventListener("click", () => this._closePlayerModal());
@@ -1777,7 +1758,6 @@ export function createMaverickBaseMusicCard({
 
     _languageShortLabel(value = "") {
       const code = this._languageBaseCode(value);
-      if (code === "he") return "עב";
       return code ? code.slice(0, 2).toUpperCase() : "EN";
     }
 
@@ -1915,8 +1895,8 @@ export function createMaverickBaseMusicCard({
       } catch (_) {}
     }
 
-    _localText(en, he) {
-      return typeof this._m === "function" ? this._m(en, he) : (this._isHebrew() ? he : en);
+    _localText(en) {
+      return typeof this._m === "function" ? this._m(en) : en;
     }
 
     _localSendspinIdStorageKey() {
@@ -2083,18 +2063,17 @@ export function createMaverickBaseMusicCard({
 
     _assertLocalSendspinConfig() {
       if (this._state.engineCapabilities?.sendspin_bridge === true) {
-        if (typeof WebSocket === "undefined") throw new Error(this._localText("This browser does not support WebSocket.", "הדפדפן הזה לא תומך ב-WebSocket."));
+        if (typeof WebSocket === "undefined") throw new Error(this._localText("This browser does not support WebSocket."));
         return;
       }
       const baseUrl = this._maBrowserUrl();
       if (!baseUrl || !this._maToken) {
         throw new Error(this._localText(
-          "Set a direct Music Assistant URL and token in the card settings before connecting this device.",
-          "כדי לחבר את המכשיר מתוך הכרטיס צריך להגדיר בכרטיס כתובת Music Assistant ישירה וגם token."
+          "Set a direct Music Assistant URL and token in the card settings before connecting this device."
         ));
       }
       if (typeof WebSocket === "undefined") {
-        throw new Error(this._localText("This browser does not support WebSocket.", "הדפדפן הזה לא תומך ב-WebSocket."));
+        throw new Error(this._localText("This browser does not support WebSocket."));
       }
       this._assertMaBrowserUrlSecure(baseUrl);
     }
@@ -2142,7 +2121,7 @@ export function createMaverickBaseMusicCard({
           fail(error);
           return;
         }
-        timeout = setTimeout(() => fail(new Error(this._localText("Timed out connecting to Sendspin.", "החיבור ל-Sendspin לקח יותר מדי זמן."))), 10000);
+        timeout = setTimeout(() => fail(new Error(this._localText("Timed out connecting to Sendspin."))), 10000);
         ws.onopen = () => {
           if (engineBridge) return;
           try {
@@ -2159,7 +2138,7 @@ export function createMaverickBaseMusicCard({
               const message = JSON.parse(event.data);
               this._debugLog("info", "[Maverick Sendspin] proxy auth response", message?.type || message);
               if (message?.type === "auth_invalid" || message?.type === "auth_failed" || message?.error) {
-                fail(new Error(this._localText("Music Assistant rejected the Sendspin token.", "Music Assistant דחה את ה-token של Sendspin.")));
+                fail(new Error(this._localText("Music Assistant rejected the Sendspin token.")));
                 return;
               }
               if (message?.type !== "auth_ok") return;
@@ -2174,8 +2153,8 @@ export function createMaverickBaseMusicCard({
           cleanup();
           resolve(ws);
         };
-        ws.onerror = () => fail(new Error(this._localText("Could not open the Sendspin WebSocket.", "לא הצלחתי לפתוח חיבור WebSocket ל-Sendspin.")));
-        ws.onclose = () => fail(new Error(this._localText("Sendspin closed the connection before the player was ready.", "Sendspin סגר את החיבור לפני שהנגן היה מוכן.")));
+        ws.onerror = () => fail(new Error(this._localText("Could not open the Sendspin WebSocket.")));
+        ws.onclose = () => fail(new Error(this._localText("Sendspin closed the connection before the player was ready.")));
       });
     }
 
@@ -2588,13 +2567,13 @@ export function createMaverickBaseMusicCard({
       this._adoptLocalSendspinGlobalSession();
       if (!automatic) this._setLocalSendspinDesired(true);
       if (this._localSendspinConnecting) {
-        if (!automatic) this._toast(this._localText("Local player is already connecting.", "הנגן המקומי כבר בתהליך התחברות."));
+        if (!automatic) this._toast(this._localText("Local player is already connecting."));
         return;
       }
       if (this._localSendspinPlayer && this._localSendspinConnected) {
         this._state.awaitingThisDevicePlayer = true;
         this._scheduleThisDevicePlayerDiscovery();
-        if (!automatic) this._toastSuccess(this._localText("Local Sendspin player is connected.", "נגן Sendspin המקומי מחובר."));
+        if (!automatic) this._toastSuccess(this._localText("Local Sendspin player is connected."));
         return;
       }
       this._clearLocalSendspinReconnectTimer();
@@ -2611,7 +2590,7 @@ export function createMaverickBaseMusicCard({
         const module = await this._loadLocalSendspinModule();
         const SendspinPlayer = module?.SendspinPlayer;
         if (typeof SendspinPlayer !== "function") {
-          throw new Error(this._localText("The local Sendspin module is missing SendspinPlayer.", "מודול Sendspin המקומי לא כולל את SendspinPlayer."));
+          throw new Error(this._localText("The local Sendspin module is missing SendspinPlayer."));
         }
         this._stopLocalSendspinPlayer("restart");
         this._restoreLocalSendspinInterceptor();
@@ -2652,8 +2631,7 @@ export function createMaverickBaseMusicCard({
         await Promise.race([
           this._localSendspinPlayer.connect(),
           new Promise((_, reject) => setTimeout(() => reject(new Error(this._localText(
-            "Timed out waiting for the local Sendspin player to start.",
-            "ההפעלה של נגן Sendspin המקומי לקחה יותר מדי זמן."
+            "Timed out waiting for the local Sendspin player to start."
           ))), 15000)),
         ]);
         if (savedVolume !== null) this._localSendspinPlayer.setVolume(savedVolume);
@@ -2663,7 +2641,7 @@ export function createMaverickBaseMusicCard({
         this._state.awaitingThisDevicePlayer = true;
         this._state.knownBrowserPlayerIds = knownBrowserPlayerIds;
         this._syncLocalSendspinGlobalSession();
-        if (!automatic) this._toastSuccess(this._localText("Local Sendspin player connected from this card.", "נגן Sendspin המקומי חובר מתוך הכרטיס."));
+        if (!automatic) this._toastSuccess(this._localText("Local Sendspin player connected from this card."));
         this._scheduleThisDevicePlayerDiscovery();
         this._refreshDirectMaPlayers({ renderMenu: true }).catch(() => {});
       } catch (error) {
@@ -2673,7 +2651,7 @@ export function createMaverickBaseMusicCard({
         this._state.controlRoomRevealThisDevicePending = false;
         this._state.localSendspinStatus = "error";
         if (automatic) this._debugLog("warn", "[Maverick Sendspin] automatic local reconnect failed", error);
-        else this._toastError(error?.message || this._localText("Local Sendspin connection failed.", "חיבור Sendspin המקומי נכשל."));
+        else this._toastError(error?.message || this._localText("Local Sendspin connection failed."));
       } finally {
         this._localSendspinConnecting = false;
         this._syncLocalSendspinGlobalSession();
@@ -3002,12 +2980,12 @@ export function createMaverickBaseMusicCard({
           if (this._focusConnectedThisDevicePlayer()) return true;
           await new Promise((resolve) => setTimeout(resolve, 750));
         }
-        throw new Error(this._localText("The local player is not available yet. Please try again.", "הנגן המקומי עדיין אינו זמין לבחירה. נסה שוב."));
+        throw new Error(this._localText("The local player is not available yet. Please try again."));
       }).catch((error) => {
         this._state.localSendspinDisconnecting = false;
         this._state.awaitingThisDevicePlayer = false;
         this._state.controlRoomRevealThisDevicePending = false;
-        this._toastError(error?.message || this._localText("Local Sendspin connection failed.", "חיבור Sendspin המקומי נכשל."));
+        this._toastError(error?.message || this._localText("Local Sendspin connection failed."));
         return false;
       }).finally(() => { this._thisDeviceFocusPromise = null; });
       return this._thisDeviceFocusPromise;
@@ -3225,11 +3203,11 @@ export function createMaverickBaseMusicCard({
     }
 
     _cleanAllLabel() {
-      return this._m("Disconnect", "ניתוק");
+      return this._m("Disconnect");
     }
 
     _cleanAllConfirmTitle() {
-      return this._i18n("ui.clean_all_confirm_title", {}, this._m("Clean all players?", "לנקות את כל הנגנים?"));
+      return this._i18n("ui.clean_all_confirm_title", {}, this._m("Clean all players?"));
     }
 
     _cleanAllConfirmCopy() {
@@ -3238,7 +3216,6 @@ export function createMaverickBaseMusicCard({
         {},
         this._m(
           "This will disconnect all active players, stop playback and clear their queues. Continue?",
-          "הפעולה תנתק את כל הנגנים הפעילים, תעצור נגינה ותנקה את התורים שלהם. להמשיך?",
         ),
       );
     }
@@ -3837,7 +3814,7 @@ export function createMaverickBaseMusicCard({
             <div class="control-room-group-chip" title="${this._esc(group.label)}">
               <span class="control-room-group-art">${group.art ? this._imgHtml(group.art, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
               <span class="control-room-group-copy">
-                <span class="control-room-group-title">${this._esc(this._m(`${group.count} grouped players`, `${group.count} נגנים בקבוצה`))}</span>
+                <span class="control-room-group-title">${this._esc(this._m(`${group.count} grouped players`))}</span>
                 <span class="control-room-group-members">${this._esc(group.label)}</span>
               </span>
             </div>
@@ -4298,7 +4275,7 @@ export function createMaverickBaseMusicCard({
         { id: "morning", icon: "music_note", label: this._i18n("ui.morning"), subtitle: this._i18n("ui.fresh_start"), queries: ["morning playlist", "coffee music", "feel good morning"] },
         { id: "night", icon: "moon", label: this._i18n("ui.night"), subtitle: this._i18n("ui.lower_volume_mood"), queries: ["night chill playlist", "sleep music", "quiet jazz"] },
         { id: "kids", icon: "speaker", label: this._i18n("ui.kids"), subtitle: this._i18n("ui.family_friendly"), queries: ["kids music playlist", "children songs", "family music"] },
-        { id: "israeli", icon: "music_note", label: this._i18n("ui.israeli"), subtitle: this._i18n("ui.local_favorites"), queries: ["ישראלי עברית פלייליסט", "israeli music hebrew"] },
+        { id: "israeli", icon: "music_note", label: this._i18n("ui.israeli"), subtitle: this._i18n("ui.local_favorites"), queries: ["israeli music playlist", "israeli music hebrew"] },
         { id: "favorites", icon: "heart_filled", label: this._i18n("ui.liked"), subtitle: this._i18n("ui.shuffle_favorites"), favorite: true },
         { id: "random", icon: "shuffle", label: this._i18n("ui.random"), subtitle: this._i18n("ui.library_surprise"), random: true },
       ];
@@ -4446,8 +4423,7 @@ export function createMaverickBaseMusicCard({
       }
       if (!options.silent) {
         this._toastSuccess(this._m(
-          `Started ${playable.length} items in Studio`,
-          `${playable.length} פריטים הופעלו בסטודיו`
+          `Started ${playable.length} items in Studio`
         ));
       }
       setTimeout(() => this._updateNowPlayingState(), 500);
@@ -4696,7 +4672,7 @@ export function createMaverickBaseMusicCard({
         });
       }
       this._syncControlRoomUi({ force: true });
-      this._toastSuccess(this._m(`Scene "${saved.name}" applied`, `הסצנה "${saved.name}" הופעלה`));
+      this._toastSuccess(this._m(`Scene "${saved.name}" applied`));
       setTimeout(() => this._updateNowPlayingState(), 350);
       return true;
     }
@@ -4793,7 +4769,7 @@ export function createMaverickBaseMusicCard({
       try { this._voiceRecognition?.abort?.(); } catch {}
       const recognition = new SpeechRecognition();
       this._voiceRecognition = recognition;
-      recognition.lang = this._isHebrew() ? "he-IL" : "en-US";
+      recognition.lang = "en-US";
       recognition.interimResults = true;
       recognition.continuous = false;
       recognition.maxAlternatives = 1;
@@ -4874,7 +4850,7 @@ export function createMaverickBaseMusicCard({
             <span class="control-room-tile-copy">
               <span class="control-room-tile-pills">
                 ${isPrimary ? `<span class="control-room-primary-pill">${this._esc(this._i18n("ui.primary"))}</span>` : ``}
-                ${groupCount ? `<span class="control-room-float-pill grouped" title="${this._esc(groupInfo.label || this._i18n("ui.grouped_players"))}">${this._iconSvg("speaker")}${this._esc(this._m(`${groupCount} grouped`, `${groupCount} בקבוצה`))}</span>` : ``}
+                ${groupCount ? `<span class="control-room-float-pill grouped" title="${this._esc(groupInfo.label || this._i18n("ui.grouped_players"))}">${this._iconSvg("speaker")}${this._esc(this._m(`${groupCount} grouped`))}</span>` : ``}
                 ${queueCount ? `<span class="control-room-float-pill">${this._iconSvg("queue")}${this._esc(`${queueCount}`)}</span>` : ``}
                 ${protocolLabel ? `<span class="control-room-float-pill protocol">${this._esc(protocolLabel)}</span>` : ``}
                 ${playing ? `<span class="control-room-float-pill live">${this._esc(this._i18n("ui.playing"))}</span>` : ``}
@@ -4912,7 +4888,7 @@ export function createMaverickBaseMusicCard({
     _controlRoomPanelHtml(players = []) {
       const content = this._controlRoomPanelContentHtml(players);
       if (!content) return content;
-      const label = this._esc(this._m("Back to studio", "חזרה לסטודיו"));
+      const label = this._esc(this._m("Back to studio"));
       return content.replace(/(<div class="control-room-tray[^"]*">)/, `$1<button type="button" class="control-room-panel-close" data-room-selection-action="close_panel" aria-label="${label}" title="${label}">${this._iconSvg("close")}</button>`);
     }
 
@@ -5482,7 +5458,7 @@ export function createMaverickBaseMusicCard({
         const protocolLabel = this._controlRoomProtocolLabel(player);
         const pillsHtml = [
           isPrimary ? `<span class="control-room-primary-pill">${this._esc(this._i18n("ui.primary"))}</span>` : ``,
-          groupCount ? `<span class="control-room-float-pill grouped" title="${this._esc(groupInfo.label || this._i18n("ui.grouped_players"))}">${this._iconSvg("speaker")}${this._esc(this._m(`${groupCount} grouped`, `${groupCount} בקבוצה`))}</span>` : ``,
+          groupCount ? `<span class="control-room-float-pill grouped" title="${this._esc(groupInfo.label || this._i18n("ui.grouped_players"))}">${this._iconSvg("speaker")}${this._esc(this._m(`${groupCount} grouped`))}</span>` : ``,
           queueCount ? `<span class="control-room-float-pill">${this._iconSvg("queue")}${this._esc(String(queueCount))}</span>` : ``,
           protocolLabel ? `<span class="control-room-float-pill protocol">${this._esc(protocolLabel)}</span>` : ``,
           playing ? `<span class="control-room-float-pill live">${this._esc(this._i18n("ui.playing"))}</span>` : ``,
@@ -5822,9 +5798,9 @@ export function createMaverickBaseMusicCard({
                 <button class="lyrics-offset-label" id="lyricsOffsetResetBtn" title="${this._esc(this._i18n("ui.reset_lyrics_timing"))}">${this._esc(offsetLabel)}</button>
                 <button class="lyrics-offset-btn" id="lyricsOffsetPlusBtn" title="${this._esc(this._i18n("ui.lyrics_later"))}">+</button>
               </div>
-              <button class="lyrics-sync-btn ${this._state.mobileLyricsSyncEnabled !== false ? "active" : ""}" id="lyricsSyncBtn" ${this._state.lyricsLines?.length ? "" : "hidden"} aria-pressed="${this._state.mobileLyricsSyncEnabled !== false}" title="${this._esc(this._m("Karaoke · synced lines", "קריוקי · מילים מסונכרנות"))}">
+              <button class="lyrics-sync-btn ${this._state.mobileLyricsSyncEnabled !== false ? "active" : ""}" id="lyricsSyncBtn" ${this._state.lyricsLines?.length ? "" : "hidden"} aria-pressed="${this._state.mobileLyricsSyncEnabled !== false}" title="${this._esc(this._m("Karaoke · synced lines"))}">
                 ${actionIconSvg(this, "karaoke")}
-                <span>${this._esc(this._m("Karaoke", "קריוקי"))}</span>
+                <span>${this._esc(this._m("Karaoke"))}</span>
               </button>
               <button class="close-btn" id="lyricsCloseBtn" aria-label="${this._esc(this._i18n("ui.close"))}">${actionIconSvg(this, "close")}</button>
             </div>
@@ -5977,7 +5953,7 @@ export function createMaverickBaseMusicCard({
         this._syncScreensaverLyricsUi?.();
         return;
       }
-      const subtitle = [info.artist, info.album].filter(Boolean).join(" Â· ");
+      const subtitle = [info.artist, info.album].filter(Boolean).join(" · ");
       this._state.lyricsTrackKey = trackKey;
       const lyricsSubtitle = subtitle.replace(/\u00c3\u201a\u00c2\u00b7|\u00c2\u00b7/g, "\u00b7");
       this._state.lyricsText = "";
@@ -6359,7 +6335,7 @@ export function createMaverickBaseMusicCard({
         ...playerName.split(/[_\s-]+/),
       ].filter(Boolean);
       const buttons = Object.keys(this._hass.states).filter((entityId) =>
-        entityId.startsWith("button.") && /(favorite|אהב|אהבתי)/i.test(entityId)
+        entityId.startsWith("button.") && /favorite/i.test(entityId)
       );
       const matched = buttons.find((entityId) => {
         const lower = entityId.toLowerCase();
@@ -6881,10 +6857,8 @@ export function createMaverickBaseMusicCard({
       const volumePct = Math.round((player.attributes.volume_level || 0) * 100);
       const shuffle = !!player.attributes.shuffle;
       const repeat = player.attributes.repeat || "off";
-      const rtl = this._isHebrew();
-
       backdrop.innerHTML = `
-        <div class="immersive-shell ${rtl ? "rtl" : ""}">
+        <div class="immersive-shell">
           <div class="immersive-bg" ${art ? `style="background-image:url('${this._esc(art)}')"` : ""}></div>
           <div class="immersive-cover-glow" ${art ? `style="background-image:url('${this._esc(art)}')"` : ""}></div>
           <div class="immersive-frost"></div>
@@ -8646,7 +8620,7 @@ export function createMaverickBaseMusicCard({
           const page = await this._fetchLibrary(mediaType, orderBy, pageLimit, favoritesOnly, search, { offset, strict: true, snapshot });
           for (const item of page) {
             const id = item.uri || `${item.provider || ""}:${item.item_id || ""}`;
-            if (id !== ":" && seen.has(id)) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
+            if (id !== ":" && seen.has(id)) throw new Error(this._m("Library changed while loading. Try again."));
             seen.add(id); collected.push(item);
           }
           if (page.length < pageLimit) break;
@@ -8676,7 +8650,7 @@ export function createMaverickBaseMusicCard({
           const meta = MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(engineResult);
           if (meta) {
             const revision = `${meta.epoch || ""}:${meta.revision || 0}`;
-            if (options.snapshot.revision && options.snapshot.revision !== revision) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
+            if (options.snapshot.revision && options.snapshot.revision !== revision) throw new Error(this._m("Library changed while loading. Try again."));
             options.snapshot.revision = revision;
           }
         }
@@ -8686,7 +8660,7 @@ export function createMaverickBaseMusicCard({
           engineResult,
           libraryIdentity,
         )) {
-          if (options.strict) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
+          if (options.strict) throw new Error(this._m("Library changed while loading. Try again."));
           this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine library snapshot", {
             libraryIdentity,
             snapshot: MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(engineResult),
@@ -8836,7 +8810,7 @@ export function createMaverickBaseMusicCard({
         });
         const items = Array.isArray(raw?.items) ? raw.items : (Array.isArray(raw) ? raw : []);
         return items
-          .map((item) => this._normalizeRecommendationEntry(item, "track", { name: this._m("Similar tracks", "שירים דומים") }))
+          .map((item) => this._normalizeRecommendationEntry(item, "track", { name: this._m("Similar tracks") }))
           .filter((item) => item?.uri);
       } catch (_) {
         return [];
@@ -8852,7 +8826,7 @@ export function createMaverickBaseMusicCard({
         ...(Array.isArray(preset?.queries) ? preset.queries : []),
       ].join(" ").toLowerCase();
       return source
-        .replace(/[^a-z0-9\u0590-\u05ff ]+/g, " ")
+        .replace(/[^a-z0-9 ]+/g, " ")
         .split(/\s+/)
         .map((token) => token.trim())
         .filter((token) => token.length >= 3);
@@ -8882,7 +8856,7 @@ export function createMaverickBaseMusicCard({
         .filter((item) => item.score > 0 || preset?.random || customQuery)
         .sort((left, right) => right.score - left.score)
         .map(({ entry }) => this._controlRoomNormalizeMediaEntry(entry, entry.media_type || "track", {
-          subtitle: entry.folder_name || entry.provider_label || this._m("Music Assistant recommendations", "המלצות Music Assistant"),
+          subtitle: entry.folder_name || entry.provider_label || this._m("Music Assistant recommendations"),
         }));
       return this._controlRoomUniqueEntries(scored).slice(0, Math.max(1, Math.min(30, Number(limit) || 16)));
     }
@@ -9345,10 +9319,10 @@ export function createMaverickBaseMusicCard({
         ...(Array.isArray(metadata.release_group_types) ? metadata.release_group_types : []),
       ].map((value) => MaverickMediaQueueFoundation.normalizeComparableText(value)).filter(Boolean);
       const haystack = `${rawValues.join(" ")} ${name}`;
-      if (/(^| )(single|סינגל)( |$)/.test(haystack)) return this._m("Single", "סינגל");
-      if (/(^| )(live|concert|הופעה|חיה)( |$)/.test(haystack)) return this._m("Live", "הופעה חיה");
-      if (/(^| )(ep|mini album|מיני)( |$)/.test(haystack)) return "EP";
-      return this._m("Studio", "אולפן");
+      if (/(^| )single( |$)/.test(haystack)) return this._m("Single");
+      if (/(^| )(live|concert)( |$)/.test(haystack)) return this._m("Live");
+      if (/(^| )(ep|mini album)( |$)/.test(haystack)) return "EP";
+      return this._m("Studio");
     }
 
     _albumSelectLabel(album = {}, index = 0) {
@@ -9581,7 +9555,7 @@ export function createMaverickBaseMusicCard({
             return episodes;
           } catch (error) { episodeError = error; }
         }
-        throw episodeError || new Error(this._m("Could not resolve this podcast.", "לא ניתן לזהות את הפודקאסט."));
+        throw episodeError || new Error(this._m("Could not resolve this podcast."));
       }
       if (commandArgsList.length) {
         if (type === "album") {
@@ -9755,7 +9729,7 @@ export function createMaverickBaseMusicCard({
           const leftYear = this._mediaYearValue(left);
           const rightYear = this._mediaYearValue(right);
           if (leftYear !== rightYear) return rightYear - leftYear;
-          return String(left?.name || "").localeCompare(String(right?.name || ""), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: true });
+          return String(left?.name || "").localeCompare(String(right?.name || ""), undefined, { sensitivity: "base", numeric: true });
         });
       // Albums are the primary content. Recommendations enrich the same cached
       // detail afterwards, without holding the album screen behind provider search.
@@ -9831,7 +9805,7 @@ export function createMaverickBaseMusicCard({
             current.loading = false;
             current.error = current.albums.length
               ? ""
-              : this._m("No albums were returned for this artist.", "לא נטענו אלבומים לאמן הזה.");
+              : this._m("No albums were returned for this artist.");
             if (this._state.menuOpen && this._state.menuPage === "media_detail") this._renderMobileMenu().catch(() => {});
           })
           .catch((error) => {
@@ -9840,7 +9814,7 @@ export function createMaverickBaseMusicCard({
             current.albums = [];
             current.playlists = [];
             current.loading = false;
-            current.error = error?.message || this._m("Could not load this artist.", "לא הצלחתי לטעון את האמן.");
+            current.error = error?.message || this._m("Could not load this artist.");
             if (this._state.menuOpen && this._state.menuPage === "media_detail") this._renderMobileMenu().catch(() => {});
           });
         return true;
@@ -9851,7 +9825,7 @@ export function createMaverickBaseMusicCard({
           if (!current || current.token !== token) return;
           current.tracks = tracks;
           current.loading = false;
-          current.error = tracks.length ? "" : this._m("No tracks were returned. You can still play it.", "לא נטענו שירים. עדיין אפשר לנגן.");
+          current.error = tracks.length ? "" : this._m("No tracks were returned. You can still play it.");
           if (this._state.menuOpen && this._state.menuPage === "media_detail") this._renderMobileMenu().catch(() => {});
         })
         .catch((error) => {
@@ -9859,7 +9833,7 @@ export function createMaverickBaseMusicCard({
           if (!current || current.token !== token) return;
           current.tracks = [];
           current.loading = false;
-          current.error = error?.message || this._m("Could not load tracks. You can still play it.", "לא הצלחתי לטעון שירים. עדיין אפשר לנגן.");
+          current.error = error?.message || this._m("Could not load tracks. You can still play it.");
           if (this._state.menuOpen && this._state.menuPage === "media_detail") this._renderMobileMenu().catch(() => {});
         });
       return true;
@@ -10522,7 +10496,6 @@ export function createMaverickBaseMusicCard({
         this._state.musicAssistantIssueMessage = "";
         return rawMessage || this._m(
           "Maverick Music Engine is reconnecting.",
-          "Maverick Music Engine מתחבר מחדש.",
         );
       }
       const message = this._isMusicAssistantAvailabilityError(error)
@@ -10537,7 +10510,7 @@ export function createMaverickBaseMusicCard({
       return this._i18n(
         "ui.music_assistant_required",
         {},
-        this._m("Music Assistant required", "נדרשת אינטגרציית Music Assistant"),
+        this._m("Music Assistant required"),
       );
     }
 
@@ -10551,13 +10524,11 @@ export function createMaverickBaseMusicCard({
       if (connection.ok === true && playerCount > 0) {
         return this._m(
           "Maverick Music Engine reports Music Assistant is connected, but the card did not receive the player list yet. Open Maverick Music Engine in Home Assistant and check Required connections, then reload the dashboard.",
-          "Maverick Music Engine מדווח ש-Music Assistant מחובר, אבל הכרטיס עדיין לא קיבל את רשימת הנגנים. פתח את אינטגרציית Maverick Music Engine ובדוק Required connections ואז רענן את הדשבורד.",
         );
       }
       if (!detail) return "";
       return this._m(
         `Maverick Music Engine reports: ${detail} Open the Maverick Music Engine integration page and check Required connections.`,
-        `Maverick Music Engine מדווח: ${detail} פתח את דף אינטגרציית Maverick Music Engine ובדוק Required connections.`,
       );
     }
 
@@ -10568,7 +10539,6 @@ export function createMaverickBaseMusicCard({
       const suffix = engineError ? ` Last Engine error: ${engineError}` : "";
       return this._m(
         `Maverick Music 6 requires Maverick Music Engine 0.7.6 with a healthy Music Assistant required connection snapshot.${suffix}`,
-        `Maverick Music 6 דורש Maverick Music Engine 0.7.6 עם תמונת חיבורים נדרשים תקינה של Music Assistant.${suffix}`,
       );
     }
 
@@ -10774,7 +10744,7 @@ export function createMaverickBaseMusicCard({
         const visiblePlayers = Array.isArray(this._state.players) ? this._state.players : [];
         if (visiblePlayers.length) return;
         if (sel) {
-          sel.innerHTML = `<option value="">${this._esc(this._m("Loading players…", "טוען נגנים…"))}</option>`;
+          sel.innerHTML = `<option value="">${this._esc(this._m("Loading players…"))}</option>`;
         }
         return;
       }
@@ -10809,7 +10779,6 @@ export function createMaverickBaseMusicCard({
         const message = excludedPrefs.length
           ? this._i18n("ui.no_visible_music_assistant_players_after_exclusions", {}, this._m(
             "All Music Assistant players are hidden by the excluded players setting.",
-            "כל נגני Music Assistant מוסתרים בהגדרת החרגת נגנים.",
           ))
           : this._handleMusicAssistantIssue(this._musicAssistantRequiredMessage());
         if (excludedPrefs.length) this._state.musicAssistantIssueMessage = message;
@@ -10961,7 +10930,7 @@ export function createMaverickBaseMusicCard({
       try {
         const targetPlayer = this._playerByEntityId(entityId);
         if (targetPlayer && !MaverickPlayersFoundation.isPlayerAvailable(targetPlayer)) {
-          throw new Error(this._m("This player is offline. Choose an available player.", "הנגן אינו מחובר. בחר נגן זמין."));
+          throw new Error(this._m("This player is offline. Choose an available player."));
         }
         const engineReady = await this._ensureMaverickEngineReadyForAction();
         const canUseMaverickEnginePlayback = typeof this._maverickEnginePlayMedia === "function"
@@ -11007,7 +10976,7 @@ export function createMaverickBaseMusicCard({
       const successCount = results.filter((result) => result.status === "fulfilled" && result.value).length;
       if (!options.silent) {
         const successMessage = successCount > 1
-          ? this._m(`Started on ${successCount} players`, `הופעל על ${successCount} נגנים`)
+          ? this._m(`Started on ${successCount} players`)
           : this._i18n("ui.started_on_selected_player");
         (successCount ? this._toastSuccess : this._toastError).call(this, successCount ? successMessage : this._i18n("ui.could_not_start_playback"));
       }
@@ -11317,7 +11286,6 @@ export function createMaverickBaseMusicCard({
       if (/does not support action|unsupported|not supported/i.test(message)) {
         return this._m(
           "This player does not support that media control through Home Assistant.",
-          "הנגן הזה לא תומך בפקד המדיה הזה דרך Home Assistant.",
         );
       }
       if (this._isMusicAssistantAvailabilityError(error)) return this._handleMusicAssistantIssue(error);
@@ -11550,7 +11518,7 @@ export function createMaverickBaseMusicCard({
     }
 
     _nowPlayingSubtitleShouldScroll(scrollWhenOverflow = false) {
-      return !!scrollWhenOverflow && !this._isHebrew() && !this._performanceUltraLiteEnabled();
+      return !!scrollWhenOverflow && !this._performanceUltraLiteEnabled();
     }
 
     _queueNowPlayingSubtitleOverflowSync(el) {
