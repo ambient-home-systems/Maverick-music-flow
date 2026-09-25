@@ -5955,7 +5955,7 @@ export function createMaverickBaseMusicCard({
         this._syncScreensaverLyricsUi?.();
         return;
       }
-      const subtitle = [info.artist, info.album].filter(Boolean).join(" Â· ");
+      const subtitle = [info.artist, info.album].filter(Boolean).join(" · ");
       this._state.lyricsTrackKey = trackKey;
       const lyricsSubtitle = subtitle.replace(/\u00c3\u201a\u00c2\u00b7|\u00c2\u00b7/g, "\u00b7");
       this._state.lyricsText = "";
