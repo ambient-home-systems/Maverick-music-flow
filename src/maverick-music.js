@@ -1093,7 +1093,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         defaultLibraryTabs: this._defaultMobileLibraryTabs(),
         defaultMainBarItems: this._defaultMobileMainBarItems(),
         defaultQuickActions: this._defaultMobileQuickActions(),
-        defaultAnnouncementPresets: this._defaultAnnouncementPresets(visualCfg.language || this._state.lang),
+        defaultAnnouncementPresets: this._defaultAnnouncementPresets(),
       }));
       if (previousEdgeReturnAvailable && this._state.mobileLayoutMode === "edge_to_edge") {
         this._state.mobileLayoutMode = "full";
@@ -3891,7 +3891,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return ["timer", "like", "lyrics", "queue", "queue_flow", "radio", "history"];
   }
 
-  _defaultAnnouncementPresets(lang = this._state?.lang || this._config?.language || "en") {
+  _defaultAnnouncementPresets() {
     return ["Dinner is ready", "Please come to the living room", "Leaving in five minutes"];
   }
 
@@ -3899,8 +3899,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!Array.isArray(presets) || !presets.length) return false;
     const normalize = (items) => items.slice(0, 3).map((item) => String(item || "").trim()).join("\n");
     const current = normalize(presets);
-    return current === normalize(this._defaultAnnouncementPresets("he"))
-      || current === normalize(this._defaultAnnouncementPresets("en"));
+    return current === normalize(this._defaultAnnouncementPresets());
   }
 
   _mobileHomeShortcutEnabled() {
