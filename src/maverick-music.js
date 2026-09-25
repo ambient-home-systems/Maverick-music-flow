@@ -25,6 +25,7 @@ import {
   screensaverClockSize, screensaverClockX, screensaverClockY, screensaverControlButtons, screensaverMessage, screensaverOverlayHtml,
   screensaverSettingsPillsHtml, screensaverTimeoutSeconds, syncScreensaverClockVars, syncScreensaverDynamicArtwork, syncScreensaverUi,
 } from "./core/media/screensaver.js";
+import { lyricsFontScale, lyricsSessionActive, lyricsSyncOffsetMs, openLyricsModal, syncLyricsForCurrentTrack } from "./core/media/lyrics.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -3015,8 +3016,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_font_scale"), String(this._state.mobileFontScale || 1)); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_icon_scale"), String(this._mobileIconScale())); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_sync"), JSON.stringify(this._state.mobileLyricsSyncEnabled !== false)); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_offset_ms"), String(this._lyricsSyncOffsetMs())); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_font_scale"), String(this._lyricsFontScale())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_offset_ms"), String(lyricsSyncOffsetMs(this))); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_font_scale"), String(lyricsFontScale(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_compact_mode"), JSON.stringify(!!this._state.mobileCompactMode)); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_compact_widget_mode"), this._mobileCompactWidgetMode()); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_compact_edge_to_edge"), JSON.stringify(this._mobileCompactEdgeToEdgeEnabled())); } catch (_) {}
@@ -3424,7 +3425,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     bindButton("mobileLyricsBtn", (e) => {
       this._pressUiButton(e.currentTarget);
       if (openTabletLyricsScreensaver(this)) return;
-      this._openLyricsModal();
+      openLyricsModal(this);
     });
     bindButton("mobileLikeBtn", (e) => {
       if (!this._pressUiButton(e.currentTarget)) return;
@@ -7868,7 +7869,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._syncNightModeUi();
     const player = this._getSelectedPlayer();
     const currentQueueItem = this._state.maQueueState?.current_item || null;
-    if (this._lyricsSessionActive?.()) this._syncLyricsForCurrentTrack();
+    if (lyricsSessionActive(this)) syncLyricsForCurrentTrack(this);
     if (this._state.screensaverOpen) {
       syncScreensaverDynamicArtwork(this);
       syncScreensaverUi(this);

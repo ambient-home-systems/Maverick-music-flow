@@ -1,6 +1,7 @@
 import { actionIconSvg } from "./action-menu.js";
 import { bindImmersivePlayer } from "./immersive-player.js";
 import { clearSleepTimer, setSleepTimerMinutes, sleepTimerRemainingMs } from "./timers.js";
+import { openLyricsModal } from "./lyrics.js";
 
 // The same wheel interaction as the player, with screen-specific commands.
 export function screenActions(card, page) {
@@ -154,7 +155,7 @@ export function syncScreenDock(card, sheet, page, closeScreen) {
         }
         card._closeMobileMenu();
         if (origin === "history") return card._setHistoryDrawerOpen(true);
-        if (origin === "lyrics") return card._openLyricsModal();
+        if (origin === "lyrics") return openLyricsModal(card);
         if (origin === "studio") { card._openControlRoom(); if (panel) card._toggleControlRoomPanel(panel); return; }
         if (origin === "queue_actions") return card._openMobileQueueActionMenu(entry);
         if (origin === "media_actions") return card._openMobileMediaActionMenu(entry);

@@ -3,6 +3,7 @@ import sheet1 from "./sheets/compact.js";
 import sheet2 from "./sheets/player.js";
 import sheet3 from "./sheets/voice.js";
 import sheet4 from "./sheets/menus.js";
+import lyricsSheet from "./sheets/lyrics.js";
 import sheet5 from "./sheets/library.js";
 import sheet6 from "./sheets/queue-groups.js";
 import sheet7 from "./sheets/settings.js";
@@ -26,6 +27,7 @@ export function buildCardStyles(options) {
     sheet2(options),
     sheet3(options),
     sheet4(options),
+    lyricsSheet(options),
     sheet5(options),
     sheet6(options),
     sheet7(options),

@@ -1,3 +1,4 @@
+import { openLyricsModal } from "./lyrics.js";
 import { preferredFanPages, openFanCatalogue } from "./fan-preferences.js";
 import { actionIconSvg, actionLabelsEnabled, actionSymbolHtml } from "./action-menu.js";
 import { syncWaveform } from "./waveform.js";
@@ -427,7 +428,7 @@ export function bindImmersivePlayer(card, options = {}) {
     if (action === "quick_search") { card._openMobileMenu("quick_search"); return; }
     if (action === "history") { card._toggleHistoryDrawer(); return; }
     if (action === "lyrics") {
-      card._openLyricsModal();
+      openLyricsModal(card);
     } else if (action === "studio") card._openControlRoom();
     else if (action === "home") card._goHomeAssistantDashboard();
     else card._openMobileMenu({ announcements:"announcements", ai_radio: "ai_radio", queue: "queue", players: "players", timer: "sleep_timer", more: "main", transfer: "transfer", group: "group", preferences: "queue_settings", discovery: "discovery", settings: "settings" }[action]);

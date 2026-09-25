@@ -2,6 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { immersiveActionPages, immersivePlayerEnabled, immersivePlayerDock, bindImmersivePlayer, syncImmersivePlayer, commitImmersiveSwipe, reconcileImmersiveCovers } from "../src/core/media/immersive-player.js";
 import { validateMobileCardEditorConfig } from "../src/config/validators.js";
+vi.mock("../src/core/media/lyrics.js", async (importOriginal) => ({ ...(await importOriginal()), openLyricsModal: vi.fn() }));
 const { document, KeyboardEvent, MouseEvent, WheelEvent } = globalThis;
 
 afterEach(() => document.body.replaceChildren());
@@ -22,7 +23,7 @@ function fixture() {
     _m: (en) => en, _i18n: (s) => s, _esc: (s) => String(s), _iconSvg: () => "<svg></svg>",
     _getSelectedPlayer: () => player, _getCurrentMediaUri: () => "library://track/1", _currentMediaFavoriteState: () => false,
     _isHotelMode: () => false, _discoveryModeEnabled: () => true,
-    _openMobileMenu: vi.fn(), _openTabletLyricsScreensaver: () => false, _openLyricsModal: vi.fn(),
+    _openMobileMenu: vi.fn(), _openTabletLyricsScreensaver: () => false,
     _toggleShuffle: vi.fn(), _toggleRepeat: vi.fn(),
     _toggleLikeCurrentMedia: vi.fn(async () => {}), _currentMediaLikeMeta: () => ({uri:"library://track/1",media_type:"track",name:"Current track"}), _openMobileMediaActionMenu: vi.fn(), _toast: vi.fn(), _toastError: vi.fn(), _mediaControlFailureMessage: (e) => e.message,
     _getCurrentDuration: () => 200, _fmtDur: (n) => `${n}s`, _seekFromProgress: vi.fn(),

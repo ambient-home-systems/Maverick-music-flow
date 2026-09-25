@@ -20,6 +20,13 @@ import {
   syncScreensaverUi,
 } from "../src/core/media/screensaver.js";
 
+// The screensaver only forwards to the lyrics module; keep those calls observable and inert here.
+vi.mock("../src/core/media/lyrics.js", async (importOriginal) => ({
+  ...(await importOriginal()),
+  clearLyricsState: vi.fn(), closeLyricsModal: vi.fn(), syncLyricsForCurrentTrack: vi.fn(), toggleLyricsSyncEnabled: vi.fn(), nudgeLyricsFontScale: vi.fn(),
+  lyricsSessionActive: () => false,
+}));
+
 const { document, MouseEvent, KeyboardEvent } = globalThis;
 const playing = { entity_id: "media_player.kitchen", state: "playing", attributes: { media_title: "Song <One>", media_artist: "Band" } };
 
@@ -41,6 +48,7 @@ function stubCard(state = {}) {
       screensaverOpen: false, screensaverLyricsOpen: false, lyricsOpen: false, menuOpen: false, maQueueState: null, ...state,
     },
     _isVisualEditorContext: () => false,
+    _getCurrentPosition: () => 6,
     _getSelectedPlayer: () => playing,
     _i18n: (key) => key,
     _esc: (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;"),
@@ -63,13 +71,7 @@ function stubCard(state = {}) {
     _language: () => "en-US",
     _tabletBrandSignatureHtml: () => "<svg class=\"logo\"></svg>",
     _selectedPlayerName: () => "Kitchen",
-    _lyricsFontScale: () => 1,
-    _currentLyricsActiveIndex: () => 1,
     _ensureQueueSnapshot: vi.fn(async () => {}),
-    _syncLyricsForCurrentTrack: vi.fn(),
-    _lyricsSessionActive: () => false,
-    _closeLyricsModal: vi.fn(),
-    _clearLyricsState: vi.fn(),
     _syncVoiceAssistantDialog: vi.fn(),
     _syncNowPlayingUI: vi.fn(),
     _syncDynamicThemeArtwork: vi.fn(async () => {}),
@@ -78,8 +80,6 @@ function stubCard(state = {}) {
     _togglePlay: vi.fn(),
     _toggleMute: vi.fn(),
     _runAuxiliaryButtonAction: vi.fn(async () => {}),
-    _toggleLyricsSyncEnabled: vi.fn(),
-    _nudgeLyricsFontScale: vi.fn(),
     _toggleLikeCurrentMedia: vi.fn(async () => {}),
     _startVoiceAssistantCommand: vi.fn(),
     _layoutModeConfig: () => "tablet",
@@ -226,7 +226,7 @@ describe("screensaver sync", () => {
     expect(root.querySelector("#screensaverArt").innerHTML).toContain('class="logo"');
   });
   it("shows three lyric rows while playing and drops lyrics mode thirty seconds after a pause", () => {
-    const { card, root, overlay } = stubCard({ screensaverOpen: true, screensaverLyricsOpen: true, lyricsLines: [{ text: "Before" }, { text: "Now" }, { text: "After" }] });
+    const { card, root, overlay } = stubCard({ screensaverOpen: true, screensaverLyricsOpen: true, lyricsLines: [{ time: 0, text: "Before" }, { time: 5, text: "Now" }, { time: 10, text: "After" }] });
     syncScreensaverLyricsUi(card, playing);
     expect(overlay.classList.contains("lyrics-mode")).toBe(true);
     expect(root.querySelectorAll(".screensaver-lyric-line")).toHaveLength(3);
@@ -237,7 +237,8 @@ describe("screensaver sync", () => {
     syncScreensaverLyricsUi(card, { ...playing, state: "paused" });
     expect(overlay.classList.contains("lyrics-mode")).toBe(false);
     expect(card._state.screensaverLyricsOpen).toBe(false);
-    expect(card._clearLyricsState).toHaveBeenCalled();
+    expect(card._state.lyricsLines).toEqual([]);
+    expect(card._state.lyricsTrackKey).toBe("");
   });
   it("applies the settings pills and re-arms or clears the timer", () => {
     const { card } = stubCard();

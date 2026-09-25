@@ -9,6 +9,7 @@ import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } 
 import { normalizeScheduledStartSchedule, scheduledStartEnginePayload } from "../src/core/media/timers.js";
 import { recordAnnouncementInEngine } from "../src/core/media/announcements.js";
 import { openTabletLyricsScreensaver, screensaverBlocked, screensaverControlButtonHtml, screensaverControlButtons, screensaverEnabled, showScreensaver, hideScreensaver, syncScreensaverLyricsUi } from "../src/core/media/screensaver.js";
+import { currentLyricsTrackKey, fetchLyricsForCurrentTrack, syncLyricsForCurrentTrack } from "../src/core/media/lyrics.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -3582,7 +3583,8 @@ describe("runtime baseline", () => {
     card._state.screensaverEnabled = true;
     card.getBoundingClientRect = () => ({ width: 900, height: 700 });
     card._ensureQueueSnapshot = async () => {};
-    card._syncLyricsForCurrentTrack = () => {};
+    card._state.maQueueState = { current_item: { media_item: { uri: "library://track/1" } } };
+    card._state.lyricsTrackKey = currentLyricsTrackKey(card);
     card._state.lyricsOpen = true;
     card._state.lyricsText = "Current lyric";
 
@@ -3621,7 +3623,6 @@ describe("runtime baseline", () => {
     card._state.screensaverEnabled = true;
     card.getBoundingClientRect = () => ({ width: 900, height: 700 });
     card._ensureQueueSnapshot = async () => {};
-    card._syncLyricsForCurrentTrack = vi.fn();
     card._state.screensaverAutoLyricsWhenPlaying = true;
     card._getSelectedPlayer = () => ({ entity_id: "media_player.office", state: "playing", attributes: {} });
 
@@ -3629,17 +3630,18 @@ describe("runtime baseline", () => {
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.screensaverLyricsOpen).toBe(true);
-    expect(card._syncLyricsForCurrentTrack).toHaveBeenCalled();
+    // A lyrics refresh was requested for the new session.
+    expect(card._lyricsRefreshPromise).toBeTruthy();
+    await card._lyricsRefreshPromise;
 
     hideScreensaver(card);
-    card._syncLyricsForCurrentTrack.mockClear();
     card._getSelectedPlayer = () => ({ entity_id: "media_player.office", state: "idle", attributes: {} });
 
     showScreensaver(card);
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.screensaverLyricsOpen).toBe(false);
-    expect(card._syncLyricsForCurrentTrack).not.toHaveBeenCalled();
+    expect(card._lyricsRefreshPromise).toBeNull();
   });
 
   it("opens tablet lyrics directly in screensaver mode without keeping the modal open", async () => {
@@ -3675,7 +3677,6 @@ describe("runtime baseline", () => {
     card._getSelectedPlayer = () => ({ entity_id: "media_player.main", state: "playing", attributes: {} });
     card._ensureQueueSnapshot = async () => {};
     card._isVisualEditorContext = () => false;
-    card._syncLyricsForCurrentTrack = vi.fn();
     card._screensaverSuppressUntil = Date.now() + 60000;
     card._state.lyricsOpen = true;
 
@@ -3685,7 +3686,7 @@ describe("runtime baseline", () => {
     expect(card._state.lyricsOpen).toBe(false);
     expect(card._state.screensaverLyricsOpen).toBe(true);
     expect(lyricsBackdrop.classList.contains("open")).toBe(false);
-    expect(card._syncLyricsForCurrentTrack).toHaveBeenCalled();
+    expect(card._lyricsRefreshPromise).toBeTruthy();
   });
 
   it("refreshes lyrics when the current track changes without user interaction", async () => {
@@ -3695,20 +3696,17 @@ describe("runtime baseline", () => {
 
     const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    let renders = 0;
     card._state.lyricsOpen = true;
     card._state.lyricsTrackKey = "old";
-    card._currentLyricsTrackKey = () => "new";
-    card._renderLyricsModalForCurrentTrack = async () => {
-      renders += 1;
-      card._state.lyricsTrackKey = "new";
-    };
+    card._state.lyricsLoading = true;
+    card._currentTrackInfo = () => ({ key: "new", title: "New Song" });
 
-    card._syncLyricsForCurrentTrack();
+    syncLyricsForCurrentTrack(card);
     await card._lyricsRefreshPromise;
 
-    expect(renders).toBe(1);
     expect(card._state.lyricsTrackKey).toBe("new");
+    expect(card._state.lyricsLoading).toBe(false);
+    expect(card._lyricsRefreshPromise).toBeNull();
   });
 
   it("shows lyrics beside artwork in screensaver only while playback is active or freshly paused", async () => {
@@ -3776,7 +3774,7 @@ describe("runtime baseline", () => {
   });
 
   it("keeps lyrics sync and font controls available in the normal lyrics modal", async () => {
-    const source = await readProjectFile("src", "core", "base-music-card.js");
+    const source = await readProjectFile("src", "core", "media", "lyrics.js");
     const styleSource = await readCardPresentationSource();
 
     expect(source).toContain('id="lyricsFontMinusBtn"');
@@ -4139,10 +4137,10 @@ describe("runtime baseline", () => {
     const localCard = new CardCtor();
     localCard._config = {};
     localCard._currentTrackInfo = () => ({ key: "local", title: "Local Song", artist: "Local Artist" });
-    localCard._extractCurrentLyricsRawText = () => "[00:01.00]Local line";
+    localCard._state.maQueueState = { current_item: { media_item: { lrc_lyrics: "[00:01.00]Local line" } } };
     globalThis.fetch = vi.fn();
 
-    const embedded = await localCard._fetchLyricsForCurrentTrack();
+    const embedded = await fetchLyricsForCurrentTrack(localCard);
 
     expect(embedded.source).toBe("metadata");
     expect(embedded.text).toContain("Local line");
@@ -4151,9 +4149,8 @@ describe("runtime baseline", () => {
     const disabledCard = new CardCtor();
     disabledCard._config = {};
     disabledCard._currentTrackInfo = () => ({ key: "disabled", title: "Private Song", artist: "Private Artist" });
-    disabledCard._extractCurrentLyricsRawText = () => "";
 
-    const disabled = await disabledCard._fetchLyricsForCurrentTrack();
+    const disabled = await fetchLyricsForCurrentTrack(disabledCard);
 
     expect(disabled.source).toBe("disabled");
     expect(globalThis.fetch).not.toHaveBeenCalled();
@@ -4167,13 +4164,12 @@ describe("runtime baseline", () => {
       album: "External Album",
       duration: 123,
     });
-    optedInCard._extractCurrentLyricsRawText = () => "";
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ plainLyrics: "External line" }),
     });
 
-    const external = await optedInCard._fetchLyricsForCurrentTrack();
+    const external = await fetchLyricsForCurrentTrack(optedInCard);
 
     expect(external.source).toBe("lrclib");
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);

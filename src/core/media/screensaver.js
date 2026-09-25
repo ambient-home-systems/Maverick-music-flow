@@ -1,5 +1,9 @@
 import { clampNumber, clampSeconds, normalizeScreensaverClockMode, normalizeScreensaverControlButtons } from "../state/mobile-settings.js";
 import { cssUrl } from "../theme/css-url.js";
+import { clearLyricsState, closeLyricsModal, lyricsSessionActive, nudgeLyricsFontScale, syncLyricsForCurrentTrack, syncScreensaverLyricsUi, toggleLyricsSyncEnabled } from "./lyrics.js";
+
+// The screensaver's lyrics mode is rendered by the lyrics module, which owns the session state it reads.
+export { syncScreensaverLyricsUi } from "./lyrics.js";
 
 // Screensaver: the inactivity timer, the overlay with clock, artwork, next-up
 // and optional controls, and the lyrics mode that mirrors the lyrics modal.
@@ -270,11 +274,11 @@ export function showScreensaver(card, options = {}) {
   overlay.setAttribute("aria-hidden", "false");
   if (card._state.lyricsOpen) {
     card._state.screensaverLyricsOpen = true;
-    card._closeLyricsModal?.({ preserveLyrics: true, sync: false });
+    closeLyricsModal(card, { preserveLyrics: true, sync: false });
   } else {
     maybeOpenScreensaverLyricsForPlayback(card, card._getSelectedPlayer());
   }
-  if (card._lyricsSessionActive?.()) card._syncLyricsForCurrentTrack();
+  if (lyricsSessionActive(card)) syncLyricsForCurrentTrack(card);
   card._ensureQueueSnapshot(true)
     .then(() => { if (card._state.screensaverOpen) syncScreensaverUi(card); })
     .catch(() => {});
@@ -294,7 +298,7 @@ export function hideScreensaver(card) {
   card._state.screensaverOpen = false;
   card._screensaverLyricsInactiveSince = 0;
   card._state.screensaverLyricsOpen = false;
-  if (!card._state.lyricsOpen) card._clearLyricsState?.();
+  if (!card._state.lyricsOpen) clearLyricsState(card);
   overlay?.classList.remove("open");
   overlay?.classList.add("closing");
   overlay?.setAttribute("aria-hidden", "true");
@@ -343,7 +347,7 @@ export function openTabletLyricsScreensaver(card) {
   card._screensaverSuppressUntil = 0;
   card._state.lyricsOpen = false;
   card._state.screensaverLyricsOpen = true;
-  card._closeLyricsModal?.({ preserveLyrics: true, sync: false });
+  closeLyricsModal(card, { preserveLyrics: true, sync: false });
   showScreensaver(card, { force: true });
   syncScreensaverUi(card);
   return true;
@@ -405,73 +409,6 @@ function setScreensaverBackgroundArt(overlay, url = "") {
   }, { once: true });
   img.src = nextUrl;
   if (img.complete) applyImage();
-}
-
-// ---------------------------------------------------------------------------
-// Lyrics mode
-
-function screensaverLyricsModeActive(card, player = null) {
-  if (!(card._state.lyricsOpen || card._state.screensaverLyricsOpen) || !card._state.screensaverOpen) {
-    card._screensaverLyricsInactiveSince = 0;
-    return false;
-  }
-  if (player?.state === "playing") {
-    card._screensaverLyricsInactiveSince = 0;
-    return true;
-  }
-  const now = Date.now();
-  if (!card._screensaverLyricsInactiveSince) card._screensaverLyricsInactiveSince = now;
-  const active = now - card._screensaverLyricsInactiveSince < 30000;
-  if (!active) {
-    card._state.screensaverLyricsOpen = false;
-    if (!card._state.lyricsOpen) card._clearLyricsState?.();
-  }
-  return active;
-}
-
-function screensaverLyricsRows(card) {
-  const lines = Array.isArray(card._state.lyricsLines) ? card._state.lyricsLines : [];
-  if (lines.length) {
-    const activeIndex = Math.max(0, card._currentLyricsActiveIndex(lines));
-    return [
-      { kind: "muted", text: lines[activeIndex - 1]?.text || "" },
-      { kind: "current", text: lines[activeIndex]?.text || "" },
-      { kind: "muted", text: lines[activeIndex + 1]?.text || "" },
-    ].filter((row) => String(row.text || "").trim());
-  }
-  if (card._state.lyricsLoading) {
-    return [{ kind: "current", text: card._i18n("ui.loading_lyrics") }];
-  }
-  const textRows = String(card._state.lyricsText || "")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .slice(0, 4);
-  if (textRows.length) {
-    return textRows.map((text, index) => ({ kind: index === 0 ? "current" : "muted", text }));
-  }
-  return [{ kind: "current", text: card._i18n("ui.no_lyrics_found") }];
-}
-
-export function syncScreensaverLyricsUi(card, player = null) {
-  const overlay = card.$("screensaverBackdrop");
-  const host = card.$("screensaverLyrics");
-  if (!overlay || !host) return;
-  host.style?.setProperty("--lyrics-font-scale", card._lyricsFontScale().toFixed(2));
-  const active = screensaverLyricsModeActive(card, player);
-  overlay.classList.toggle("lyrics-mode", active);
-  if (!active) {
-    host.dataset.lyricsSignature = "";
-    host.innerHTML = "";
-    return;
-  }
-  const rows = screensaverLyricsRows(card);
-  const signature = rows.map((row) => `${row.kind}:${row.text}`).join("\n");
-  if (host.dataset.lyricsSignature === signature) return;
-  host.dataset.lyricsSignature = signature;
-  host.innerHTML = rows.map((row) => `
-      <div class="screensaver-lyric-line ${card._esc(row.kind)}">${card._esc(row.text)}</div>
-    `).join("");
 }
 
 // ---------------------------------------------------------------------------
@@ -669,18 +606,18 @@ export function bindScreensaver(card) {
     const overlay = card.$("screensaverBackdrop");
     if (overlay?.classList?.contains("lyrics-mode")) {
       card._state.screensaverLyricsOpen = false;
-      if (!card._state.lyricsOpen) card._clearLyricsState?.();
+      if (!card._state.lyricsOpen) clearLyricsState(card);
       syncScreensaverUi(card);
       return;
     }
     if (!card._getSelectedPlayer()) return;
     card._state.screensaverLyricsOpen = true;
-    card._syncLyricsForCurrentTrack?.();
+    syncLyricsForCurrentTrack(card);
     syncScreensaverUi(card);
   });
-  onControl("screensaverLyricsSyncBtn", () => { card._toggleLyricsSyncEnabled(); syncScreensaverUi(card); });
-  onControl("screensaverLyricsFontMinusBtn", () => { card._nudgeLyricsFontScale(-0.08); syncScreensaverUi(card); });
-  onControl("screensaverLyricsFontPlusBtn", () => { card._nudgeLyricsFontScale(0.08); syncScreensaverUi(card); });
+  onControl("screensaverLyricsSyncBtn", () => { toggleLyricsSyncEnabled(card); syncScreensaverUi(card); });
+  onControl("screensaverLyricsFontMinusBtn", () => { nudgeLyricsFontScale(card, -0.08); syncScreensaverUi(card); });
+  onControl("screensaverLyricsFontPlusBtn", () => { nudgeLyricsFontScale(card, 0.08); syncScreensaverUi(card); });
   onControl("screensaverLikeBtn", (e) => card._toggleLikeCurrentMedia(e.currentTarget));
   if (card._screensaverPageEntryPending) {
     card._screensaverPageEntryPending = false;
@@ -727,7 +664,7 @@ export function handleScreensaverSettingsClick(card, eventTarget) {
     card._state.screensaverAutoLyricsWhenPlaying = autoLyricsBtn.dataset.settingScreensaverAutoLyrics === "on";
     if (!card._state.screensaverAutoLyricsWhenPlaying && !card._state.lyricsOpen) {
       card._state.screensaverLyricsOpen = false;
-      card._clearLyricsState?.();
+      clearLyricsState(card);
     } else if (card._state.screensaverOpen) {
       maybeOpenScreensaverLyricsForPlayback(card);
     }
