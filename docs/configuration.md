@@ -26,7 +26,6 @@ type: custom:maverick-music
 entity: media_player.living_room
 language: auto
 theme_mode: auto
-phone_display_mode: auto
 ```
 
 ## Search Ordering
@@ -257,7 +256,6 @@ For most users:
 type: custom:maverick-music
 language: auto
 theme_mode: auto
-phone_display_mode: auto
 ```
 
 For wall tablets:
@@ -266,7 +264,7 @@ For wall tablets:
 type: custom:maverick-music
 language: auto
 theme_mode: auto
-phone_display_mode: full
+layout_mode: tablet
 ```
 
 For multiple cards in one browser:

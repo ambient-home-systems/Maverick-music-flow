@@ -143,6 +143,7 @@ export function validateBaseCardEditorConfig(config) {
     assertStringIfDefined(config[`aux_button_${index}_entity`], `aux_button_${index}_entity`);
   }
   assertBooleanIfDefined(config.discovery_mode_enabled, "discovery_mode_enabled");
+  assertBooleanIfDefined(config.debug, "debug");
 }
 
 export function validateMobileCardEditorConfig(config) {
@@ -201,6 +202,8 @@ export function validateMobileCardEditorConfig(config) {
   assertBooleanIfDefined(config.mobile_cover_flow, "mobile_cover_flow");
   assertBooleanIfDefined(config.mobile_queue_flow, "mobile_queue_flow");
   assertBooleanIfDefined(config.mobile_show_up_next, "mobile_show_up_next");
+  assertBooleanIfDefined(config.show_source_badge, "show_source_badge");
+  assertBooleanIfDefined(config.show_quality_badge, "show_quality_badge");
   assertStringIfDefined(config.pinned_player_entity, "pinned_player_entity");
   assertStringArrayIfDefined(config.pinned_player_entities, "pinned_player_entities");
   assertStringIfDefined(config.pinned_player_master, "pinned_player_master");

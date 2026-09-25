@@ -408,6 +408,15 @@ describe("config validators", () => {
     ).toThrow("screensaver_clock_size must be a number");
   });
 
+  it("validates the debug and badge toggles as booleans", () => {
+    expect(() => validateBaseCardEditorConfig({ debug: true })).not.toThrow();
+    expect(() => validateBaseCardEditorConfig({ debug: "true" })).toThrow("debug must be a boolean");
+    expect(() => validateMobileCardEditorConfig({ debug: 1 })).toThrow("debug must be a boolean");
+    expect(() => validateMobileCardEditorConfig({ show_source_badge: false, show_quality_badge: true })).not.toThrow();
+    expect(() => validateMobileCardEditorConfig({ show_source_badge: "no" })).toThrow("show_source_badge must be a boolean");
+    expect(() => validateMobileCardEditorConfig({ show_quality_badge: 0 })).toThrow("show_quality_badge must be a boolean");
+  });
+
   it("rejects non-string array members", () => {
     expect(() => assertStringArrayIfDefined(["ok", 7], "mobile_library_tabs")).toThrow(
       "mobile_library_tabs must be an array of strings"

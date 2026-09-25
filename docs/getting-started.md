@@ -78,7 +78,6 @@ Recommended first configuration:
 type: custom:maverick-music
 language: auto
 theme_mode: auto
-phone_display_mode: auto
 ```
 
 If you want the card to start on a specific player:

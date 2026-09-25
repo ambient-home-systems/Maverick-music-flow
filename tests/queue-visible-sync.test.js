@@ -35,6 +35,13 @@ describe("visible queue synchronization", () => {
     await vi.advanceTimersByTimeAsync(200);
     expect(card._renderMobileMenu).toHaveBeenCalledOnce();
   });
+  it("keeps applying a repeated queue revision but drops older ones", () => {
+    const card = {_engineSnapshotRevisions:new Map(),_normalizeQueueItem:item=>item,_debugLog:vi.fn()};
+    const payload = revision => ({snapshot:{domain:"queue",epoch:"boot",identity:"kitchen",revision},normalized:{items:[],current_index:null}});
+    expect(prototype._normalizeQueueSnapshot.call(card,payload(4),"media_player.kitchen")).not.toBe(null);
+    expect(prototype._normalizeQueueSnapshot.call(card,payload(4),"media_player.kitchen")).not.toBe(null);
+    expect(prototype._normalizeQueueSnapshot.call(card,payload(3),"media_player.kitchen")).toBe(null);
+  });
   it("clears old rows when MA confirms an empty queue", () => {
     const card = {_state:{queueItems:[{queue_item_id:"old"}]},_queueItemsWithSequentialSortIndexes:items=>items};
     prototype._applyQueueSnapshot.call(card,{items:0,current_item:null},[],true);

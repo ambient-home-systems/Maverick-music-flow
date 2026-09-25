@@ -101,9 +101,9 @@ export function createMaverickBaseMusicCard({
       };
 
       this._boundDocClick = this._handleDocumentClick.bind(this);
-      this._boundContentClick = this._handleContentClick.bind(this);
+      this._boundContentClick = (e) => this._runDetached(this._handleContentClick(e), "content click");
       this._boundContentContext = this._handleContentContext.bind(this);
-      this._boundQueuePanelClick = this._handleQueuePanelClick.bind(this);
+      this._boundQueuePanelClick = (e) => this._runDetached(this._handleQueuePanelClick(e), "queue panel click");
       this._boundWindowResize = this._handleWindowResize.bind(this);
       this._boundBrandLogoError = this._handleBrandLogoError.bind(this);
       this._boundLocalSendspinLifecycle = this._handleLocalSendspinLifecycle.bind(this);
@@ -711,6 +711,32 @@ export function createMaverickBaseMusicCard({
       if (base.protocol !== "https:") throw new Error(this._maMixedContentMessage());
     }
 
+    _timeout(fn, ms = 0) {
+      // One-shot UI work that should not run against a disconnected card.
+      this._pendingTimeouts ||= new Set();
+      const handle = setTimeout(() => {
+        this._pendingTimeouts?.delete(handle);
+        fn();
+      }, ms);
+      this._pendingTimeouts.add(handle);
+      return handle;
+    }
+
+    _clearTimeouts() {
+      this._pendingTimeouts?.forEach((handle) => clearTimeout(handle));
+      this._pendingTimeouts?.clear();
+    }
+
+    _runDetached(task, label = "background task") {
+      return Promise.resolve(task).catch((error) => {
+        this._debugLog("warn", `[Maverick Music] ${label} failed`, error);
+      });
+    }
+
+    _handleDebugUnhandledRejection(event) {
+      this._debugLog("error", "[Maverick Music] unhandled promise rejection", event?.reason);
+    }
+
     _debugLog(level = "info", ...args) {
       if (!this._config?.debug) return;
       try {
@@ -1291,7 +1317,7 @@ export function createMaverickBaseMusicCard({
     _versionedAssetUrl(url) {
       const value = String(url || "").trim();
       if (!value || /^data:/i.test(value) || /[?&]v=/.test(value)) return value;
-      const version = typeof MAVERICK_CARD_VERSION === "string" ? MAVERICK_CARD_VERSION : "5.9.3";
+      const version = typeof MAVERICK_CARD_VERSION === "string" && MAVERICK_CARD_VERSION ? MAVERICK_CARD_VERSION : "0.0.0";
       return `${value}${value.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
     }
 
@@ -1710,8 +1736,8 @@ export function createMaverickBaseMusicCard({
       this.$("content").addEventListener("change", (e) => this._handleQueueMoveAutoChange(e));
       this.$("content").addEventListener("contextmenu", this._boundContentContext);
       this.$("groupList").addEventListener("change", (e) => this._handleGroupChange(e));
-      this.$("applyGroupBtn").addEventListener("click", (event) => this._runMenuButtonLoading(event.currentTarget, this._m("Updating group"), () => this._applySpeakerGroup(), { kind: "connect" }));
-      this.$("unGroupBtn").addEventListener("click", (event) => this._runMenuButtonLoading(event.currentTarget, this._m("Disconnecting all"), () => this._clearSpeakerGroup(), { kind: "disconnect" }));
+      this.$("applyGroupBtn").addEventListener("click", (event) => this._runDetached(this._runMenuButtonLoading(event.currentTarget, this._m("Updating group"), () => this._applySpeakerGroup(), { kind: "connect" }), "apply speaker group"));
+      this.$("unGroupBtn").addEventListener("click", (event) => this._runDetached(this._runMenuButtonLoading(event.currentTarget, this._m("Disconnecting all"), () => this._clearSpeakerGroup(), { kind: "disconnect" }), "clear speaker group"));
       this.$("groupModalClose").addEventListener("click", () => this._closeGroupModal());
       this.$("groupModal").addEventListener("click", (e) => { if (e.target === this.$("groupModal")) this._closeGroupModal(); });
       this.$("playerModalClose").addEventListener("click", () => this._closePlayerModal());
@@ -1738,7 +1764,7 @@ export function createMaverickBaseMusicCard({
         else if (this._state.query) await this._renderGlobalSearch(this._state.query);
         else await this._renderCurrentView();
         this._startLoops();
-        setTimeout(() => { if (this._state.view === "home" && !this._state.query) this._renderHome(); }, 2500);
+        this._timeout(() => { if (this._state.view === "home" && !this._state.query) this._renderHome(); }, 2500);
       } catch (e) {
         this._renderError(e);
       }
@@ -3091,7 +3117,7 @@ export function createMaverickBaseMusicCard({
       this._closeCleanAllConfirm();
       this._closeMobileMenu();
       await this._stopAllPlayers();
-      setTimeout(() => this._updateNowPlayingState(), 350);
+      this._timeout(() => this._updateNowPlayingState(), 350);
     }
 
     _normalizedMusicAssistantInterfaceUrl() {
@@ -4288,7 +4314,7 @@ export function createMaverickBaseMusicCard({
           `Started ${playable.length} items in Studio`
         ));
       }
-      setTimeout(() => this._updateNowPlayingState(), 500);
+      this._timeout(() => this._updateNowPlayingState(), 500);
       return true;
     }
 
@@ -4535,7 +4561,7 @@ export function createMaverickBaseMusicCard({
       }
       this._syncControlRoomUi({ force: true });
       this._toastSuccess(this._m(`Scene "${saved.name}" applied`));
-      setTimeout(() => this._updateNowPlayingState(), 350);
+      this._timeout(() => this._updateNowPlayingState(), 350);
       return true;
     }
 
@@ -6669,7 +6695,7 @@ export function createMaverickBaseMusicCard({
           return;
         }
         if (action === "like") {
-          this._toggleLikeEntry(entry, item);
+          this._runDetached(this._toggleLikeEntry(entry, item), "toggle like");
           if (this._state.menuOpen && this._state.menuPage === "queue") await this._renderMobileMenu();
         } else {
           const targetPosition = action === "move_to" ? this._queueMoveTargetFromElement(item) : null;
@@ -8268,12 +8294,13 @@ export function createMaverickBaseMusicCard({
     }
 
     _normalizeQueueSnapshot(raw, entityId = "") {
-      if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+      // A repeated revision is still current here; only stale payloads are dropped.
+      if (MaverickRevisionedSnapshotsFoundation.engineSnapshotDecision(
         this._engineSnapshotRevisions,
         "queue",
         raw,
         entityId,
-      )) {
+      ) === "stale") {
         this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine queue snapshot", {
           entityId,
           snapshot: MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(raw),
@@ -8515,12 +8542,13 @@ export function createMaverickBaseMusicCard({
             options.snapshot.revision = revision;
           }
         }
-        if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+        // A repeated revision is still current here; only stale payloads are dropped.
+        if (MaverickRevisionedSnapshotsFoundation.engineSnapshotDecision(
           this._engineSnapshotRevisions,
           "library",
           engineResult,
           libraryIdentity,
-        )) {
+        ) === "stale") {
           if (options.strict) throw new Error(this._m("Library changed while loading. Try again."));
           this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine library snapshot", {
             libraryIdentity,
@@ -10551,12 +10579,13 @@ export function createMaverickBaseMusicCard({
           if (!Array.isArray(result?.music_assistant_players) && !Array.isArray(result?.players)) {
             throw new Error("Maverick Music Engine returned an invalid player catalog.");
           }
-          if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+          // A repeated revision is still current here; only stale payloads are dropped.
+          if (MaverickRevisionedSnapshotsFoundation.engineSnapshotDecision(
             this._engineSnapshotRevisions,
             "players",
             result,
             "music_assistant",
-          )) {
+          ) === "stale") {
             this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine player snapshot", {
               snapshot: MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(result),
             });
@@ -11599,6 +11628,8 @@ export function createMaverickBaseMusicCard({
           if (this._state.modalMode === "transfer") this._openTransferQueuePicker(true);
           else this._renderPlayerModal();
         }
+      } catch (error) {
+        this._debugLog("warn", "[Maverick Music] now playing refresh failed", error);
       } finally {
         this._updateNowPlayingInFlight = false;
         if (this._updateNowPlayingQueued && this.isConnected) {
@@ -12440,12 +12471,21 @@ export function createMaverickBaseMusicCard({
       this._attachLocalSendspinLifecycleListeners();
       this._scheduleLocalSendspinReconnect("connected", 600);
       if (typeof this._refreshMaverickEngineContext === "function") {
-        setTimeout(() => this._refreshMaverickEngineContext({ force: true }).catch(() => {}), 800);
+        this._timeout(() => this._refreshMaverickEngineContext({ force: true }).catch(() => {}), 800);
       }
       this._subscribeMaverickEngineMusicAssistantEvents?.();
+      if (this._config?.debug && typeof window !== "undefined" && !this._boundDebugUnhandledRejection) {
+        this._boundDebugUnhandledRejection = (event) => this._handleDebugUnhandledRejection(event);
+        window.addEventListener("unhandledrejection", this._boundDebugUnhandledRejection);
+      }
     }
 
     disconnectedCallback() {
+      this._clearTimeouts();
+      if (this._boundDebugUnhandledRejection && typeof window !== "undefined") {
+        window.removeEventListener("unhandledrejection", this._boundDebugUnhandledRejection);
+        this._boundDebugUnhandledRejection = null;
+      }
       clearInterval(this._pollTimer);
       clearInterval(this._progressTimer);
       clearTimeout(this._searchTimer);
