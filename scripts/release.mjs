@@ -25,6 +25,8 @@ const brandLogoPath = path.join(rootDir, "docs", "brand", "homeii-flow-logo.svg"
 const distLogoPath = path.join(rootDir, "dist", "homeii-flow-logo.svg");
 const brandLogoPngPath = path.join(rootDir, "docs", "brand", "homeii-flow-logo.png");
 const distLogoPngPath = path.join(rootDir, "dist", "homeii-flow-logo.png");
+const brandLogoV2PngPath = path.join(rootDir, "docs", "brand", "homeii-flow-logo-v2.png");
+const distLogoV2PngPath = path.join(rootDir, "dist", "homeii-flow-logo-v2.png");
 const brandIconPngPath = path.join(rootDir, "docs", "brand", "homeii-flow-icon.png");
 const distIconPngPath = path.join(rootDir, "dist", "homeii-flow-icon.png");
 
@@ -140,7 +142,7 @@ await mkdir(distVendorDir, { recursive: true });
 await copyFile(vendorEmblaPath, path.join(distVendorDir, "embla-carousel.umd.js"));
 await copyFile(brandLogoPath, distLogoPath);
 await copyFile(brandLogoPngPath, distLogoPngPath);
-await copyFile(path.join(rootDir, "src", "homeii-flow-logo-v2.png"), path.join(rootDir, "dist", "homeii-flow-logo-v2.png"));
+await copyFile(brandLogoV2PngPath, distLogoV2PngPath);
 await copyFile(brandIconPngPath, distIconPngPath);
 
 console.log(`Synced Maverick release artifacts for ${version}`);
