@@ -6,16 +6,16 @@ export function playerChoiceHtml(card, player, { attrs, active, available, name,
   const canGroup = card._getAvailableGroupPlayers?.().some(item => item.entity_id === player.entity_id) && !card._isHotelMode?.();
   return `<div data-group-player="${card._esc(player.entity_id)}" class="player-choice-card ${active ? "selected" : ""} ${available ? "" : "unavailable"}">
     <button type="button" class="player-choice-button" ${attrs} aria-pressed="${active}" ${available ? "" : "disabled"}>
-      <span class="player-choice-symbol" ${canGroup ? 'data-group-drag-art draggable="true"' : ''} title="${card._esc(card._m("Drag onto another player to connect", "גרור לנגן אחר לחיבור"))}">${art ? card._imgHtml(art, "", { fallbackIcon: "speaker" }) : actionIconSvg(card, "speaker")}</span>
+      <span class="player-choice-symbol" ${canGroup ? 'data-group-drag-art draggable="true"' : ''} title="${card._esc(card._m("Drag onto another player to connect"))}">${art ? card._imgHtml(art, "", { fallbackIcon: "speaker" }) : actionIconSvg(card, "speaker")}</span>
       <span class="player-choice-details">
         <span class="player-choice-name" dir="auto">${card._esc(name)}</span>
-        <span class="player-choice-state"><i class="${player.state === "playing" ? "playing" : ""}" aria-hidden="true"></i>${card._esc(state)}${active ? ` · ${card._esc(card._m("Selected", "נבחר"))}` : ""}</span>
+        <span class="player-choice-state"><i class="${player.state === "playing" ? "playing" : ""}" aria-hidden="true"></i>${card._esc(state)}${active ? ` · ${card._esc(card._m("Selected"))}` : ""}</span>
         ${available && track ? `<span class="player-choice-track" dir="auto">${card._esc(track)}</span>` : ""}
       </span>
       ${active ? '<svg class="player-choice-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>' : ""}
     </button>
     ${pinHtml}
-    ${canGroup ? `<button class="player-group-drag" data-group-drag draggable="true" aria-label="${card._esc(card._m("Drag onto another player to group", "גרור לנגן אחר ליצירת קבוצה"))}">${actionIconSvg(card,"speaker_group")}</button>` : ""}
+    ${canGroup ? `<button class="player-group-drag" data-group-drag draggable="true" aria-label="${card._esc(card._m("Drag onto another player to group"))}">${actionIconSvg(card,"speaker_group")}</button>` : ""}
   </div>`;
 }
 
@@ -59,12 +59,12 @@ export function bindPlayerGrouping(card, host) {
     const allowed = card._getAvailableGroupPlayers().map(player => player.entity_id);
     if (busy || !to || to === from || !allowed.includes(from) || !allowed.includes(to)) return;
     if (card._currentSpeakerGroupMemberIds(from).length > 1) {
-      card._toastError(card._m("Disconnect this player from its group first.", "יש לנתק תחילה את הנגן מהקבוצה שלו.")); return;
+      card._toastError(card._m("Disconnect this player from its group first.")); return;
     }
     busy = true; host.setAttribute("aria-busy","true");
     targetRow?.classList.add("group-connecting");
     const status = document.createElement("div"); status.className = "player-group-status";
-    status.setAttribute("role","status"); status.textContent = card._m("Connecting players…", "מחבר נגנים…");
+    status.setAttribute("role","status"); status.textContent = card._m("Connecting players…");
     targetRow?.append(status);
     try {
       const members = [...new Set([...card._currentSpeakerGroupMemberIds(to),from])];
@@ -72,7 +72,7 @@ export function bindPlayerGrouping(card, host) {
       const ok = await card._applySpeakerGroupFor(to, members);
       if (ok) {
         targetRow?.classList.add("group-connected");
-        card._toastSuccess(card._m("Players connected", "הנגנים חוברו"));
+        card._toastSuccess(card._m("Players connected"));
         setTimeout(() => targetRow?.classList.remove("group-connected"), 700);
         setTimeout(() => {
           if (!["players","players_active","group"].includes(card._state?.menuPage)) return;
@@ -133,7 +133,7 @@ export function bindPlayerGrouping(card, host) {
       const members=card._currentSpeakerGroupMemberIds(owner);
       if (!owner || id===owner) return;
       if (!members.includes(id) && card._currentSpeakerGroupMemberIds(id).length > 1) {
-        card._toastError(card._m("Disconnect this player from its group first.", "יש לנתק תחילה את הנגן מהקבוצה שלו.")); return;
+        card._toastError(card._m("Disconnect this player from its group first.")); return;
       }
       busy=true; quick.disabled=true; quick.setAttribute("aria-busy","true");
       try {

@@ -64,7 +64,7 @@ export function _syncGroupVolumeShortcut(player = this._getSelectedPlayer()) {
 export function _openGroupVolumeShortcut() {
   const player = this._getSelectedPlayer();
   if (!player || this._selectedSpeakerGroupCount(player) <= 1) {
-    this._toast?.(this._m("No active group for this player.", "אין קבוצה פעילה לנגן הזה."));
+    this._toast?.(this._m("No active group for this player."));
     return;
   }
   if (typeof this._openMobileMenu === "function") {
@@ -189,7 +189,7 @@ export function _openGroupModal() {
     const checked = desiredAllSet.has(p.entity_id);
     const connected = currentAllSet.has(p.entity_id);
     const isOwner = p.entity_id === groupOwner;
-    return `<label class="group-item ${checked ? "checked" : ""} ${connected ? "connected" : ""} ${isOwner ? "group-owner" : ""}"><span class="group-meta"><span class="group-name">${this._esc(this._playerDisplayName(p, players))}<span class="group-item-toggle ${checked ? "checked" : ""}" aria-hidden="true">${this._iconSvg(checked ? "check" : "plus")}</span></span><span class="group-sub">${isOwner ? this._esc(this._m("Master", "מוביל")) : ""}</span></span><input type="checkbox" data-group-player="${this._esc(p.entity_id)}" data-group-owner="${isOwner ? "true" : "false"}" ${checked ? "checked" : ""}></label>`;
+    return `<label class="group-item ${checked ? "checked" : ""} ${connected ? "connected" : ""} ${isOwner ? "group-owner" : ""}"><span class="group-meta"><span class="group-name">${this._esc(this._playerDisplayName(p, players))}<span class="group-item-toggle ${checked ? "checked" : ""}" aria-hidden="true">${this._iconSvg(checked ? "check" : "plus")}</span></span><span class="group-sub">${isOwner ? this._esc(this._m("Master")) : ""}</span></span><input type="checkbox" data-group-player="${this._esc(p.entity_id)}" data-group-owner="${isOwner ? "true" : "false"}" ${checked ? "checked" : ""}></label>`;
   }).join("") : `<div class="state-box" style="min-height:80px;padding:8px 0;">${this._esc(this._i18n("ui.no_extra_ma_players"))}</div>`;
   this._syncGroupModalApplyButton();
   this.$("groupModal").classList.add("open");
@@ -202,7 +202,7 @@ export function _syncGroupModalApplyButton() {
   if (!applyButton) return;
   const selected = this._getSelectedPlayer();
   const delta = this._groupSelectionDelta(selected?.entity_id, this._state.pendingGroupSelections || []);
-  applyButton.textContent = this._m("Update group", "עדכן קבוצה");
+  applyButton.textContent = this._m("Update group");
   applyButton.disabled = !delta.ownerRemoved && !delta.added.length && !delta.removed.length;
 }
 
@@ -264,7 +264,7 @@ async function applySpeakerGroupFor(entityId, groupMembers = []) {
       const expectedMembers = [...new Set([leaderId, ...members])];
       const confirmed = await this._waitForSpeakerGroupConfirmation(leaderId, expectedMembers);
       if (!confirmed.ok) {
-        throw new Error(this._m("Group command was sent, but Music Assistant did not confirm the new group state.", "פקודת הקבוצה נשלחה, אבל Music Assistant לא אישר שהקבוצה התעדכנה."));
+        throw new Error(this._m("Group command was sent, but Music Assistant did not confirm the new group state."));
       }
       this._state.pendingGroupSelections = expectedMembers;
       this._state.pendingGroupOwnerRemoval = false;
@@ -292,7 +292,7 @@ async function applySpeakerGroupFor(entityId, groupMembers = []) {
   const expectedMembers = [...new Set([leaderId, ...members])];
   const confirmed = await this._waitForSpeakerGroupConfirmation(leaderId, expectedMembers);
   if (!confirmed.ok) {
-    throw new Error(this._m("Group command was sent, but Music Assistant did not confirm the new group state.", "פקודת הקבוצה נשלחה, אבל Music Assistant לא אישר שהקבוצה התעדכנה."));
+    throw new Error(this._m("Group command was sent, but Music Assistant did not confirm the new group state."));
   }
   this._state.pendingGroupSelections = expectedMembers;
   this._state.pendingGroupOwnerRemoval = false;
@@ -318,7 +318,7 @@ export async function _applySpeakerGroup() {
     return false;
   }
   if (!ok) {
-    this._toastError(this._m("Choose at least one speaker to add or remove.", "בחר לפחות רמקול אחד לצירוף או להסרה."));
+    this._toastError(this._m("Choose at least one speaker to add or remove."));
     return false;
   }
   this._toastSuccess(this._i18n("ui.group_updated"));
@@ -388,7 +388,7 @@ async function clearSpeakerGroupFor(entityId) {
     }
     const results = await Promise.allSettled(targets.map((id) => this._callHaMediaPlayerService(id, "unjoin")));
     const failed = targets.filter((_, index) => results[index].status === "rejected");
-    if (failed.length) throw new Error(`${this._m("Could not disconnect", "לא ניתן לנתק")}: ${failed.map((id) => this._playerByEntityId(id)?.attributes?.friendly_name || id).join(", ")}`);
+    if (failed.length) throw new Error(`${this._m("Could not disconnect")}: ${failed.map((id) => this._playerByEntityId(id)?.attributes?.friendly_name || id).join(", ")}`);
   };
   if (typeof this._isStaticGroupPlayer === "function" && this._isStaticGroupPlayer(player)) {
     const targets = this._playerGroupMemberIds(player)
@@ -419,7 +419,7 @@ async function clearSpeakerGroupFor(entityId) {
   await disconnect(targets);
   const confirmed = await this._waitForSpeakerGroupConfirmation(ownerId, [ownerId], { timeoutMs: 2600 });
   if (!confirmed.ok) {
-    throw new Error(this._m("Group disconnect was sent, but Home Assistant did not confirm the group is clear.", "פקודת ניתוק הקבוצה נשלחה, אבל Home Assistant לא אישר שהקבוצה התנתקה."));
+    throw new Error(this._m("Group disconnect was sent, but Home Assistant did not confirm the group is clear."));
   }
   this._clearLocalGroupState(ownerId);
   setTimeout(() => {

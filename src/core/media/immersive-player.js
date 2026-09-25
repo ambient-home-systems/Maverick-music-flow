@@ -67,7 +67,7 @@ export function commitImmersiveSwipe(card, direction, applyChange) {
 }
 
 function immersivePlayerChoice(card) {
-  return `<button type="button" class="immersive-player-choice" id="activePlayerChip" aria-label="${card._esc(card._m("Choose player", "בחירת נגן"))}">
+  return `<button type="button" class="immersive-player-choice" id="activePlayerChip" aria-label="${card._esc(card._m("Choose player"))}">
       ${actionIconSvg(card, "speaker")}
       <span class="immersive-player-copy"><span id="selectedPlayerTitle">${card._esc(card._i18n("ui.selected_player"))}</span><span id="selectedPlayerTags"></span></span>
       <span id="selectedPlayerThumb" hidden></span>
@@ -113,59 +113,59 @@ export function immersiveActionPages(card) {
   const uri = card._getCurrentMediaUri?.();
   const queue = available && (Number(card._state.maQueueState?.items || 0) > 0 || !!uri);
   const hotel = card._isHotelMode?.();
-  const item = (id, icon, en, he) => ({ id, icon, label: card._m(en, he) });
+  const item = (id, icon, en) => ({ id, icon, label: card._m(en) });
   const primary = [
-    queue && item("queue", "queue", "Queue", "תור"),
-    available && type === "track" && item("lyrics", "lyrics", "Lyrics", "מילים"),
-    available && uri && type === "track" && !hotel && card._supportsMusicAssistantRadioMode?.(type) && item("track_radio", "radio", "Track radio", "רדיו לפי השיר"),
-    available && uri && !hotel && item("like", card._currentMediaFavoriteState?.() ? "heart_filled" : "heart_outline", card._currentMediaFavoriteState?.() ? "Unlike" : "Like", card._currentMediaFavoriteState?.() ? "הסר לייק" : "אהבתי"),
-    item("players", "speaker_group", "Players", "נגנים"),
-    available && !hotel && item("timer", "timer", "Timer", "טיימר"),
+    queue && item("queue", "queue", "Queue"),
+    available && type === "track" && item("lyrics", "lyrics", "Lyrics"),
+    available && uri && type === "track" && !hotel && card._supportsMusicAssistantRadioMode?.(type) && item("track_radio", "radio", "Track radio"),
+    available && uri && !hotel && item("like", card._currentMediaFavoriteState?.() ? "heart_filled" : "heart_outline", card._currentMediaFavoriteState?.() ? "Unlike" : "Like"),
+    item("players", "speaker_group", "Players"),
+    available && !hotel && item("timer", "timer", "Timer"),
   ].filter(Boolean);
   const secondary = [
-    !hotel && item("recommendations", "compass", "Recommendations", "המלצות"),
-    !hotel && card._state.engineAvailable && item("smart", "studio", "Smart", "חכם"),
-    !hotel && card._state.engineAvailable && item("playback_stats", "stats", "Listening statistics", "סטטיסטיקות האזנה"),
-    !hotel && card._ambientLightEntitiesForPlayer?.().length && item("lighting", "lightbulb", "Lighting", "תאורה"),
-    !hotel && card._selectedSpeakerGroupCount?.() > 1 && item("group_volume", "speaker_group", "Group volume", "ווליום משותף"),
-    !hotel && item("music_flow", "wand", "Music Flow", "Music Flow"),
-    !hotel && item("quick_search", "search", "Quick search", "חיפוש מהיר"),
-    queue && !hotel && item("transfer", "queue_transfer", "Transfer", "העבר תור"),
-    available && !hotel && item("group", "speaker_group", "Group", "קבוצת נגנים"),
-    !hotel && card._state.engineCapabilities?.queue_settings && item("preferences", "settings", "Playback", "העדפות ניגון"),
-    !hotel && card._discoveryModeEnabled?.() && item("discovery", "compass", "Discover", "גלה מוזיקה"),
-    !hotel && item("history", "history", "Recent", "אחרונים"),
-    !hotel && item("announcements", "announcement", "Announce", "כריזה"),
-    !hotel && card._controlRoomEnabled?.() && card._mobileStudioShortcutEnabled?.() !== false && item("studio", "studio", "Studio", "סטודיו"),
-    card._mobileHomeShortcutEnabled?.() && item("home", "home", "Home", "בית"),
+    !hotel && item("recommendations", "compass", "Recommendations"),
+    !hotel && card._state.engineAvailable && item("smart", "studio", "Smart"),
+    !hotel && card._state.engineAvailable && item("playback_stats", "stats", "Listening statistics"),
+    !hotel && card._ambientLightEntitiesForPlayer?.().length && item("lighting", "lightbulb", "Lighting"),
+    !hotel && card._selectedSpeakerGroupCount?.() > 1 && item("group_volume", "speaker_group", "Group volume"),
+    !hotel && item("music_flow", "wand", "Music Flow"),
+    !hotel && item("quick_search", "search", "Quick search"),
+    queue && !hotel && item("transfer", "queue_transfer", "Transfer"),
+    available && !hotel && item("group", "speaker_group", "Group"),
+    !hotel && card._state.engineCapabilities?.queue_settings && item("preferences", "settings", "Playback"),
+    !hotel && card._discoveryModeEnabled?.() && item("discovery", "compass", "Discover"),
+    !hotel && item("history", "history", "Recent"),
+    !hotel && item("announcements", "announcement", "Announce"),
+    !hotel && card._controlRoomEnabled?.() && card._mobileStudioShortcutEnabled?.() !== false && item("studio", "studio", "Studio"),
+    card._mobileHomeShortcutEnabled?.() && item("home", "home", "Home"),
   ].filter(Boolean);
   const shuffle = player?.attributes?.shuffle === true;
   const repeat = player?.attributes?.repeat || "off";
-  const playback = [...(!hotel ? [item("this_device", "this_device", "This device", "מכשיר זה")] : []), ...(!hotel && card._state.engineCapabilities?.ai_radio_dj ? [item("ai_radio", "radio", "AI Radio", "רדיו AI")] : []), ...(queue ? [
-    {...item("shuffle", "shuffle", shuffle ? "Shuffle on" : "Shuffle off", shuffle ? "ערבוב פעיל" : "ערבוב כבוי"), selected:shuffle},
-    {...item("repeat", repeat === "one" ? "repeat_one" : "repeat", repeat === "one" ? "Repeat track" : repeat === "all" ? "Repeat queue" : "Repeat off", repeat === "one" ? "חזרה על שיר" : repeat === "all" ? "חזרה על התור" : "חזרה כבויה"), selected:repeat !== "off"},
-  ] : []), ...(!hotel ? [item("settings", "settings", "Settings", "הגדרות")] : [])];
+  const playback = [...(!hotel ? [item("this_device", "this_device", "This device")] : []), ...(!hotel && card._state.engineCapabilities?.ai_radio_dj ? [item("ai_radio", "radio", "AI Radio")] : []), ...(queue ? [
+    {...item("shuffle", "shuffle", shuffle ? "Shuffle on" : "Shuffle off"), selected:shuffle},
+    {...item("repeat", repeat === "one" ? "repeat_one" : "repeat", repeat === "one" ? "Repeat track" : repeat === "all" ? "Repeat queue" : "Repeat off"), selected:repeat !== "off"},
+  ] : []), ...(!hotel ? [item("settings", "settings", "Settings")] : [])];
   return [primary, secondary, playback].filter((page) => page.length);
 }
 
 export function immersivePlayerDock(card, edgeHtml = "") {
-  const label = (en, he) => card._esc(card._m(en, he));
+  const label = (en) => card._esc(card._m(en));
   const showHome = card._mobileMainBarItems?.().includes("home") === true;
   const homeButton = showHome
-    ? `<button type="button" data-mainbar-action="home" aria-label="${label("Home", "בית")}" title="${label("Home", "בית")}">${actionIconSvg(card, "home")}</button>`
+    ? `<button type="button" data-mainbar-action="home" aria-label="${label("Home")}" title="${label("Home")}">${actionIconSvg(card, "home")}</button>`
     : "";
   return `<div class="immersive-dock">
-    <div class="immersive-fan" id="immersiveActionFan" role="group" aria-label="${label("Quick actions", "פעולות מהירות")}" hidden>
+    <div class="immersive-fan" id="immersiveActionFan" role="group" aria-label="${label("Quick actions")}" hidden>
       <div class="immersive-fan-actions"></div>
       <div class="immersive-fan-navigation">
-        <button type="button" data-fan-step="-1" aria-label="${label("Previous actions", "פעולות קודמות")}">‹</button>
+        <button type="button" data-fan-step="-1" aria-label="${label("Previous actions")}">‹</button>
         <span class="immersive-page-status" aria-live="polite"></span>
-        <button type="button" data-immersive-action="more">${label("All actions", "כל הפעולות")}</button>
-        <button type="button" data-fan-step="1" aria-label="${label("More actions", "פעולות נוספות")}">›</button>
+        <button type="button" data-immersive-action="more">${label("All actions")}</button>
+        <button type="button" data-fan-step="1" aria-label="${label("More actions")}">›</button>
       </div>
     </div>
-    <div class="immersive-library-shortcuts">${homeButton}<button type="button" data-mainbar-action="library" aria-label="${label("Library", "ספרייה")}" title="${label("Library", "ספרייה")}">${actionIconSvg(card, "library")}</button><button type="button" data-immersive-search aria-label="${label("Quick search", "חיפוש מהיר")}" title="${label("Quick search", "חיפוש מהיר")}">${actionIconSvg(card, "search")}</button></div>
-    <button type="button" id="immersiveActionsToggle" aria-expanded="false" aria-controls="immersiveActionFan" aria-label="${label("Actions", "פעולות")}" title="${label("Actions", "פעולות")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20 2.5 10.5a13.4 13.4 0 0 1 19 0L12 20Z"/><path d="m12 20-5-12.5M12 20V6.6M12 20l5-12.5"/></svg></button>
+    <div class="immersive-library-shortcuts">${homeButton}<button type="button" data-mainbar-action="library" aria-label="${label("Library")}" title="${label("Library")}">${actionIconSvg(card, "library")}</button><button type="button" data-immersive-search aria-label="${label("Quick search")}" title="${label("Quick search")}">${actionIconSvg(card, "search")}</button></div>
+    <button type="button" id="immersiveActionsToggle" aria-expanded="false" aria-controls="immersiveActionFan" aria-label="${label("Actions")}" title="${label("Actions")}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20 2.5 10.5a13.4 13.4 0 0 1 19 0L12 20Z"/><path d="m12 20-5-12.5M12 20V6.6M12 20l5-12.5"/></svg></button>
     ${immersivePlayerChoice(card)}
     ${edgeHtml}
   </div>`;
@@ -191,10 +191,10 @@ export function bindImmersivePlayer(card, options = {}) {
   const getPages = () => preferredFanPages(card, context(), allPages());
   if (!options.fan) {
     const picker = document.createElement("div"); picker.className = "immersive-fan player-picker-fan"; picker.hidden = true;
-    picker.innerHTML = `<div class="immersive-fan-actions"></div><div class="immersive-fan-navigation"><button data-fan-step="-1" aria-label="${card._esc(card._m("Previous","הקודם"))}">‹</button><span class="immersive-page-status"></span><button data-immersive-action="more">${card._esc(card._m("All players / Edit","כל הנגנים / עריכה"))}</button><button data-fan-step="1" aria-label="${card._esc(card._m("Next","הבא"))}">›</button><button data-player-screen aria-label="${card._esc(card._m("Players screen","מסך נגנים"))}">${actionIconSvg(card,"speaker_group")}</button></div>`;
+    picker.innerHTML = `<div class="immersive-fan-actions"></div><div class="immersive-fan-navigation"><button data-fan-step="-1" aria-label="${card._esc(card._m("Previous"))}">‹</button><span class="immersive-page-status"></span><button data-immersive-action="more">${card._esc(card._m("All players / Edit"))}</button><button data-fan-step="1" aria-label="${card._esc(card._m("Next"))}">›</button><button data-player-screen aria-label="${card._esc(card._m("Players screen"))}">${actionIconSvg(card,"speaker_group")}</button></div>`;
     fan.parentElement.append(picker);
     const pickerToggle = document.createElement("button");
-    bindImmersivePlayer(card,{fan:picker,toggle:pickerToggle,context:()=>"player_picker",pages:()=>[ [...playerWheelActions(card), {id:"group",icon:"speaker_group",label:card._m("Group","קבוצה")}] ],onAction:id=>id === "group" ? card._openMobileMenu("group") : card._selectPlayer(id.slice("control:players:".length),true)});
+    bindImmersivePlayer(card,{fan:picker,toggle:pickerToggle,context:()=>"player_picker",pages:()=>[ [...playerWheelActions(card), {id:"group",icon:"speaker_group",label:card._m("Group")}] ],onAction:id=>id === "group" ? card._openMobileMenu("group") : card._selectPlayer(id.slice("control:players:".length),true)});
     card._openPlayerFan = () => { fan.hidden = true; toggle.setAttribute("aria-expanded","false"); pickerToggle.click(); };
     picker.querySelector("[data-player-screen]").onclick = event => { event.stopPropagation(); picker.hidden = true; card._openMobileMenu("players"); };
   }
@@ -202,7 +202,7 @@ export function bindImmersivePlayer(card, options = {}) {
   const progress = options.fan ? null : card.$("progressBar");
   if (progress) {
     progress.setAttribute("role", "slider");
-    progress.setAttribute("aria-label", card._m("Song position", "מיקום בשיר"));
+    progress.setAttribute("aria-label", card._m("Song position"));
     progress.setAttribute("aria-valuemin", "0");
     const preview = document.createElement("output");
     preview.className = "immersive-seek-preview";
@@ -243,10 +243,10 @@ export function bindImmersivePlayer(card, options = {}) {
   let pointerStart;
   const updateWheelStatus = () => {
     const items = pages.flat();
-    if (!items.length) { fan.querySelector(".immersive-page-status").textContent = card._m("Edit wheel", "עריכת המניפה"); return; }
+    if (!items.length) { fan.querySelector(".immersive-page-status").textContent = card._m("Edit wheel"); return; }
     const index = ((Math.round(wheelPosition) % items.length) + items.length) % items.length;
     const mixed = items.some(item => item.player) && items.some(item => !item.player);
-    const category = mixed ? (items[index]?.player ? card._m("Players", "נגנים") : card._m("Actions", "פעולות")) : "";
+    const category = mixed ? (items[index]?.player ? card._m("Players") : card._m("Actions")) : "";
     fan.querySelector(".immersive-page-status").textContent = `${category ? `${category} · ` : ""}${index + 1} / ${items.length}`;
   };
   const positionWheel = (position) => {
@@ -382,7 +382,7 @@ export function bindImmersivePlayer(card, options = {}) {
     // Revalidate at dispatch without moving targets while the fan is open.
     if (action !== "more" && !allPages().flat().some((item) => item.id === action)) {
       button.disabled = true;
-      card._toast(card._m("This action is no longer available for this player.", "הפעולה אינה זמינה כרגע לנגן הזה."));
+      card._toast(card._m("This action is no longer available for this player."));
       return;
     }
     if (action === "more") {
@@ -397,7 +397,7 @@ export function bindImmersivePlayer(card, options = {}) {
     if (action === "like") {
       const entry = card._currentMediaLikeMeta?.();
       if (!entry?.uri) {
-        card._toastError(card._m("No current track is available.", "אין כרגע שיר זמין."));
+        card._toastError(card._m("No current track is available."));
         return;
       }
       close();

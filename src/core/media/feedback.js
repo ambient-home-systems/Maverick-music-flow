@@ -77,7 +77,7 @@ export async function groupFeedback(card, action, perform, playerIds = []) {
     panel.classList.add("has-player-art");
   }
   const text = document.createElement("span");
-  text.textContent = action === "disconnect" ? card._m("Disconnecting…","מנתק…") : card._m("Updating group…","מעדכן קבוצה…");
+  text.textContent = action === "disconnect" ? card._m("Disconnecting…") : card._m("Updating group…");
   panel.append(symbols,text); host.append(panel);
   if(players.length===2) {
     const caption=document.createElement("small");caption.className="group-pair-names";
@@ -88,7 +88,7 @@ export async function groupFeedback(card, action, perform, playerIds = []) {
     const result = await perform();
     if (result) {
       panel.classList.add("is-confirmed");
-      text.textContent = action === "disconnect" ? card._m("Disconnected","נותק") : card._m("Group updated","הקבוצה עודכנה");
+      text.textContent = action === "disconnect" ? card._m("Disconnected") : card._m("Group updated");
       setTimeout(()=>panel.remove(),900);
     } else panel.remove();
     return result;

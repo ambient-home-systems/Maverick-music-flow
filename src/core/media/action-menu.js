@@ -86,13 +86,13 @@ export function mediaActionSheetHtml(card, entry, queue = false) {
     const position = Math.max(1, Math.min(count, card._queueDisplayPositionForEntry(entry, Math.round(Number(entry.sort_index || 0)) + 1 || 1)));
     move = `<div class="queue-move-control"><label><span>${card._esc(t("ui.move_to_position"))}</span>${card._queueMoveSelectHtml(count, position, entry)}</label></div>`;
   }
-  return `<div class="media-action-layout ${actionLabelsEnabled(card) ? "with-labels" : "icons-only"}" dir="${card._m("ltr", "rtl")}">
+  return `<div class="media-action-layout ${actionLabelsEnabled(card) ? "with-labels" : "icons-only"}" dir="${card._m("ltr")}">
     <div class="media-action-heading"><div class="media-action-art">${art ? card._imgHtml(art, "", { fallbackIcon: "music_note" }) : card._iconSvg("music_note")}</div><div class="media-action-copy"><div class="queue-action-player">${card._esc(card._selectedPlayerName())}</div><div class="queue-action-title">${card._esc(entry.name || t(queue ? "ui.queue_actions" : "ui.media_actions"))}</div></div>${button("close", "close", t("ui.close"))}</div>
-    ${!queue ? `<button class="media-library-back" type="button" data-media-popup="close">${actionIconSvg(card,"back")}<span>${card._esc(card._m("Back to library","חזרה לספרייה"))}</span></button>` : ""}
+    ${!queue ? `<button class="media-library-back" type="button" data-media-popup="close">${actionIconSvg(card,"back")}<span>${card._esc(card._m("Back to library"))}</span></button>` : ""}
     ${move}
-    <div class="media-action-grid">${queue ? `${button("next", "queue_next", t("ui.play_next"))}${button("remove", "trash", t("ui.remove"))}` : `${button("play", "play", t("ui.play"))}${button("next", "queue_next", t("ui.play_next"))}${button("add", "queue_add", t("ui.add_to_queue"))}${card._supportsMusicAssistantRadioMode(type) ? button("radio_mode", "radio", t("ui.start_radio_mode")) : ""}`}${button("like", liked ? "heart_filled" : "heart_outline", card._m(liked ? "Remove like" : "Like", liked ? "הסר לייק" : "הוסף לייק"))}</div>
-    ${!queue ? `<div class="media-action-grid media-action-tools">${card._state.engineCapabilities?.playlist_editing && ["track","album","playlist"].includes(type) ? button("playlist_add","playlist_add",card._m("Add to playlist","הוסף לפלייליסט")) : ""}${collection ? button("shuffle","shuffle",card._m("Shuffle play","ניגון בערבוב")) : ""}${!String(entry.uri || "").startsWith("library://") ? button("library_add","library_add",card._m("Save to library","הוסף לספריית MA")) : ""}${["album","artist","playlist","podcast","audiobook"].includes(type) ? button("details","info",card._m("Open details","פרטי המדיה")) : ""}</div>` : ""}
-    ${!queue ? `<div class="media-action-secondary"><p>${card._esc(card._m("Replace the queue", "החלפת התור הקיים"))}</p><div class="media-action-grid">${button("play_clear", "queue_replace", t("ui.play_now_and_clear_queue"))}${button("next_clear", "queue_next_replace", t("ui.play_next_and_clear_queue"))}</div></div>` : ""}
+    <div class="media-action-grid">${queue ? `${button("next", "queue_next", t("ui.play_next"))}${button("remove", "trash", t("ui.remove"))}` : `${button("play", "play", t("ui.play"))}${button("next", "queue_next", t("ui.play_next"))}${button("add", "queue_add", t("ui.add_to_queue"))}${card._supportsMusicAssistantRadioMode(type) ? button("radio_mode", "radio", t("ui.start_radio_mode")) : ""}`}${button("like", liked ? "heart_filled" : "heart_outline", card._m(liked ? "Remove like" : "Like"))}</div>
+    ${!queue ? `<div class="media-action-grid media-action-tools">${card._state.engineCapabilities?.playlist_editing && ["track","album","playlist"].includes(type) ? button("playlist_add","playlist_add",card._m("Add to playlist")) : ""}${collection ? button("shuffle","shuffle",card._m("Shuffle play")) : ""}${!String(entry.uri || "").startsWith("library://") ? button("library_add","library_add",card._m("Save to library")) : ""}${["album","artist","playlist","podcast","audiobook"].includes(type) ? button("details","info",card._m("Open details")) : ""}</div>` : ""}
+    ${!queue ? `<div class="media-action-secondary"><p>${card._esc(card._m("Replace the queue"))}</p><div class="media-action-grid">${button("play_clear", "queue_replace", t("ui.play_now_and_clear_queue"))}${button("next_clear", "queue_next_replace", t("ui.play_next_and_clear_queue"))}</div></div>` : ""}
   </div>`;
 }
 
@@ -137,30 +137,30 @@ export async function handleMediaActionClick(card, event) {
 }
 
 export function actionMenuHtml() {
-  const text = (en, he) => this._m(en, he);
+  const text = (en) => this._m(en);
   const labels = actionLabelsEnabled(this);
   const nav = (page, icon, title, subtitle) => this._navMenuItem(page, actionIconSvg(this, icon), title, subtitle);
   const section = (title, items) => `<section class="action-hub-section"><h3>${this._esc(title)}</h3><div class="action-hub-grid">${items.filter(Boolean).join("")}</div></section>`;
-  if (this._isHotelMode()) return `<div class="action-hub ${labels ? "with-labels" : "icons-only"}">${section(text("Listen", "האזנה"), [nav("players", "speaker", this._i18n("ui.players"), text("Choose a room", "בחירת חדר")), nav("quick_search", "search", this._i18n("ui.search"), text("Find music", "חיפוש מוזיקה"))])}</div>`;
-  return `<div class="action-hub ${labels ? "with-labels" : "icons-only"}" dir="${text("ltr", "rtl")}">
-    ${section(text("Music", "מוזיקה"), [
-      nav("quick_search", "search", this._i18n("ui.search"), text("Search your providers and library", "חיפוש בספקים ובספרייה")),
-      this._discoveryModeEnabled() && nav("discovery", "compass", this._i18n("ui.discover_music"), text("Genres, playlists and radio", "ז׳אנרים, פלייליסטים ורדיו")),
+  if (this._isHotelMode()) return `<div class="action-hub ${labels ? "with-labels" : "icons-only"}">${section(text("Listen"), [nav("players", "speaker", this._i18n("ui.players"), text("Choose a room")), nav("quick_search", "search", this._i18n("ui.search"), text("Find music"))])}</div>`;
+  return `<div class="action-hub ${labels ? "with-labels" : "icons-only"}" dir="${text("ltr")}">
+    ${section(text("Music"), [
+      nav("quick_search", "search", this._i18n("ui.search"), text("Search your providers and library")),
+      this._discoveryModeEnabled() && nav("discovery", "compass", this._i18n("ui.discover_music"), text("Genres, playlists and radio")),
       nav("library_liked", "heart_filled", this._i18n("ui.liked"), this._i18n("ui.open_saved_songs")),
-      nav("simple_wizard", "wand", text("Guided mix", "מיקס מודרך"), this._i18n("ui.a_guided_music_wizard")),
+      nav("simple_wizard", "wand", text("Guided mix"), this._i18n("ui.a_guided_music_wizard")),
     ])}
-    ${section(text("Players and queue", "נגנים ותור"), [
-      nav("players", "speaker", this._i18n("ui.players"), text("Choose a player", "בחירת נגן")),
-      nav("queue", "queue", this._i18n("ui.queue_2"), text("Manage what plays next", "ניהול השירים הבאים")),
-      nav("group", "speaker_group", this._i18n("ui.group_speakers_2"), text("Listen together in several rooms", "ניגון משותף בכמה חדרים")),
-      nav("transfer", "queue_transfer", this._i18n("ui.transfer_queue_2"), text("Move the current queue to another player", "העברת התור לנגן אחר")),
+    ${section(text("Players and queue"), [
+      nav("players", "speaker", this._i18n("ui.players"), text("Choose a player")),
+      nav("queue", "queue", this._i18n("ui.queue_2"), text("Manage what plays next")),
+      nav("group", "speaker_group", this._i18n("ui.group_speakers_2"), text("Listen together in several rooms")),
+      nav("transfer", "queue_transfer", this._i18n("ui.transfer_queue_2"), text("Move the current queue to another player")),
     ])}
-    ${section(text("Listening tools", "כלי האזנה"), [
+    ${section(text("Listening tools"), [
       nav("sleep_timer", "timer", this._i18n("ui.schedules"), this._i18n("ui.sleep_timer_and_morning_playback")),
       nav("announcements", "announcement", this._i18n("ui.announcements"), this._i18n("ui.send_a_voice_message")),
-      this._state.engineCapabilities?.ai_radio_dj && nav("ai_radio", "radio", text("AI Radio", "רדיו AI"), text("A DJ for your current queue", "שדרן לתור הניגון")),
-      this._state.engineCapabilities?.queue_settings && nav("queue_settings", "settings", text("Playback preferences", "העדפות ניגון"), text("Autoplay, Smart Shuffle and transitions", "המשך ניגון, ערבוב חכם ומעברים")),
-      `<button class="menu-item action-tile" data-menu-action="connect_this_device" title="${this._esc(text("Play on this device", "ניגון במכשיר הזה"))}" aria-label="${this._esc(text("Play on this device", "ניגון במכשיר הזה"))}"><span class="menu-item-main"><span class="menu-item-ico">${actionIconSvg(this, "this_device")}</span><span class="menu-item-copy"><span class="menu-item-title">${this._esc(text("This device", "המכשיר הזה"))}</span><span class="menu-item-sub">Sendspin</span></span></span></button>`,
+      this._state.engineCapabilities?.ai_radio_dj && nav("ai_radio", "radio", text("AI Radio"), text("A DJ for your current queue")),
+      this._state.engineCapabilities?.queue_settings && nav("queue_settings", "settings", text("Playback preferences"), text("Autoplay, Smart Shuffle and transitions")),
+      `<button class="menu-item action-tile" data-menu-action="connect_this_device" title="${this._esc(text("Play on this device"))}" aria-label="${this._esc(text("Play on this device"))}"><span class="menu-item-main"><span class="menu-item-ico">${actionIconSvg(this, "this_device")}</span><span class="menu-item-copy"><span class="menu-item-title">${this._esc(text("This device"))}</span><span class="menu-item-sub">Sendspin</span></span></span></button>`,
     ])}
   </div>`;
 }

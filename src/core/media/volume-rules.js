@@ -1,15 +1,15 @@
 import { isPlayerAvailable } from "../state/players.js";
 
 export async function renderVolumeRules(card, body) {
-  const t=(en,he)=>card._esc(card._m(en,he));
+  const t=(en)=>card._esc(card._m(en));
   const page=card._state.menuPage;
-  body.innerHTML=`<p role="status">${t("Loading volume limits…","טוען מגבלות ווליום…")}</p>`;
+  body.innerHTML=`<p role="status">${t("Loading volume limits…")}</p>`;
   const result=await card._maverickEngineCommand("volume_rules/get");
   if (!body.isConnected || card._state.menuPage!==page) return;
   const players=(card._state.players || []).filter(isPlayerAvailable);
-  if (!players.length) { body.innerHTML=`<p>${t("No available players","אין נגנים זמינים")}</p>`;return; }
+  if (!players.length) { body.innerHTML=`<p>${t("No available players")}</p>`;return; }
   const rules=result.volume_rules || [];
-  body.innerHTML=`<form class="smart-settings"><h2>${t("Volume limits","מגבלות ווליום")}</h2><p>${t("The Engine enforces these limits even when the card is closed.","המנוע אוכף את המגבלות גם כשהכרטיס סגור.")}</p><label>${t("Player","נגן")}<select name="player">${players.map(player=>`<option value="${card._esc(player.entity_id)}">${card._esc(card._playerDisplayName(player))}</option>`).join("")}</select></label><label>${t("Maximum volume (%)","ווליום מרבי (%)")}<input name="volume" type="number" min="0" max="100" required></label><label>${t("Start (optional)","התחלה (אופציונלי)")}<input name="start" type="time"></label><label>${t("End (optional)","סיום (אופציונלי)")}<input name="end" type="time"></label><p>${t("Leave both times empty for an all-day limit. No selected days means every day.","השאר את שתי השעות ריקות למגבלה לאורך כל היום. ללא בחירת ימים — בכל יום.")}</p><div>${card._nightModeDayOptions().map(([day,name])=>`<label>${card._esc(name)}<input type="checkbox" name="day" value="${day}"></label>`).join("")}</div><label>${t("Enabled","פעיל")}<input name="enabled" type="checkbox"></label><button type="submit">${t("Save to Engine","שמירה במנוע")}</button><button type="button" data-delete-rule>${t("Remove limit","הסרת מגבלה")}</button><p role="status"></p></form>`;
+  body.innerHTML=`<form class="smart-settings"><h2>${t("Volume limits")}</h2><p>${t("The Engine enforces these limits even when the card is closed.")}</p><label>${t("Player")}<select name="player">${players.map(player=>`<option value="${card._esc(player.entity_id)}">${card._esc(card._playerDisplayName(player))}</option>`).join("")}</select></label><label>${t("Maximum volume (%)")}<input name="volume" type="number" min="0" max="100" required></label><label>${t("Start (optional)")}<input name="start" type="time"></label><label>${t("End (optional)")}<input name="end" type="time"></label><p>${t("Leave both times empty for an all-day limit. No selected days means every day.")}</p><div>${card._nightModeDayOptions().map(([day,name])=>`<label>${card._esc(name)}<input type="checkbox" name="day" value="${day}"></label>`).join("")}</div><label>${t("Enabled")}<input name="enabled" type="checkbox"></label><button type="submit">${t("Save to Engine")}</button><button type="button" data-delete-rule>${t("Remove limit")}</button><p role="status"></p></form>`;
   const form=body.querySelector("form"), fields=form.elements, status=form.querySelector('[role="status"]');
   if (players.some(player=>player.entity_id===card._state.selectedPlayer)) fields.player.value=card._state.selectedPlayer;
   const populate=()=>{
@@ -22,7 +22,7 @@ export async function renderVolumeRules(card, body) {
   let busy=false;
   const submit=async(remove=false)=>{
     if (busy || !body.isConnected || card._state.menuPage!==page) return;
-    if (!remove && Boolean(fields.start.value)!==Boolean(fields.end.value)) { status.textContent=card._m("Set both times or leave both empty.","בחר שתי שעות או השאר את שתיהן ריקות.");return; }
+    if (!remove && Boolean(fields.start.value)!==Boolean(fields.end.value)) { status.textContent=card._m("Set both times or leave both empty.");return; }
     const player=fields.player.value;
     busy=true;form.querySelectorAll('button').forEach(button=>button.disabled=true);
     try {

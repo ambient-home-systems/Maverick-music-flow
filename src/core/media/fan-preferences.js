@@ -36,8 +36,8 @@ export function fanActionCategory(action) {
   return "playback";
 }
 const categoryLabels = {
-  playback:["Playback & queue","ניגון ותור"], players:["Players & groups","נגנים וקבוצות"],
-  library:["Browse music","ספריית מוזיקה"], smart:["Smart listening","האזנה חכמה"], settings:["Settings & display","הגדרות ותצוגה"],
+  playback:"Playback & queue", players:"Players & groups",
+  library:"Browse music", smart:"Smart listening", settings:"Settings & display",
 };
 const defaultOrder = ["play","pause","queue","lyrics","like","shuffle","repeat","track_radio","ai_radio",
   "players","group","group_volume","transfer","this_device","local_device","player_preferences",
@@ -74,10 +74,10 @@ export function openFanCatalogue(card, host, context, getActions, dispatch, onSa
   const panel = document.createElement("section");
   panel.className = "screen-all-actions fan-catalogue";
   panel.setAttribute("role", "dialog");
-  panel.setAttribute("aria-label", card._m("All actions", "כל האפשרויות"));
+  panel.setAttribute("aria-label", card._m("All actions"));
   let editing = false, draft = null, dragged = null, rendered = "", scope = "device", saving = false;
   const esc = value => card._esc(value);
-  const label = (en,he) => esc(card._m(en,he));
+  const label = (en) => esc(card._m(en));
   const close = () => {
     panel.remove();
     if (restoreCompact) card._setCompactExpanded(false);
@@ -92,16 +92,16 @@ export function openFanCatalogue(card, host, context, getActions, dispatch, onSa
       const category = fanActionCategory(action);
       if (lastCategory === category) return "";
       lastCategory = category;
-      return `<h3 class="fan-catalogue-category">${label(...categoryLabels[category])}</h3>`;
+      return `<h3 class="fan-catalogue-category">${label(categoryLabels[category])}</h3>`;
     };
     const focused = panel.querySelector("[data-catalogue-action]:focus")?.closest("[data-catalogue-id]")?.dataset.catalogueId;
-    const html = `<header><button data-catalogue-back aria-label="${label("Back","חזרה")}">${actionIconSvg(card,"back")}</button><h2>${label("All actions","כל האפשרויות")}</h2><button data-catalogue-edit>${editing ? label("Save","אישור") : label("Edit wheel","עריכת המניפה")}</button></header>${editing ? `<p>${label("Choose wheel shortcuts. Drag the handle to reorder, or use the arrow buttons.","בחר מה יופיע במניפה. גרור את הידית לסידור, או השתמש בכפתורי החצים.")}</p>` : ""}<div class="fan-catalogue-list">${actions.map(action => `${categoryHeading(action)}<article data-catalogue-id="${esc(action.id)}">${editing ? `<input type="checkbox" data-catalogue-check aria-label="${esc(action.label)}" ${preference.hidden?.includes(action.id) ? "" : "checked"}>` : ""}<button data-catalogue-action ${editing ? "disabled" : ""}>${actionSymbolHtml(card,action)}<span>${esc(action.label)}</span></button>${editing ? `<button draggable="true" data-catalogue-drag aria-label="${label("Drag","גרירה")}: ${esc(action.label)}">⠿</button><button data-catalogue-move="-1" aria-label="${label("Move up","העבר למעלה")}">↑</button><button data-catalogue-move="1" aria-label="${label("Move down","העבר למטה")}">↓</button>` : ""}</article>`).join("")}</div>`;
+    const html = `<header><button data-catalogue-back aria-label="${label("Back")}">${actionIconSvg(card,"back")}</button><h2>${label("All actions")}</h2><button data-catalogue-edit>${editing ? label("Save") : label("Edit wheel")}</button></header>${editing ? `<p>${label("Choose wheel shortcuts. Drag the handle to reorder, or use the arrow buttons.")}</p>` : ""}<div class="fan-catalogue-list">${actions.map(action => `${categoryHeading(action)}<article data-catalogue-id="${esc(action.id)}">${editing ? `<input type="checkbox" data-catalogue-check aria-label="${esc(action.label)}" ${preference.hidden?.includes(action.id) ? "" : "checked"}>` : ""}<button data-catalogue-action ${editing ? "disabled" : ""}>${actionSymbolHtml(card,action)}<span>${esc(action.label)}</span></button>${editing ? `<button draggable="true" data-catalogue-drag aria-label="${label("Drag")}: ${esc(action.label)}">⠿</button><button data-catalogue-move="-1" aria-label="${label("Move up")}">↑</button><button data-catalogue-move="1" aria-label="${label("Move down")}">↓</button>` : ""}</article>`).join("")}</div>`;
     if (html !== rendered) {
       panel.innerHTML = html; rendered = html;
       if (editing && card._state?.engineCapabilities?.wheel_preferences) {
         const control = document.createElement("label");
         control.className = "fan-preference-scope";
-        control.innerHTML = `${label("Save for", "שמירה עבור")} <select data-catalogue-scope><option value="device">${label("This device", "מכשיר זה")}</option><option value="user">${label("My user on all devices", "המשתמש שלי בכל המכשירים")}</option>${card._hass?.user?.is_admin ? `<option value="global">${label("Everyone (default)", "כולם (ברירת מחדל)")}</option>` : ""}</select>`;
+        control.innerHTML = `${label("Save for")} <select data-catalogue-scope><option value="device">${label("This device")}</option><option value="user">${label("My user on all devices")}</option>${card._hass?.user?.is_admin ? `<option value="global">${label("Everyone (default)")}</option>` : ""}</select>`;
         panel.querySelector("header").after(control);
         control.querySelector("select").value = scope;
       }
@@ -134,7 +134,7 @@ export function openFanCatalogue(card, host, context, getActions, dispatch, onSa
         }
         localStorage.setItem(storageKey(card),JSON.stringify(stored));
         editing = false; draft = null; onSave(); render();
-      } catch { card._toastError(card._m("Could not save wheel settings.","לא ניתן לשמור את הגדרות המניפה.")); }
+      } catch { card._toastError(card._m("Could not save wheel settings.")); }
       finally { saving = false; const button = panel.querySelector("[data-catalogue-edit]"); if (button) button.disabled = false; }
       return;
     }
