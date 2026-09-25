@@ -1,0 +1,58 @@
+name: Bug report
+description: Report a reproducible Maverick Music problem.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Include the card, Engine, Music Assistant, and Home Assistant versions. Never attach tokens, cookies, or full HA backups."
+  - type: input
+    id: card_version
+    attributes:
+      label: Maverick Music card version
+    validations:
+      required: true
+  - type: input
+    id: engine_version
+    attributes:
+      label: Maverick Music Engine version
+    validations:
+      required: true
+  - type: input
+    id: ma_version
+    attributes:
+      label: Music Assistant version
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Environment
+      description: Browser/device, player model and protocol.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What did you do, what happened, and what did you expect? Does the same action work in native Music Assistant?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots and redacted diagnostics
+      description: Include light/dark mode, screen size and performance profile for UI problems. Remove secrets and personal details.
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Frequency
+      options:
+        - Every time
+        - Sometimes
+        - Once

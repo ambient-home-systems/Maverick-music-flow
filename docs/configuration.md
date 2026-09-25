@@ -1,7 +1,5 @@
 # Configuration
 
-> **Preparing 6.0.0 Beta:** install Engine `1.0.0-beta.1` first. Read the [breaking upgrade and beta guide](BETA_GUIDE.md) before replacing 5.9.3. No beta release has been published by this preparation.
-
 Maverick Music can be configured from the Home Assistant visual editor, the in-card settings screen, or YAML.
 
 ## Configuration Sources
@@ -42,7 +40,7 @@ search_result_order:
   - podcasts
 ```
 
-Large-library “Load more” controls require Engine 0.7.21 or newer and its `library_pagination` capability. Older Engines retain the existing first-page behavior.
+Large-library “Load more” controls require the `library_pagination` capability, available in Maverick Music Engine `1.0.0` and newer.
 
 ## Music Assistant Connection
 
@@ -54,7 +52,7 @@ The card does not accept or store `ma_url`, `music_assistant_external_url`, or `
 
 ## Maverick Music Engine
 
-Maverick Music 6 requires the Maverick Music Engine Home Assistant integration, version `1.0.0-beta.1` for the prepared 6.0.0 beta pair.
+Maverick Music requires the Maverick Music Engine Home Assistant integration, currently version `1.0.0`.
 
 The card is now the visual interface only. Playback, players, queue, library, search, artwork, grouping, schedules, timers, statistics, announcements, volume rules, and diagnostics are handled by the Engine. If the Engine is not installed and loaded, the 6.x card shows an Engine-required message instead of using old frontend-only paths.
 
