@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/homeii-music-flow.js";
+import "../src/maverick-music.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 const spotify = { name: "Spotify", media_type: "folder", path: "spotify--one://" };
 const tidal = { name: "Tidal", media_type: "folder", path: "tidal--two://" };
 function context(state = {}) {

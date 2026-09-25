@@ -23,7 +23,7 @@ export default `          .grid { display:grid; grid-template-columns:repeat(aut
             font-size:28px;
             color:var(--ma-text-3);
           }
-          .homeii-art-fallback {
+          .maverick-art-fallback {
             width:100%;
             height:100%;
             display:grid;
@@ -35,7 +35,7 @@ export default `          .grid { display:grid; grid-template-columns:repeat(aut
             color:rgba(255,255,255,.78);
             box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
           }
-          .homeii-art-fallback-disc {
+          .maverick-art-fallback-disc {
             width:46%;
             height:46%;
             min-width:34px;
@@ -47,20 +47,20 @@ export default `          .grid { display:grid; grid-template-columns:repeat(aut
             border:1px solid rgba(255,255,255,.12);
             box-shadow:0 12px 28px rgba(0,0,0,.18);
           }
-          .homeii-art-fallback svg {
+          .maverick-art-fallback svg {
             width:48%;
             height:48%;
             color:currentColor;
             opacity:.92;
           }
-          .theme-light .homeii-art-fallback {
+          .theme-light .maverick-art-fallback {
             color:rgba(48,55,68,.7);
             background:
               radial-gradient(circle at 50% 36%, color-mix(in srgb, var(--ma-accent) 18%, transparent), transparent 54%),
               linear-gradient(145deg, rgba(255,255,255,.86), rgba(238,242,247,.56));
             box-shadow:inset 0 0 0 1px rgba(90,105,125,.12);
           }
-          .theme-light .homeii-art-fallback-disc {
+          .theme-light .maverick-art-fallback-disc {
             background:rgba(255,255,255,.48);
             border-color:rgba(82,96,118,.12);
           }
@@ -140,7 +140,7 @@ export default `          .grid { display:grid; grid-template-columns:repeat(aut
             margin:0 auto 10px;
           }
           @keyframes spin { to { transform:rotate(360deg); } }
-          .homeii-loading-state {
+          .maverick-loading-state {
             min-height:240px;
             display:grid;
             place-items:center;
@@ -148,53 +148,53 @@ export default `          .grid { display:grid; grid-template-columns:repeat(aut
             padding:24px;
             color:var(--ma-text-2);
           }
-          .homeii-loading-content {
+          .maverick-loading-content {
             display:grid;
             justify-items:center;
             gap:12px;
           }
-          .homeii-loading-mark {
+          .maverick-loading-mark {
             position:relative;
             width:70px;
             height:70px;
             display:grid;
             place-items:center;
           }
-          .homeii-loading-ring {
+          .maverick-loading-ring {
             position:absolute;
             inset:8px;
             border-radius:999px;
             border:2px solid color-mix(in srgb, var(--ma-text-3) 16%, transparent);
             border-top-color:color-mix(in srgb, var(--ma-accent) 88%, #fff 8%);
-            animation:homeiiLoadingSpin 1.4s linear infinite;
+            animation:maverickLoadingSpin 1.4s linear infinite;
           }
-          .homeii-loading-ring.secondary {
+          .maverick-loading-ring.secondary {
             inset:17px;
             opacity:.58;
             animation-duration:2.1s;
             animation-direction:reverse;
           }
-          .homeii-loading-core {
+          .maverick-loading-core {
             width:15px;
             height:15px;
             border-radius:999px;
             background:var(--ma-accent);
             box-shadow:0 0 24px color-mix(in srgb, var(--ma-accent) 56%, transparent);
-            animation:homeiiLoadingPulse 1.2s ease-in-out infinite;
+            animation:maverickLoadingPulse 1.2s ease-in-out infinite;
           }
-          .homeii-loading-text {
+          .maverick-loading-text {
             color:var(--ma-text-2);
             font-size:13px;
             font-weight:850;
           }
-          @keyframes homeiiLoadingSpin { to { transform:rotate(360deg); } }
-          @keyframes homeiiLoadingPulse {
+          @keyframes maverickLoadingSpin { to { transform:rotate(360deg); } }
+          @keyframes maverickLoadingPulse {
             0%,100% { transform:scale(.86); opacity:.62; }
             50% { transform:scale(1.08); opacity:1; }
           }
           @media (prefers-reduced-motion: reduce) {
-            .homeii-loading-ring,
-            .homeii-loading-core {
+            .maverick-loading-ring,
+            .maverick-loading-core {
               animation:none;
             }
           }

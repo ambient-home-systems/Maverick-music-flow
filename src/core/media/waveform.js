@@ -24,7 +24,7 @@ export function waveformPath(bins, width) {
 export function syncWaveform(card, progress, percent) {
   const uri = card._getCurrentMediaUri?.() || "";
   const ref = parseMediaReference(uri);
-  const key = `${card._config?.homeii_engine_instance_id || ""}:${uri}`;
+  const key = `${card._config?.engine_instance_id || ""}:${uri}`;
   const valid = ref.media_type === "track" && ref.item_id && ref.provider;
   const clear = () => { progress.classList.remove("has-waveform"); progress.querySelector(".immersive-waveform")?.remove(); delete progress.dataset.waveformRender; };
   if (!valid || !card._callEngineMaCommand) { clear(); return; }

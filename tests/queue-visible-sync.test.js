@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from "vitest";
-import "../src/homeii-music-flow.js";
-const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
+import "../src/maverick-music.js";
+const prototype = globalThis.customElements.get("maverick-music").prototype;
 afterEach(()=>vi.useRealTimers());
 describe("visible queue synchronization", () => {
   it("returns a browsed cover to the playing track after ten idle seconds", async () => {

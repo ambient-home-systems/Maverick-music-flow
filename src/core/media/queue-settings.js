@@ -66,7 +66,7 @@ export async function loadQueueSettings(card, body, isCurrent) {
   body.innerHTML = `<div class="notice open" role="status">${card._esc(card._m("Loading playback preferences…", "טוען העדפות ניגון…"))}</div>`;
   try {
     card._queueSettingsLoad ||= Promise.allSettled([
-      card._homeiiEngineCommand("queue/settings", {}, { required: true, timeoutMs: 30000 }),
+      card._maverickEngineCommand("queue/settings", {}, { required: true, timeoutMs: 30000 }),
       card._callEngineMaCommand("music/playlists/library_items", { limit: 500 }),
     ]).finally(() => { card._queueSettingsLoad = null; });
     const [settings, library] = await card._queueSettingsLoad;
@@ -109,7 +109,7 @@ export async function saveQueueSettings(card) {
   const status = form.querySelector("[data-queue-settings-status]");
   status.textContent = card._m("Saving…", "שומר…");
   try {
-    const result = await card._homeiiEngineCommand("queue/settings", { values }, { required: true, timeoutMs: 60000 });
+    const result = await card._maverickEngineCommand("queue/settings", { values }, { required: true, timeoutMs: 60000 });
     if (!result?.saved || Object.entries(values).some(([key, value]) => result.entries?.[key]?.value !== value)) throw new Error(card._m("The save was not confirmed. Reload to check the current values.", "השמירה לא אושרה. טען מחדש כדי לבדוק את הערכים הנוכחיים."));
     view.entries = result.entries;
     status.textContent = card._m("Saved in Music Assistant", "נשמר ב־Music Assistant");

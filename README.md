@@ -1,13 +1,13 @@
-<p align="center"><img src="artifacts/HOMEii-Flow-Beta-Launch.png" alt="HOMEii Flow 6 — Your music. Within reach." width="1200"></p>
-<p align="center"><a href="https://r11a.github.io/homeii-music-flow/"><img src="https://img.shields.io/badge/%E2%96%B6_WATCH_THE_FILM-60_SECONDS-c89b56?style=for-the-badge&amp;labelColor=151619" alt="Watch the HOMEii Flow film — 60 seconds"></a><br><sub>Watch in your browser · Edited interface demonstration</sub></p>
-<h1 align="center">HOMEii Music Flow</h1>
+<p align="center"><img src="artifacts/HOMEii-Flow-Beta-Launch.png" alt="Maverick Music 6 — Your music. Within reach." width="1200"></p>
+<p align="center"><sub>A 60-second edited interface demonstration film is available; see the "See it in motion" section below.</sub></p>
+<h1 align="center">Maverick Music</h1>
 <p align="center"><strong>Make your Home Assistant dashboard feel like a place for music.</strong><br>Artwork-driven atmosphere, contextual controls and your Music Assistant library — across the screens in your home.</p>
 <p align="center"><img alt="Card release" src="https://img.shields.io/badge/Card-6.0.1-c89b56"><img alt="Matching Engine" src="https://img.shields.io/badge/Engine-1.0.1-41BDF5"><img alt="Stable release" src="https://img.shields.io/badge/Status-STABLE-2e7d32"></p>
 <p align="center"><a href="docs/INSTALL_STEP_BY_STEP.md">Install & upgrade</a> · <a href="docs/BETA_UPGRADE_HE.md">שדרוג בעברית</a> · <a href="https://github.com/ambient-home-systems/maverick-music-flow-engine">Required Engine</a> · <a href="docs/features.md">Features</a> · <a href="https://github.com/r11a/homeii-music-flow/issues">Support</a></p>
 
 > [!WARNING]
 > **BREAKING CHANGE — STOP BEFORE UPGRADING FROM 5.9.3: INSTALL ENGINE 1.0.1 FIRST.**
-> Music Flow 6 requires HOMEii Flow Engine. Updating only the JavaScript card can leave your dashboard without working music controls. Back up HA, your dashboard and current card resource. Configure and verify the Engine before replacing the card. Read the [complete upgrade and rollback guide](docs/BETA_GUIDE.md#safe-upgrade-from-593).
+> Music Flow 6 requires Maverick Music Engine. Updating only the JavaScript card can leave your dashboard without working music controls. Back up HA, your dashboard and current card resource. Configure and verify the Engine before replacing the card. Read the [complete upgrade and rollback guide](docs/BETA_GUIDE.md#safe-upgrade-from-593).
 
 > [!IMPORTANT]
 > **Required pair: card `6.0.1` + Engine `1.0.1`.** Install and configure the Engine first, restart Home Assistant, verify its connection to Music Assistant, and only then update the card. Version 5.9.3 remains available for rollback.
@@ -17,8 +17,8 @@
 After installing and configuring the Engine, add a Manual card and paste:
 
 ```yaml
-type: custom:homeii-music-flow
-homeii_engine_mode: required
+type: custom:maverick-music
+engine_mode: required
 player_design: immersive
 layout_mode: auto
 mobile_layout_mode: auto
@@ -38,7 +38,7 @@ This explicitly enables the immersive edge-to-edge presentation and full visual 
 
 ## See it in motion
 
-[Watch the 60-second HOMEii Flow film](https://r11a.github.io/homeii-music-flow/). Edited interface demonstration with staged playback; see [production notes](artifacts/VIDEO-NOTES.md).
+A 60-second Maverick Music film with staged playback demonstrates the interface; see [production notes](artifacts/VIDEO-NOTES.md).
 
 [Tester checklist and reporting](docs/BETA_TESTING.md) · [Report a beta bug](https://github.com/r11a/homeii-music-flow/issues/new?template=beta_bug.yml)
 
@@ -46,7 +46,7 @@ This explicitly enables the immersive edge-to-edge presentation and full visual 
 
 The immersive player gives the artwork room to breathe. Dynamic color and glass surfaces carry the mood through the interface, while contextual action wheels bring the next useful control closer to your hand. Keep the previous presentation if it suits your dashboard better.
 
-The matching [HOMEii Flow Engine](https://github.com/ambient-home-systems/maverick-music-flow-engine) runs inside Home Assistant. It connects the interface and HA automations to Music Assistant, shares player/queue state, proxies artwork and keeps connection credentials off the card configuration. Music Assistant remains the source of your music and player capabilities.
+The matching [Maverick Music Engine](https://github.com/ambient-home-systems/maverick-music-flow-engine) runs inside Home Assistant. It connects the interface and HA automations to Music Assistant, shares player/queue state, proxies artwork and keeps connection credentials off the card configuration. Music Assistant remains the source of your music and player capabilities.
 
 | Explore | Included in 6.0.0 |
 |---|---|
@@ -89,9 +89,9 @@ The sections below retain the broader feature/configuration reference and stable
 
 ## 6.0.0 Engine-First Architecture
 
-HOMEii Flow 6.0.0 is a breaking-change generation.
+Maverick Music 6.0.0 is a breaking-change generation.
 
-The `6.0.0` card is paired with **HOMEii Flow Engine `1.0.0`**. The card is the visual interface; the Engine is the required backend for players, playback, revisioned queue/library/favorites state, search, artwork, grouping, schedules, timers, statistics, announcements, diagnostics, and the authenticated Music Assistant API/event bridge.
+The `6.0.0` card is paired with **Maverick Music Engine `1.0.0`**. The card is the visual interface; the Engine is the required backend for players, playback, revisioned queue/library/favorites state, search, artwork, grouping, schedules, timers, statistics, announcements, diagnostics, and the authenticated Music Assistant API/event bridge.
 
 For 6.0.0 the Engine is also the only authenticated Music Assistant transport. Library shelves and media details use persistent stale-while-revalidate caches, artwork uses stable same-origin proxy URLs, and long queue/library pages are rendered incrementally. This keeps credentials out of the browser and avoids duplicate WebSocket handshakes.
 
@@ -101,7 +101,7 @@ There is no legacy frontend-only fallback in 6.0.0. Users who do not want to ins
 
 ## 5.9.3 Stability Release
 
-HOMEii Flow 5.9.3 is a focused stability release on top of 5.9.2. It improves queue handling, configured-player selection, provider search, Radio favorites, progress timing, and Diagnostics while keeping the release scoped to bug fixes and supportability.
+Maverick Music 5.9.3 is a focused stability release on top of 5.9.2. It improves queue handling, configured-player selection, provider search, Radio favorites, progress timing, and Diagnostics while keeping the release scoped to bug fixes and supportability.
 
 Release focus:
 
@@ -114,7 +114,7 @@ Release focus:
 After updating, hard-refresh with:
 
 ```text
-/local/community/homeii-music-flow/homeii-music-flow.js?v=5.9.3
+/local/community/maverick-music-flow/maverick-music.js?v=5.9.3
 ```
 
 
@@ -127,7 +127,7 @@ The instructions below are the installation reference. **For upgrades from 5.9.3
 
 Use the My Home Assistant button:
 
-[![Open your Home Assistant instance and add this repository to HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=r11a&repository=homeii-music-flow&category=plugin)
+[![Open your Home Assistant instance and add this repository to HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ambient-home-systems&repository=maverick-music-flow&category=plugin)
 
 Or add it manually:
 
@@ -141,17 +141,17 @@ https://github.com/r11a/homeii-music-flow
 ```
 
 5. Select category `Dashboard` in the UI. HACS internally calls this category `plugin`.
-6. Download `HOMEii Flow`.
+6. Download `Maverick Music`.
 7. Add the card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
 
 If HACS does not add the resource automatically, add:
 
 ```text
-/hacsfiles/homeii-music-flow/homeii-music-flow.js
+/hacsfiles/maverick-music-flow/maverick-music.js
 ```
 
 ### Manual Install
@@ -159,27 +159,55 @@ If HACS does not add the resource automatically, add:
 1. Create:
 
 ```text
-/config/www/community/homeii-music-flow/
+/config/www/community/maverick-music-flow/
 ```
 
 2. Copy the full contents of `dist/` into that folder.
 3. Add this Dashboard resource:
 
 ```text
-/local/community/homeii-music-flow/homeii-music-flow.js?v=5.9.3
+/local/community/maverick-music-flow/maverick-music.js?v=5.9.3
 ```
 
 4. Add the card:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 ```
+
+## Upgrading from HOMEii Music Flow
+
+The card was renamed from HOMEii Music Flow to Maverick Music. Existing dashboards keep working through compatibility aliases, but the old names are deprecated and the browser console logs a warning once per legacy element tag.
+
+1. Update the dashboard resource to the new bundle filename:
+
+```text
+/hacsfiles/maverick-music-flow/maverick-music.js
+```
+
+2. Update the card type in each card configuration:
+
+```yaml
+# before
+type: custom:homeii-music-flow
+homeii_engine_mode: required
+homeii_engine_timeout_ms: 3500
+
+# after
+type: custom:maverick-music
+engine_mode: required
+engine_timeout_ms: 3500
+```
+
+The same applies to `custom:homeii-music-mobile` (now `custom:maverick-music-mobile`) and to `homeii_engine_instance_id` / `homeii_engine_profile_id` (now `engine_instance_id` / `engine_profile_id`). When both an old and a new key are present, the new key wins. Opening the visual editor and saving rewrites the old keys to the new names.
+
+Browser-local settings (theme, language, pinned players, timers, and so on) are copied from the old `homeii_music_flow_*` storage keys to the new `maverick_music_*` keys the first time the renamed card loads; nothing needs to be reconfigured.
 
 ## Requirements
 
 - Home Assistant with Dashboard custom cards enabled.
 - Music Assistant installed, running, and connected to Home Assistant.
-- HOMEii Flow Engine `1.0.1` installed and loaded for card `6.0.1`; MA API schema 63+ is required.
+- Maverick Music Engine `1.0.1` installed and loaded for card `6.0.1`; MA API schema 63+ is required.
 - At least one Music Assistant player exposed as a Home Assistant `media_player`.
 - HACS for the easiest install path, or manual access to `/config/www/community/`.
 - A modern browser for the dashboard: Chrome, Edge, Safari, or a modern Android/iOS browser.
@@ -191,34 +219,34 @@ type: custom:homeii-music-flow
 If the card loads but feels incomplete, check these first:
 
 - Music Assistant is installed, running, and exposes at least one player as a Home Assistant `media_player`.
-- The Dashboard resource points to `/hacsfiles/homeii-music-flow/homeii-music-flow.js` for HACS, or to the copied `/local/community/...` file for manual installs.
-- If you use HOMEii Flow remotely, confirm Home Assistant external/internal URLs are correct. The browser communicates only with Home Assistant; the Engine communicates with Music Assistant.
+- The Dashboard resource points to `/hacsfiles/maverick-music-flow/maverick-music.js` for HACS, or to the copied `/local/community/...` file for manual installs.
+- If you use Maverick Music remotely, confirm Home Assistant external/internal URLs are correct. The browser communicates only with Home Assistant; the Engine communicates with Music Assistant.
 - If artwork is missing only when away from home, verify the Engine artwork proxy in Diagnostics. The browser should not need direct access to Music Assistant.
 - If no players are shown, check Music Assistant player exposure and remove overly strict pinned-player filters from the card settings.
-- Optional automation helper: create an `input_text`, then set `active_player_helper_entity` so automations can read the current HOMEii Flow target.
+- Optional automation helper: create an `input_text`, then set `active_player_helper_entity` so automations can read the current Maverick Music target.
 
 ## Active Player Helper
 
-HOMEii Flow can optionally publish the currently selected/active player to a Home Assistant helper. This is useful when you want automations, scripts, templates, dashboard buttons, or voice flows to know which player HOMEii Flow is currently controlling.
+Maverick Music can optionally publish the currently selected/active player to a Home Assistant helper. This is useful when you want automations, scripts, templates, dashboard buttons, or voice flows to know which player Maverick Music is currently controlling.
 
-The card does not create a Home Assistant entity by itself. Create an `input_text` helper once, then point HOMEii Flow to it. The card will keep that helper updated with the active player `entity_id`.
+The card does not create a Home Assistant entity by itself. Create an `input_text` helper once, then point Maverick Music to it. The card will keep that helper updated with the active player `entity_id`.
 
 ### Setup
 
 1. In Home Assistant, open **Settings > Devices & services > Helpers**.
 2. Select **Create Helper**.
 3. Choose **Text**.
-4. Name it, for example: `HOMEii Flow Active Player`.
+4. Name it, for example: `Maverick Music Active Player`.
 5. Copy the created entity id, for example:
 
 ```yaml
 input_text.homeii_flow_active_player
 ```
 
-6. Add it to the HOMEii Flow card configuration:
+6. Add it to the Maverick Music card configuration:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 active_player_helper_entity: input_text.homeii_flow_active_player
 ```
 
@@ -226,32 +254,32 @@ You can also select the helper from the visual card editor in the connection/set
 
 ### What The Helper Stores
 
-When HOMEii Flow is controlling the living room player, the helper value becomes:
+When Maverick Music is controlling the living room player, the helper value becomes:
 
 ```text
 media_player.living_room
 ```
 
-When you switch HOMEii Flow to another player, the helper updates automatically:
+When you switch Maverick Music to another player, the helper updates automatically:
 
 ```text
 media_player.kitchen
 ```
 
-### Example: Play/Pause The Current HOMEii Flow Player
+### Example: Play/Pause The Current Maverick Music Player
 
 ```yaml
-alias: HOMEii Flow - Toggle active player
+alias: Maverick Music - Toggle active player
 sequence:
   - service: media_player.media_play_pause
     target:
       entity_id: "{{ states('input_text.homeii_flow_active_player') }}"
 ```
 
-### Example: Set Volume On The Current HOMEii Flow Player
+### Example: Set Volume On The Current Maverick Music Player
 
 ```yaml
-alias: HOMEii Flow - Set active player volume
+alias: Maverick Music - Set active player volume
 sequence:
   - service: media_player.volume_set
     target:
@@ -266,7 +294,7 @@ sequence:
 {{ state_attr(states('input_text.homeii_flow_active_player'), 'friendly_name') }}
 ```
 
-### Example: Only Run If HOMEii Flow Has A Player
+### Example: Only Run If Maverick Music Has A Player
 
 ```yaml
 condition:
@@ -276,18 +304,18 @@ condition:
 
 ## Running Multiple Dashboards In One Browser
 
-By default, every HOMEii Flow card in the same browser shares its in-card customizations (theme, layout, excluded players, pinned players, screensaver settings, and the rest) via a single set of browser-storage keys. That keeps phones, tablets, and the desktop dashboard in sync when you only run one HOMEii Flow card.
+By default, every Maverick Music card in the same browser shares its in-card customizations (theme, layout, excluded players, pinned players, screensaver settings, and the rest) via a single set of browser-storage keys. That keeps phones, tablets, and the desktop dashboard in sync when you only run one Maverick Music card.
 
 If you want **separate** dashboards — for example one card per kid's bedroom, or a kitchen wall tablet showing one player and a living-room phone view showing another — give each card its own `card_id`:
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: ida-music
 entity: media_player.ida_vaerelse
 ```
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 card_id: toke-music
 entity: media_player.toke_vaerelse
 ```
@@ -302,49 +330,49 @@ Rules:
 
 ## Sendspin Browser Player
 
-HOMEii Flow includes a local browser player flow powered by Sendspin. In the card this appears as **This device**.
+Maverick Music includes a local browser player flow powered by Sendspin. In the card this appears as **This device**.
 
-HOMEii Flow 6 does not expose Music Assistant credentials to the browser. The built-in **This device** Sendspin player is therefore disabled in Engine-only mode. Existing Music Assistant speaker/player entities remain fully supported.
+Maverick Music 6 does not expose Music Assistant credentials to the browser. The built-in **This device** Sendspin player is therefore disabled in Engine-only mode. Existing Music Assistant speaker/player entities remain fully supported.
 
 ## Screenshots
 
 ### Main Experience
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/hero-main-light.png" alt="Main now playing layout" width="100%">
+  <img src="docs/media/hero-main-light.png" alt="Main now playing layout" width="100%">
 </p>
 
 ### Studio / Players / Queue
 
 | Studio | Players | Queue |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/studio.png" alt="Studio player grid" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/players.png" alt="Player selection and grouping" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/queue.png" alt="Queue panel" width="100%"> |
+| <img src="docs/media/studio.png" alt="Studio player grid" width="100%"> | <img src="docs/media/players.png" alt="Player selection and grouping" width="100%"> | <img src="docs/media/queue.png" alt="Queue panel" width="100%"> |
 
 ### Library / Actions / Settings
 
 | Library | Actions | Settings |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/library.png" alt="Music Assistant library browser" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/actions.png" alt="Actions and schedules menu" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/settings.png" alt="Settings panel" width="100%"> |
+| <img src="docs/media/library.png" alt="Music Assistant library browser" width="100%"> | <img src="docs/media/actions.png" alt="Actions and schedules menu" width="100%"> | <img src="docs/media/settings.png" alt="Settings panel" width="100%"> |
 
 ### Lyrics / Announcements / Tablet
 
 | Lyrics | Announcements | Tablet |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/lyrics.png" alt="Lyrics screen" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/announcement.png" alt="Announcement screen" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/tablet.png" alt="Tablet layout" width="100%"> |
+| <img src="docs/media/lyrics.png" alt="Lyrics screen" width="100%"> | <img src="docs/media/announcement.png" alt="Announcement screen" width="100%"> | <img src="docs/media/tablet.png" alt="Tablet layout" width="100%"> |
 
 ### Mobile Details
 
 | Mobile 1 | Mobile 2 | Mobile 3 |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-1.jpg" alt="Mobile screenshot 1" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-2.jpg" alt="Mobile screenshot 2" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-3.jpg" alt="Mobile screenshot 3" width="100%"> |
+| <img src="docs/media/mobile-1.jpg" alt="Mobile screenshot 1" width="100%"> | <img src="docs/media/mobile-2.jpg" alt="Mobile screenshot 2" width="100%"> | <img src="docs/media/mobile-3.jpg" alt="Mobile screenshot 3" width="100%"> |
 
 | Mobile 4 | Mobile 5 | Mobile 6 |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-4.jpg" alt="Mobile screenshot 4" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-5.jpg" alt="Mobile screenshot 5" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-6.jpg" alt="Mobile screenshot 6" width="100%"> |
+| <img src="docs/media/mobile-4.jpg" alt="Mobile screenshot 4" width="100%"> | <img src="docs/media/mobile-5.jpg" alt="Mobile screenshot 5" width="100%"> | <img src="docs/media/mobile-6.jpg" alt="Mobile screenshot 6" width="100%"> |
 
 | History | Mobile 7 |
 | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/history-light.png" alt="History and recommendations drawer" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-7.jpg" alt="Mobile screenshot 7" width="100%"> |
+| <img src="docs/media/history-light.png" alt="History and recommendations drawer" width="100%"> | <img src="docs/media/mobile-7.jpg" alt="Mobile screenshot 7" width="100%"> |
 
 ## Feature Highlights
 
@@ -360,7 +388,7 @@ HOMEii Flow 6 does not expose Music Assistant credentials to the browser. The bu
 ### Sendspin / This Device
 
 - Local browser player connection from inside the card
-- HOMEii-specific Sendspin player identity
+- Maverick Music-specific Sendspin player identity
 - Direct authenticated Sendspin WebSocket bridge
 - Reconnect on dashboard return, app focus, `pageshow`, and network-online events
 - Dashboard-level local session so the browser player is not tied to one Dashboard card instance
@@ -795,7 +823,7 @@ If you explicitly enable `lrclib_lyrics_enabled: true`, and Music Assistant has 
 ## Basic Configuration
 
 ```yaml
-type: custom:homeii-music-flow
+type: custom:maverick-music
 language: auto
 rtl: true
 theme_mode: auto
@@ -809,13 +837,13 @@ Use the visual editor or in-card settings whenever possible.
 ## Project Structure
 
 ```text
-dist/homeii-music-flow.js             self-contained HACS/manual runtime (includes Sendspin and Embla)
+dist/maverick-music.js             self-contained HACS/manual runtime (includes Sendspin and Embla)
 dist/sendspin-js/                     source/license copy; not loaded by the production bundle
 dist/vendor/embla-carousel.umd.js     source/license copy; not loaded by the production bundle
 dist/homeii-flow-logo.svg             packaged legacy brand asset
-dist/homeii-flow-logo.png             packaged transparent HOMEii Flow logo
-dist/homeii-flow-icon.png             packaged HOMEii Flow app icon
-src/homeii-music-flow.js              source snapshot for the card
+dist/homeii-flow-logo.png             packaged transparent Maverick Music logo
+dist/homeii-flow-icon.png             packaged Maverick Music app icon
+src/maverick-music.js              source snapshot for the card
 src/sendspin-js/                      source copy of Sendspin browser player files
 vendor/embla-carousel.umd.js          source copy of Embla used by the release package
 src/core/                             extracted foundation helpers
@@ -829,7 +857,7 @@ docs/media/                           GitHub/HACS README screenshots and GIF
 docs/qa-matrix.md                     viewport/theme/interaction release gate
 ```
 
-HACS installs the single `dist/homeii-music-flow.js` dashboard resource. The production bundle inlines the Sendspin browser player and Embla carousel, does not load sibling JavaScript files, and does not fetch external web fonts. The extra files in `dist/` support manual inspection, licensing, and legacy manual installs; they are not runtime dependencies for HACS.
+HACS installs the single `dist/maverick-music.js` dashboard resource. The production bundle inlines the Sendspin browser player and Embla carousel, does not load sibling JavaScript files, and does not fetch external web fonts. The extra files in `dist/` support manual inspection, licensing, and legacy manual installs; they are not runtime dependencies for HACS.
 
 ## Development
 
@@ -849,7 +877,7 @@ Before publishing a release:
 - Run `npm run build`.
 - Run `npm run lint`.
 - Run `npm test`.
-- Confirm `dist/homeii-music-flow.js` exists.
+- Confirm `dist/maverick-music.js` exists.
 - Confirm the built file contains no runtime references to `./sendspin-js/`, `./vendor/`, or `fonts.googleapis.com`.
 - Confirm `dist/homeii-flow-logo.svg`, `dist/homeii-flow-logo.png`, and `dist/homeii-flow-icon.png` exist.
 - Confirm the README renders all screenshots.
@@ -860,19 +888,19 @@ Before publishing a release:
 
 ## Support
 
-HOMEii Flow is free and built as an independent community project. If it improves your Home Assistant music dashboard and you want to support continued polish, fixes, documentation, and new features, sponsorship is appreciated.
+Maverick Music is free and built as an independent community project. If it improves your Home Assistant music dashboard and you want to support continued polish, fixes, documentation, and new features, sponsorship is appreciated.
 
 No pressure: stars, feedback, screenshots, bug reports, and thoughtful feature ideas also help a lot.
 
 <p align="center">
   <a href="https://github.com/sponsors/r11a">
-    <img alt="Sponsor HOMEii Flow" src="https://img.shields.io/badge/Sponsor-HOMEii%20Flow-EA4AAA?logo=githubsponsors&logoColor=white">
+    <img alt="Sponsor Maverick Music" src="https://img.shields.io/badge/Sponsor-HOMEii%20Flow-EA4AAA?logo=githubsponsors&logoColor=white">
   </a>
 </p>
 
 ## Credits
 
-HOMEii Flow is an independent community project and is not an official Music Assistant or Home Assistant project.
+Maverick Music is an independent community project and is not an official Music Assistant or Home Assistant project.
 
 Credit and thanks:
 

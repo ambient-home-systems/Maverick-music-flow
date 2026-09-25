@@ -1,7 +1,7 @@
 // foundation styles. Order is preserved by card-styles.js.
 export default function({ hostMinWidth, height, minCardHeight, fontScale, iconScale, customRgb, customText, customColor, fullInlineTargetHeight }) {
   return `
-        :host { display:block; container-type:inline-size; container-name:homeii-flow-host; width:100%; min-width:${hostMinWidth}; max-width:100%; margin:0 !important; padding:0 !important; background:transparent !important; border:none !important; box-shadow:none !important; overflow:hidden !important; border-radius:var(--ma-radius-xl); --ma-radius-xl:28px; --mobile-height:${height}px; --mobile-min-height:${minCardHeight}px; --v2-font-scale:${fontScale}; --v2-icon-scale:${iconScale}; --v2-custom-rgb:${customRgb}; --v2-custom-text:${customText}; --accent-color:${customColor}; --ma-accent: var(--accent-color, #e0a11b); }
+        :host { display:block; container-type:inline-size; container-name:maverick-flow-host; width:100%; min-width:${hostMinWidth}; max-width:100%; margin:0 !important; padding:0 !important; background:transparent !important; border:none !important; box-shadow:none !important; overflow:hidden !important; border-radius:var(--ma-radius-xl); --ma-radius-xl:28px; --mobile-height:${height}px; --mobile-min-height:${minCardHeight}px; --v2-font-scale:${fontScale}; --v2-icon-scale:${iconScale}; --v2-custom-rgb:${customRgb}; --v2-custom-text:${customText}; --accent-color:${customColor}; --ma-accent: var(--accent-color, #e0a11b); }
         ha-card { background:transparent !important; border:none !important; box-shadow:none !important; overflow:hidden !important; border-radius:var(--ma-radius-xl); }
         * { box-sizing:border-box; }
         .side-btn .ui-ic,
@@ -18,7 +18,7 @@ export default function({ hostMinWidth, height, minCardHeight, fontScale, iconSc
         .card {
           position:relative; overflow:hidden; isolation:isolate; color:#fff;
           container-type:inline-size;
-          container-name:homeii-flow-card;
+          container-name:maverick-flow-card;
           width:100%;
           max-width:100%;
           height:var(--mobile-height);
@@ -224,24 +224,24 @@ export default function({ hostMinWidth, height, minCardHeight, fontScale, iconSc
           content:"";
           position:absolute;
           inset:-1px;
-          background:var(--homeii-bg-art-current, none) center / cover no-repeat;
-          opacity:var(--homeii-bg-layer-opacity, .72);
+          background:var(--maverick-bg-art-current, none) center / cover no-repeat;
+          opacity:var(--maverick-bg-layer-opacity, .72);
           pointer-events:none;
           transition:opacity .52s cubic-bezier(.22,.78,.24,1);
           will-change:opacity;
         }
         .bg::after, .compact-backdrop-art::after {
-          background:var(--homeii-bg-art-next, none) center / cover no-repeat;
+          background:var(--maverick-bg-art-next, none) center / cover no-repeat;
           opacity:0;
         }
         .bg.bg-art-transitioning::before, .compact-backdrop-art.bg-art-transitioning::before {
           opacity:0;
         }
         .bg.bg-art-transitioning::after, .compact-backdrop-art.bg-art-transitioning::after {
-          opacity:var(--homeii-bg-layer-opacity, .72);
+          opacity:var(--maverick-bg-layer-opacity, .72);
         }
         .bg-art-settling::before, .bg-art-settling::after { transition:none !important; }
-        .compact-backdrop-art { --homeii-bg-layer-opacity:1; }
+        .compact-backdrop-art { --maverick-bg-layer-opacity:1; }
         @media (prefers-reduced-motion: reduce) {
           .bg::before,
         .compact-backdrop-art::before,

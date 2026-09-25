@@ -10,9 +10,9 @@ it('does not report stale MA health as healthy when Engine is unavailable',()=>{
 });
 it('loads on entry without a run button and stops polling after navigation',async()=>{
  vi.useFakeTimers();const body=document.createElement('div');document.body.append(body);
- const card={_state:{menuPage:'diagnostics'},_m:a=>a,_esc:String,_diagnosticRowHtml:row=>`<p>${row.title}</p>`,_refreshHomeiiEngineContext:vi.fn(async()=>({available:true}))};
+ const card={_state:{menuPage:'diagnostics'},_m:a=>a,_esc:String,_diagnosticRowHtml:row=>`<p>${row.title}</p>`,_refreshMaverickEngineContext:vi.fn(async()=>({available:true}))};
  mountLiveDiagnostics(card,body);await Promise.resolve();await Promise.resolve();
- expect(card._refreshHomeiiEngineContext).toHaveBeenCalledOnce();expect(body.querySelector('[data-menu-action="run_diagnostics"]')).toBeNull();
+ expect(card._refreshMaverickEngineContext).toHaveBeenCalledOnce();expect(body.querySelector('[data-menu-action="run_diagnostics"]')).toBeNull();
  card._state.menuPage='players';await vi.advanceTimersByTimeAsync(16000);
- expect(card._refreshHomeiiEngineContext).toHaveBeenCalledOnce();card._stopLiveDiagnostics();body.remove();vi.useRealTimers();
+ expect(card._refreshMaverickEngineContext).toHaveBeenCalledOnce();card._stopLiveDiagnostics();body.remove();vi.useRealTimers();
 });

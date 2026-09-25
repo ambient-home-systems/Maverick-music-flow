@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Use this page when HOMEii Music Flow loads but something does not behave as expected.
+Use this page when Maverick Music loads but something does not behave as expected.
 
 ## First Step
 
@@ -22,7 +22,7 @@ Check:
 - Music Assistant is running.
 - Music Assistant is connected to Home Assistant.
 - Home Assistant exposes Music Assistant players as `media_player` entities.
-- Player filters in HOMEii Music Flow are not hiding every player.
+- Player filters in Maverick Music are not hiding every player.
 - The selected dashboard/card is not scoped to a missing player.
 
 Run Diagnostics and look at:
@@ -36,7 +36,7 @@ Run Diagnostics and look at:
 
 Possible causes:
 
-- more than one HOMEii card shares browser-local settings
+- more than one Maverick Music card shares browser-local settings
 - no `card_id` is set
 - query-string player override is active
 - the old selected player no longer exists
@@ -102,7 +102,7 @@ Common problems:
 
 Run Diagnostics and check:
 
-- HOMEii Flow Engine
+- Maverick Music Engine
 - Music Assistant transport
 - Queue artwork sample
 - Library artwork sample
@@ -111,7 +111,7 @@ Run Diagnostics and check:
 
 ## Music Assistant transport fails
 
-Open the HOMEii Flow Engine integration options and check the internal HTTP URL, optional external HTTPS URL, and API token there. The card intentionally has no duplicate URL or token fields. Restart the integration after changing connection options, then run the card diagnostics and verify Engine, Music Assistant health, player discovery, and artwork proxy status.
+Open the Maverick Music Engine integration options and check the internal HTTP URL, optional external HTTPS URL, and API token there. The card intentionally has no duplicate URL or token fields. Restart the integration after changing connection options, then run the card diagnostics and verify Engine, Music Assistant health, player discovery, and artwork proxy status.
 
 ## Phone Shows Compact Instead Of Full
 
@@ -144,7 +144,7 @@ Edge-to-edge mode is intended for normal dashboard use, not editing mode.
 
 Some mobile browsers and Companion app contexts block clipboard writes.
 
-When that happens, HOMEii Music Flow should still show the report and mark the copy problem as a warning.
+When that happens, Maverick Music should still show the report and mark the copy problem as a warning.
 
 You can manually select/copy the visible report if the platform blocks the automatic copy action.
 
@@ -153,7 +153,7 @@ You can manually select/copy the visible report if the platform blocks the autom
 When opening an issue, include:
 
 ```text
-HOMEii Music Flow version:
+Maverick Music version:
 Home Assistant version:
 Music Assistant version:
 Install method: HACS / manual

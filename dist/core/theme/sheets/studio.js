@@ -8,8 +8,8 @@ export default function() {
 .card.layout-tablet .queue-list{max-width:920px;margin-inline:auto;}
 .card.layout-tablet .queue-row{min-height:88px!important;}
 .card.layout-tablet .active-player-chip .bars,.card.layout-tablet .active-player-card .bars{display:none!important;}
-.card.layout-tablet.rtl,.card.layout-tablet.rtl button,.card.layout-tablet.rtl input,.card.layout-tablet.rtl textarea,.card.layout-tablet.rtl select{font-family:var(--homeii-font-family)!important;}
-.card.layout-tablet.rtl .hero-title,.card.layout-tablet.rtl .menu-title,.card.layout-tablet.rtl .player-premium-name,.card.layout-tablet.rtl .player-premium-kicker,.card.layout-tablet.rtl .settings-label,.card.layout-tablet.rtl .menu-item-title{font-family:var(--homeii-font-family)!important;}
+.card.layout-tablet.rtl,.card.layout-tablet.rtl button,.card.layout-tablet.rtl input,.card.layout-tablet.rtl textarea,.card.layout-tablet.rtl select{font-family:var(--maverick-font-family)!important;}
+.card.layout-tablet.rtl .hero-title,.card.layout-tablet.rtl .menu-title,.card.layout-tablet.rtl .player-premium-name,.card.layout-tablet.rtl .player-premium-kicker,.card.layout-tablet.rtl .settings-label,.card.layout-tablet.rtl .menu-item-title{font-family:var(--maverick-font-family)!important;}
 .card.layout-tablet.rtl .players-premium-grid{direction:ltr!important;}
 .card.layout-tablet.rtl .player-menu-card{direction:ltr!important;text-align:start!important;}
 .card.layout-tablet.rtl .player-premium-head{grid-template-columns:64px minmax(0,1fr)!important;}

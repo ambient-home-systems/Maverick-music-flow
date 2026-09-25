@@ -17,14 +17,12 @@ coverage/
 homeii-browser-card-v*.js
 homeii-music-mobile-v*.js
 homeii-browser-card.js
-homeii-music-flow.js
+/maverick-music.js
 homeii-music-flow-full-v*.js
 homeii-music-flow-v*.js
 
 !dist/
-!dist/homeii-music-flow.js
 !src/
-!src/homeii-music-flow.js
 !docs/
 !scripts/
 !tests/

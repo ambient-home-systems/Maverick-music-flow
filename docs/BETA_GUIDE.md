@@ -1,4 +1,4 @@
-# HOMEii Flow Beta — your music, throughout your home
+# Maverick Music Beta — your music, throughout your home
 
 **Beta versions: Music Flow `6.0.0-beta.2` + Flow Engine `1.0.0-beta.1`.**
 
@@ -6,21 +6,21 @@ Status: opt-in public beta. Beta 2 retains compatibility with Engine 1.0.0-beta.
 
 | Project | Role | Repository |
 |---|---|---|
-| HOMEii Music Flow | The dashboard experience: artwork, library, contextual controls and player selection | [Card](https://github.com/r11a/homeii-music-flow) |
-| HOMEii Flow Engine | The Home Assistant integration: authenticated MA access, shared state and automation services | [Engine](https://github.com/ambient-home-systems/maverick-music-flow-engine) |
+| Maverick Music | The dashboard experience: artwork, library, contextual controls and player selection | [Card](https://github.com/ambient-home-systems/maverick-music-flow) |
+| Maverick Music Engine | The Home Assistant integration: authenticated MA access, shared state and automation services | [Engine](https://github.com/ambient-home-systems/maverick-music-flow-engine) |
 
 The Engine repository is public. Install it as a Home Assistant custom integration, not as an App/add-on.
 
 > [!WARNING]
 > **UPGRADING FROM 5.9.3 IS A BREAKING CHANGE. DO NOT UPDATE ONLY THE CARD.**
 >
-> Music Flow 6 requires HOMEii Flow Engine. Install, configure and verify the matching Engine **before** replacing the 5.9.3 card. The old browser-direct Music Assistant URL/token connection and Queue Actions fallback are not the supported 6.0 backend. Without a working Engine the new card will not provide normal music controls.
+> Music Flow 6 requires Maverick Music Engine. Install, configure and verify the matching Engine **before** replacing the 5.9.3 card. The old browser-direct Music Assistant URL/token connection and Queue Actions fallback are not the supported 6.0 backend. Without a working Engine the new card will not provide normal music controls.
 >
 > Back up Home Assistant, your dashboard YAML, resource URL, current card file and any existing Engine before testing. Keep a working way to use native Music Assistant. Do not use this beta as your only way to control important announcements or time-sensitive automations.
 
 ## What makes this beta different
 
-HOMEii Flow brings a music-focused interface to the dashboard: the current artwork shapes the atmosphere, the main player puts listening controls first, and contextual action wheels keep useful actions close to your thumb. The Engine gives that interface a shared backend inside Home Assistant, instead of asking each browser to maintain its own direct MA connection.
+Maverick Music brings a music-focused interface to the dashboard: the current artwork shapes the atmosphere, the main player puts listening controls first, and contextual action wheels keep useful actions close to your thumb. The Engine gives that interface a shared backend inside Home Assistant, instead of asking each browser to maintain its own direct MA connection.
 
 | Experience | Included in the candidate | Availability and limits |
 |---|---|---|
@@ -62,7 +62,7 @@ The Engine is a **custom integration**, not an add-on, not a replacement for Mus
 2. **Back up before changing either component.** Keep the 5.9.3 JavaScript file and resource URL. If an Engine is already installed, preserve its component directory and take a full HA backup that includes its stored configuration. Do not post backups or API tokens in an issue.
 3. **Confirm native MA first.** Play/pause and inspect the queue of one test speaker in MA. Resolve MA connection/provider problems before testing the new card.
 4. **Install Engine `1.0.0-beta.1` first**, following the Engine guide below. Restart HA; copying Python files alone does not load the integration.
-5. In **Settings → Devices & services → Add integration**, add **HOMEii Flow Engine**. Enter the real MA server URL, port and MA API token. Optional external MA URL is a server fallback, not your HA ingress dashboard URL.
+5. In **Settings → Devices & services → Add integration**, add **Maverick Music Engine**. Enter the real MA server URL, port and MA API token. Optional external MA URL is a server fallback, not your HA ingress dashboard URL.
 6. If upgrading an existing development Engine, retain its configured entry and use **Configure → General settings** as needed. Do not delete and recreate entries as a routine upgrade step. The `1.0.0-beta.1` name does not itself imply a stable release or a new storage format.
 7. Verify the Engine entry loads without setup errors. If setup fails, **stop here and keep 5.9.3 active**. Check schema compatibility, URL, port and authentication.
 8. Once a beta is published, deliberately download the exact card beta. Keep a copy of the old module and update the **existing** resource; do not load both versions of the same custom element. For preparation before publication, use the named candidate branch only if you are intentionally testing development source.
@@ -72,8 +72,8 @@ The Engine is a **custom integration**, not an add-on, not a replacement for Mus
 Minimal card YAML remains:
 
 ```yaml
-type: custom:homeii-music-flow
-homeii_engine_mode: required
+type: custom:maverick-music
+engine_mode: required
 ```
 
 An existing `entity` can remain as the preferred player. Preserve `card_id` values when already used. Configure MA connection secrets in the **Engine**, not dashboard YAML. Remove obsolete card connection secrets from the updated dashboard after securely recording the prior configuration for rollback. Backend timers/schedules and browser visual preferences are different stores; do not assume all old frontend-only settings migrate automatically.
@@ -82,7 +82,7 @@ An existing `entity` can remain as the preferred player. Preserve `card_id` valu
 
 **Engine manual installation:** copy the package's `custom_components/maverick_music_flow` directory into `/config/custom_components/maverick_music_flow`. The `manifest.json` must be directly inside that directory, not inside a second nested `maverick_music_flow` folder. Restart HA and add/configure the integration. See the [Engine repository](https://github.com/ambient-home-systems/maverick-music-flow-engine) for its installation and automation guide.
 
-**Card manual installation:** use the built `homeii-music-flow.js`, not the unbundled file in `src`. Put it under `/config/www/community/homeii-music-flow/` (or another deliberately chosen `www` directory) and register the corresponding `/local/...` URL as a JavaScript module. Update the existing resource to avoid duplicate registration.
+**Card manual installation:** use the built `maverick-music.js`, not the unbundled file in `src`. Put it under `/config/www/community/maverick-music-flow/` (or another deliberately chosen `www` directory) and register the corresponding `/local/...` URL as a JavaScript module. Update the existing resource to avoid duplicate registration.
 
 **HACS:** once a published beta and accessible repositories exist, use the card repository as a Dashboard repository and the Engine repository as an Integration repository. Select the exact beta deliberately. HACS UI wording varies by version. Do not select the moving development branch if you want a reproducible beta installation.
 
@@ -121,7 +121,7 @@ HACS beta visibility and update entities are controlled by the user's settings. 
 
 ## Help shape the beta
 
-For interface problems use [card issues](https://github.com/r11a/homeii-music-flow/issues); for Engine setup, backend services or persistent state use [Engine issues](https://github.com/ambient-home-systems/maverick-music-flow-engine/issues) when accessible. If unsure, start with a card issue and include both versions.
+For interface problems use [card issues](https://github.com/ambient-home-systems/maverick-music-flow/issues); for Engine setup, backend services or persistent state use [Engine issues](https://github.com/ambient-home-systems/maverick-music-flow-engine/issues) when accessible. If unsure, start with a card issue and include both versions.
 
 Include: card and Engine version, HA Core and MA version/schema, browser/device, player model/protocol, provider/media type, exact reproduction, expected versus actual result, whether native MA behaves the same way, and a redacted diagnostic excerpt. For UI problems add viewport/orientation and a screenshot. Never include tokens, cookies, full backups or private connection credentials. Existing issues should receive additional evidence rather than duplicate reports.
 

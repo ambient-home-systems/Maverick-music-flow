@@ -3,7 +3,7 @@ export async function renderSavedPlaylists(card, body, entry = null) {
   const current = () => body.isConnected && card._state.menuPage === page && (!entry || card._state.mobileQueueActionEntry === entry);
   const t = (en, he) => card._esc(card._m(en,he));
   body.innerHTML = `<p role="status">${t("Loading saved playlists…","טוען רשימות שמורות…")}</p>`;
-  const lists = await card._homeiiEngineCommand("playlists", {action:"list"});
+  const lists = await card._maverickEngineCommand("playlists", {action:"list"});
   if (!current()) return;
   const uris = entry ? [entry.uri] : card._getNowPlayingQueueItems().map(item => card._getQueueItemUri(item)).filter(Boolean);
   body.innerHTML = `<section class="smart-settings"><h2>${t("Engine playlists","רשימות במנוע")}</h2><p>${t("Saved in Home Assistant and available across your devices.","נשמרות ב־Home Assistant וזמינות בכל המכשירים שלך.")}</p><form data-saved-playlist-form><label>${t("Playlist name","שם הרשימה")}<input name="name" maxlength="120" required></label><button type="submit" ${uris.length ? "" : "disabled"}>${t(entry ? "Save this item as a playlist" : "Save current queue",entry ? "שמירת הפריט כרשימה" : "שמירת התור הנוכחי")}</button></form><p role="status"></p><div class="smart-hub-grid">${lists.map((list,index)=>`<button data-saved-playlist="${index}"><span>${card._esc(list.name)}</span><small>${list.uris.length} ${t("items","פריטים")}</small></button>`).join("")}</div></section>`;
@@ -21,16 +21,16 @@ export async function renderSavedPlaylists(card, body, entry = null) {
   body.querySelector("form").onsubmit = event => {
     event.preventDefault(); event.stopPropagation();
     const name = event.target.elements.name.value.trim(); if (!name || !uris.length) return;
-    void run(async()=>{await card._homeiiEngineCommand("playlists",{action:"save",name,uris});if (current()) await renderSavedPlaylists(card,body,entry);});
+    void run(async()=>{await card._maverickEngineCommand("playlists",{action:"save",name,uris});if (current()) await renderSavedPlaylists(card,body,entry);});
   };
   body.querySelectorAll("[data-saved-playlist]").forEach(button=>button.onclick=()=>run(async()=>{
     const list=lists[Number(button.dataset.savedPlaylist)];
     if (entry) {
-      await card._homeiiEngineCommand("playlists",{action:"save",playlist_id:list.id,name:list.name,uris:[...list.uris,entry.uri]});
+      await card._maverickEngineCommand("playlists",{action:"save",playlist_id:list.id,name:list.name,uris:[...list.uris,entry.uri]});
       status.textContent=card._m("Added to playlist","נוסף לרשימה");
     } else {
       status.textContent=card._m("Starting playback…","מתחיל ניגון…");
-      await card._homeiiEngineCommand("playlists",{action:"play",playlist_id:list.id});
+      await card._maverickEngineCommand("playlists",{action:"play",playlist_id:list.id});
       status.textContent=card._m("Playback request accepted","בקשת הניגון התקבלה");
     }
   }));
@@ -42,7 +42,7 @@ export async function renderSavedPlaylists(card, body, entry = null) {
     remove.textContent=card._m("Delete","מחיקה");remove.setAttribute("aria-label",`${card._m("Delete","מחיקה")} ${list.name}`);
     remove.onclick=()=>{
       if (remove.dataset.confirm !== "yes") { remove.dataset.confirm="yes";remove.textContent=card._m("Confirm delete","אישור מחיקה");return; }
-      return run(async()=>{await card._homeiiEngineCommand("playlists",{action:"delete",playlist_id:list.id});if (current()) await renderSavedPlaylists(card,body);});
+      return run(async()=>{await card._maverickEngineCommand("playlists",{action:"delete",playlist_id:list.id});if (current()) await renderSavedPlaylists(card,body);});
     };
     row.append(remove);
   });

@@ -40,7 +40,7 @@ export function mountLiveDiagnostics(card, body) {
   const update=async()=>{
     if (!active()) return;
     if (globalThis.document?.visibilityState !== "hidden") {
-      try { context=await card._refreshHomeiiEngineContext({force:true}); }
+      try { context=await card._refreshMaverickEngineContext({force:true}); }
       catch { context={available:false}; }
       if (!active()) return;
       refreshed=true;card._state.diagnosticsRunAt=Date.now();render();

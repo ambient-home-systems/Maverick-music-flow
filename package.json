@@ -1,10 +1,21 @@
 {
-  "name": "homeii-music-flow",
+  "name": "maverick-music",
   "version": "6.0.1",
   "description": "Premium Home Assistant Music Assistant dashboard card with a mobile-first visual player and built-in editor.",
   "private": true,
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ambient-home-systems/maverick-music-flow.git"
+  },
+  "homepage": "https://github.com/ambient-home-systems/maverick-music-flow",
+  "bugs": {
+    "url": "https://github.com/ambient-home-systems/maverick-music-flow/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "keywords": [
     "home-assistant",
     "lovelace",

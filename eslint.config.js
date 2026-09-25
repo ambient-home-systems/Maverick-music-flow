@@ -26,6 +26,7 @@ export default [
       "homeii-music-flow-v*.js",
       "homeii-music-flow-clean.js",
       "homeii-music-flow.js",
+      "maverick-music.js",
     ],
   },
   js.configs.recommended,

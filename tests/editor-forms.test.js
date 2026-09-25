@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  configureHomeiiEditorForms,
+  configureMaverickEditorForms,
   getBaseCardConfigForm,
   getMobileCardConfigForm,
   getMobileEditorTexts,
@@ -10,13 +10,13 @@ import {
 import { radioBrowserCountrySelectorOptions } from "../src/core/radio-browser-countries.js";
 
 function configureTestEditorForms() {
-  configureHomeiiEditorForms({
-    homeiiEditorI18n: (key, params = {}, fallback = "") => {
+  configureMaverickEditorForms({
+    maverickEditorI18n: (key, params = {}, fallback = "") => {
       void params;
       return fallback || key;
     },
-    homeiiEditorLabelFor: (schema = {}, labels = {}) => labels?.[schema?.name] || schema?.label || schema?.title || schema?.name || "",
-    homeiiEditorHelperFor: (schema = {}, helpers = {}) => helpers?.[schema?.name] || schema?.helper || "",
+    maverickEditorLabelFor: (schema = {}, labels = {}) => labels?.[schema?.name] || schema?.label || schema?.title || schema?.name || "",
+    maverickEditorHelperFor: (schema = {}, helpers = {}) => helpers?.[schema?.name] || schema?.helper || "",
     detectEditorHebrew: () => false,
     visibleLanguageOptions: [
       { value: "en", label: "English" },
@@ -45,13 +45,13 @@ describe("editor forms", () => {
       { value: "he", label: "Hebrew" },
     ]);
     const connectionSchema = JSON.stringify(form.schema.find((section) => section.name === "connection_section"));
-    expect(connectionSchema).toContain("homeii_engine_mode");
+    expect(connectionSchema).toContain("engine_mode");
     expect(connectionSchema).not.toContain("ma_url");
     expect(connectionSchema).not.toContain("ma_token");
     expect(connectionSchema).not.toContain("music_assistant_external_url");
     expect(connectionSchema).toContain("lrclib_lyrics_enabled");
     expect(form.computeHelper({ name: "lrclib_lyrics_enabled" })).toContain("https://lrclib.net");
-    expect(form.computeLabel({ name: "homeii_engine_mode" })).toBe("HOMEii Flow Engine");
+    expect(form.computeLabel({ name: "engine_mode" })).toBe("Maverick Music Engine");
     expect(() => form.assertConfig(null)).toThrow("Card config must be an object");
   });
 
@@ -63,7 +63,7 @@ describe("editor forms", () => {
     expect(texts.options.mobile_quick_action_slots[0]).toEqual({ value: "", label: "ui.none" });
     expect(texts.options.mobile_quick_actions.some((option) => option.value === "voice")).toBe(true);
     expect(texts.options.mobile_quick_actions.some((option) => option.value === "queue_flow")).toBe(true);
-    expect(texts.options.homeii_engine_mode.map((option) => option.value)).toEqual(["required"]);
+    expect(texts.options.engine_mode.map((option) => option.value)).toEqual(["required"]);
     expect(texts.options.mobile_layout_mode.map((option) => option.value)).toEqual(["auto", "full", "edge_to_edge"]);
     expect(texts.options.mobile_radio_source_mode.map((option) => option.value)).toEqual(["combined", "ma_first", "ma_only", "radiobrowser_only"]);
     expect(texts.options.screensaver_control_buttons.some((option) => option.value === "lyrics")).toBe(true);
@@ -86,7 +86,7 @@ describe("editor forms", () => {
     expect(JSON.stringify(form.schema)).toContain("lrclib_lyrics_enabled");
     expect(JSON.stringify(form.schema.find((section) => section.name === "smart_home_section"))).not.toContain("screensaver_enabled");
     expect(JSON.stringify(form.schema)).toContain("mobile_layout_mode");
-    expect(JSON.stringify(form.schema)).toContain("homeii_engine_mode");
+    expect(JSON.stringify(form.schema)).toContain("engine_mode");
     expect(JSON.stringify(form.schema)).not.toContain("ma_url");
     expect(JSON.stringify(form.schema)).not.toContain("ma_token");
     expect(JSON.stringify(form.schema)).toContain("mobile_cover_flow");
@@ -95,7 +95,7 @@ describe("editor forms", () => {
     expect(form.computeHelper({ name: "voice_assistant_enabled" })).toBe("ui.show_a_push_to_talk_button_for_music_and_assist_commands");
     expect(form.computeHelper({ name: "mobile_layout_mode" })).toContain("Edge to edge opens");
     expect(form.computeHelper({ name: "mobile_cover_flow" })).toContain("main artwork area");
-    expect(form.computeHelper({ name: "homeii_engine_mode" })).toContain("HOMEii Flow Engine");
+    expect(form.computeHelper({ name: "engine_mode" })).toContain("Maverick Music Engine");
     expect(form.computeHelper({ name: "lrclib_lyrics_enabled" })).toContain("Disabled by default");
   });
 

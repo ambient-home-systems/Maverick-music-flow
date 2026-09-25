@@ -76,37 +76,37 @@ describe("card-id foundation", () => {
 
   describe("scopeStorageKey", () => {
     it("returns the base key unchanged when no card id is given", () => {
-      expect(scopeStorageKey("homeii_music_flow_excluded_players")).toBe(
-        "homeii_music_flow_excluded_players"
+      expect(scopeStorageKey("maverick_music_excluded_players")).toBe(
+        "maverick_music_excluded_players"
       );
-      expect(scopeStorageKey("homeii_music_flow_theme", "")).toBe(
-        "homeii_music_flow_theme"
+      expect(scopeStorageKey("maverick_music_theme", "")).toBe(
+        "maverick_music_theme"
       );
-      expect(scopeStorageKey("homeii_music_flow_lang", null)).toBe(
-        "homeii_music_flow_lang"
+      expect(scopeStorageKey("maverick_music_lang", null)).toBe(
+        "maverick_music_lang"
       );
     });
 
     it("suffixes the base key with the card id when provided", () => {
-      expect(scopeStorageKey("homeii_music_flow_theme", "ida-music")).toBe(
-        "homeii_music_flow_theme__ida-music"
+      expect(scopeStorageKey("maverick_music_theme", "ida-music")).toBe(
+        "maverick_music_theme__ida-music"
       );
       expect(
-        scopeStorageKey("homeii_music_flow_excluded_players", "toke-music")
-      ).toBe("homeii_music_flow_excluded_players__toke-music");
+        scopeStorageKey("maverick_music_excluded_players", "toke-music")
+      ).toBe("maverick_music_excluded_players__toke-music");
     });
 
     it("ignores invalid card ids and returns the base key", () => {
-      expect(scopeStorageKey("homeii_music_flow_theme", "ida music")).toBe(
-        "homeii_music_flow_theme"
+      expect(scopeStorageKey("maverick_music_theme", "ida music")).toBe(
+        "maverick_music_theme"
       );
-      expect(scopeStorageKey("homeii_music_flow_theme", "a".repeat(65))).toBe(
-        "homeii_music_flow_theme"
+      expect(scopeStorageKey("maverick_music_theme", "a".repeat(65))).toBe(
+        "maverick_music_theme"
       );
     });
 
     it("produces disjoint keys for different card ids", () => {
-      const base = "homeii_music_flow_front_pinned_player";
+      const base = "maverick_music_front_pinned_player";
       const idaKey = scopeStorageKey(base, "ida-music");
       const tokeKey = scopeStorageKey(base, "toke-music");
       expect(idaKey).not.toBe(tokeKey);

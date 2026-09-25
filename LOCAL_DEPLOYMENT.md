@@ -4,15 +4,15 @@
 
 Use only this card type in Home Assistant:
 
-`custom:homeii-music-flow`
+`custom:maverick-music`
 
 Use only this runtime package folder in Home Assistant `www`:
 
-`/config/www/community/homeii-music-flow/`
+`/config/www/community/maverick-music-flow/`
 
 Use only this Lovelace resource pattern:
 
-`/local/community/homeii-music-flow/homeii-music-flow.js?v=5.8.0`
+`/local/community/maverick-music-flow/maverick-music.js?v=5.8.0`
 
 From now on, bump only the query version after `?v=`.
 Do not change the file name again unless there is a hard cache emergency.
@@ -21,7 +21,7 @@ Do not change the file name again unless there is a hard cache emergency.
 
 Main source file:
 
-`src/homeii-music-flow.js`
+`src/maverick-music.js`
 
 Stable deploy target:
 
@@ -31,12 +31,12 @@ Stable deploy target:
 
 ## Current 5.8.0 Mapping
 
-- Edit: `src/homeii-music-flow.js`
+- Edit: `src/maverick-music.js`
 - Review/share: `dist/`
 - Deploy to HA `www`: copy the full contents of `dist/` into `www/community/homeii-music-flow/`
-- Package includes: `homeii-music-flow.js`, `localization/`, `sendspin-js/`, `vendor/embla-carousel.umd.js`, `homeii-flow-logo.svg`
-- Lovelace type: `custom:homeii-music-flow`
-- Lovelace resource: `/local/community/homeii-music-flow/homeii-music-flow.js?v=5.8.0`
+- Package includes: `maverick-music.js`, `localization/`, `sendspin-js/`, `vendor/embla-carousel.umd.js`, `homeii-flow-logo.svg`
+- Lovelace type: `custom:maverick-music`
+- Lovelace resource: `/local/community/maverick-music-flow/maverick-music.js?v=5.8.0`
 
 ## Cache Reset Rule
 
@@ -48,7 +48,7 @@ If a new version is approved:
 
 Example:
 
-`/local/community/homeii-music-flow/homeii-music-flow.js?v=5.8.0`
+`/local/community/maverick-music-flow/maverick-music.js?v=5.8.0`
 
 ## Foundation Note
 

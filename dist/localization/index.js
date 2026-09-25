@@ -1,4 +1,4 @@
-import en from "./en.js?v=6.0.1-bbae40f1f1";
+import en from "./en.js?v=6.0.1-390f0457d6";
 import da from "./da.js?v=6.0.1-0fc47a3f33";
 import de from "./de.js?v=6.0.1-0aaf5c6ca6";
 import es from "./es.js?v=6.0.1-57e2c6d6d4";

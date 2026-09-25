@@ -9,8 +9,8 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
 const preserveMain = process.argv.includes("--preserve-main");
 
-const srcMainPath = path.join(rootDir, "src", "homeii-music-flow.js");
-const distMainPath = path.join(rootDir, "dist", "homeii-music-flow.js");
+const srcMainPath = path.join(rootDir, "src", "maverick-music.js");
+const distMainPath = path.join(rootDir, "dist", "maverick-music.js");
 const srcConfigPath = path.join(rootDir, "src", "config");
 const distConfigPath = path.join(rootDir, "dist", "config");
 const srcCorePath = path.join(rootDir, "src", "core");
@@ -143,4 +143,4 @@ await copyFile(brandLogoPngPath, distLogoPngPath);
 await copyFile(path.join(rootDir, "src", "homeii-flow-logo-v2.png"), path.join(rootDir, "dist", "homeii-flow-logo-v2.png"));
 await copyFile(brandIconPngPath, distIconPngPath);
 
-console.log(`Synced Homeii release artifacts for ${version}`);
+console.log(`Synced Maverick release artifacts for ${version}`);

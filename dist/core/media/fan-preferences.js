@@ -1,6 +1,6 @@
 import { actionSymbolHtml, actionIconSvg } from "./action-menu.js";
 
-const storageKey = card => card._lsKey?.("homeii_music_flow_fan_preferences") || "homeii_music_flow_fan_preferences";
+const storageKey = card => card._lsKey?.("maverick_music_fan_preferences") || "maverick_music_fan_preferences";
 const sharedKey = card => `${card._state?.engineInstanceId || ""}:${card._state?.engineProfileId || ""}:${card._hass?.user?.id || ""}`;
 export function fanPreference(card, context) {
   const shared = card._fanSharedPreferences || {};
@@ -16,7 +16,7 @@ export async function loadFanPreferences(card) {
   if (!card._state?.engineCapabilities?.wheel_preferences || card._fanPreferencesLoading || Date.now() - (card._fanPreferencesLoadedAt || 0) < 30000) return;
   card._fanPreferencesLoading = true;
   try {
-    const result = await card._homeiiEngineCommand("wheels/get", {});
+    const result = await card._maverickEngineCommand("wheels/get", {});
     if (sharedKey(card) !== identity) return;
     card._fanSharedPreferences = result;
     card._fanPreferencesLoadedAt = Date.now();
@@ -129,7 +129,7 @@ export function openFanCatalogue(card, host, context, getActions, dispatch, onSa
         const stored = JSON.parse(localStorage.getItem(storageKey(card)) || "{}");
         if (scope === "device") stored[context] = draft;
         else {
-          card._fanSharedPreferences = await card._homeiiEngineCommand("wheels/set", {scope, context, preference:draft});
+          card._fanSharedPreferences = await card._maverickEngineCommand("wheels/set", {scope, context, preference:draft});
           delete stored[context];
         }
         localStorage.setItem(storageKey(card),JSON.stringify(stored));

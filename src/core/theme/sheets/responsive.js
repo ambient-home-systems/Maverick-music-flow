@@ -38,7 +38,7 @@ export default function() {
         .theme-light .toast.success { background:rgba(237,252,242,.94); border-color:rgba(75,181,111,.26); }
         .theme-light .toast.error { background:rgba(255,241,241,.94); border-color:rgba(218,82,82,.24); }
         .hidden-tools { display:none !important; }
-        .homeii-local-audio { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; inset:auto auto 0 0; }
+        .maverick-local-audio { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; inset:auto auto 0 0; }
         .rtl .player-chip,.rtl .menu-item-main,.rtl .menu-list-item,.rtl .queue-row,.rtl .media-category-row,.rtl .media-search-shell { direction:rtl; }
         .rtl .controls,.rtl .accent-row,.rtl .time-row,.rtl .queue-actions { direction:ltr; }
         .rtl .media-search-shell input {

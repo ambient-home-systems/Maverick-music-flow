@@ -1,4 +1,4 @@
-// Generated HOMEii Music Flow localization dictionary.
+// Generated Maverick Music localization dictionary.
 // Keep keys stable. Translate only the string values.
 const messages = Object.freeze({
   "ui.a_guided_music_wizard": "A guided music wizard",
@@ -561,7 +561,7 @@ const messages = Object.freeze({
   "ui.recently_added": "Recently Added",
   "ui.recently_played": "Recently Played",
   "ui.recently_played_2": "Recently played",
-  "ui.recommendations_will_appear_once_homeii_flow_sees_your_queue_or_recent_l": "Recommendations will appear once HOMEii Flow sees your queue or recent listening.",
+  "ui.recommendations_will_appear_once_homeii_flow_sees_your_queue_or_recent_l": "Recommendations will appear once Maverick Music sees your queue or recent listening.",
   "ui.recommended": "Recommended",
   "ui.recommended_format_hh_mm_such_as_06_00_crossing_midnight_is_supported": "Recommended format: HH:MM such as 06:00. Crossing midnight is supported.",
   "ui.recommended_format_hh_mm_such_as_22_00": "Recommended format: HH:MM such as 22:00.",
@@ -932,7 +932,7 @@ const messages = Object.freeze({
   "ui.hotel_mode_helper": "Minimal hotel-safe UI: player controls, volume, search, artwork browsing, and player selection only.",
   "ui.style_and_genres": "Style and genres",
   "ui.card_id": "Card ID",
-  "ui.card_id_helper": "Unique slug (letters, digits, '-', '_'). Set this when running multiple HOMEii Flow dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other HOMEii Flow card in this browser (the original behaviour).",
+  "ui.card_id_helper": "Unique slug (letters, digits, '-', '_'). Set this when running multiple Maverick Music dashboards in the same browser so each dashboard keeps its own player picker, theme, layout, and other in-card settings. Leave blank to share state with every other Maverick Music card in this browser (the original behaviour).",
 });
 
 export default messages;

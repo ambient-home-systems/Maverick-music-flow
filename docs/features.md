@@ -1,6 +1,6 @@
 # Feature Guide
 
-This page explains the main HOMEii Music Flow features and when to use them.
+This page explains the main Maverick Music features and when to use them.
 
 ## Main Player
 
@@ -18,7 +18,7 @@ It shows:
 - selected player
 - quick actions
 
-HOMEii Music Flow uses artwork colors to create a dynamic visual atmosphere. If artwork is missing, it falls back to a neutral presentation instead of showing broken UI.
+Maverick Music uses artwork colors to create a dynamic visual atmosphere. If artwork is missing, it falls back to a neutral presentation instead of showing broken UI.
 
 ## Queue
 
@@ -97,7 +97,7 @@ Enabling `lrclib_lyrics_enabled: true` allows the browser to send the current ti
 
 ## Reusable Dashboard Features
 
-HOMEii Music Flow supports reusable dashboard patterns.
+Maverick Music supports reusable dashboard patterns.
 
 The main tools are:
 
@@ -150,7 +150,7 @@ Use it for:
 - a desktop browser player
 - quick local playback without a separate speaker entity
 
-This feature is disabled in HOMEii Flow 6 Engine-only mode so the card never stores or receives Music Assistant credentials.
+This feature is disabled in Maverick Music 6 Engine-only mode so the card never stores or receives Music Assistant credentials.
 
 ## FLOW Guided Wizard
 
@@ -194,7 +194,7 @@ Supported behavior includes:
 
 ## Announcements
 
-Announcements let HOMEii Music Flow send text-to-speech messages.
+Announcements let Maverick Music send text-to-speech messages.
 
 Use it for:
 
@@ -207,7 +207,7 @@ You need a working Home Assistant TTS entity for the best experience.
 
 ## Favorites And Likes
 
-HOMEii Music Flow can show and update liked/favorite state where Music Assistant exposes it.
+Maverick Music can show and update liked/favorite state where Music Assistant exposes it.
 
 Depending on the media type and provider, this can apply to:
 
@@ -221,7 +221,7 @@ Some favorite behavior is provider-dependent.
 
 ## History And Recommendations
 
-HOMEii Music Flow can show recent listening and recommendation-style surfaces.
+Maverick Music can show recent listening and recommendation-style surfaces.
 
 Use these when:
 

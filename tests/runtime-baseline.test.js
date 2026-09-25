@@ -15,7 +15,7 @@ async function readProjectFile(...segments) {
 
 async function readCardPresentationSource() {
   const { buildCardStyles } = await import("../src/core/theme/card-styles.js");
-  return (await readProjectFile("src", "homeii-music-flow.js")) + buildCardStyles({
+  return (await readProjectFile("src", "maverick-music.js")) + buildCardStyles({
     hostMinWidth: "0px", height: 700, minCardHeight: 400, fontScale: 1, iconScale: "1.00",
     customRgb: "224 161 27", customText: "#fff", customColor: "#e0a11b", fullInlineTargetHeight: 700,
   });
@@ -37,7 +37,7 @@ it("keeps tablet playback state fresh when realtime Engine events are missed", a
 });
 
 it("opens current-track actions from the main heart so favorite and playlist destinations stay together", async () => {
-  const source = await readProjectFile("src", "homeii-music-flow.js");
+  const source = await readProjectFile("src", "maverick-music.js");
   expect(source).toContain('bindButton("mobileLikeBtn"');
   expect(source).toContain("const entry = this._currentMediaLikeMeta()");
   expect(source).toContain("this._openMobileMediaActionMenu(entry)");
@@ -232,16 +232,16 @@ function installBrowserStubs() {
   };
 }
 
-function expectHomeiiRuntimeRegistered(packageVersion) {
-  expect(globalThis.customElements.get("homeii-music-flow")).toBeTypeOf("function");
-  expect(globalThis.customElements.get("homeii-music-mobile")).toBeTypeOf("function");
-  expect(globalThis.customElements.get("homeii-music-flow-editor")).toBeTypeOf("function");
-  expect(globalThis.customElements.get("homeii-music-mobile-editor")).toBeTypeOf("function");
+function expectMaverickRuntimeRegistered(packageVersion) {
+  expect(globalThis.customElements.get("maverick-music")).toBeTypeOf("function");
+  expect(globalThis.customElements.get("maverick-music-mobile")).toBeTypeOf("function");
+  expect(globalThis.customElements.get("maverick-music-editor")).toBeTypeOf("function");
+  expect(globalThis.customElements.get("maverick-music-mobile-editor")).toBeTypeOf("function");
 
   expect(globalThis.window.customCards).toEqual([
     expect.objectContaining({
-      type: "homeii-music-flow",
-      name: "HOMEii Flow",
+      type: "maverick-music",
+      name: "Maverick Music",
       description: expect.stringContaining(`v${packageVersion}`),
     }),
   ]);
@@ -294,8 +294,8 @@ describe("runtime baseline", () => {
 
   it("keeps package, source, and dist runtime versions aligned", async () => {
     const packageVersion = await readPackageVersion();
-    const sourceVersion = extractCardVersion(await readProjectFile("src", "homeii-music-flow.js"));
-    const distVersion = extractCardVersion(await readProjectFile("dist", "homeii-music-flow.js"));
+    const sourceVersion = extractCardVersion(await readProjectFile("src", "maverick-music.js"));
+    const distVersion = extractCardVersion(await readProjectFile("dist", "maverick-music.js"));
 
     expect(sourceVersion).toBe(packageVersion);
     expect(distVersion).toBe(packageVersion);
@@ -304,28 +304,28 @@ describe("runtime baseline", () => {
   it("keeps versioned editor tags aligned with the runtime version", async () => {
     const packageVersion = await readPackageVersion();
     const expectedSuffix = packageVersion.replace(/\D/g, "");
-    const sourceText = await readProjectFile("src", "homeii-music-flow.js");
-    const distText = await readProjectFile("dist", "homeii-music-flow.js");
+    const sourceText = await readProjectFile("src", "maverick-music.js");
+    const distText = await readProjectFile("dist", "maverick-music.js");
 
-    expect(sourceText).toContain(`homeii-music-flow-browser-editor-v${expectedSuffix}`);
-    expect(sourceText).toContain(`homeii-music-flow-editor-v${expectedSuffix}`);
-    expect(distText).toContain(`homeii-music-flow-browser-editor-v${expectedSuffix}`);
-    expect(distText).toContain(`homeii-music-flow-editor-v${expectedSuffix}`);
+    expect(sourceText).toContain(`maverick-music-browser-editor-v${expectedSuffix}`);
+    expect(sourceText).toContain(`maverick-music-editor-v${expectedSuffix}`);
+    expect(distText).toContain(`maverick-music-browser-editor-v${expectedSuffix}`);
+    expect(distText).toContain(`maverick-music-editor-v${expectedSuffix}`);
   });
 
   it("registers the card, mobile card, editors, and dashboard picker metadata", async () => {
     const packageVersion = await readPackageVersion();
 
-    await import("../src/homeii-music-flow.js?runtime-baseline");
+    await import("../src/maverick-music.js?runtime-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    expectHomeiiRuntimeRegistered(packageVersion);
+    expectMaverickRuntimeRegistered(packageVersion);
   });
 
   it("counts playing players only within the available population and separates RTL labels", async () => {
-    await import("../src/homeii-music-flow.js?runtime-player-counts");
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    await import("../src/maverick-music.js?runtime-player-counts");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.mobilePlayerDesign = "immersive";
     card._state.players = [{state:"playing"}, {state:"idle"}, {state:"playing",available:false}];
@@ -338,11 +338,11 @@ describe("runtime baseline", () => {
   });
 
   it("suppresses phone edge-to-edge while the card is rendered in the visual editor", async () => {
-    await import("../src/homeii-music-flow.js?runtime-mobile-edge-editor-baseline");
+    await import("../src/maverick-music.js?runtime-mobile-edge-editor-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.mobileLayoutMode = "edge_to_edge";
 
@@ -413,11 +413,11 @@ describe("runtime baseline", () => {
   });
 
   it("treats the phone actions page as a fullscreen menu", async () => {
-    await import("../src/homeii-music-flow.js?runtime-actions-fullscreen-baseline");
+    await import("../src/maverick-music.js?runtime-actions-fullscreen-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
 
     expect(card._isPhoneActionFullscreenMenuPage("main")).toBe(true);
@@ -425,13 +425,13 @@ describe("runtime baseline", () => {
   });
 
   it("routes Engine persistence through the resolved context profile", async () => {
-    await import("../src/homeii-music-flow.js?runtime-engine-routing-baseline");
+    await import("../src/maverick-music.js?runtime-engine-routing-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
     card._state.engineContext = { instanceId: "main", profileId: "kitchen" };
     card._state.engineInstanceId = "main";
     card._state.engineProfileId = "kitchen";
@@ -440,7 +440,7 @@ describe("runtime baseline", () => {
       attributes: { app_id: "music_assistant", mass_player_type: "player" },
     }];
 
-    expect(card._homeiiEngineMessage("timers/set", { player: "media_player.kitchen" })).toEqual(expect.objectContaining({
+    expect(card._maverickEngineMessage("timers/set", { player: "media_player.kitchen" })).toEqual(expect.objectContaining({
       type: `${ENGINE_COMMAND_PREFIX}/timers/set`,
       instance_id: "main",
       profile_id: "kitchen",
@@ -464,28 +464,28 @@ describe("runtime baseline", () => {
       selection_mode: "random_playlist",
       media_type: "playlist",
     }));
-    expect(card._homeiiEngineMessage("timers/set", {
+    expect(card._maverickEngineMessage("timers/set", {
       timer_id: "sleep_media_player_kitchen",
       player: "media_player.kitchen",
     })).not.toHaveProperty("id");
-    expect(card._homeiiEngineMessage("players/get", { include_all: false })).toEqual(expect.objectContaining({
+    expect(card._maverickEngineMessage("players/get", { include_all: false })).toEqual(expect.objectContaining({
       type: `${ENGINE_COMMAND_PREFIX}/players/get`,
       instance_id: "main",
       profile_id: "kitchen",
       include_all: false,
     }));
-    expect(card._homeiiEngineMessage("players/get", { include_all: false })).not.toHaveProperty("include_generic");
-    expect(card._homeiiEngineMessage("get_context")).not.toHaveProperty("profile_id");
+    expect(card._maverickEngineMessage("players/get", { include_all: false })).not.toHaveProperty("include_generic");
+    expect(card._maverickEngineMessage("get_context")).not.toHaveProperty("profile_id");
   });
 
   it("falls back to the Engine HTTP bridge when the websocket context command stalls", async () => {
-    await import("../src/homeii-music-flow.js?runtime-engine-http-context-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-engine-http-context-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", card_id: "main", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", card_id: "main", engine_mode: "required" });
     card._hass = {
       callWS: vi.fn(async () => {
         throw new Error("Home Assistant timed out");
@@ -502,9 +502,9 @@ describe("runtime baseline", () => {
       })),
     };
     card._state.selectedPlayer = "media_player.main";
-    globalThis.sessionStorage.setItem("homeii_music_flow_queue_snapshot_v1::media_player.main::queue-main__main", JSON.stringify({ items: [1] }));
+    globalThis.sessionStorage.setItem("maverick_music_queue_snapshot_v1::media_player.main::queue-main__main", JSON.stringify({ items: [1] }));
 
-    const context = await card._refreshHomeiiEngineContext({ force: true });
+    const context = await card._refreshMaverickEngineContext({ force: true });
 
     expect(card._hass.callWS).toHaveBeenCalled();
     expect(card._hass.callApi).toHaveBeenCalledWith(
@@ -518,27 +518,27 @@ describe("runtime baseline", () => {
     expect(context.version).toBe("0.1.33");
     expect(card._state.engineAvailable).toBe(true);
     expect(card._state.engineLastTransport).toBe("http");
-    expect(globalThis.sessionStorage.getItem("homeii_music_flow_queue_snapshot_v1::media_player.main::queue-main__main")).toBeNull();
+    expect(globalThis.sessionStorage.getItem("maverick_music_queue_snapshot_v1::media_player.main::queue-main__main")).toBeNull();
   });
 
   it("records successful announcements in Engine without taking over playback", async () => {
-    await import("../src/homeii-music-flow.js?runtime-engine-announcement-baseline");
+    await import("../src/maverick-music.js?runtime-engine-announcement-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", homeii_engine_mode: "required" });
-    card._homeiiEngineEnabled = vi.fn(() => true);
-    card._homeiiEngineReadyForPersistence = vi.fn(async () => true);
-    card._homeiiEngineAnnounce = vi.fn(async () => ({ accepted: true }));
+    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
+    card._maverickEngineEnabled = vi.fn(() => true);
+    card._maverickEngineReadyForPersistence = vi.fn(async () => true);
+    card._maverickEngineAnnounce = vi.fn(async () => ({ accepted: true }));
 
-    await expect(card._recordAnnouncementInHomeiiEngine("Dinner is ready", [
+    await expect(card._recordAnnouncementInMaverickEngine("Dinner is ready", [
       { entity_id: "media_player.kitchen" },
       "media_player.living_room",
     ], { language: "en-US", target: "all" })).resolves.toBe(true);
 
-    expect(card._homeiiEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({
+    expect(card._maverickEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({
       message: "Dinner is ready",
       player: "",
       players: ["media_player.kitchen", "media_player.living_room"],
@@ -549,14 +549,14 @@ describe("runtime baseline", () => {
   });
 
   it("keeps operational timers and schedules persisted while visual settings own appearance", async () => {
-    await import("../src/homeii-music-flow.js?runtime-operational-persistence-baseline");
+    await import("../src/maverick-music.js?runtime-operational-persistence-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       card_id: "engine-persistence",
       settings_source: "visual",
     });
@@ -580,9 +580,9 @@ describe("runtime baseline", () => {
 
     card._persistMobileAppearance();
 
-    expect(globalThis.localStorage.getItem(card._lsKey("homeii_music_flow_mobile_sleep_timer_at"))).toBe(String(sleepTimerEndsAt));
-    expect(globalThis.localStorage.getItem(card._lsKey("homeii_music_flow_mobile_sleep_timer_player"))).toBe("media_player.kitchen");
-    const storedSchedules = JSON.parse(globalThis.localStorage.getItem(card._lsKey("homeii_music_flow_mobile_start_schedules")));
+    expect(globalThis.localStorage.getItem(card._lsKey("maverick_music_mobile_sleep_timer_at"))).toBe(String(sleepTimerEndsAt));
+    expect(globalThis.localStorage.getItem(card._lsKey("maverick_music_mobile_sleep_timer_player"))).toBe("media_player.kitchen");
+    const storedSchedules = JSON.parse(globalThis.localStorage.getItem(card._lsKey("maverick_music_mobile_start_schedules")));
     expect(storedSchedules).toEqual([expect.objectContaining({ id: "wake_kitchen", player: "media_player.kitchen" })]);
 
     const payload = card._systemMobileStatePayload();
@@ -600,40 +600,150 @@ describe("runtime baseline", () => {
     expect(source).not.toContain('class="menu-item danger-confirm-action" id="cleanAllConfirmContinueBtn"');
   });
 
-  it("instantiates the visual editor shell and accepts config updates", async () => {
-    await import("../src/homeii-music-flow.js?runtime-editor-baseline");
+  it("renders the card and editor through both the new and the legacy custom element tags", async () => {
+    await import("../src/maverick-music.js?runtime-legacy-tag-aliases");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const EditorCtor = globalThis.customElements.get("homeii-music-flow-editor");
+    const tagPairs = [
+      ["maverick-music", "homeii-music-flow"],
+      ["maverick-music-mobile", "homeii-music-mobile"],
+      ["maverick-music-editor", "homeii-music-flow-editor"],
+      ["maverick-music-mobile-editor", "homeii-music-mobile-editor"],
+    ];
+    for (const [currentTag, legacyTag] of tagPairs) {
+      const CurrentCtor = globalThis.customElements.get(currentTag);
+      const LegacyCtor = globalThis.customElements.get(legacyTag);
+      expect(CurrentCtor).toBeTypeOf("function");
+      expect(LegacyCtor).toBeTypeOf("function");
+      expect(LegacyCtor).not.toBe(CurrentCtor);
+      expect(Object.getPrototypeOf(LegacyCtor)).toBe(CurrentCtor);
+    }
+    // Only the new tag is advertised to the dashboard card picker.
+    expect(globalThis.window.customCards.map((card) => card.type)).toEqual(["maverick-music"]);
+
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const renderCard = (tag) => {
+        const CardCtor = globalThis.customElements.get(tag);
+        const card = new CardCtor();
+        card.setConfig({ type: `custom:${tag}`, engine_mode: "required" });
+        card._init = vi.fn();
+        card._layoutModeConfig = vi.fn(() => "mobile");
+        card._getAllocatedCardHeight = vi.fn(() => 760);
+        card._getViewportHeight = vi.fn(() => 900);
+        card._build();
+        expect(card.shadowRoot.innerHTML).toContain("class=\"card");
+        return card;
+      };
+      renderCard("maverick-music");
+      expect(warn).not.toHaveBeenCalled();
+      renderCard("homeii-music-flow");
+      expect(warn).toHaveBeenCalledTimes(1);
+      expect(String(warn.mock.calls[0][0])).toContain('"homeii-music-flow"');
+      expect(String(warn.mock.calls[0][0])).toContain("custom:maverick-music");
+      renderCard("homeii-music-flow");
+      expect(warn).toHaveBeenCalledTimes(1);
+
+      const renderEditor = (tag) => {
+        const EditorCtor = globalThis.customElements.get(tag);
+        const editor = new EditorCtor();
+        editor.connectedCallback();
+        editor.setConfig({ type: `custom:${tag}` });
+        expect(editor._editorForm).toBeTruthy();
+        expect(editor.shadowRoot.innerHTML).toContain('class="editor-diagnostics"');
+        return editor;
+      };
+      renderEditor("maverick-music-editor");
+      expect(warn).toHaveBeenCalledTimes(1);
+      renderEditor("homeii-music-flow-editor");
+      expect(warn).toHaveBeenCalledTimes(2);
+      expect(String(warn.mock.calls[1][0])).toContain('"homeii-music-flow-editor"');
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("accepts legacy homeii_engine_* config keys and lets the documented engine_* keys win", async () => {
+    await import("../src/maverick-music.js?runtime-engine-config-aliases");
+    await Promise.resolve();
+    await vi.runAllTimersAsync();
+
+    const CardCtor = globalThis.customElements.get("maverick-music");
+    const legacyOnly = new CardCtor();
+    legacyOnly.setConfig({
+      type: "custom:maverick-music",
+      homeii_engine_mode: "required",
+      homeii_engine_instance_id: "main",
+      homeii_engine_profile_id: "living-room",
+      homeii_engine_timeout_ms: 5000,
+    });
+    expect(legacyOnly._config.engine_mode).toBe("required");
+    expect(legacyOnly._config.engine_instance_id).toBe("main");
+    expect(legacyOnly._config.engine_profile_id).toBe("living-room");
+    expect(legacyOnly._config.engine_timeout_ms).toBe(5000);
+    expect(legacyOnly._maverickEngineTimeoutMs()).toBe(5000);
+    expect(legacyOnly._maverickEngineMessage("get_context")).toEqual(expect.objectContaining({
+      instance_id: "main",
+      profile_id: "living-room",
+    }));
+
+    const both = new CardCtor();
+    both.setConfig({
+      type: "custom:maverick-music",
+      engine_timeout_ms: 4000,
+      homeii_engine_timeout_ms: 5000,
+      engine_instance_id: "new",
+      homeii_engine_instance_id: "old",
+    });
+    expect(both._config.engine_timeout_ms).toBe(4000);
+    expect(both._config.homeii_engine_timeout_ms).toBe(4000);
+    expect(both._config.engine_instance_id).toBe("new");
+
+    const EditorCtor = globalThis.customElements.get("maverick-music-editor");
+    const editor = new EditorCtor();
+    editor.connectedCallback();
+    editor.setConfig({ type: "custom:maverick-music", homeii_engine_timeout_ms: 6000, homeii_engine_profile_id: "den" });
+    expect(editor._config.engine_timeout_ms).toBe(6000);
+    expect(editor._config.engine_profile_id).toBe("den");
+    expect(editor._config).not.toHaveProperty("homeii_engine_timeout_ms");
+    expect(editor._config).not.toHaveProperty("homeii_engine_profile_id");
+    editor._editorSection = "connection_section";
+    editor._editorLastSchemaKey = "";
+    editor._render();
+    const connectionSchema = JSON.stringify(editor._editorForm.schema);
+    expect(connectionSchema).toContain('"engine_mode"');
+    expect(connectionSchema).toContain('"engine_timeout_ms"');
+    expect(connectionSchema).not.toContain("homeii_engine");
+  });
+
+  it("instantiates the visual editor shell and accepts config updates", async () => {
+    await import("../src/maverick-music.js?runtime-editor-baseline");
+    await Promise.resolve();
+    await vi.runAllTimersAsync();
+
+    const EditorCtor = globalThis.customElements.get("maverick-music-editor");
     const editor = new EditorCtor();
     editor.connectedCallback();
     editor.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       mobile_quick_actions: ["voice", "search"],
     });
 
     expect(editor._editorForm).toBeTruthy();
-    expect(editor.shadowRoot.innerHTML).toContain('class="editor-sponsor"');
+    expect(editor.shadowRoot.innerHTML).not.toContain('class="editor-sponsor"');
     expect(editor.shadowRoot.innerHTML).toContain('class="editor-diagnostics"');
     expect(editor.shadowRoot.innerHTML).toContain('id="editorDiagnosticsPanel"');
-    expect(editor.shadowRoot.innerHTML).toContain('href="https://github.com/sponsors/r11a"');
-    expect(editor.shadowRoot.innerHTML).toContain('rel="noopener noreferrer"');
-    globalThis.window.confirm = vi.fn(() => false);
-    const preventDefault = vi.fn();
-    editor._editorSponsorLink.dispatchEvent({ type: "click", preventDefault });
-    expect(globalThis.window.confirm).toHaveBeenCalledWith("Open the GitHub Sponsors page?");
-    expect(preventDefault).toHaveBeenCalled();
     expect(Array.isArray(editor._editorForm.schema)).toBe(true);
     expect(editor._editorForm.data.mobile_quick_actions).toEqual(["voice", "search"]);
   });
 
   it("shows one editor category without dropping settings from other categories", async () => {
-    await import("../src/homeii-music-flow.js?runtime-editor-categories");
+    await import("../src/maverick-music.js?runtime-editor-categories");
     await Promise.resolve(); await vi.runAllTimersAsync();
-    const Editor = globalThis.customElements.get("homeii-music-flow-editor");
+    const Editor = globalThis.customElements.get("maverick-music-editor");
     const editor = new Editor(); editor.connectedCallback();
-    editor.setConfig({type:"custom:homeii-music-flow", language:"he", fan_theme:"adaptive"});
+    editor.setConfig({type:"custom:maverick-music", language:"he", fan_theme:"adaptive"});
     const full = editor._withDynamicEditorSchema(editor._currentBaseEditorSchema());
     const playersSection = full.find((item) => item.name === "players_section");
     expect(playersSection?.schema?.map((item) => item.name)).toContain("entity_sticky");
@@ -652,19 +762,19 @@ describe("runtime baseline", () => {
   });
 
   it("preserves the default player through partial editor changes and serialized dashboard reload", async () => {
-    await import("../src/homeii-music-flow.js?runtime-editor-default-player-save");
+    await import("../src/maverick-music.js?runtime-editor-default-player-save");
     await Promise.resolve();
     await vi.runAllTimersAsync();
-    const Editor = globalThis.customElements.get("homeii-music-flow-editor");
+    const Editor = globalThis.customElements.get("maverick-music-editor");
     const editor = new Editor();
     editor.connectedCallback();
-    editor.setConfig({ type: "custom:homeii-music-flow", entity: "media_player.garage", language: "de" });
+    editor.setConfig({ type: "custom:maverick-music", entity: "media_player.garage", language: "de" });
     editor.dispatchEvent = vi.fn();
     editor._editorForm.dispatchEvent({ type: "value-changed", detail: { value: { theme_mode: "dark" } } });
     const saved = JSON.parse(JSON.stringify(editor.dispatchEvent.mock.calls.at(-1)[0].detail.config));
     expect(saved.entity).toBe("media_player.garage");
     expect(saved.language).toBe("de");
-    const Card = globalThis.customElements.get("homeii-music-flow");
+    const Card = globalThis.customElements.get("maverick-music");
     const card = new Card();
     card.setConfig(saved);
     expect(card._config.entity).toBe("media_player.garage");
@@ -675,11 +785,11 @@ describe("runtime baseline", () => {
   });
 
   it("filters interface-specific settings without discarding stored classic preferences", async () => {
-    await import("../src/homeii-music-flow.js?runtime-editor-interface-filter");
+    await import("../src/maverick-music.js?runtime-editor-interface-filter");
     await Promise.resolve(); await vi.runAllTimersAsync();
-    const Editor = globalThis.customElements.get("homeii-music-flow-editor");
+    const Editor = globalThis.customElements.get("maverick-music-editor");
     const editor = new Editor(); editor.connectedCallback();
-    editor.setConfig({type:"custom:homeii-music-flow", player_design:"immersive", mobile_volume_mode:"button"});
+    editor.setConfig({type:"custom:maverick-music", player_design:"immersive", mobile_volume_mode:"button"});
     const schema = [{name:"mobile_volume_mode"},{name:"fan_theme"},{name:"performance_profile"}];
     expect(editor._withDynamicEditorSchema(schema).map(item=>item.name)).toEqual(["fan_theme","performance_profile"]);
     expect(editor._config.mobile_volume_mode).toBe("button");
@@ -688,15 +798,15 @@ describe("runtime baseline", () => {
   });
 
   it("keeps generic Home Assistant media players out of visual editor player settings", async () => {
-    await import("../src/homeii-music-flow.js?runtime-editor-ma-player-options-baseline");
+    await import("../src/maverick-music.js?runtime-editor-ma-player-options-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const EditorCtor = globalThis.customElements.get("homeii-music-flow-editor");
+    const EditorCtor = globalThis.customElements.get("maverick-music-editor");
     const editor = new EditorCtor();
     editor.connectedCallback();
     editor.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       pinned_player_entities: ["media_player.legacy_configured"],
     });
     editor.hass = {
@@ -764,15 +874,15 @@ describe("runtime baseline", () => {
   });
 
   it("builds a visual editor diagnostics v7 report with visible status rows", async () => {
-    await import("../src/homeii-music-flow.js?runtime-editor-diagnostics-baseline");
+    await import("../src/maverick-music.js?runtime-editor-diagnostics-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const EditorCtor = globalThis.customElements.get("homeii-music-flow-editor");
+    const EditorCtor = globalThis.customElements.get("maverick-music-editor");
     const editor = new EditorCtor();
     editor.connectedCallback();
     editor.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       ma_url: "",
     });
     editor.hass = {
@@ -803,9 +913,9 @@ describe("runtime baseline", () => {
 
     const report = await editor._runEditorDiagnostics();
 
-    expect(report).toContain("HOMEii Music Flow Editor Diagnostics");
+    expect(report).toContain("Maverick Music Editor Diagnostics");
     expect(report).toContain("Diagnostics: v7");
-    expect(report).toContain("music_assistant_transport: HOMEii Flow Engine");
+    expect(report).toContain("music_assistant_transport: Maverick Music Engine");
     expect(report).toContain("Music Assistant transport");
     expect(report).toContain("Integration signal");
     expect(editor._editorDiagnosticsItems.length).toBeGreaterThan(0);
@@ -816,7 +926,7 @@ describe("runtime baseline", () => {
   });
 
   it("redacts external diagnostic URLs and closes the visual editor diagnostics panel", async () => {
-    await import("../src/homeii-music-flow.js?runtime-editor-diagnostics-privacy-baseline");
+    await import("../src/maverick-music.js?runtime-editor-diagnostics-privacy-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -837,11 +947,11 @@ describe("runtime baseline", () => {
       },
     });
 
-    const EditorCtor = globalThis.customElements.get("homeii-music-flow-editor");
+    const EditorCtor = globalThis.customElements.get("maverick-music-editor");
     const editor = new EditorCtor();
     editor.connectedCallback();
     editor.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       ma_url: "https://mass.546866031.xyz",
       ma_token: "secret-token",
     });
@@ -879,7 +989,7 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("reports queue artwork samples without leaking artwork hostnames", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-diagnostics-privacy-baseline");
+    await import("../src/maverick-music.js?runtime-queue-diagnostics-privacy-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -890,7 +1000,7 @@ describe("runtime baseline", () => {
       hostname: "abc123.ui.nabu.casa",
     };
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "https://mass.546866031.xyz";
     card._hass = {
@@ -938,7 +1048,7 @@ describe("runtime baseline", () => {
   });
 
   it("uses direct image loading for cross-origin hydrated artwork when no token is available", async () => {
-    await import("../src/homeii-music-flow.js?runtime-cross-origin-artwork-baseline");
+    await import("../src/maverick-music.js?runtime-cross-origin-artwork-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -973,7 +1083,7 @@ describe("runtime baseline", () => {
       },
     };
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     await card._loadImgInto("https://mass.example.com/imageproxy?path=cover", el, "music_note");
 
@@ -983,7 +1093,7 @@ describe("runtime baseline", () => {
   });
 
   it("uses a simple anonymous fetch for public cross-origin Music Assistant artwork before bearer auth", async () => {
-    await import("../src/homeii-music-flow.js?runtime-authenticated-cross-origin-artwork-baseline");
+    await import("../src/maverick-music.js?runtime-authenticated-cross-origin-artwork-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -991,7 +1101,7 @@ describe("runtime baseline", () => {
       href: "https://abc123.ui.nabu.casa/lovelace/music",
       origin: "https://abc123.ui.nabu.casa",
     };
-    globalThis.URL.createObjectURL = vi.fn(() => "blob:homeii-cover");
+    globalThis.URL.createObjectURL = vi.fn(() => "blob:maverick-cover");
     globalThis.fetch = vi.fn(async () => ({
       ok: true,
       blob: async () => new Blob(["cover"], { type: "image/jpeg" }),
@@ -1020,7 +1130,7 @@ describe("runtime baseline", () => {
       },
     };
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "https://mass.example.com";
     card._maToken = "secret-token";
@@ -1034,11 +1144,11 @@ describe("runtime baseline", () => {
       }),
     );
     expect(appended).toHaveLength(1);
-    expect(appended[0].src).toBe("blob:homeii-cover");
+    expect(appended[0].src).toBe("blob:maverick-cover");
   });
 
   it("retries public Music Assistant artwork with bearer auth only after an authorization response", async () => {
-    await import("../src/homeii-music-flow.js?runtime-artwork-auth-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-artwork-auth-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -1055,7 +1165,7 @@ describe("runtime baseline", () => {
         blob: async () => new Blob(["cover"], { type: "image/jpeg" }),
       });
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "https://mass.example.com";
     card._maToken = "secret-token";
@@ -1071,7 +1181,7 @@ describe("runtime baseline", () => {
   });
 
   it("falls back from an opaque Music Assistant image id to its legacy path metadata", async () => {
-    await import("../src/homeii-music-flow.js?runtime-opaque-artwork-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-opaque-artwork-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -1088,7 +1198,7 @@ describe("runtime baseline", () => {
         blob: async () => new Blob(["cover"], { type: "image/jpeg" }),
       });
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "https://mass.example.com";
     card._maToken = "secret-token";
@@ -1107,7 +1217,7 @@ describe("runtime baseline", () => {
   });
 
   it("keeps an original Music Assistant image host before the configured external fallback", async () => {
-    await import("../src/homeii-music-flow.js?runtime-original-artwork-host-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-original-artwork-host-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -1124,7 +1234,7 @@ describe("runtime baseline", () => {
         blob: async () => new Blob(["cover"], { type: "image/jpeg" }),
       });
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "https://music.example.com/ma";
     const originalUrl = `https://mass.internal.example/imageproxy/${"b".repeat(64)}?size=500`;
@@ -1142,7 +1252,7 @@ describe("runtime baseline", () => {
   });
 
   it("uses authenticated artwork blobs for decoded mobile artwork", async () => {
-    await import("../src/homeii-music-flow.js?runtime-authenticated-decoded-artwork-baseline");
+    await import("../src/maverick-music.js?runtime-authenticated-decoded-artwork-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -1175,7 +1285,7 @@ describe("runtime baseline", () => {
       }
     };
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "https://mass.example.com";
     card._maToken = "secret-token";
@@ -1185,11 +1295,11 @@ describe("runtime baseline", () => {
 
     expect(card._artworkDisplayUrl(artworkUrl)).toBe("blob:decoded-cover");
     expect(card._decodedArtworkImgHtml(artworkUrl, "Cover", { current: true })).toContain('src="blob:decoded-cover"');
-    expect(card._decodedArtworkImgHtml(artworkUrl, "Cover", { current: true })).toContain(`data-homeii-applied-art-src="${artworkUrl}"`);
+    expect(card._decodedArtworkImgHtml(artworkUrl, "Cover", { current: true })).toContain(`data-maverick-applied-art-src="${artworkUrl}"`);
   });
 
   it("retries lazy library artwork after a transient browser image failure", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-artwork-transient-retry-baseline");
+    await import("../src/maverick-music.js?runtime-library-artwork-transient-retry-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -1233,7 +1343,7 @@ describe("runtime baseline", () => {
       },
     };
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     await card._loadImgInto(artworkUrl, el, "album");
     await Promise.resolve();
@@ -1249,14 +1359,14 @@ describe("runtime baseline", () => {
   });
 
   it("caps artwork blob cache entries and revokes evicted object URLs", async () => {
-    await import("../src/homeii-music-flow.js?runtime-artwork-blob-cache-cap-baseline");
+    await import("../src/maverick-music.js?runtime-artwork-blob-cache-cap-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
     const revokeSpy = vi.fn();
     globalThis.URL.revokeObjectURL = revokeSpy;
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._imageBlobCacheLimit = () => 2;
 
@@ -1271,7 +1381,7 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("reports browser image loading for queue artwork diagnostics", async () => {
-    await import("../src/homeii-music-flow.js?runtime-diagnostics-artwork-load-baseline");
+    await import("../src/maverick-music.js?runtime-diagnostics-artwork-load-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -1297,7 +1407,7 @@ describe("runtime baseline", () => {
       }
     };
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "https://mass.example.com";
     card._hass = {
@@ -1345,7 +1455,7 @@ describe("runtime baseline", () => {
   });
 
   it("reports authenticated artwork fetch when direct browser image loading fails", async () => {
-    await import("../src/homeii-music-flow.js?runtime-diagnostics-auth-artwork-fetch-baseline");
+    await import("../src/maverick-music.js?runtime-diagnostics-auth-artwork-fetch-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -1384,7 +1494,7 @@ describe("runtime baseline", () => {
       }
     };
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "https://mass.example.com";
     card._maToken = "secret-token";
@@ -1397,11 +1507,11 @@ describe("runtime baseline", () => {
   });
 
   it("reports rendered artwork DOM health in diagnostics", async () => {
-    await import("../src/homeii-music-flow.js?runtime-rendered-artwork-diagnostics-baseline");
+    await import("../src/maverick-music.js?runtime-rendered-artwork-diagnostics-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const artworkImage = {
       currentSrc: "https://mass.example.com/imageproxy?path=ok",
@@ -1423,7 +1533,7 @@ describe("runtime baseline", () => {
       querySelectorAll(selector) {
         if (selector === "img") return [artworkImage, brokenImage];
         if (selector === "[data-img]") return [{}];
-        if (selector === ".media-placeholder,.homeii-art-fallback,.art-stack-fallback,.static-fallback") return [{}, {}];
+        if (selector === ".media-placeholder,.maverick-art-fallback,.art-stack-fallback,.static-fallback") return [{}, {}];
         return [];
       },
     };
@@ -1444,11 +1554,11 @@ describe("runtime baseline", () => {
   });
 
   it("applies a diagnostic queue snapshot when the UI state is empty", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-diagnostics-repair-baseline");
+    await import("../src/maverick-music.js?runtime-queue-diagnostics-repair-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._hass = {
       states: {},
@@ -1488,13 +1598,13 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("restores a fuller queue snapshot from session cache after Home Assistant returns a tiny partial window", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-session-cache-baseline");
+    await import("../src/maverick-music.js?runtime-queue-session-cache-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", card_id: "queue-cache-test", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", card_id: "queue-cache-test", engine_mode: "required" });
     const player = {
       entity_id: "media_player.office",
       state: "playing",
@@ -1542,13 +1652,13 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("resolves Music Assistant 2.9 queue artwork payloads", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-art-baseline");
+    await import("../src/maverick-music.js?runtime-queue-art-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
     card._maUrl = "https://ma.local";
 
     const normalized = card._normalizeQueueItem({
@@ -1568,12 +1678,12 @@ describe("runtime baseline", () => {
   });
 
   it("uses player progress as the authoritative position and safely handles millisecond values", async () => {
-    await import("../src/homeii-music-flow.js?runtime-progress-authority-baseline");
+    await import("../src/maverick-music.js?runtime-progress-authority-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
     vi.setSystemTime(new Date("2026-01-01T00:00:10Z"));
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.office",
@@ -1596,11 +1706,11 @@ describe("runtime baseline", () => {
   });
 
   it("uses stop instead of pause when the active stream exposes stop but not pause", async () => {
-    await import("../src/homeii-music-flow.js?runtime-stop-only-stream-baseline");
+    await import("../src/maverick-music.js?runtime-stop-only-stream-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.radio_stream",
@@ -1612,24 +1722,24 @@ describe("runtime baseline", () => {
     };
     card._state.players = [player];
     card._state.selectedPlayer = player.entity_id;
-    card._callHomeiiEnginePlayerCommand = vi.fn(async () => undefined);
+    card._callMaverickEnginePlayerCommand = vi.fn(async () => undefined);
 
     expect(card._playPauseIconName(player)).toBe("stop");
     card._togglePlay();
     await Promise.resolve();
 
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledWith(player.entity_id, "stop");
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledWith(player.entity_id, "stop");
     card._playerByEntityId = () => player;
     await card._togglePlayFor(player.entity_id);
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenLastCalledWith(player.entity_id, "stop");
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenLastCalledWith(player.entity_id, "stop");
   });
 
   legacyIt("does not treat relative Music Assistant imageproxy paths as Home Assistant artwork in integration-only mode", async () => {
-    await import("../src/homeii-music-flow.js?runtime-integration-only-art-baseline");
+    await import("../src/maverick-music.js?runtime-integration-only-art-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "";
     card._maExternalUrl = "";
@@ -1640,13 +1750,13 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("loads selected-player queue snapshots through Home Assistant before direct Music Assistant", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-ha-first-baseline");
+    await import("../src/maverick-music.js?runtime-queue-ha-first-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
     const player = {
       entity_id: "media_player.main",
       state: "playing",
@@ -1696,11 +1806,11 @@ describe("runtime baseline", () => {
   });
 
   it("uses Engine item artwork proxy for queue snapshots when the capability is available", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-engine-artwork-proxy-baseline");
+    await import("../src/maverick-music.js?runtime-queue-engine-artwork-proxy-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.main",
@@ -1709,7 +1819,7 @@ describe("runtime baseline", () => {
     const artwork = `${ENGINE_ARTWORK_PATH}item/queue-token`;
     card._state.engineAvailable = true;
     card._state.engineCapabilities = { item_artwork_proxy: true };
-    card._homeiiEngineGetQueue = vi.fn(async () => ({
+    card._maverickEngineGetQueue = vi.fn(async () => ({
       provider: "music_assistant.get_queue",
       data: {
         queue_state: { queue_id: "queue-main", current_index: 0, items: 1 },
@@ -1729,7 +1839,7 @@ describe("runtime baseline", () => {
 
     const snapshot = await card._fetchMusicAssistantQueueSnapshot(player);
 
-    expect(card._homeiiEngineGetQueue).toHaveBeenCalledWith({
+    expect(card._maverickEngineGetQueue).toHaveBeenCalledWith({
       entity_id: player.entity_id,
       queue_id: "queue-main",
       limit_before: 50,
@@ -1740,13 +1850,13 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("keeps required Engine queue snapshots away from browser-side raw mass_queue fallbacks", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-engine-required-source-of-truth-baseline");
+    await import("../src/maverick-music.js?runtime-queue-engine-required-source-of-truth-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
     const player = {
       entity_id: "media_player.main",
       attributes: { active_queue: "queue-main" },
@@ -1760,7 +1870,7 @@ describe("runtime baseline", () => {
       queue_source_of_truth: true,
       queue_artwork_proxy: true,
     };
-    card._homeiiEngineGetQueue = vi.fn(async () => ({
+    card._maverickEngineGetQueue = vi.fn(async () => ({
       provider: "mass_queue.get_queue_items",
       coverage: { visible_items: 1, expected_items: 100, complete: false },
       data: {
@@ -1787,7 +1897,7 @@ describe("runtime baseline", () => {
 
     await card._ensureQueueSnapshot(true);
 
-    expect(card._homeiiEngineGetQueue).toHaveBeenCalledTimes(1);
+    expect(card._maverickEngineGetQueue).toHaveBeenCalledTimes(1);
     expect(card._fetchMassQueueItemsSnapshot).not.toHaveBeenCalled();
     expect(card._callService).not.toHaveBeenCalled();
     expect(card._callEngineMaCommand).not.toHaveBeenCalled();
@@ -1796,13 +1906,13 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("uses a scoped Home Assistant queue lookup when the unscoped queue snapshot is partial", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-ha-scoped-partial-baseline");
+    await import("../src/maverick-music.js?runtime-queue-ha-scoped-partial-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
     const player = {
       entity_id: "media_player.main",
       state: "playing",
@@ -1846,13 +1956,13 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("keeps the unscoped Home Assistant queue snapshot when scoped queue_id is rejected", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-ha-scoped-rejected-baseline");
+    await import("../src/maverick-music.js?runtime-queue-ha-scoped-rejected-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
     const player = {
       entity_id: "media_player.main",
       state: "playing",
@@ -1887,13 +1997,13 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("uses direct Music Assistant queue snapshots only after Home Assistant queue lookups fail", async () => {
-    await import("../src/homeii-music-flow.js?runtime-queue-direct-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-queue-direct-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card.setConfig({ type: "custom:homeii-music-flow", homeii_engine_mode: "required" });
+    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
     const player = {
       entity_id: "media_player.main",
       state: "playing",
@@ -1934,11 +2044,11 @@ describe("runtime baseline", () => {
   });
 
   it("does not use a not_loaded Music Assistant config entry for service calls", async () => {
-    await import("../src/homeii-music-flow.js?runtime-ma-not-loaded-config-baseline");
+    await import("../src/maverick-music.js?runtime-ma-not-loaded-config-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._hass = {
       connection: {
@@ -1955,11 +2065,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("passes discovered config_entry_id to Home Assistant Music Assistant services even when the entry lookup is not_loaded", async () => {
-    await import("../src/homeii-music-flow.js?runtime-ma-service-signal-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-ma-service-signal-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const sendMessagePromise = vi.fn(async (message) => {
       if (message.type === "config_entries/get") {
@@ -1990,11 +2100,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("uses generic HA media_player fallback when Music Assistant services exist but player markers are missing", async () => {
-    await import("../src/homeii-music-flow.js?runtime-ma-generic-player-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-ma-generic-player-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.master_bath",
@@ -2031,11 +2141,11 @@ describe("runtime baseline", () => {
   });
 
   it("disambiguates generic and duplicate player labels at runtime", async () => {
-    await import("../src/homeii-music-flow.js?runtime-player-label-disambiguation-baseline");
+    await import("../src/maverick-music.js?runtime-player-label-disambiguation-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const players = [
       {
@@ -2063,11 +2173,11 @@ describe("runtime baseline", () => {
   });
 
   it("lets repeated card issue notices be acknowledged without hiding new issue text", async () => {
-    await import("../src/homeii-music-flow.js?runtime-card-issue-ack-baseline");
+    await import("../src/maverick-music.js?runtime-card-issue-ack-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const notices = [];
     card._config = { card_id: "issue-ack-test" };
@@ -2088,7 +2198,7 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("selects a player from the dashboard query string", async () => {
-    await import("../src/homeii-music-flow.js?runtime-query-string-player-baseline");
+    await import("../src/maverick-music.js?runtime-query-string-player-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
@@ -2102,7 +2212,7 @@ describe("runtime baseline", () => {
       protocol: "http:",
     };
     try {
-      const CardCtor = globalThis.customElements.get("homeii-music-flow");
+      const CardCtor = globalThis.customElements.get("maverick-music");
       const card = new CardCtor();
       const kitchen = {
         entity_id: "media_player.kitchen_sonos",
@@ -2132,14 +2242,14 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("keeps an explicitly configured player visible even when pinned players are set", async () => {
-    await import("../src/homeii-music-flow.js?runtime-configured-player-pinned-baseline");
+    await import("../src/maverick-music.js?runtime-configured-player-pinned-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       entity: "media_player.office",
       pinned_player_entities: ["media_player.living_room"],
     });
@@ -2170,14 +2280,14 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("does not let the configured player override a manual player selection", async () => {
-    await import("../src/homeii-music-flow.js?runtime-configured-player-manual-selection-baseline");
+    await import("../src/maverick-music.js?runtime-configured-player-manual-selection-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       entity: "media_player.office",
     });
     const office = {
@@ -2209,11 +2319,11 @@ describe("runtime baseline", () => {
   });
 
   it("keeps player cards visually clean while retaining entity ids for configuration paths", async () => {
-    await import("../src/homeii-music-flow.js?runtime-player-card-clean-label-baseline");
+    await import("../src/maverick-music.js?runtime-player-card-clean-label-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const html = card._playerRowHtml({
       entity_id: "media_player.office_2",
@@ -2231,14 +2341,14 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("opens the direct Music Assistant UI when the interface URL is left at the default path", async () => {
-    await import("../src/homeii-music-flow.js?runtime-ma-interface-direct-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-ma-interface-direct-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       ma_url: "http://192.168.1.10:8095/api",
     });
     const opened = [];
@@ -2257,14 +2367,14 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("reports browser-blocked Direct API as optional when the HA Music Assistant integration is available", async () => {
-    await import("../src/homeii-music-flow.js?runtime-direct-ma-cors-integration-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-direct-ma-cors-integration-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       ma_url: "http://192.168.2.61:8095",
     });
     card._hass = {
@@ -2292,11 +2402,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("loads library items through direct Music Assistant when the HA entry is not loaded", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-direct-entry-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-library-direct-entry-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._hasDirectMAConnection = vi.fn(() => true);
     card._callService = vi.fn(async () => {
@@ -2332,16 +2442,16 @@ describe("runtime baseline", () => {
   });
 
   it("uses Engine item artwork proxy for library items when the capability is available", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-engine-artwork-proxy-baseline");
+    await import("../src/maverick-music.js?runtime-library-engine-artwork-proxy-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const artwork = `${ENGINE_ARTWORK_PATH}item/library-token`;
     card._state.engineAvailable = true;
     card._state.engineCapabilities = { item_artwork_proxy: true };
-    card._homeiiEngineGetLibrary = vi.fn(async () => ({
+    card._maverickEngineGetLibrary = vi.fn(async () => ({
       provider: "music_assistant.get_library",
       data: {
         items: [{
@@ -2363,15 +2473,15 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("does not treat the Home Assistant Music Assistant ingress URL as a direct MA API URL", async () => {
-    await import("../src/homeii-music-flow.js?runtime-direct-ma-ingress-guard-baseline");
+    await import("../src/maverick-music.js?runtime-direct-ma-ingress-guard-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card.classList = createClassList();
     card.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       ma_url: "http://homeassistant.local:8123/d5369777_music_assistant",
     });
 
@@ -2381,15 +2491,15 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("backs off direct Music Assistant API retries after an invalid ma_url returns 405", async () => {
-    await import("../src/homeii-music-flow.js?runtime-direct-ma-405-backoff-baseline");
+    await import("../src/maverick-music.js?runtime-direct-ma-405-backoff-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card.classList = createClassList();
     card.setConfig({
-      type: "custom:homeii-music-flow",
+      type: "custom:maverick-music",
       ma_url: "http://192.168.2.61:8095",
     });
 
@@ -2412,11 +2522,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("falls back to direct Music Assistant playback when HA reports the MA entry is not loaded", async () => {
-    await import("../src/homeii-music-flow.js?runtime-play-direct-entry-fallback-baseline");
+    await import("../src/maverick-music.js?runtime-play-direct-entry-fallback-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.ceiling",
@@ -2451,11 +2561,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("sends music_assistant.play_media with entity_id in service data first", async () => {
-    await import("../src/homeii-music-flow.js?runtime-play-media-target-baseline");
+    await import("../src/maverick-music.js?runtime-play-media-target-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.kitchen",
@@ -2483,11 +2593,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("keeps music_assistant.play_media as the primary playback path when media_player.play_media exists", async () => {
-    await import("../src/homeii-music-flow.js?runtime-play-media-primary-path-baseline");
+    await import("../src/maverick-music.js?runtime-play-media-primary-path-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.kitchen",
@@ -2527,11 +2637,11 @@ describe("runtime baseline", () => {
 
   it("keeps pending queue artwork and title atomic while the player still reports the previous track", async () => {
     vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
-    await import("../src/homeii-music-flow.js?runtime-pending-display-baseline");
+    await import("../src/maverick-music.js?runtime-pending-display-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.main",
@@ -2589,11 +2699,11 @@ describe("runtime baseline", () => {
 
   it("keeps queue track artwork stable when delayed player artwork differs", async () => {
     vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
-    await import("../src/homeii-music-flow.js?runtime-current-player-art-baseline");
+    await import("../src/maverick-music.js?runtime-current-player-art-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._maUrl = "http://192.168.1.20:8095";
     const player = {
@@ -2641,11 +2751,11 @@ describe("runtime baseline", () => {
   });
 
   it("keeps the visible artwork until a replacement has decoded", async () => {
-    await import("../src/homeii-music-flow.js?runtime-artwork-atomic-swap-baseline");
+    await import("../src/maverick-music.js?runtime-artwork-atomic-swap-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const attributes = new Map();
     const img = {
@@ -2657,8 +2767,8 @@ describe("runtime baseline", () => {
       get src() { return attributes.get("src") || ""; },
     };
     img.src = "https://ha.local/api/media_player_proxy/media_player.main?token=good";
-    img.dataset.homeiiArtReady = "1";
-    img.dataset.homeiiAppliedArtSrc = img.getAttribute("src");
+    img.dataset.maverickArtReady = "1";
+    img.dataset.maverickAppliedArtSrc = img.getAttribute("src");
     card._decodeArtworkUrl = vi.fn(async () => false);
 
     card._setDecodedArtworkImage(img, "https://ma.local/imageproxy/broken", "Current Track");
@@ -2669,11 +2779,11 @@ describe("runtime baseline", () => {
   });
 
   it("uses player artwork in the mobile stack when queue artwork is unavailable", async () => {
-    await import("../src/homeii-music-flow.js?runtime-mobile-stack-player-art-fallback");
+    await import("../src/maverick-music.js?runtime-mobile-stack-player-art-fallback");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const player = {
       entity_id: "media_player.music_assistant_edge_on_windows",
@@ -2706,11 +2816,11 @@ describe("runtime baseline", () => {
   });
 
   it("uses the browsed queue item artwork instead of the playing player artwork", async () => {
-    await import("../src/homeii-music-flow.js?runtime-browsed-artwork-identity");
+    await import("../src/maverick-music.js?runtime-browsed-artwork-identity");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const queueItems = Array.from({ length: 3 }, (_, index) => ({
       queue_item_id: `browse-${index}`,
@@ -2746,11 +2856,11 @@ describe("runtime baseline", () => {
   });
 
   it("coalesces initial library reads and serves stale card data without a loading wait", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-card-swr");
+    await import("../src/maverick-music.js?runtime-library-card-swr");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     let resolveInitial;
     card._fetchLibrary = vi.fn(() => new Promise((resolve) => { resolveInitial = resolve; }));
@@ -2776,11 +2886,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("renders the opt-in vertical queue flow inside the queue menu without changing the main artwork stack", async () => {
-    await import("../src/homeii-music-flow.js?runtime-mobile-vertical-queue-flow");
+    await import("../src/maverick-music.js?runtime-mobile-vertical-queue-flow");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const queueItems = Array.from({ length: 5 }, (_, index) => ({
       queue_item_id: `queue-${index}`,
@@ -2893,11 +3003,11 @@ describe("runtime baseline", () => {
   });
 
   it("renders library pages and artist albums with the queue-flow style browser", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-flow-browser");
+    await import("../src/maverick-music.js?runtime-library-flow-browser");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const albums = [
       {
@@ -2966,11 +3076,11 @@ describe("runtime baseline", () => {
   });
 
   it("opens the Liked page from the media-tab heart", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-favorites-filter-baseline");
+    await import("../src/maverick-music.js?runtime-library-favorites-filter-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.menuPage = "library_albums";
 
@@ -2986,11 +3096,11 @@ describe("runtime baseline", () => {
   });
 
   it("merges Music Assistant and local-only favorites into one Liked page", async () => {
-    await import("../src/homeii-music-flow.js?runtime-hybrid-liked-baseline");
+    await import("../src/maverick-music.js?runtime-hybrid-liked-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._likedUris = new Set(["radiobrowser://station/local"]);
     card._likedMeta = {
@@ -3018,11 +3128,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("favorites library radio items by item identity instead of current media", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-radio-favorite-item-baseline");
+    await import("../src/maverick-music.js?runtime-library-radio-favorite-item-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const calls = [];
     const entry = {
@@ -3067,11 +3177,11 @@ describe("runtime baseline", () => {
   });
 
   legacyIt("synthesizes a usable radio URI for Home Assistant library items that omit uri", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-radio-uri-baseline");
+    await import("../src/maverick-music.js?runtime-library-radio-uri-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._callService = vi.fn(async () => ({
       response: {
@@ -3095,11 +3205,11 @@ describe("runtime baseline", () => {
   });
 
   it("reports a failed media action favorite without treating it as success", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-radio-favorite-failure-baseline");
+    await import("../src/maverick-music.js?runtime-library-radio-favorite-failure-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const entry = {
       uri: "radio://station/one",
@@ -3116,11 +3226,11 @@ describe("runtime baseline", () => {
   });
 
   it("keeps the library toolbar icon-only and removes decorative question marks", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-toolbar-icon-only-baseline");
+    await import("../src/maverick-music.js?runtime-library-toolbar-icon-only-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.menuPage = "library_playlists";
 
@@ -3135,11 +3245,11 @@ describe("runtime baseline", () => {
   });
 
   it("keeps the configured library list layout instead of forcing grid", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-list-layout-baseline");
+    await import("../src/maverick-music.js?runtime-library-list-layout-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.mobileMediaLayout = "list";
     const items = [
@@ -3165,11 +3275,11 @@ describe("runtime baseline", () => {
   });
 
   it("toggles library flow and opens artist album flow from mobile menu buttons", async () => {
-    await import("../src/homeii-music-flow.js?runtime-library-flow-toggle");
+    await import("../src/maverick-music.js?runtime-library-flow-toggle");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.menuPage = "library_albums";
     card._renderMobileMenu = vi.fn();
@@ -3198,11 +3308,11 @@ describe("runtime baseline", () => {
   });
 
   it("renders the opt-in vertical cover flow on the main artwork without changing the queue menu flag", async () => {
-    await import("../src/homeii-music-flow.js?runtime-mobile-cover-flow");
+    await import("../src/maverick-music.js?runtime-mobile-cover-flow");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const queueItems = Array.from({ length: 5 }, (_, index) => ({
       queue_item_id: `cover-${index}`,
@@ -3266,25 +3376,25 @@ describe("runtime baseline", () => {
   });
 
   it("renders pending artwork with an immediate image src before decode completes", async () => {
-    await import("../src/homeii-music-flow.js?runtime-immediate-art-baseline");
+    await import("../src/maverick-music.js?runtime-immediate-art-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const html = card._decodedArtworkImgHtml("https://ha.local/art.jpg", "Artwork", { current: true });
 
     expect(html).toContain('src="https://ha.local/art.jpg"');
-    expect(html).toContain('data-homeii-art-ready="0"');
+    expect(html).toContain('data-maverick-art-ready="0"');
     expect(html).toContain('fetchpriority="high"');
   });
 
   it("prefetches the visible queue window and nearby full-size artwork", async () => {
-    await import("../src/homeii-music-flow.js?runtime-art-prefetch-baseline");
+    await import("../src/maverick-music.js?runtime-art-prefetch-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const queueItems = Array.from({ length: 8 }, (_, index) => ({
       queue_item_id: `queue-${index}`,
@@ -3307,11 +3417,11 @@ describe("runtime baseline", () => {
   });
 
   it("resolves visible queue rows for scroll-aware artwork prefetch", async () => {
-    await import("../src/homeii-music-flow.js?runtime-visible-queue-prefetch-baseline");
+    await import("../src/maverick-music.js?runtime-visible-queue-prefetch-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.menuPage = "queue";
     const body = {
@@ -3331,11 +3441,11 @@ describe("runtime baseline", () => {
 
   legacyIt("does not switch to another playing player during a pending queue transition", async () => {
     vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
-    await import("../src/homeii-music-flow.js?runtime-player-lock-baseline");
+    await import("../src/maverick-music.js?runtime-player-lock-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const mainPlayer = {
       entity_id: "media_player.main",
@@ -3364,11 +3474,11 @@ describe("runtime baseline", () => {
 
   it("stores the pending queue transition target player for stronger player locking", async () => {
     vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
-    await import("../src/homeii-music-flow.js?runtime-pending-player-id-baseline");
+    await import("../src/maverick-music.js?runtime-pending-player-id-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const item = {
       queue_item_id: "queue-item-new",
@@ -3383,11 +3493,11 @@ describe("runtime baseline", () => {
   });
 
   it("blocks the screensaver while lyrics are open", async () => {
-    await import("../src/homeii-music-flow.js?runtime-lyrics-screensaver-block-baseline");
+    await import("../src/maverick-music.js?runtime-lyrics-screensaver-block-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.lyricsOpen = true;
 
@@ -3395,10 +3505,10 @@ describe("runtime baseline", () => {
   });
 
   it("blocks the screensaver for a visible player picker but allows a hidden picker", async () => {
-    await import("../src/homeii-music-flow.js?runtime-player-picker-screensaver");
+    await import("../src/maverick-music.js?runtime-player-picker-screensaver");
     await Promise.resolve();
     await vi.runAllTimersAsync();
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._screensaverSuppressedByEditor = () => false;
     card.$ = () => null;
@@ -3412,11 +3522,11 @@ describe("runtime baseline", () => {
   });
 
   it("suppresses the screensaver while the card is open in the visual editor", async () => {
-    await import("../src/homeii-music-flow.js?runtime-screensaver-edit-mode-block-baseline");
+    await import("../src/maverick-music.js?runtime-screensaver-edit-mode-block-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card.classList = createClassList();
     card.shadowRoot = {
@@ -3438,11 +3548,11 @@ describe("runtime baseline", () => {
   });
 
   it("moves an open lyrics modal into screensaver lyrics without leaving the modal behind", async () => {
-    await import("../src/homeii-music-flow.js?runtime-lyrics-screensaver-close-modal-baseline");
+    await import("../src/maverick-music.js?runtime-lyrics-screensaver-close-modal-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const overlay = {
       classList: createClassList(),
@@ -3485,11 +3595,11 @@ describe("runtime baseline", () => {
   });
 
   it("auto-opens screensaver lyrics only while music is playing when enabled", async () => {
-    await import("../src/homeii-music-flow.js?runtime-screensaver-auto-lyrics-baseline");
+    await import("../src/maverick-music.js?runtime-screensaver-auto-lyrics-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const overlay = {
       classList: createClassList(),
@@ -3530,11 +3640,11 @@ describe("runtime baseline", () => {
   });
 
   it("opens tablet lyrics directly in screensaver mode without keeping the modal open", async () => {
-    await import("../src/homeii-music-flow.js?runtime-tablet-lyrics-direct-screensaver-baseline");
+    await import("../src/maverick-music.js?runtime-tablet-lyrics-direct-screensaver-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const overlay = {
       classList: createClassList(),
@@ -3575,11 +3685,11 @@ describe("runtime baseline", () => {
   });
 
   it("refreshes lyrics when the current track changes without user interaction", async () => {
-    await import("../src/homeii-music-flow.js?runtime-lyrics-track-refresh-baseline");
+    await import("../src/maverick-music.js?runtime-lyrics-track-refresh-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     let renders = 0;
     card._state.lyricsOpen = true;
@@ -3599,11 +3709,11 @@ describe("runtime baseline", () => {
 
   it("shows lyrics beside artwork in screensaver only while playback is active or freshly paused", async () => {
     vi.setSystemTime(new Date("2026-01-01T00:00:00Z"));
-    await import("../src/homeii-music-flow.js?runtime-lyrics-screensaver-mode-baseline");
+    await import("../src/maverick-music.js?runtime-lyrics-screensaver-mode-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const overlay = { classList: createClassList(), dataset: {} };
     const host = { dataset: {}, innerHTML: "" };
@@ -3630,11 +3740,11 @@ describe("runtime baseline", () => {
   });
 
   it("renders optional screensaver lyrics sync and font control buttons", async () => {
-    await import("../src/homeii-music-flow.js?runtime-screensaver-lyrics-button-baseline");
+    await import("../src/maverick-music.js?runtime-screensaver-lyrics-button-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.screensaverControlsEnabled = true;
     card._state.screensaverControlButtons = ["lyrics", "lyrics_sync", "lyrics_font_minus", "lyrics_font_plus"];
@@ -3676,13 +3786,13 @@ describe("runtime baseline", () => {
   });
 
   it("removes one grouped speaker without rejoining or clearing the remaining group", async () => {
-    await import("../src/homeii-music-flow.js?runtime-group-remove-delta-baseline");
+    await import("../src/maverick-music.js?runtime-group-remove-delta-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card._homeiiEngineEnabled = () => false; // This fixture exercises the legacy HA group service path.
+    card._maverickEngineEnabled = () => false; // This fixture exercises the legacy HA group service path.
     card._state.selectedPlayer = "media_player.living_room";
     card._state.players = [
       {
@@ -3722,11 +3832,11 @@ describe("runtime baseline", () => {
   });
 
   it("shows the group master in the group screen", async () => {
-    await import("../src/homeii-music-flow.js?runtime-group-master-visible-baseline");
+    await import("../src/maverick-music.js?runtime-group-master-visible-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.selectedPlayer = "media_player.kitchen";
     card._state.players = [
@@ -3760,13 +3870,13 @@ describe("runtime baseline", () => {
   });
 
   it("removes the selected member from a master-owned group without clearing the group", async () => {
-    await import("../src/homeii-music-flow.js?runtime-group-remove-leader-rebase-baseline");
+    await import("../src/maverick-music.js?runtime-group-remove-leader-rebase-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card._homeiiEngineEnabled = () => false; // This fixture exercises the legacy HA group service path.
+    card._maverickEngineEnabled = () => false; // This fixture exercises the legacy HA group service path.
     card._state.selectedPlayer = "media_player.kitchen";
     card._state.players = [
       {
@@ -3806,13 +3916,13 @@ describe("runtime baseline", () => {
   });
 
   it("rebases member-view group additions onto the current master", async () => {
-    await import("../src/homeii-music-flow.js?runtime-group-member-add-rebase-baseline");
+    await import("../src/maverick-music.js?runtime-group-member-add-rebase-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card._homeiiEngineEnabled = () => false; // This fixture exercises the legacy HA group service path.
+    card._maverickEngineEnabled = () => false; // This fixture exercises the legacy HA group service path.
     card._state.selectedPlayer = "media_player.kitchen";
     card._state.players = [
       {
@@ -3860,11 +3970,11 @@ describe("runtime baseline", () => {
   });
 
   it("disconnects the group when the master is explicitly unchecked from a member view", async () => {
-    await import("../src/homeii-music-flow.js?runtime-group-member-unchecks-master-baseline");
+    await import("../src/maverick-music.js?runtime-group-member-unchecks-master-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.selectedPlayer = "media_player.kitchen";
     card._state.players = [
@@ -3888,7 +3998,7 @@ describe("runtime baseline", () => {
       },
     ];
     card._callHaMediaPlayerService = vi.fn();
-    card._homeiiEngineApplyGroup = vi.fn(async () => ({}));
+    card._maverickEngineApplyGroup = vi.fn(async () => ({}));
     card._loadPlayers = vi.fn(async () => {});
     card._renderMobileMenu = vi.fn(async () => {});
     card._syncControlRoomUi = vi.fn();
@@ -3898,7 +4008,7 @@ describe("runtime baseline", () => {
     const ok = await card._applySpeakerGroupFor("media_player.kitchen", card._state.pendingGroupSelections);
 
     expect(ok).toBe(true);
-    expect(card._homeiiEngineApplyGroup).toHaveBeenCalledWith({
+    expect(card._maverickEngineApplyGroup).toHaveBeenCalledWith({
       owner: "media_player.living_room", entity_id: "media_player.living_room",
       members: [], remove_members: ["media_player.kitchen", "media_player.terrace"],
     });
@@ -3906,11 +4016,11 @@ describe("runtime baseline", () => {
   });
 
   it("disconnects the group when the selected master is unchecked", async () => {
-    await import("../src/homeii-music-flow.js?runtime-group-selected-master-removal-baseline");
+    await import("../src/maverick-music.js?runtime-group-selected-master-removal-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.selectedPlayer = "media_player.living_room";
     card._state.players = [
@@ -3934,7 +4044,7 @@ describe("runtime baseline", () => {
       },
     ];
     card._callHaMediaPlayerService = vi.fn();
-    card._homeiiEngineApplyGroup = vi.fn(async () => ({}));
+    card._maverickEngineApplyGroup = vi.fn(async () => ({}));
     card._loadPlayers = vi.fn(async () => {});
     card._renderMobileMenu = vi.fn(async () => {});
     card._syncControlRoomUi = vi.fn();
@@ -3945,7 +4055,7 @@ describe("runtime baseline", () => {
     const ok = await card._applySpeakerGroupFor("media_player.living_room", card._state.pendingGroupSelections);
 
     expect(ok).toBe(true);
-    expect(card._homeiiEngineApplyGroup).toHaveBeenCalledWith({
+    expect(card._maverickEngineApplyGroup).toHaveBeenCalledWith({
       owner: "media_player.living_room", entity_id: "media_player.living_room",
       members: [], remove_members: ["media_player.kitchen", "media_player.terrace"],
     });
@@ -3962,11 +4072,11 @@ describe("runtime baseline", () => {
   });
 
   it("shows the group volume shortcut only for grouped players", async () => {
-    await import("../src/homeii-music-flow.js?runtime-group-volume-shortcut-baseline");
+    await import("../src/maverick-music.js?runtime-group-volume-shortcut-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     const buttonClasses = new Set();
     const button = {
@@ -4016,11 +4126,11 @@ describe("runtime baseline", () => {
   });
 
   it("keeps embedded Music Assistant lyrics local and requires opt-in for LRCLIB", async () => {
-    await import("../src/homeii-music-flow.js?runtime-lyrics-privacy-baseline");
+    await import("../src/maverick-music.js?runtime-lyrics-privacy-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const localCard = new CardCtor();
     localCard._config = {};
     localCard._currentTrackInfo = () => ({ key: "local", title: "Local Song", artist: "Local Artist" });
@@ -4067,10 +4177,10 @@ describe("runtime baseline", () => {
   });
 
   async function reliabilityCard() {
-    await import("../src/homeii-music-flow.js?runtime-reliability");
+    await import("../src/maverick-music.js?runtime-reliability");
     await Promise.resolve();
     await vi.runAllTimersAsync();
-    const CardCtor = globalThis.customElements.get("homeii-music-flow");
+    const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
     card._state.engineAvailable = true;
     return card;
@@ -4079,34 +4189,34 @@ describe("runtime baseline", () => {
   it("does not replay an uncertain MA mutation over HTTP", async () => {
     const card = await reliabilityCard();
     card._callHomeAssistantWs = vi.fn().mockRejectedValue(new Error("Timed out"));
-    card._homeiiEngineHttpCommand = vi.fn().mockResolvedValue({ ok: true });
-    await expect(card._homeiiEngineCommand("ma/command", { command: "player_queues/play_index" })).rejects.toThrow("Timed out");
-    await expect(card._homeiiEngineCommand("favorites/set", {})).rejects.toThrow("Timed out");
-    expect(card._homeiiEngineHttpCommand).not.toHaveBeenCalled();
-    await expect(card._homeiiEngineCommand("queue/get", {})).resolves.toEqual({ ok: true });
-    expect(card._homeiiEngineHttpCommand).toHaveBeenCalledTimes(1);
+    card._maverickEngineHttpCommand = vi.fn().mockResolvedValue({ ok: true });
+    await expect(card._maverickEngineCommand("ma/command", { command: "player_queues/play_index" })).rejects.toThrow("Timed out");
+    await expect(card._maverickEngineCommand("favorites/set", {})).rejects.toThrow("Timed out");
+    expect(card._maverickEngineHttpCommand).not.toHaveBeenCalled();
+    await expect(card._maverickEngineCommand("queue/get", {})).resolves.toEqual({ ok: true });
+    expect(card._maverickEngineHttpCommand).toHaveBeenCalledTimes(1);
   });
 
   it("sends volume immediately and serializes a drag to its latest value for the original player", async () => {
     const card = await reliabilityCard();
     card._setPlayerVolumeOptimistic = vi.fn();
     let finishFirst;
-    card._callHomeiiEnginePlayerCommand = vi.fn()
+    card._callMaverickEnginePlayerCommand = vi.fn()
       .mockImplementationOnce(() => new Promise((resolve) => { finishFirst = resolve; }))
       .mockResolvedValue(true);
     card._getSelectedPlayer = () => ({ entity_id: "media_player.computer" });
     const first = card._setVolume(0.4);
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledWith("media_player.computer", "volume", { volume_level: 0.4 });
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledWith("media_player.computer", "volume", { volume_level: 0.4 });
     card._setVolume(0.3);
     card._setVolume(0.2);
     card._getSelectedPlayer = () => ({ entity_id: "media_player.kitchen" });
     const other = card._setVolume(0.1);
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledTimes(2);
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledTimes(2);
     finishFirst(true);
     await vi.runAllTimersAsync();
     expect(await first).toBe(true);
     expect(await other).toBe(true);
-    expect(card._callHomeiiEnginePlayerCommand.mock.calls).toEqual([
+    expect(card._callMaverickEnginePlayerCommand.mock.calls).toEqual([
       ["media_player.computer", "volume", { volume_level: 0.4 }],
       ["media_player.kitchen", "volume", { volume_level: 0.1 }],
       ["media_player.computer", "volume", { volume_level: 0.2 }],
@@ -4121,7 +4231,7 @@ describe("runtime baseline", () => {
     card._syncPlayerVolumeControls = vi.fn();
     card._toastError = vi.fn();
     card._mediaControlFailureMessage = (error) => error.message;
-    card._callHomeiiEnginePlayerCommand = vi.fn().mockRejectedValue(new Error("Disconnected"));
+    card._callMaverickEnginePlayerCommand = vi.fn().mockRejectedValue(new Error("Disconnected"));
     const result = card._setPlayerVolumeFor("media_player.computer", 0);
     await vi.runAllTimersAsync();
     expect(await result).toBe(false);
@@ -4130,7 +4240,7 @@ describe("runtime baseline", () => {
     expect(card._softMutedPlayers.size).toBe(0);
     expect(card._loadPlayers).toHaveBeenCalledOnce();
     expect(card._toastError).toHaveBeenCalledWith("Disconnected");
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledOnce();
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledOnce();
   });
 
   it("accumulates rapid volume button presses before the server confirms any of them", async () => {
@@ -4141,17 +4251,17 @@ describe("runtime baseline", () => {
     card._syncNowPlayingUI = vi.fn();
     card._syncPlayerVolumeControls = vi.fn();
     let resolveFirst;
-    card._callHomeiiEnginePlayerCommand = vi.fn()
+    card._callMaverickEnginePlayerCommand = vi.fn()
       .mockImplementationOnce(() => new Promise((resolve) => { resolveFirst = resolve; }))
       .mockResolvedValue(true);
     card._stepSelectedVolume(1);
     card._stepSelectedVolume(1);
     card._stepSelectedVolume(1);
     expect(card._effectivePlayerVolumeLevel(player)).toBe(0.81);
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledOnce();
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledOnce();
     resolveFirst(true);
     await vi.runAllTimersAsync();
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenLastCalledWith(
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenLastCalledWith(
       player.entity_id, "volume", { volume_level: 0.81 },
     );
   });
@@ -4159,18 +4269,18 @@ describe("runtime baseline", () => {
   it("refreshes players and queue during a continuous burst of Engine events", async () => {
     const card = await reliabilityCard();
     card.isConnected = true;
-    card._homeiiEngineRequired = () => true;
+    card._maverickEngineRequired = () => true;
     card._refreshEnginePlayers = vi.fn().mockResolvedValue([]);
     card._ensureQueueSnapshot = vi.fn().mockResolvedValue(null);
     card._loadPlayers = vi.fn();
     card._syncNowPlayingUI = vi.fn();
     for (let index = 0; index < 25; index++) {
-      card._handleHomeiiEngineMusicAssistantEvent({ kind: "event", event: "queue_updated" });
+      card._handleMaverickEngineMusicAssistantEvent({ kind: "event", event: "queue_updated" });
       await vi.advanceTimersByTimeAsync(100);
     }
     expect(card._refreshEnginePlayers.mock.calls.length).toBeGreaterThanOrEqual(2);
     expect(card._ensureQueueSnapshot.mock.calls.length).toBeGreaterThanOrEqual(2);
-    card._unsubscribeHomeiiEngineMusicAssistantEvents();
+    card._unsubscribeMaverickEngineMusicAssistantEvents();
   });
 
   it("does not mistake a queue window's first track for the current track", async () => {
@@ -4194,13 +4304,13 @@ describe("runtime baseline", () => {
     const card = await reliabilityCard();
     card._state.enginePlayers = [{ entity_id: "media_player.removed" }];
     let resolve;
-    card._homeiiEngineGetPlayers = vi.fn(() => new Promise((done) => { resolve = done; }));
+    card._maverickEngineGetPlayers = vi.fn(() => new Promise((done) => { resolve = done; }));
     const first = card._refreshEnginePlayers({ force: true });
     const second = card._refreshEnginePlayers({ force: true });
     resolve({ players: [] });
     expect(await first).toEqual([]);
     expect(await second).toEqual([]);
-    expect(card._homeiiEngineGetPlayers).toHaveBeenCalledTimes(1);
+    expect(card._maverickEngineGetPlayers).toHaveBeenCalledTimes(1);
     expect(card._state.enginePlayers).toEqual([]);
   });
 
@@ -4208,7 +4318,7 @@ describe("runtime baseline", () => {
     const card = await reliabilityCard();
     const players = [{ entity_id: "media_player.kitchen" }];
     card._state.enginePlayers = players;
-    card._homeiiEngineGetPlayers = vi.fn().mockResolvedValue({});
+    card._maverickEngineGetPlayers = vi.fn().mockResolvedValue({});
     expect(await card._refreshEnginePlayers()).toEqual(players);
     expect(card._state.engineStatus).toBe("degraded");
   });
@@ -4234,18 +4344,18 @@ describe("runtime baseline", () => {
 
   it.each(["add", "next", "replace_next", "play", "shuffle"])("uses the right playback confirmation for %s", async (enqueue) => {
     const card = await reliabilityCard();
-    card._ensureHomeiiEngineReadyForAction = vi.fn().mockResolvedValue(true);
-    card._homeiiEnginePlayMedia = vi.fn().mockResolvedValue({ ok: true });
+    card._ensureMaverickEngineReadyForAction = vi.fn().mockResolvedValue(true);
+    card._maverickEnginePlayMedia = vi.fn().mockResolvedValue({ ok: true });
     const ok = await card._playMediaOnPlayer("media_player.kitchen", "library://track/1", "track", enqueue, { silent: true });
     expect(ok).toBe(true);
-    expect(card._homeiiEnginePlayMedia).toHaveBeenCalledWith(expect.objectContaining({
+    expect(card._maverickEnginePlayMedia).toHaveBeenCalledWith(expect.objectContaining({
       verify_playback: ["play", "shuffle"].includes(enqueue),
     }));
   });
 
   it("keeps the built dist runtime bundled and registerable", async () => {
     const packageVersion = await readPackageVersion();
-    const distText = await readProjectFile("dist", "homeii-music-flow.js");
+    const distText = await readProjectFile("dist", "maverick-music.js");
 
     expect(distText).not.toContain('from "./core/');
     expect(distText).not.toContain('from "./localization/index.js');
@@ -4256,10 +4366,10 @@ describe("runtime baseline", () => {
     expect(distText).toContain("lrclib_lyrics_enabled");
     expect(distText).not.toContain("data:text/javascript");
 
-    await import("../dist/homeii-music-flow.js?runtime-dist-baseline");
+    await import("../dist/maverick-music.js?runtime-dist-baseline");
     await Promise.resolve();
     await vi.runAllTimersAsync();
 
-    expectHomeiiRuntimeRegistered(packageVersion);
+    expectMaverickRuntimeRegistered(packageVersion);
   });
 });
