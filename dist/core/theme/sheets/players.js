@@ -71,7 +71,7 @@ export default function() {
 .theme-light.card.layout-tablet .player-premium-name,
 .theme-light.card.layout-tablet .settings-label{
   color:#0f172a!important;
-  font-family:var(--homeii-font-family)!important;
+  font-family:var(--maverick-font-family)!important;
 }
 .theme-light.card.layout-tablet .menu-item-sub,
 .theme-light.card.layout-tablet .media-entry-sub,

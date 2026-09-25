@@ -15,7 +15,7 @@ if ($sourceText -notmatch 'MAVERICK_CARD_VERSION' -or $sourceText -notmatch 'cus
     throw 'The built card is missing expected runtime markers. Run build and tests first.'
 }
 $sourceHash = (Get-FileHash -LiteralPath $sourceFile -Algorithm SHA256).Hash
-$backupDirectory = Join-Path $env:TEMP ('homeii-deployment-backup-' + [guid]::NewGuid().ToString('N'))
+$backupDirectory = Join-Path $env:TEMP ('maverick-deployment-backup-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $backupDirectory | Out-Null
 if (Test-Path -LiteralPath $targetFile) {
     Copy-Item -LiteralPath $targetFile -Destination (Join-Path $backupDirectory 'maverick-music.js')

@@ -1,28 +1,28 @@
-import * as HomeiiEngineFoundation from "../core/engine-client.js";
+import * as MaverickEngineFoundation from "../core/engine-client.js";
 import { ensureInterfaceFont, interfaceStyles } from "../core/theme/interface.js";
 
-export function createHomeiiBaseMusicEditor(deps = {}) {
+export function createMaverickBaseMusicEditor(deps = {}) {
   const {
-    HomeiiBaseMusicCard,
+    MaverickBaseMusicCard,
     ensureHaEditorComponents,
-    homeiiIsRtlLanguage,
-    homeiiDetectLanguage,
-    HomeiiConfigValidators,
-    HomeiiPlayersFoundation,
-    HomeiiMobileSettingsFoundation,
-    homeiiEditorI18n,
-    homeiiEditorLabelFor,
-    homeiiEditorHelperFor,
+    maverickIsRtlLanguage,
+    maverickDetectLanguage,
+    MaverickConfigValidators,
+    MaverickPlayersFoundation,
+    MaverickMobileSettingsFoundation,
+    maverickEditorI18n,
+    maverickEditorLabelFor,
+    maverickEditorHelperFor,
     MAVERICK_CARD_VERSION,
     AMBIENT_LIGHT_PAIR_PLAYER_PREFIX,
     AMBIENT_LIGHT_PAIR_LIGHTS_PREFIX,
   } = deps;
 
-return class HomeiiBaseMusicEditor extends HTMLElement {
+return class MaverickBaseMusicEditor extends HTMLElement {
   constructor() {
     super();
     ensureInterfaceFont();
-    this._config = HomeiiBaseMusicCard.getStubConfig();
+    this._config = MaverickBaseMusicCard.getStubConfig();
     this._hass = null;
     this._editorRoot = null;
     this._editorForm = null;
@@ -67,7 +67,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
   setConfig(config) {
     const nextConfig = {
       ...this._getCardCtor().getStubConfig(),
-      ...HomeiiEngineFoundation.normalizeEngineConfigKeys(config, { dropLegacy: true }),
+      ...MaverickEngineFoundation.normalizeEngineConfigKeys(config, { dropLegacy: true }),
     };
     const validator = this._getConfigValidator?.();
     if (typeof validator === "function") {
@@ -79,11 +79,11 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
   }
 
   _getCardCtor() {
-    return HomeiiBaseMusicCard;
+    return MaverickBaseMusicCard;
   }
 
   _isHebrew() {
-    return homeiiIsRtlLanguage(homeiiDetectLanguage({
+    return maverickIsRtlLanguage(maverickDetectLanguage({
       configLanguage: this._config?.language || "en",
       hass: this._hass,
     }));
@@ -99,7 +99,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
   }
 
   _getConfigValidator() {
-    return HomeiiConfigValidators.validateBaseCardEditorConfig;
+    return MaverickConfigValidators.validateBaseCardEditorConfig;
   }
 
   _dispatchConfig() {
@@ -267,21 +267,21 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     });
   }
 
-  _editorHomeiiEngineMode() {
-    return HomeiiEngineFoundation.normalizeHomeiiEngineMode(this._config?.engine_mode);
+  _editorMaverickEngineMode() {
+    return MaverickEngineFoundation.normalizeMaverickEngineMode(this._config?.engine_mode);
   }
 
-  _editorHomeiiEngineTimeoutMs() {
-    return HomeiiEngineFoundation.clampHomeiiEngineTimeoutMs(this._config?.engine_timeout_ms, 3500);
+  _editorMaverickEngineTimeoutMs() {
+    return MaverickEngineFoundation.clampMaverickEngineTimeoutMs(this._config?.engine_timeout_ms, 3500);
   }
 
-  _editorHomeiiEngineMessage(command = "get_context", payload = {}) {
+  _editorMaverickEngineMessage(command = "get_context", payload = {}) {
     const message = {
       ...(payload && typeof payload === "object" && !Array.isArray(payload) ? payload : { payload }),
-      type: HomeiiEngineFoundation.homeiiEngineCommandType(command),
+      type: MaverickEngineFoundation.maverickEngineCommandType(command),
       card_id: String(this._config?.card_id || "").trim(),
-      instance_id: HomeiiEngineFoundation.normalizeHomeiiEngineId(this._config?.engine_instance_id),
-      profile_id: HomeiiEngineFoundation.normalizeHomeiiEngineId(this._config?.engine_profile_id),
+      instance_id: MaverickEngineFoundation.normalizeMaverickEngineId(this._config?.engine_instance_id),
+      profile_id: MaverickEngineFoundation.normalizeMaverickEngineId(this._config?.engine_profile_id),
     };
     ["card_id", "instance_id", "profile_id"].forEach((key) => {
       if (message[key] === "") delete message[key];
@@ -289,35 +289,35 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     return message;
   }
 
-  async _editorCallHomeiiEngine(command = "get_context", payload = {}) {
-    if (!HomeiiEngineFoundation.homeiiEngineModeAllowsCalls(this._editorHomeiiEngineMode())) return null;
-    const message = this._editorHomeiiEngineMessage(command, payload);
+  async _editorCallMaverickEngine(command = "get_context", payload = {}) {
+    if (!MaverickEngineFoundation.maverickEngineModeAllowsCalls(this._editorMaverickEngineMode())) return null;
+    const message = this._editorMaverickEngineMessage(command, payload);
     if (typeof this._hass?.callWS === "function") {
-      return this._editorWithTimeout(this._hass.callWS(message), this._editorHomeiiEngineTimeoutMs(), "Maverick Music Engine timed out.");
+      return this._editorWithTimeout(this._hass.callWS(message), this._editorMaverickEngineTimeoutMs(), "Maverick Music Engine timed out.");
     }
     if (typeof this._hass?.connection?.sendMessagePromise === "function") {
-      return this._editorWithTimeout(this._hass.connection.sendMessagePromise(message), this._editorHomeiiEngineTimeoutMs(), "Maverick Music Engine timed out.");
+      return this._editorWithTimeout(this._hass.connection.sendMessagePromise(message), this._editorMaverickEngineTimeoutMs(), "Maverick Music Engine timed out.");
     }
     throw new Error("Home Assistant WebSocket API is unavailable in the visual editor.");
   }
 
   async _editorDiagnosticEngineRow(add) {
-    const mode = this._editorHomeiiEngineMode();
-    if (!HomeiiEngineFoundation.homeiiEngineModeAllowsCalls(mode)) {
+    const mode = this._editorMaverickEngineMode();
+    if (!MaverickEngineFoundation.maverickEngineModeAllowsCalls(mode)) {
       add("fail", "Maverick Music Engine", "Maverick Music 6 requires the Maverick Music Engine integration. There is no frontend-only compatibility path.", mode);
       return;
     }
     try {
-      const result = await this._editorCallHomeiiEngine("get_context", {
+      const result = await this._editorCallMaverickEngine("get_context", {
         card_version: MAVERICK_CARD_VERSION,
         source: "visual_editor",
       });
       if (!result) throw new Error("Maverick Music Engine returned an empty response.");
-      const context = HomeiiEngineFoundation.normalizeHomeiiEngineContext(result);
-      add("ok", "Maverick Music Engine", `Connected to Maverick Music Engine ${context.version || "unknown version"}. Capabilities: ${HomeiiEngineFoundation.summarizeHomeiiEngineCapabilities(context.capabilities)}.`, mode);
+      const context = MaverickEngineFoundation.normalizeMaverickEngineContext(result);
+      add("ok", "Maverick Music Engine", `Connected to Maverick Music Engine ${context.version || "unknown version"}. Capabilities: ${MaverickEngineFoundation.summarizeMaverickEngineCapabilities(context.capabilities)}.`, mode);
       const [playersResult, statsResult] = await Promise.allSettled([
-        this._editorCallHomeiiEngine("players/get", { source: "visual_editor" }),
-        this._editorCallHomeiiEngine("stats/get", { source: "visual_editor" }),
+        this._editorCallMaverickEngine("players/get", { source: "visual_editor" }),
+        this._editorCallMaverickEngine("stats/get", { source: "visual_editor" }),
       ]);
       const playerCount = Number(playersResult.value?.music_assistant_count ?? statsResult.value?.music_assistant_players ?? 0);
       if (playersResult.status === "fulfilled" || statsResult.status === "fulfilled") {
@@ -346,7 +346,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
       `HA URL detail: ${this._editorDiagnosticUrlDescription(this._editorCurrentOrigin())}`,
       "music_assistant_transport: Maverick Music Engine",
       `config_entry_id configured: ${String(this._config?.config_entry_id || "").trim() ? "yes" : "no"}`,
-      `engine_mode: ${this._editorHomeiiEngineMode()}`,
+      `engine_mode: ${this._editorMaverickEngineMode()}`,
       `engine_instance_id configured: ${this._config?.engine_instance_id ? "yes" : "no"}`,
       `engine_profile_id configured: ${this._config?.engine_profile_id ? "yes" : "no"}`,
       "",
@@ -404,11 +404,11 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     const states = this._hass?.states || {};
     const entities = this._hass?.entities || {};
     const players = Object.values(states)
-      .filter((entity) => HomeiiPlayersFoundation.isMusicAssistantPlayer(entity, entities?.[entity.entity_id]));
+      .filter((entity) => MaverickPlayersFoundation.isMusicAssistantPlayer(entity, entities?.[entity.entity_id]));
     const genericPlayers = Object.values(states)
       .filter((entity) => entity?.entity_id?.startsWith?.("media_player."));
-    const pinned = HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities);
-    const excluded = HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities);
+    const pinned = MaverickMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities);
+    const excluded = MaverickMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities);
 
     add("ok", "Editor version", "Visual editor runtime is loaded.", MAVERICK_CARD_VERSION);
     add("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7");
@@ -809,10 +809,10 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     this.style.direction = this._isHebrew() ? "rtl" : "ltr";
     this._refreshEditorShellClasses();
     if (this._editorUsePathBtn) {
-      this._editorUsePathBtn.textContent = homeiiEditorI18n("ui.use_current_view_for_home_button");
+      this._editorUsePathBtn.textContent = maverickEditorI18n("ui.use_current_view_for_home_button");
     }
     if (this._editorPathHint) {
-      this._editorPathHint.textContent = `${homeiiEditorI18n("ui.current_path")}: ${this._currentUiPath()}`;
+      this._editorPathHint.textContent = `${maverickEditorI18n("ui.current_path")}: ${this._currentUiPath()}`;
     }
     if (this._editorForm) {
       this._editorForm.hass = this._hass;
@@ -821,7 +821,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
 
   _editorPlayerOptionLabel(entity = null, players = []) {
     const entityId = String(entity?.entity_id || "").trim();
-    const name = HomeiiPlayersFoundation.playerDisplayName(entity, { players }) || entityId;
+    const name = MaverickPlayersFoundation.playerDisplayName(entity, { players }) || entityId;
     if (!name || !entityId || name === entityId || String(name).includes(entityId)) return name || entityId;
     return `${name} (${entityId})`;
   }
@@ -832,9 +832,9 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     const mediaPlayers = Object.values(states)
       .filter((entity) => entity?.entity_id?.startsWith("media_player."));
     const configuredIds = new Set([
-      ...HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities),
-      ...HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities),
-      ...HomeiiMobileSettingsFoundation.normalizePlayerOrderEntities(this._config || {}),
+      ...MaverickMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities),
+      ...MaverickMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities),
+      ...MaverickMobileSettingsFoundation.normalizePlayerOrderEntities(this._config || {}),
     ]);
     const musicAssistantPlayers = mediaPlayers
       .filter((entity) => {
@@ -844,7 +844,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
           registry.integration,
           registry.device_class,
         ].filter(Boolean).join(" ").toLowerCase();
-        return HomeiiPlayersFoundation.isMusicAssistantPlayer(entity, registry)
+        return MaverickPlayersFoundation.isMusicAssistantPlayer(entity, registry)
           || registryText.includes("music_assistant")
           || registryText.includes("music assistant");
       });
@@ -853,7 +853,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
       [...musicAssistantPlayers, ...configuredFallbackPlayers].map((entity) => [entity.entity_id, entity])
     ).values());
     const options = sourcePlayers
-      .filter((entity) => !HomeiiPlayersFoundation.isLikelyBrowserPlayer(entity))
+      .filter((entity) => !MaverickPlayersFoundation.isLikelyBrowserPlayer(entity))
       .map((entity) => ({
         value: entity.entity_id,
         label: this._editorPlayerOptionLabel(entity, sourcePlayers),
@@ -866,14 +866,14 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     return JSON.stringify({
       players: this._editorPinnedPlayerOptions(),
       lights: this._editorColorLightOptions(),
-      mappings: HomeiiMobileSettingsFoundation.normalizeStringArray(this._config?.ambient_light_player_map),
+      mappings: MaverickMobileSettingsFoundation.normalizeStringArray(this._config?.ambient_light_player_map),
       draft: this._editorAmbientLightDraft,
-      excludedPlayers: HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities),
+      excludedPlayers: MaverickMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities),
     });
   }
 
   _editorPlayerOrderOptions() {
-    const excluded = new Set(HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities));
+    const excluded = new Set(MaverickMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities));
     return this._editorPinnedPlayerOptions().filter((option) => !excluded.has(option.value));
   }
 
@@ -892,7 +892,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     const states = this._hass?.states || {};
     return Object.values(states)
       .filter((entity) => entity?.entity_id?.startsWith("light."))
-      .filter((entity) => HomeiiMobileSettingsFoundation.isColorCapableLightEntity(entity))
+      .filter((entity) => MaverickMobileSettingsFoundation.isColorCapableLightEntity(entity))
       .map((entity) => ({
         value: entity.entity_id,
         label: entity.attributes?.friendly_name || entity.entity_id,
@@ -976,13 +976,13 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
 
   _ambientLightPlayerMapConfigFromGroups(groups = []) {
     return groups
-      .map((group) => HomeiiMobileSettingsFoundation.formatAmbientLightPlayerMapEntry(group.player, group.lights))
+      .map((group) => MaverickMobileSettingsFoundation.formatAmbientLightPlayerMapEntry(group.player, group.lights))
       .filter(Boolean);
   }
 
   _ambientLightPairSelectorData(config = this._config) {
     const data = {};
-    const groups = HomeiiMobileSettingsFoundation.parseAmbientLightPlayerMap(config?.ambient_light_player_map);
+    const groups = MaverickMobileSettingsFoundation.parseAmbientLightPlayerMap(config?.ambient_light_player_map);
     groups.forEach((group, index) => {
       data[this._ambientLightPairDisplayKey("player", index)] = group.player;
       data[this._ambientLightPairDisplayKey("lights", index)] = group.lights;
@@ -1011,7 +1011,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     });
     if (!pairIndices.size) return next;
 
-    const currentPairCount = HomeiiMobileSettingsFoundation.parseAmbientLightPlayerMap(this._config?.ambient_light_player_map).length;
+    const currentPairCount = MaverickMobileSettingsFoundation.parseAmbientLightPlayerMap(this._config?.ambient_light_player_map).length;
     const groups = [];
     let draft = { player: "", lights: [] };
     Array.from(pairIndices).sort((left, right) => left - right).forEach((index) => {
@@ -1020,7 +1020,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
       const playerDisplayKey = this._ambientLightPairDisplayKey("player", index);
       const lightsDisplayKey = this._ambientLightPairDisplayKey("lights", index);
       const player = String((next[playerDisplayKey] ?? next[playerKey]) || "").trim();
-      const lights = HomeiiMobileSettingsFoundation.normalizeEntityList(next[lightsDisplayKey] ?? next[lightsKey]);
+      const lights = MaverickMobileSettingsFoundation.normalizeEntityList(next[lightsDisplayKey] ?? next[lightsKey]);
       delete next[playerDisplayKey];
       delete next[lightsDisplayKey];
       delete next[playerKey];
@@ -1038,7 +1038,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
 
   _normalizeEditorQuickActionsValue(next = {}) {
     if (!Object.prototype.hasOwnProperty.call(next, "mobile_quick_actions")) return next;
-    const selected = HomeiiMobileSettingsFoundation.normalizeMobileQuickActions(next.mobile_quick_actions, []);
+    const selected = MaverickMobileSettingsFoundation.normalizeMobileQuickActions(next.mobile_quick_actions, []);
     next.mobile_quick_actions = selected;
     const selectedSet = new Set(selected);
     for (let index = 1; index <= 10; index += 1) {
@@ -1083,7 +1083,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
 
   _playerOrderSchema() {
     const options = this._editorPlayerOrderOptions();
-    const configuredOrder = HomeiiMobileSettingsFoundation.normalizePlayerOrderEntities(this._config || {});
+    const configuredOrder = MaverickMobileSettingsFoundation.normalizePlayerOrderEntities(this._config || {});
     const rowCount = Math.max(options.length, Math.min(configuredOrder.length, options.length || configuredOrder.length));
     if (!rowCount) return null;
     return {
@@ -1099,7 +1099,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
   }
 
   _ambientLightPlayerPairSchema() {
-    const groups = HomeiiMobileSettingsFoundation.parseAmbientLightPlayerMap(this._config?.ambient_light_player_map);
+    const groups = MaverickMobileSettingsFoundation.parseAmbientLightPlayerMap(this._config?.ambient_light_player_map);
     const pairCount = Math.max(1, groups.length + 1);
     const players = this._editorPinnedPlayerOptions();
     const lights = this._editorColorLightOptions();
@@ -1142,20 +1142,20 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     if (!info) {
       const name = this._editorSchemaItem(item)?.name || "";
       const match = /^player_order_entity_(\d+)$/.exec(String(name || ""));
-      return match ? `${homeiiEditorI18n("ui.player_order")} ${match[1]}` : "";
+      return match ? `${maverickEditorI18n("ui.player_order")} ${match[1]}` : "";
     }
     const key = info.type === "player" ? "ui.player_light_pair_player" : "ui.player_light_pair_lights";
-    return homeiiEditorI18n(key, { number: info.index + 1 });
+    return maverickEditorI18n(key, { number: info.index + 1 });
   }
 
   _editorDynamicHelper(item = {}) {
     const info = this._ambientLightPairFieldInfo(item);
     if (!info) {
       const name = this._editorSchemaItem(item)?.name || "";
-      return /^player_order_entity_\d+$/.test(String(name || "")) ? homeiiEditorI18n("ui.set_custom_player_order") : "";
+      return /^player_order_entity_\d+$/.test(String(name || "")) ? maverickEditorI18n("ui.set_custom_player_order") : "";
     }
     const key = info.type === "player" ? "ui.player_light_pair_player_helper" : "ui.player_light_pair_lights_helper";
-    return homeiiEditorI18n(key);
+    return maverickEditorI18n(key);
   }
 
   _currentBaseEditorSchema() {
@@ -1187,7 +1187,7 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
         };
       }
       if (item.name === "pinned_player_master") {
-        const pinnedIds = new Set(HomeiiMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities));
+        const pinnedIds = new Set(MaverickMobileSettingsFoundation.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities));
         const masterOptions = pinnedIds.size ? pinnedOptions.filter((option) => pinnedIds.has(option.value)) : pinnedOptions;
         next.selector = { select: { multiple: false, mode: "dropdown", options: masterOptions } };
       }
@@ -1240,11 +1240,11 @@ return class HomeiiBaseMusicEditor extends HTMLElement {
     if (this._editorForm) {
       const computeEditorLabel = (item) => {
         const schemaItem = this._editorSchemaItem(item);
-        return this._editorDynamicLabel(item) || computeLabel(schemaItem) || homeiiEditorLabelFor(schemaItem, labels);
+        return this._editorDynamicLabel(item) || computeLabel(schemaItem) || maverickEditorLabelFor(schemaItem, labels);
       };
       const computeEditorHelper = (item) => {
         const schemaItem = this._editorSchemaItem(item);
-        return this._editorDynamicHelper(item) || computeHelper(schemaItem) || homeiiEditorHelperFor(schemaItem, helpers);
+        return this._editorDynamicHelper(item) || computeHelper(schemaItem) || maverickEditorHelperFor(schemaItem, helpers);
       };
       this._editorForm.computeLabel = computeEditorLabel;
       this._editorForm.computeHelper = computeEditorHelper;

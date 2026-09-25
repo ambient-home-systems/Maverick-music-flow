@@ -2,30 +2,30 @@ import { describe, expect, it } from "vitest";
 
 import {
   ENGINE_CONFIG_KEY_ALIASES,
-  clampHomeiiEngineTimeoutMs,
-  homeiiEngineCommandType,
-  homeiiEngineModeAllowsCalls,
-  homeiiEngineModeRequiresEngine,
-  normalizeHomeiiEngineCapabilities,
-  normalizeHomeiiEngineContext,
-  normalizeHomeiiEngineId,
+  clampMaverickEngineTimeoutMs,
+  maverickEngineCommandType,
+  maverickEngineModeAllowsCalls,
+  maverickEngineModeRequiresEngine,
+  normalizeMaverickEngineCapabilities,
+  normalizeMaverickEngineContext,
+  normalizeMaverickEngineId,
   normalizeEngineConfigKeys,
-  normalizeHomeiiEngineMode,
+  normalizeMaverickEngineMode,
   readEngineConfigValue,
-  summarizeHomeiiEngineCapabilities,
+  summarizeMaverickEngineCapabilities,
 } from "../src/core/engine-client.js";
 
 describe("Maverick Music Engine client foundation", () => {
   it("normalizes Engine modes with required defaults for Maverick Music 6", () => {
-    expect(normalizeHomeiiEngineMode()).toBe("required");
-    expect(normalizeHomeiiEngineMode("required")).toBe("required");
-    expect(normalizeHomeiiEngineMode("OFF")).toBe("required");
-    expect(normalizeHomeiiEngineMode("unknown")).toBe("required");
-    expect(homeiiEngineModeAllowsCalls("off")).toBe(true);
-    expect(homeiiEngineModeAllowsCalls("auto")).toBe(true);
-    expect(homeiiEngineModeRequiresEngine("required")).toBe(true);
-    expect(homeiiEngineModeRequiresEngine("auto")).toBe(true);
-    expect(homeiiEngineModeRequiresEngine()).toBe(true);
+    expect(normalizeMaverickEngineMode()).toBe("required");
+    expect(normalizeMaverickEngineMode("required")).toBe("required");
+    expect(normalizeMaverickEngineMode("OFF")).toBe("required");
+    expect(normalizeMaverickEngineMode("unknown")).toBe("required");
+    expect(maverickEngineModeAllowsCalls("off")).toBe(true);
+    expect(maverickEngineModeAllowsCalls("auto")).toBe(true);
+    expect(maverickEngineModeRequiresEngine("required")).toBe(true);
+    expect(maverickEngineModeRequiresEngine("auto")).toBe(true);
+    expect(maverickEngineModeRequiresEngine()).toBe(true);
   });
 
   it("maps legacy homeii_engine_* config keys onto the documented engine_* keys", () => {
@@ -61,20 +61,20 @@ describe("Maverick Music Engine client foundation", () => {
   });
 
   it("builds stable Home Assistant WebSocket command types", () => {
-    expect(homeiiEngineCommandType("get_context")).toBe("homeii_flow/get_context");
-    expect(homeiiEngineCommandType("/queue/get/")).toBe("homeii_flow/queue/get");
-    expect(homeiiEngineCommandType("stats get")).toBe("homeii_flow/stats_get");
+    expect(maverickEngineCommandType("get_context")).toBe("homeii_flow/get_context");
+    expect(maverickEngineCommandType("/queue/get/")).toBe("homeii_flow/queue/get");
+    expect(maverickEngineCommandType("stats get")).toBe("homeii_flow/stats_get");
   });
 
   it("normalizes Engine ids, timeouts, capabilities, and context", () => {
-    expect(normalizeHomeiiEngineId("  kitchen-profile  ")).toBe("kitchen-profile");
-    expect(clampHomeiiEngineTimeoutMs("slow", 3500)).toBe(3500);
-    expect(clampHomeiiEngineTimeoutMs(50)).toBe(1000);
-    expect(clampHomeiiEngineTimeoutMs(90000)).toBe(30000);
-    expect(normalizeHomeiiEngineCapabilities(["queue", "stats"])).toEqual({ queue: true, stats: true });
-    expect(summarizeHomeiiEngineCapabilities({ queue: true, stats: false, schedules: true })).toBe("queue, schedules");
+    expect(normalizeMaverickEngineId("  kitchen-profile  ")).toBe("kitchen-profile");
+    expect(clampMaverickEngineTimeoutMs("slow", 3500)).toBe(3500);
+    expect(clampMaverickEngineTimeoutMs(50)).toBe(1000);
+    expect(clampMaverickEngineTimeoutMs(90000)).toBe(30000);
+    expect(normalizeMaverickEngineCapabilities(["queue", "stats"])).toEqual({ queue: true, stats: true });
+    expect(summarizeMaverickEngineCapabilities({ queue: true, stats: false, schedules: true })).toBe("queue, schedules");
 
-    const context = normalizeHomeiiEngineContext({
+    const context = normalizeMaverickEngineContext({
       version: "6.0.0",
       instance_id: "main",
       profile_id: "living",

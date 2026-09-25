@@ -73,7 +73,7 @@ export default function() {
           border-inline-end-color:color-mix(in srgb, var(--ma-accent) 88%, white 12%);
           pointer-events:none;
           z-index:6;
-          animation:homeiiLoadingSpin 1.1s linear infinite;
+          animation:maverickLoadingSpin 1.1s linear infinite;
           background:color-mix(in srgb, var(--ma-panel, #20252b) 76%, transparent);
           backdrop-filter:blur(12px);
           box-shadow:0 0 18px color-mix(in srgb, var(--ma-accent) 22%, transparent);

@@ -1,14 +1,14 @@
 // voice styles. Order is preserved by card-styles.js.
 export default function() {
-  return `.homeii-loading-state.compact {
+  return `.maverick-loading-state.compact {
           min-height:120px;
         }
-        .homeii-loading-content {
+        .maverick-loading-content {
           display:grid;
           justify-items:center;
           gap:12px;
         }
-        .homeii-loading-mark {
+        .maverick-loading-mark {
           position:relative;
           width:72px;
           height:72px;
@@ -16,41 +16,41 @@ export default function() {
           place-items:center;
           filter:drop-shadow(0 18px 32px rgba(0,0,0,.20));
         }
-        .homeii-loading-ring {
+        .maverick-loading-ring {
           position:absolute;
           inset:8px;
           border-radius:999px;
           border:2px solid rgba(255,255,255,.10);
           border-top-color:color-mix(in srgb, var(--ma-accent) 88%, #fff 8%);
-          animation:homeiiLoadingSpin 1.4s linear infinite;
+          animation:maverickLoadingSpin 1.4s linear infinite;
         }
-        .homeii-loading-ring.secondary {
+        .maverick-loading-ring.secondary {
           inset:18px;
           opacity:.58;
           animation-duration:2.1s;
           animation-direction:reverse;
         }
-        .homeii-loading-core {
+        .maverick-loading-core {
           width:15px;
           height:15px;
           border-radius:999px;
           background:var(--ma-accent);
           box-shadow:0 0 26px color-mix(in srgb, var(--ma-accent) 58%, transparent);
-          animation:homeiiLoadingPulse 1.2s ease-in-out infinite;
+          animation:maverickLoadingPulse 1.2s ease-in-out infinite;
         }
-        .homeii-loading-text {
+        .maverick-loading-text {
           color:var(--ma-text-2);
           font-size:13px;
           font-weight:850;
         }
-        @keyframes homeiiLoadingSpin { to { transform:rotate(360deg); } }
-        @keyframes homeiiLoadingPulse {
+        @keyframes maverickLoadingSpin { to { transform:rotate(360deg); } }
+        @keyframes maverickLoadingPulse {
           0%,100% { transform:scale(.86); opacity:.62; }
           50% { transform:scale(1.08); opacity:1; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .homeii-loading-ring,
-          .homeii-loading-core {
+          .maverick-loading-ring,
+          .maverick-loading-core {
             animation:none;
           }
         }

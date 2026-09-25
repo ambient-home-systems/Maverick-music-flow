@@ -1,6 +1,6 @@
 // queue-layout styles. Order is preserved by card-styles.js.
 export default function() {
-  return `.queue-playback-speed { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 16px; margin-block:8px; border:1px solid var(--homeii-surface-border); border-radius:18px; color:var(--homeii-surface-text); font:inherit; }
+  return `.queue-playback-speed { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 16px; margin-block:8px; border:1px solid var(--maverick-surface-border); border-radius:18px; color:var(--maverick-surface-text); font:inherit; }
 .queue-playback-speed select { min-height:44px; min-width:96px; font:inherit; }
 .menu-list-item,
 .queue-row,

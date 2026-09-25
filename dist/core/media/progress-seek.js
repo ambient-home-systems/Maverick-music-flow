@@ -1,7 +1,7 @@
 // Preview locally during a drag; submit only the position the listener releases.
 export function bindProgressSeek(card, el) {
-  if (!el || el.dataset.homeiiSeekBound === "1") return;
-  el.dataset.homeiiSeekBound = "1";
+  if (!el || el.dataset.maverickSeekBound === "1") return;
+  el.dataset.maverickSeekBound = "1";
   let pointer = null;
   let context;
   let suppressClickUntil = 0;

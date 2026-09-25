@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-let HomeiiMusicFlowCard;
+let MaverickMusicFlowCard;
 const originalGlobals = {
   customElements: globalThis.customElements,
   HTMLElement: globalThis.HTMLElement,
@@ -33,7 +33,7 @@ beforeAll(async () => {
   } finally {
     globalThis.setTimeout = realSetTimeout;
   }
-  HomeiiMusicFlowCard = globalThis.customElements.get("maverick-music");
+  MaverickMusicFlowCard = globalThis.customElements.get("maverick-music");
 });
 
 afterAll(() => {
@@ -43,7 +43,7 @@ afterAll(() => {
 });
 
 function createCard() {
-  const card = new HomeiiMusicFlowCard();
+  const card = new MaverickMusicFlowCard();
   card._artistName = (item = {}) =>
     (Array.isArray(item.artists) ? item.artists.map((artist) => artist?.name).filter(Boolean).join(", ") : "")
     || item.artist

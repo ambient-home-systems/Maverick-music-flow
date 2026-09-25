@@ -46,11 +46,11 @@ it("keeps player choices beside group commands and preserves an explicit custom 
 });
 it("persists user scope through Engine and removes the device override",async()=>{
  const {host,card}=setup();card._state={engineCapabilities:{wheel_preferences:true}};
- card._homeiiEngineCommand=vi.fn(async()=>({global:{},user:{main:{hidden:['a']}}}));
+ card._maverickEngineCommand=vi.fn(async()=>({global:{},user:{main:{hidden:['a']}}}));
  localStorage.setItem('test-wheel',JSON.stringify({main:{hidden:[]}}));
  const panel=openFanCatalogue(card,host,'main',()=>actions,vi.fn());panel.querySelector('[data-catalogue-edit]').click();
  const select=panel.querySelector('select');select.value='user';select.dispatchEvent(new Event('change',{bubbles:true}));
  panel.querySelector('[data-catalogue-edit]').click();await Promise.resolve();await Promise.resolve();
- expect(card._homeiiEngineCommand).toHaveBeenCalledWith('wheels/set',expect.objectContaining({scope:'user',context:'main'}));
+ expect(card._maverickEngineCommand).toHaveBeenCalledWith('wheels/set',expect.objectContaining({scope:'user',context:'main'}));
  expect(JSON.parse(localStorage.getItem('test-wheel')).main).toBeUndefined();
 });

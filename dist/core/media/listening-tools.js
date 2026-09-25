@@ -4,7 +4,7 @@ export async function refreshArtworkLighting(card, force = false) {
   if (!card._state.engineCapabilities?.artwork_lighting) return null;
   if (card._lightingRead) return card._lightingRead;
   if (!force && Date.now() - (card._lightingReadAt || 0) < 5000) return card._state.artworkLighting;
-  card._lightingRead = card._homeiiEngineCommand("lighting/get").then(snapshot => {
+  card._lightingRead = card._maverickEngineCommand("lighting/get").then(snapshot => {
     card._state.artworkLighting = snapshot;
     card._lightingReadAt = Date.now();
     return snapshot;
@@ -17,7 +17,7 @@ export async function setArtworkLighting(card, enabled, {useLocalMapping = false
   const snapshot = await refreshArtworkLighting(card, true);
   const rule = snapshot?.rules?.[player];
   const lights = useLocalMapping || !rule ? card._ambientLightEntitiesForPlayer({entity_id:player}) : rule.lights;
-  const result = await card._homeiiEngineCommand("lighting/set", {
+  const result = await card._maverickEngineCommand("lighting/set", {
     player, lights, enabled,
     brightness:card._ambientLightBrightness(), transition:card._ambientLightTransition(), cooldown:Math.max(1,card._ambientLightCooldown()),
   });
@@ -73,7 +73,7 @@ export async function renderListeningTools(card, body, page) {
   if (page === "night_preferences") {
     body.innerHTML = `<div role="status">${t("Loading…","טוען…")}</div>`;
     try {
-      const values=await card._homeiiEngineCommand("interface/get");
+      const values=await card._maverickEngineCommand("interface/get");
       if(card._state.menuPage !== page || !body.isConnected) return;
       applyInterfacePreferences(card,values);card._state.engineInterfacePreferences=values;
       const mode=card._mobileNightMode();
@@ -81,7 +81,7 @@ export async function renderListeningTools(card, body, page) {
       const form=body.querySelector("form");form.onsubmit=async event=>{
         event.preventDefault();event.stopPropagation();const button=form.querySelector('[type="submit"]');button.disabled=true;
         try {
-          const result=await card._homeiiEngineCommand("interface/set",{night_mode:form.elements.mode.value,night_start:form.elements.start.value,night_end:form.elements.end.value,night_days:[...form.querySelectorAll('[name="day"]:checked')].map(input=>Number(input.value))});
+          const result=await card._maverickEngineCommand("interface/set",{night_mode:form.elements.mode.value,night_start:form.elements.start.value,night_end:form.elements.end.value,night_days:[...form.querySelectorAll('[name="day"]:checked')].map(input=>Number(input.value))});
           applyInterfacePreferences(card,result);card._state.engineInterfacePreferences=result;card._persistMobileAppearance();form.querySelector('[role="status"]').textContent=card._m("Saved in the Engine","נשמר במנוע");
         } catch(error){form.querySelector('[role="status"]').textContent=card._mediaControlFailureMessage(error);}
         finally{button.disabled=false;}
@@ -92,7 +92,7 @@ export async function renderListeningTools(card, body, page) {
   if (page === "system_screensaver") {
     body.innerHTML = `<div role="status">${t("Loading…","טוען…")}</div>`;
     try {
-      const result = await card._homeiiEngineCommand("screensaver/get");
+      const result = await card._maverickEngineCommand("screensaver/get");
       if (card._state.menuPage !== page || !body.isConnected) return;
       const config = result.config || {};
       body.innerHTML = `<form class="smart-settings"><h2>${t("System screensaver","שומר מסך מערכתי")}</h2><label><input name="enabled" type="checkbox" ${config.enabled ? "checked" : ""}>${t("Enabled","פעיל")}</label><label>${t("Idle timeout (seconds)","זמן המתנה בשניות")}<input name="timeout_seconds" type="number" min="15" max="3600" value="${Number(config.timeout_seconds) || 90}" required></label><label>${t("Mode","תצוגה")}<select name="mode">${["auto","clock","lyrics"].map(mode=>`<option value="${mode}" ${config.mode === mode ? "selected" : ""}>${t({auto:"Automatic",clock:"Clock",lyrics:"Lyrics"}[mode],{auto:"אוטומטי",clock:"שעון",lyrics:"מילים"}[mode])}</option>`).join("")}</select></label><label>${t("Message","הודעה")}<input name="message" maxlength="120" value="${card._esc(config.message || "")}"></label><button type="submit">${t("Save to Engine","שמירה במנוע")}</button><p role="status"></p></form>`;
@@ -104,7 +104,7 @@ export async function renderListeningTools(card, body, page) {
         show.textContent=card._m("Show on connected screens","הצגה במסכים המחוברים");
         show.onclick=async()=>{
           if(show.disabled)return;show.disabled=true;
-          try {await card._homeiiEngineCommand("screensaver/show");form.querySelector('[role="status"]').textContent=card._m("Request sent to connected screens","הבקשה נשלחה למסכים המחוברים");}
+          try {await card._maverickEngineCommand("screensaver/show");form.querySelector('[role="status"]').textContent=card._m("Request sent to connected screens","הבקשה נשלחה למסכים המחוברים");}
           catch(error){form.querySelector('[role="status"]').textContent=card._mediaControlFailureMessage(error);}
           finally{show.disabled=false;}
         };
@@ -113,7 +113,7 @@ export async function renderListeningTools(card, body, page) {
       form.onsubmit = async event => {
         event.preventDefault(); event.stopPropagation();
         const button=form.querySelector('[type="submit"]'); if(button.disabled)return;button.disabled=true;
-        try { await card._homeiiEngineCommand("screensaver/set",{enabled:form.elements.enabled.checked,timeout_seconds:Number(form.elements.timeout_seconds.value),mode:form.elements.mode.value,message:form.elements.message.value,clock_mode:form.elements.clock_mode.value,show_artwork:form.elements.show_artwork.checked,auto_lyrics_when_playing:form.elements.auto_lyrics_when_playing.checked}); form.querySelector('[role="status"]').textContent=card._m("Saved in the Engine","נשמר במנוע"); }
+        try { await card._maverickEngineCommand("screensaver/set",{enabled:form.elements.enabled.checked,timeout_seconds:Number(form.elements.timeout_seconds.value),mode:form.elements.mode.value,message:form.elements.message.value,clock_mode:form.elements.clock_mode.value,show_artwork:form.elements.show_artwork.checked,auto_lyrics_when_playing:form.elements.auto_lyrics_when_playing.checked}); form.querySelector('[role="status"]').textContent=card._m("Saved in the Engine","נשמר במנוע"); }
         catch(error){ form.querySelector('[role="status"]').textContent=card._mediaControlFailureMessage(error); }
         finally {button.disabled=false;}
       };
@@ -155,7 +155,7 @@ export async function renderListeningTools(card, body, page) {
         const button=form.querySelector('[type="submit"]');button.disabled=true;
         try {
           const nextLights=[...form.querySelectorAll('[name="light"]:checked')].map(input=>input.value);
-          const result=await card._homeiiEngineCommand("lighting/set",{player,lights:nextLights,enabled:!!rule?.enabled && nextLights.length>0,brightness:Number(form.elements.brightness.value),transition:Number(form.elements.transition.value),cooldown:rule?.cooldown || 8});
+          const result=await card._maverickEngineCommand("lighting/set",{player,lights:nextLights,enabled:!!rule?.enabled && nextLights.length>0,brightness:Number(form.elements.brightness.value),transition:Number(form.elements.transition.value),cooldown:rule?.cooldown || 8});
           card._state.artworkLighting=result;card._lightingReadAt=Date.now();
           form.querySelector('[role="status"]').textContent=card._m("Mapping saved in the Engine","השיוך נשמר במנוע");
         } catch(error){form.querySelector('[role="status"]').textContent=card._mediaControlFailureMessage(error);}
@@ -177,7 +177,7 @@ export async function renderListeningTools(card, body, page) {
   }
   body.innerHTML = `<div class="state-box" role="status">${t("Loading listening statistics…", "טוען סטטיסטיקות האזנה…")}</div>`;
   try {
-    const stats = await card._homeiiEngineGetPlaybackStats();
+    const stats = await card._maverickEngineGetPlaybackStats();
     if (card._state.menuPage !== page || !body.isConnected) return;
     if (!stats || !Number.isFinite(Number(stats.today_minutes))) throw new Error(card._m("Listening statistics are unavailable.", "סטטיסטיקות האזנה אינן זמינות."));
     const number = value => card._esc(Number.isFinite(Number(value)) ? Math.max(0, Number(value)).toLocaleString(undefined, {maximumFractionDigits:1}) : "—");
@@ -198,7 +198,7 @@ export function applyInterfacePreferences(card, values = {}) {
 export async function saveNightPreferences(card, previous = {}) {
   if (!card._state.engineCapabilities?.interface_preferences) return true;
   try {
-    const result = await card._homeiiEngineCommand("interface/set", {night_mode:card._mobileNightMode(),night_start:card._state.mobileNightModeStart,night_end:card._state.mobileNightModeEnd,night_days:card._nightModeDays()});
+    const result = await card._maverickEngineCommand("interface/set", {night_mode:card._mobileNightMode(),night_start:card._state.mobileNightModeStart,night_end:card._state.mobileNightModeEnd,night_days:card._nightModeDays()});
     card._state.engineInterfacePreferences = result;
     return true;
   } catch(error) {

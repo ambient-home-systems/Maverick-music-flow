@@ -24,7 +24,7 @@ describe("menu actions across a real shadow event boundary", () => {
   it("advances virtualization from the inner media scroller and remembers its position", () => {
     const card = document.createElement("maverick-music");
     const body = document.createElement("div");
-    body.innerHTML = '<div class="media-items-list" data-homeii-virtual-total="200" data-virtual-columns="2" data-virtual-row-height="250"></div>';
+    body.innerHTML = '<div class="media-items-list" data-maverick-virtual-total="200" data-virtual-columns="2" data-virtual-row-height="250"></div>';
     const list = body.firstElementChild;
     card.$ = () => body;
     card._state.menuPage = "library_albums";

@@ -5,34 +5,34 @@ import { syncPlayerVolumeControls } from "./media/player-volume.js";
 import { syncScreenDock } from "./media/screen-dock.js";
 import { bindProgressSeek } from "./media/progress-seek.js";
 import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
-import * as HomeiiSendspinModule from "../sendspin-js/index.js";
+import * as MaverickSendspinModule from "../sendspin-js/index.js";
 import { ensureInterfaceFont, interfaceStyles } from "./theme/interface.js";
 import { normalizeEngineConfigKeys } from "./engine-client.js";
 
-export function createHomeiiBaseMusicCard({
+export function createMaverickBaseMusicCard({
   MAVERICK_CARD_VERSION,
-  HOMEII_VISIBLE_LANGUAGE_OPTIONS,
-  HomeiiStateFoundation,
-  HomeiiConfigValidators,
-  HomeiiCardIdFoundation,
-  HomeiiResponsiveFoundation,
-  HomeiiMediaQueueFoundation,
-  HomeiiMediaPresentationFoundation,
-  HomeiiMediaHistoryFoundation,
-  HomeiiNowPlayingFoundation,
-  HomeiiFavoritesFoundation,
-  HomeiiPlayersFoundation,
-  HomeiiRevisionedSnapshotsFoundation,
+  MAVERICK_VISIBLE_LANGUAGE_OPTIONS,
+  MaverickStateFoundation,
+  MaverickConfigValidators,
+  MaverickCardIdFoundation,
+  MaverickResponsiveFoundation,
+  MaverickMediaQueueFoundation,
+  MaverickMediaPresentationFoundation,
+  MaverickMediaHistoryFoundation,
+  MaverickNowPlayingFoundation,
+  MaverickFavoritesFoundation,
+  MaverickPlayersFoundation,
+  MaverickRevisionedSnapshotsFoundation,
   getBaseCardConfigForm,
   getRadioBrowserCountrySelectorOptions,
-  homeiiRadioBrowserCountryLabel,
-  homeiiCountryFlagEmoji,
-  homeiiDetectLanguage,
-  homeiiIsRtlLanguage,
-  homeiiTranslate,
-  homeiiTranslateText,
+  maverickRadioBrowserCountryLabel,
+  maverickCountryFlagEmoji,
+  maverickDetectLanguage,
+  maverickIsRtlLanguage,
+  maverickTranslate,
+  maverickTranslateText,
 }) {
-  return class HomeiiBaseMusicCard extends HTMLElement {
+  return class MaverickBaseMusicCard extends HTMLElement {
     constructor() {
       super();
       ensureInterfaceFont();
@@ -44,7 +44,7 @@ export function createHomeiiBaseMusicCard({
       this._resolvedConfigEntryId = "";
       this._resolvedConfigEntryState = "";
 
-      this._state = HomeiiStateFoundation.createBaseBrowserState();
+      this._state = MaverickStateFoundation.createBaseBrowserState();
 
       this._pollTimer = null;
       this._progressTimer = null;
@@ -134,8 +134,8 @@ export function createHomeiiBaseMusicCard({
       this._queueMutationRefreshTimer = null;
       this._favoriteReconcileTimer = null;
       this._favoriteMutationConfirmedAt = 0;
-      this._homeiiFavoritesLoadPromise = null;
-      this._homeiiFavoriteMutationPromises = new Map();
+      this._maverickFavoritesLoadPromise = null;
+      this._maverickFavoriteMutationPromises = new Map();
       this._cardIssueNoticeTimes = new Map();
       this._voiceAssistantRecognitionTimer = null;
       this._lyricsRefreshPromise = null;
@@ -176,8 +176,8 @@ export function createHomeiiBaseMusicCard({
         validator(nextConfig);
       }
       this._config = nextConfig;
-      this._homeiiBrandLogoUrl = "";
-      this._homeiiBrandLogoCandidates = null;
+      this._maverickBrandLogoUrl = "";
+      this._maverickBrandLogoCandidates = null;
 
       try {
         const configuredLanguage = this._config.language || "en";
@@ -217,7 +217,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _getConfigValidator() {
-      return HomeiiConfigValidators.validateBaseCardEditorConfig;
+      return MaverickConfigValidators.validateBaseCardEditorConfig;
     }
 
     _getCardWidth(fallback = 0) {
@@ -283,7 +283,7 @@ export function createHomeiiBaseMusicCard({
       ]
         .map((value) => Number(value || 0))
         .filter((value) => Number.isFinite(value) && value > 240);
-      const panelViewportFill = HomeiiResponsiveFoundation.panelViewportFillEnabled?.({
+      const panelViewportFill = MaverickResponsiveFoundation.panelViewportFillEnabled?.({
         viewportHeight,
         hostTop: top,
         parentHeights,
@@ -446,7 +446,7 @@ export function createHomeiiBaseMusicCard({
         : compactPopup
           ? viewportHeight
           : this._getAllocatedCardHeight(this._lastCardHeight || this._configuredCardHeightFallback(viewportHeight) || viewportHeight);
-      return HomeiiResponsiveFoundation.resolveLayoutProfile({
+      return MaverickResponsiveFoundation.resolveLayoutProfile({
         width,
         height,
         layoutMode,
@@ -622,22 +622,22 @@ export function createHomeiiBaseMusicCard({
     }
 
     _language() {
-      return homeiiDetectLanguage({
+      return maverickDetectLanguage({
         configLanguage: this._state?.lang || this._config?.language || "en",
         hass: this._hass,
       });
     }
 
     _isHebrew() {
-      return homeiiIsRtlLanguage(this._language());
+      return maverickIsRtlLanguage(this._language());
     }
 
     _i18n(key, params = {}, fallback = "") {
-      return homeiiTranslate(this._language(), key, params, fallback);
+      return maverickTranslate(this._language(), key, params, fallback);
     }
 
     _m(en, he, params = {}) {
-      return homeiiTranslateText(
+      return maverickTranslateText(
         this._language(),
         en,
         params,
@@ -696,7 +696,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _hasMusicAssistantCommandBridge() {
-      return typeof this._homeiiEngineMaCommand === "function" && !!this._state?.engineAvailable;
+      return typeof this._maverickEngineMaCommand === "function" && !!this._state?.engineAvailable;
     }
 
     _hasRealtimeDirectMA() {
@@ -765,7 +765,7 @@ export function createHomeiiBaseMusicCard({
       return new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
           const error = new Error(message || this._timeoutMessage());
-          error.code = "HOMEII_TIMEOUT";
+          error.code = "MAVERICK_TIMEOUT";
           reject(error);
         }, ms);
         Promise.resolve(promise)
@@ -781,7 +781,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _mediaRefsEquivalent(uriA = "", uriB = "", fallbackType = "track") {
-      return HomeiiMediaQueueFoundation.mediaRefsEquivalent(uriA, uriB, fallbackType);
+      return MaverickMediaQueueFoundation.mediaRefsEquivalent(uriA, uriB, fallbackType);
     }
 
     _currentWindowOrigin() {
@@ -1127,11 +1127,11 @@ export function createHomeiiBaseMusicCard({
           const origin = this._currentWindowOrigin();
           resolved = origin ? new URL(resolved, origin).toString() : resolved;
         } else {
-          resolved = HomeiiMediaPresentationFoundation.imageProxyUrl(resolved, "", size, maArtworkBaseUrl) || "";
+          resolved = MaverickMediaPresentationFoundation.imageProxyUrl(resolved, "", size, maArtworkBaseUrl) || "";
         }
       }
       if (resolved.includes("/imageproxy?") || resolved.includes("/imageproxy/")) {
-        resolved = HomeiiMediaPresentationFoundation.normalizeImageProxyUrl(resolved, size, maArtworkBaseUrl);
+        resolved = MaverickMediaPresentationFoundation.normalizeImageProxyUrl(resolved, size, maArtworkBaseUrl);
       }
       if (this._isMaImageProxyPath(resolved) && !/^https?:\/\//i.test(resolved)) return "";
       if (this._isRemoteUnsafeArtworkUrl(resolved)) return "";
@@ -1210,14 +1210,14 @@ export function createHomeiiBaseMusicCard({
 
     _artPlaceholderHtml(icon = "album") {
       return `
-        <span class="homeii-art-fallback" aria-hidden="true">
-          <span class="homeii-art-fallback-disc">${this._iconSvg(icon || "album")}</span>
+        <span class="maverick-art-fallback" aria-hidden="true">
+          <span class="maverick-art-fallback-disc">${this._iconSvg(icon || "album")}</span>
         </span>
       `;
     }
 
     _t(text, params = {}) {
-      return homeiiTranslateText(this._language(), text, params, text);
+      return maverickTranslateText(this._language(), text, params, text);
     }
 
     _iconSvg(name) {
@@ -1319,7 +1319,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _brandLogoCandidates() {
-      if (Array.isArray(this._homeiiBrandLogoCandidates)) return this._homeiiBrandLogoCandidates;
+      if (Array.isArray(this._maverickBrandLogoCandidates)) return this._maverickBrandLogoCandidates;
       const urls = [];
       const push = (url, versioned = false) => {
         const value = String(url || "").trim();
@@ -1342,21 +1342,21 @@ export function createHomeiiBaseMusicCard({
       push("/hacsfiles/homeii-music-flow/homeii-flow-logo.svg", true);
       push("/local/homeii-flow-logo.png", true);
       push("/local/homeii-flow-logo.svg", true);
-      this._homeiiBrandLogoCandidates = urls.length ? urls : ["/local/community/maverick-music-flow/homeii-flow-logo.svg"];
-      return this._homeiiBrandLogoCandidates;
+      this._maverickBrandLogoCandidates = urls.length ? urls : ["/local/community/maverick-music-flow/homeii-flow-logo.svg"];
+      return this._maverickBrandLogoCandidates;
     }
 
     _brandLogoUrl() {
-      if (typeof this._homeiiBrandLogoUrl === "string" && this._homeiiBrandLogoUrl) return this._homeiiBrandLogoUrl;
-      this._homeiiBrandLogoUrl = this._brandLogoCandidates()[0] || "/local/community/maverick-music-flow/homeii-flow-logo.svg";
-      return this._homeiiBrandLogoUrl;
+      if (typeof this._maverickBrandLogoUrl === "string" && this._maverickBrandLogoUrl) return this._maverickBrandLogoUrl;
+      this._maverickBrandLogoUrl = this._brandLogoCandidates()[0] || "/local/community/maverick-music-flow/homeii-flow-logo.svg";
+      return this._maverickBrandLogoUrl;
     }
 
-    _brandLogoImgHtml(className = "homeii-logo-fallback") {
+    _brandLogoImgHtml(className = "maverick-logo-fallback") {
       const candidates = this._brandLogoCandidates();
       const primary = candidates[0] || this._brandLogoUrl();
       const fallbacks = candidates.slice(1).join("|");
-      return `<img class="${this._esc(className)}" data-homeii-brand-logo="1" data-homeii-logo-fallbacks="${this._esc(fallbacks)}" src="${this._esc(primary)}" alt="Maverick Music" loading="lazy" decoding="async">`;
+      return `<img class="${this._esc(className)}" data-maverick-brand-logo="1" data-maverick-logo-fallbacks="${this._esc(fallbacks)}" src="${this._esc(primary)}" alt="Maverick Music" loading="lazy" decoding="async">`;
     }
 
     _tabletBrandSignatureHtml(className = "tablet-brand-logo") {
@@ -1366,10 +1366,10 @@ export function createHomeiiBaseMusicCard({
     _handleBrandLogoError(event) {
       const img = event?.target;
       if (!img?.dataset) return;
-      if (img.dataset.homeiiArtFallback === "1") {
-        const current = img.getAttribute("src") || img.dataset.homeiiArtSrc || "";
+      if (img.dataset.maverickArtFallback === "1") {
+        const current = img.getAttribute("src") || img.dataset.maverickArtSrc || "";
         if (current) this._markImageFailed(current);
-        const fallback = img.dataset.homeiiArtFallbackIcon || "album";
+        const fallback = img.dataset.maverickArtFallbackIcon || "album";
         const host = img.closest?.(".art-stack-card");
         if (host) {
           host.classList.add("placeholder");
@@ -1378,10 +1378,10 @@ export function createHomeiiBaseMusicCard({
         }
         return;
       }
-      if (img.dataset.homeiiInlineArt === "1") {
-        const current = img.getAttribute("src") || img.dataset.homeiiArtSrc || "";
+      if (img.dataset.maverickInlineArt === "1") {
+        const current = img.getAttribute("src") || img.dataset.maverickArtSrc || "";
         if (current) this._markImageFailed(current);
-        const fallback = img.dataset.homeiiArtFallbackIcon || "album";
+        const fallback = img.dataset.maverickArtFallbackIcon || "album";
         const host = img.closest?.([
           ".player-card-art",
           ".history-chip-art",
@@ -1415,16 +1415,16 @@ export function createHomeiiBaseMusicCard({
         }
         return;
       }
-      if (img.dataset.homeiiBrandLogo !== "1") return;
+      if (img.dataset.maverickBrandLogo !== "1") return;
       const current = img.getAttribute("src") || "";
-      const fallbacks = String(img.dataset.homeiiLogoFallbacks || "")
+      const fallbacks = String(img.dataset.maverickLogoFallbacks || "")
         .split("|")
         .map((url) => url.trim())
         .filter(Boolean);
       while (fallbacks.length) {
         const next = fallbacks.shift();
         if (!next || next === current) continue;
-        img.dataset.homeiiLogoFallbacks = fallbacks.join("|");
+        img.dataset.maverickLogoFallbacks = fallbacks.join("|");
         img.setAttribute("src", next);
         return;
       }
@@ -1477,17 +1477,17 @@ export function createHomeiiBaseMusicCard({
       return this._playPauseActionForPlayer(player);
     }
 
-    async _callHomeiiEnginePlayerCommand(entityId, command, payload = {}) {
+    async _callMaverickEnginePlayerCommand(entityId, command, payload = {}) {
       const targetId = String(entityId || "").trim();
       const action = String(command || "").trim();
       if (!targetId || !action) return false;
-      const canUseHomeiiEngineCommand = typeof this._homeiiEnginePlayerCommand === "function"
-        && this._homeiiEngineRequired?.()
+      const canUseMaverickEngineCommand = typeof this._maverickEnginePlayerCommand === "function"
+        && this._maverickEngineRequired?.()
         && this._state?.engineAvailable;
-      if (!canUseHomeiiEngineCommand) {
+      if (!canUseMaverickEngineCommand) {
         throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
       }
-      const result = await this._homeiiEnginePlayerCommand({
+      const result = await this._maverickEnginePlayerCommand({
         player: targetId,
         command: action,
         ...payload,
@@ -1498,10 +1498,10 @@ export function createHomeiiBaseMusicCard({
     }
 
     _schedulePlayerStateRefresh(delay = 180) {
-      if (this._homeiiMaPlayerEventTimer) return;
-      this._homeiiMaPlayerEventTimer = setTimeout(() => {
-        this._homeiiMaPlayerEventTimer = null;
-        this._homeiiMaLastPlayerRefreshAt = Date.now();
+      if (this._maverickMaPlayerEventTimer) return;
+      this._maverickMaPlayerEventTimer = setTimeout(() => {
+        this._maverickMaPlayerEventTimer = null;
+        this._maverickMaLastPlayerRefreshAt = Date.now();
         this._refreshEnginePlayers({ force: true }).then(() => {
           this._loadPlayers();
           this._syncNowPlayingUI();
@@ -1733,14 +1733,14 @@ export function createHomeiiBaseMusicCard({
 
     async _init() {
       try {
-        if (typeof this._ensureHomeiiEngineHandshake === "function") {
-          const ready = await this._ensureHomeiiEngineHandshake();
+        if (typeof this._ensureMaverickEngineHandshake === "function") {
+          const ready = await this._ensureMaverickEngineHandshake();
           if (!ready) return;
         }
         if (typeof this._refreshEnginePlayers === "function") {
           await this._refreshEnginePlayers({ force: true });
         }
-        if (!this._homeiiEngineRequired?.()) await this._ensureConfigEntryId();
+        if (!this._maverickEngineRequired?.()) await this._ensureConfigEntryId();
         this._loadPlayers();
         this._connectMA();
         this._refreshGroupingState();
@@ -1767,7 +1767,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _languageOptions(includeAuto = false) {
-      return HOMEII_VISIBLE_LANGUAGE_OPTIONS.filter((option) => includeAuto || option.value !== "auto");
+      return MAVERICK_VISIBLE_LANGUAGE_OPTIONS.filter((option) => includeAuto || option.value !== "auto");
     }
 
     _languageShortLabel(value = "") {
@@ -1867,25 +1867,25 @@ export function createHomeiiBaseMusicCard({
 
     _playerStateLabel(player) {
       if (!player) return this._i18n("ui.idle");
-      if (!HomeiiPlayersFoundation.isPlayerAvailable(player)) return this._i18n("ui.disconnected");
+      if (!MaverickPlayersFoundation.isPlayerAvailable(player)) return this._i18n("ui.disconnected");
       if (player.state === "playing") return this._i18n("ui.playing");
       if (player.state === "paused") return this._i18n("ui.paused");
       return this._i18n("ui.idle");
     }
 
     _playerDisplayName(player = null, players = this._state.players || []) {
-      return HomeiiPlayersFoundation.playerDisplayName(player, { players });
+      return MaverickPlayersFoundation.playerDisplayName(player, { players });
     }
 
     _isPlayerActive(player) {
-      if (!HomeiiPlayersFoundation.isPlayerAvailable(player)) return false;
+      if (!MaverickPlayersFoundation.isPlayerAvailable(player)) return false;
       const attrs = player.attributes || {};
       return player.state === "playing" || player.state === "paused" || !!attrs.media_title || !!attrs.active_queue;
     }
 
     _lsKey(baseKey) {
-      return HomeiiCardIdFoundation
-        ? HomeiiCardIdFoundation.scopeStorageKey(baseKey, this._config?.card_id)
+      return MaverickCardIdFoundation
+        ? MaverickCardIdFoundation.scopeStorageKey(baseKey, this._config?.card_id)
         : baseKey;
     }
 
@@ -1956,7 +1956,7 @@ export function createHomeiiBaseMusicCard({
 
     _localSendspinGlobalSession(create = true) {
       if (typeof window === "undefined") return null;
-      const key = "__homeiiLocalSendspinSessionV1";
+      const key = "__maverickLocalSendspinSessionV1";
       if (!window[key] && create) {
         window[key] = {
           player: null,
@@ -2023,7 +2023,7 @@ export function createHomeiiBaseMusicCard({
       return String(value || "").trim().replace(/[^\w.-]/g, "_");
     }
 
-    _isHomeiiSendspinPlayerId(value) {
+    _isMaverickSendspinPlayerId(value) {
       const playerId = this._sanitizeLocalSendspinPlayerId(value);
       return /^ma_homeii_[\w.-]+$/i.test(playerId) || /^homeii_[\w.-]+$/i.test(playerId);
     }
@@ -2031,11 +2031,11 @@ export function createHomeiiBaseMusicCard({
     _peekLocalSendspinPlayerId() {
       if (this._localSendspinPlayerId) {
         const playerId = this._sanitizeLocalSendspinPlayerId(this._localSendspinPlayerId);
-        return this._isHomeiiSendspinPlayerId(playerId) ? playerId : "";
+        return this._isMaverickSendspinPlayerId(playerId) ? playerId : "";
       }
       try {
         const playerId = this._sanitizeLocalSendspinPlayerId(localStorage.getItem(this._localSendspinIdStorageKey()) || "");
-        return this._isHomeiiSendspinPlayerId(playerId) ? playerId : "";
+        return this._isMaverickSendspinPlayerId(playerId) ? playerId : "";
       } catch (_) {
         return "";
       }
@@ -2047,7 +2047,7 @@ export function createHomeiiBaseMusicCard({
       try {
         playerId = this._sanitizeLocalSendspinPlayerId(localStorage.getItem(this._localSendspinIdStorageKey()) || "");
       } catch (_) {}
-      if (playerId && !this._isHomeiiSendspinPlayerId(playerId)) playerId = "";
+      if (playerId && !this._isMaverickSendspinPlayerId(playerId)) playerId = "";
       if (!playerId) {
         const randomPart = Math.random().toString(36).slice(2, 12);
         playerId = `ma_homeii_${randomPart}`;
@@ -2059,7 +2059,7 @@ export function createHomeiiBaseMusicCard({
 
     async _loadLocalSendspinModule() {
       if (!this._localSendspinModule) {
-        this._localSendspinModule = Promise.resolve(HomeiiSendspinModule);
+        this._localSendspinModule = Promise.resolve(MaverickSendspinModule);
       }
       return this._localSendspinModule;
     }
@@ -2112,7 +2112,7 @@ export function createHomeiiBaseMusicCard({
         let settled = false;
         let ws = null;
         let timeout = null;
-        const WebSocketCtor = window.__homeiiSendspinInterceptorV1?.original || window.WebSocket;
+        const WebSocketCtor = window.__maverickSendspinInterceptorV1?.original || window.WebSocket;
         const cleanup = () => {
           if (timeout) clearTimeout(timeout);
           if (ws) {
@@ -2130,7 +2130,7 @@ export function createHomeiiBaseMusicCard({
           reject(error instanceof Error ? error : new Error(String(error || "Sendspin connection failed")));
         };
         try {
-          this._debugLog("info", "[Homeii Sendspin] opening proxy socket", engineBridge ? "Home Assistant" : this._sanitizeDiagnosticUrl?.(wsUrl));
+          this._debugLog("info", "[Maverick Sendspin] opening proxy socket", engineBridge ? "Home Assistant" : this._sanitizeDiagnosticUrl?.(wsUrl));
           ws = new WebSocketCtor(wsUrl);
           ws.binaryType = "arraybuffer";
         } catch (error) {
@@ -2141,7 +2141,7 @@ export function createHomeiiBaseMusicCard({
         ws.onopen = () => {
           if (engineBridge) return;
           try {
-            this._debugLog("info", "[Homeii Sendspin] sending auth to proxy");
+            this._debugLog("info", "[Maverick Sendspin] sending auth to proxy");
             ws.send(JSON.stringify({ type: "auth", token: this._maToken, client_id: playerId }));
           } catch (error) {
             fail(error);
@@ -2152,7 +2152,7 @@ export function createHomeiiBaseMusicCard({
           if (typeof event?.data === "string") {
             try {
               const message = JSON.parse(event.data);
-              this._debugLog("info", "[Homeii Sendspin] proxy auth response", message?.type || message);
+              this._debugLog("info", "[Maverick Sendspin] proxy auth response", message?.type || message);
               if (message?.type === "auth_invalid" || message?.type === "auth_failed" || message?.error) {
                 fail(new Error(this._localText("Music Assistant rejected the Sendspin token.", "Music Assistant דחה את ה-token של Sendspin.")));
                 return;
@@ -2216,7 +2216,7 @@ export function createHomeiiBaseMusicCard({
         get url() { return ws.url || ""; },
         send: (data) => {
           if (ws.readyState !== WebSocket.OPEN) {
-            this._debugLog("warn", "[Homeii Sendspin] bridge send ignored, socket not open");
+            this._debugLog("warn", "[Maverick Sendspin] bridge send ignored, socket not open");
             return;
           }
           if (data instanceof Blob) {
@@ -2225,7 +2225,7 @@ export function createHomeiiBaseMusicCard({
             if (typeof data === "string") {
               try {
                 const message = JSON.parse(data);
-                this._debugLog("info", "[Homeii Sendspin] client message", message?.type || message);
+                this._debugLog("info", "[Maverick Sendspin] client message", message?.type || message);
               } catch (_) {}
             }
             ws.send(data);
@@ -2251,18 +2251,18 @@ export function createHomeiiBaseMusicCard({
         if (typeof event?.data === "string") {
           try {
             const message = JSON.parse(event.data);
-            this._debugLog("info", "[Homeii Sendspin] server message", message?.type || message);
+            this._debugLog("info", "[Maverick Sendspin] server message", message?.type || message);
           } catch (_) {}
         }
         dispatch("message", event);
       };
       ws.onerror = (event) => {
-        this._debugLog("error", "[Homeii Sendspin] bridge socket error", event);
+        this._debugLog("error", "[Maverick Sendspin] bridge socket error", event);
         dispatch("error", event || new Event("error"));
       };
       ws.onclose = (event) => {
         bridge._isOpen = false;
-        this._debugLog("warn", "[Homeii Sendspin] bridge socket closed", event?.code, event?.reason);
+        this._debugLog("warn", "[Maverick Sendspin] bridge socket closed", event?.code, event?.reason);
         dispatch("close", event || new CloseEvent("close"));
         this._handleLocalSendspinSocketClosed(event || new Event("close"));
       };
@@ -2271,16 +2271,16 @@ export function createHomeiiBaseMusicCard({
 
     _installLocalSendspinInterceptor() {
       if (typeof window === "undefined" || !window.WebSocket) return null;
-      if (window.__homeiiSendspinInterceptorV1?.installed) {
-        return window.__homeiiSendspinInterceptorV1.original;
+      if (window.__maverickSendspinInterceptorV1?.installed) {
+        return window.__maverickSendspinInterceptorV1.original;
       }
       const OriginalWebSocket = window.WebSocket;
       const WrappedWebSocket = function(url, protocols) {
         const urlText = String(url || "");
-        const pendingBridge = window.__homeiiSendspinPendingBridgeV1;
+        const pendingBridge = window.__maverickSendspinPendingBridgeV1;
         if (urlText.includes("/sendspin") && pendingBridge) {
-          this._debugLog("info", "[Homeii Sendspin] using prepared bridge for", urlText);
-          window.__homeiiSendspinPendingBridgeV1 = null;
+          this._debugLog("info", "[Maverick Sendspin] using prepared bridge for", urlText);
+          window.__maverickSendspinPendingBridgeV1 = null;
           return pendingBridge;
         }
         return protocols === undefined ? new OriginalWebSocket(url) : new OriginalWebSocket(url, protocols);
@@ -2291,27 +2291,27 @@ export function createHomeiiBaseMusicCard({
       WrappedWebSocket.CLOSED = OriginalWebSocket.CLOSED;
       WrappedWebSocket.prototype = OriginalWebSocket.prototype;
       window.WebSocket = WrappedWebSocket;
-      window.__homeiiSendspinInterceptorV1 = { installed: true, original: OriginalWebSocket };
-      this._debugLog("info", "[Homeii Sendspin] WebSocket interceptor installed");
+      window.__maverickSendspinInterceptorV1 = { installed: true, original: OriginalWebSocket };
+      this._debugLog("info", "[Maverick Sendspin] WebSocket interceptor installed");
       return OriginalWebSocket;
     }
 
     _restoreLocalSendspinInterceptor() {
       if (typeof window === "undefined") return;
-      const installed = window.__homeiiSendspinInterceptorV1;
+      const installed = window.__maverickSendspinInterceptorV1;
       if (installed?.installed && installed.original) {
         try { window.WebSocket = installed.original; } catch (_) {}
       }
-      try { window.__homeiiSendspinPendingBridgeV1 = null; } catch (_) {}
-      try { delete window.__homeiiSendspinInterceptorV1; } catch (_) {
-        window.__homeiiSendspinInterceptorV1 = null;
+      try { window.__maverickSendspinPendingBridgeV1 = null; } catch (_) {}
+      try { delete window.__maverickSendspinInterceptorV1; } catch (_) {
+        window.__maverickSendspinInterceptorV1 = null;
       }
     }
 
     _prepareLocalSendspinSession(ws) {
       const bridge = this._createLocalSendspinBridge(ws);
       this._installLocalSendspinInterceptor();
-      window.__homeiiSendspinPendingBridgeV1 = bridge;
+      window.__maverickSendspinPendingBridgeV1 = bridge;
       return bridge;
     }
 
@@ -2319,11 +2319,11 @@ export function createHomeiiBaseMusicCard({
       const session = this._localSendspinGlobalSession();
       let audio = session?.audioElement || null;
       if (audio && !audio.isConnected) audio = null;
-      if (!audio && typeof document !== "undefined") audio = document.getElementById("homeiiLocalAudio");
+      if (!audio && typeof document !== "undefined") audio = document.getElementById("maverickLocalAudio");
       if (!audio) {
         audio = document.createElement("audio");
-        audio.id = "homeiiLocalAudio";
-        audio.className = "homeii-local-audio";
+        audio.id = "maverickLocalAudio";
+        audio.className = "maverick-local-audio";
         audio.setAttribute("playsinline", "");
         audio.setAttribute("webkit-playsinline", "");
         audio.setAttribute("aria-hidden", "true");
@@ -2405,12 +2405,12 @@ export function createHomeiiBaseMusicCard({
         } else if (command === "stop") {
           await this._stopPlayer(player.entity_id);
         } else if (command === "play" || command === "pause") {
-          await this._callHomeiiEnginePlayerCommand(player.entity_id, command);
+          await this._callMaverickEnginePlayerCommand(player.entity_id, command);
         }
         await this._refreshDirectMaPlayers().catch(() => {});
         this._scheduleQueueRefreshAfterMutation(450);
       } catch (error) {
-        this._debugLog("warn", "[Homeii Sendspin] media session action failed", command, error);
+        this._debugLog("warn", "[Maverick Sendspin] media session action failed", command, error);
       }
     }
 
@@ -2443,9 +2443,9 @@ export function createHomeiiBaseMusicCard({
         this._adoptLocalSendspinGlobalSession();
         if (!this._isLocalSendspinDesired() || this._localSendspinConnecting || this._localSendspinConnected) return;
         if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
-        this._debugLog("info", "[Homeii Sendspin] reconnecting local player", reason);
+        this._debugLog("info", "[Maverick Sendspin] reconnecting local player", reason);
         this._startLocalSendspinPlayer({ automatic: true }).catch((error) => {
-          this._debugLog("warn", "[Homeii Sendspin] automatic reconnect failed", error);
+          this._debugLog("warn", "[Maverick Sendspin] automatic reconnect failed", error);
         });
       }, Math.max(0, Number(delayMs) || 0));
     }
@@ -2460,7 +2460,7 @@ export function createHomeiiBaseMusicCard({
       }
       this._adoptLocalSendspinGlobalSession();
       this._localSendspinPlayer?.resumePlayback?.().catch((error) => {
-        this._debugLog("warn", "[Homeii Sendspin] audio resume failed", error);
+        this._debugLog("warn", "[Maverick Sendspin] audio resume failed", error);
       });
       this._scheduleLocalSendspinReconnect(type, type === "pageshow" ? 350 : 800);
     }
@@ -2551,7 +2551,7 @@ export function createHomeiiBaseMusicCard({
         this._clearLocalSendspinReconnectTimer();
       }
       this._clearLocalSendspinDiscoveryTimers();
-      if (typeof window !== "undefined") window.__homeiiSendspinPendingBridgeV1 = null;
+      if (typeof window !== "undefined") window.__maverickSendspinPendingBridgeV1 = null;
       const suppressClose = ["another_server", "shutdown", "restart", "user_request"].includes(reason);
       if (suppressClose) this._localSendspinSuppressClose = true;
       if (this._localSendspinPlayer) {
@@ -2667,7 +2667,7 @@ export function createHomeiiBaseMusicCard({
         this._state.awaitingThisDevicePlayer = false;
         this._state.controlRoomRevealThisDevicePending = false;
         this._state.localSendspinStatus = "error";
-        if (automatic) this._debugLog("warn", "[Homeii Sendspin] automatic local reconnect failed", error);
+        if (automatic) this._debugLog("warn", "[Maverick Sendspin] automatic local reconnect failed", error);
         else this._toastError(error?.message || this._localText("Local Sendspin connection failed.", "חיבור Sendspin המקומי נכשל."));
       } finally {
         this._localSendspinConnecting = false;
@@ -2677,7 +2677,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _isLikelyBrowserPlayer(player) {
-      return HomeiiPlayersFoundation.isLikelyBrowserPlayer(player);
+      return MaverickPlayersFoundation.isLikelyBrowserPlayer(player);
     }
 
     _isMusicAssistantPlayer(player = null) {
@@ -2686,18 +2686,18 @@ export function createHomeiiBaseMusicCard({
       return !!(player && (
         this._isDirectMaPlayer(player)
         || knownPlayablePlayer
-        || HomeiiPlayersFoundation.isMusicAssistantPlayer(player, this._hass?.entities?.[player.entity_id])
+        || MaverickPlayersFoundation.isMusicAssistantPlayer(player, this._hass?.entities?.[player.entity_id])
       ));
     }
 
     _getBrowserPlayers(players = this._state.players || []) {
-      return HomeiiPlayersFoundation.getBrowserPlayers(players);
+      return MaverickPlayersFoundation.getBrowserPlayers(players);
     }
 
     _isLocalSendspinPlayer(player = null) {
       if (!player) return false;
       const attrs = player.attributes || {};
-      const raw = player.__homeiiRawPlayer || {};
+      const raw = player.__maverickRawPlayer || {};
       const localPlayerId = this._peekLocalSendspinPlayerId();
       if (!localPlayerId) return false;
       const localId = localPlayerId.toLowerCase();
@@ -2717,10 +2717,10 @@ export function createHomeiiBaseMusicCard({
         raw.display_name,
         raw.friendly_name,
       ].filter(Boolean).join(" ").toLowerCase();
-      const isHomeiiSendspin = displayHaystack.includes("homeii sendspin") || (displayHaystack.includes("homeii") && displayHaystack.includes("sendspin"));
-      const isHomeiiFlow = displayHaystack.includes("homeii flow") || (displayHaystack.includes("homeii") && displayHaystack.includes("flow"));
+      const isMaverickSendspin = displayHaystack.includes("homeii sendspin") || (displayHaystack.includes("homeii") && displayHaystack.includes("sendspin"));
+      const isMaverickFlow = displayHaystack.includes("homeii flow") || (displayHaystack.includes("homeii") && displayHaystack.includes("flow"));
       return identityValues.some((value) => value === localId || value.endsWith(`_${localId}`) || value.endsWith(`.${localId}`))
-        && (isHomeiiSendspin || isHomeiiFlow);
+        && (isMaverickSendspin || isMaverickFlow);
     }
 
     _isAvailableThisDevicePlayer(player = null) {
@@ -2731,7 +2731,7 @@ export function createHomeiiBaseMusicCard({
       }
       const state = String(player.state || "").toLowerCase();
       const attrs = player.attributes || {};
-      const raw = player.__homeiiRawPlayer || {};
+      const raw = player.__maverickRawPlayer || {};
       if (state === "unavailable" || state === "off") return false;
       if (attrs.available === false || raw.available === false || raw.powered === false) return false;
       return true;
@@ -2750,7 +2750,7 @@ export function createHomeiiBaseMusicCard({
       const sourcePlayers = Array.isArray(players) ? players : [];
       const localPlayer = sourcePlayers.find((player) => this._isLocalSendspinPlayer(player) && this._isAvailableThisDevicePlayer(player));
       if (localPlayer) return localPlayer;
-      const rememberedPlayer = HomeiiPlayersFoundation.getThisDevicePlayer(sourcePlayers, this._getRememberedThisDevicePlayerId());
+      const rememberedPlayer = MaverickPlayersFoundation.getThisDevicePlayer(sourcePlayers, this._getRememberedThisDevicePlayerId());
       if (this._isRememberableThisDevicePlayer(rememberedPlayer)) return rememberedPlayer;
       if (rememberedPlayer) this._rememberThisDevicePlayer("");
       return null;
@@ -2775,10 +2775,10 @@ export function createHomeiiBaseMusicCard({
       if (typeof playerOrEntityId === "string") {
         const directPlayer = (this._directMaPlayers || []).find((player) => player?.entity_id === playerOrEntityId)
           || (this._state.players || []).find((player) => player?.entity_id === playerOrEntityId && this._isDirectMaPlayer(player));
-        return String(directPlayer?.attributes?.mass_player_id || directPlayer?.attributes?.player_id || directPlayer?.__homeiiDirectMaPlayerId || "").trim();
+        return String(directPlayer?.attributes?.mass_player_id || directPlayer?.attributes?.player_id || directPlayer?.__maverickDirectMaPlayerId || "").trim();
       }
       const attrs = playerOrEntityId.attributes || {};
-      return String(attrs.mass_player_id || attrs.player_id || attrs.id || playerOrEntityId.__homeiiDirectMaPlayerId || "").trim();
+      return String(attrs.mass_player_id || attrs.player_id || attrs.id || playerOrEntityId.__maverickDirectMaPlayerId || "").trim();
     }
 
     _directMaQueueId(playerOrEntityId = null) {
@@ -2793,7 +2793,7 @@ export function createHomeiiBaseMusicCard({
         if (this._isDirectMaEntityId(playerOrEntityId)) return true;
         return this._isDirectMaPlayer(this._playerByEntityId(playerOrEntityId));
       }
-      return !!playerOrEntityId.__homeiiDirectMa
+      return !!playerOrEntityId.__maverickDirectMa
         || !!playerOrEntityId.attributes?.homeii_direct_ma
         || this._isDirectMaEntityId(playerOrEntityId.entity_id);
     }
@@ -2817,7 +2817,7 @@ export function createHomeiiBaseMusicCard({
       const normalizedVolume = Number.isFinite(volumeLevel)
         ? (volumeLevel > 1 ? volumeLevel / 100 : volumeLevel)
         : 0;
-      const timing = HomeiiMediaPresentationFoundation.playbackPositionPair(raw);
+      const timing = MaverickMediaPresentationFoundation.playbackPositionPair(raw);
       const mediaUpdatedAt = timing.updatedAt > 0 ? new Date(timing.updatedAt).toISOString() : undefined;
       const activeQueue = String(raw.active_queue || raw.queue_id || currentMedia.source_id || playerId).trim();
       const name = raw.name || raw.display_name || raw.friendly_name || currentMedia.title || playerId;
@@ -2864,9 +2864,9 @@ export function createHomeiiBaseMusicCard({
         entity_id: this._directMaEntityId(playerId),
         state: this._normalizeDirectMaPlaybackState(raw.playback_state || raw.state, raw.available, raw.powered),
         attributes: attrs,
-        __homeiiDirectMa: true,
-        __homeiiDirectMaPlayerId: playerId,
-        __homeiiRawPlayer: raw,
+        __maverickDirectMa: true,
+        __maverickDirectMaPlayerId: playerId,
+        __maverickRawPlayer: raw,
       };
     }
 
@@ -2899,7 +2899,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     async _refreshDirectMaPlayers(options = {}) {
-      if (this._homeiiEngineRequired?.()) {
+      if (this._maverickEngineRequired?.()) {
         this._directMaPlayers = [];
         return [];
       }
@@ -2930,7 +2930,7 @@ export function createHomeiiBaseMusicCard({
           this._syncNowPlayingUI();
           return normalized;
         } catch (error) {
-          this._debugLog("warn", "[Homeii Sendspin] direct MA player refresh failed", error);
+          this._debugLog("warn", "[Maverick Sendspin] direct MA player refresh failed", error);
           return this._directMaPlayers || [];
         } finally {
           this._directMaPlayersRefreshPromise = null;
@@ -2946,7 +2946,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     async _playMediaOnDirectMaPlayer(entityId, uri, mediaType = "album", enqueue = "play", options = {}) {
-      if (this._homeiiEngineRequired?.()) {
+      if (this._maverickEngineRequired?.()) {
         throw new Error("Direct Music Assistant playback is disabled in Maverick Music 6. Use Maverick Music Engine.");
       }
       const player = this._playerByEntityId(entityId);
@@ -2991,7 +2991,7 @@ export function createHomeiiBaseMusicCard({
       this._thisDeviceFocusPromise = this._startLocalSendspinPlayer().then(async () => {
         for (let attempt = 0; attempt < 12; attempt++) {
           if (this._state.localSendspinStatus === "error" || this._state.localSendspinDisconnecting) return false;
-          if (this._homeiiEngineRequired?.()) await this._refreshEnginePlayers({ force: true });
+          if (this._maverickEngineRequired?.()) await this._refreshEnginePlayers({ force: true });
           else await this._refreshDirectMaPlayers();
           this._loadPlayers();
           if (this._focusConnectedThisDevicePlayer()) return true;
@@ -3288,7 +3288,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _currentTrackInfo() {
-      return HomeiiMediaPresentationFoundation.buildCurrentTrackInfo({
+      return MaverickMediaPresentationFoundation.buildCurrentTrackInfo({
         player: this._getSelectedPlayer(),
         queueItem: this._state.maQueueState?.current_item || null,
       });
@@ -3314,23 +3314,23 @@ export function createHomeiiBaseMusicCard({
     }
 
     _sourceProviderMeta(value = "") {
-      return HomeiiMediaPresentationFoundation.sourceProviderMeta(value, {
+      return MaverickMediaPresentationFoundation.sourceProviderMeta(value, {
         libraryLabel: this._i18n("ui.library"),
         radioLabel: this._i18n("ui.radio"),
       });
     }
 
     _qualityBadgeLabel(values = []) {
-      return HomeiiMediaPresentationFoundation.qualityBadgeLabel(values);
+      return MaverickMediaPresentationFoundation.qualityBadgeLabel(values);
     }
 
     _currentSourceBadgeMeta(player = this._getSelectedPlayer(), queueItem = this._state.maQueueState?.current_item || null) {
-      return HomeiiMediaHistoryFoundation.buildCurrentSourceBadgeMeta(
+      return MaverickMediaHistoryFoundation.buildCurrentSourceBadgeMeta(
         { player, queueItem: queueItem || this._state.maQueueState?.current_item || null },
         {
           parseMediaReferenceFn: (uri, mediaType) => this._parseMediaReference(uri, mediaType),
-          sourceProviderMetaFn: (value, labels) => HomeiiMediaPresentationFoundation.sourceProviderMeta(value, labels),
-          qualityBadgeLabelFn: (values) => HomeiiMediaPresentationFoundation.qualityBadgeLabel(values),
+          sourceProviderMetaFn: (value, labels) => MaverickMediaPresentationFoundation.sourceProviderMeta(value, labels),
+          qualityBadgeLabelFn: (values) => MaverickMediaPresentationFoundation.qualityBadgeLabel(values),
           libraryLabel: this._i18n("ui.library"),
           radioLabel: this._i18n("ui.radio"),
         },
@@ -3338,7 +3338,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _currentHistorySnapshot(player = this._getSelectedPlayer(), queueItem = this._state.maQueueState?.current_item || null) {
-      return HomeiiMediaHistoryFoundation.buildCurrentHistorySnapshot(
+      return MaverickMediaHistoryFoundation.buildCurrentHistorySnapshot(
         { player, queueItem: queueItem || this._state.maQueueState?.current_item || null },
         {
           getQueueItemUriFn: (item) => this._getQueueItemUri(item),
@@ -3351,7 +3351,7 @@ export function createHomeiiBaseMusicCard({
 
     _rememberRecentPlayback(player = this._getSelectedPlayer(), queueItem = this._state.maQueueState?.current_item || null) {
       const snapshot = this._currentHistorySnapshot(player, queueItem);
-      const resolved = HomeiiMediaHistoryFoundation.applyRecentPlaybackSnapshot(
+      const resolved = MaverickMediaHistoryFoundation.applyRecentPlaybackSnapshot(
         snapshot,
         this._state.mobileCurrentHistoryEntry || null,
         this._state.mobileRecentHistory || [],
@@ -3365,7 +3365,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _visibleRecentHistoryItems() {
-      return HomeiiMediaHistoryFoundation.visibleRecentHistoryItems(
+      return MaverickMediaHistoryFoundation.visibleRecentHistoryItems(
         this._state.mobileCurrentHistoryEntry || null,
         this._state.mobileRecentHistory || [],
         10,
@@ -3671,7 +3671,7 @@ export function createHomeiiBaseMusicCard({
         const ua = String(window.navigator?.userAgent || "");
         const width = this._getCardWidth(Number(window.innerWidth || 0));
         const touchPoints = Number(window.navigator?.maxTouchPoints || 0);
-        return HomeiiResponsiveFoundation.tabletStabilityModeEnabled({
+        return MaverickResponsiveFoundation.tabletStabilityModeEnabled({
           layoutMode: this._layoutModeConfig(),
           userAgent: ua,
           width,
@@ -3684,7 +3684,7 @@ export function createHomeiiBaseMusicCard({
 
     _controlRoomAllPlayers() {
       this._loadPlayers();
-      const players = (Array.isArray(this._state.players) ? this._state.players : []).filter(HomeiiPlayersFoundation.isPlayerAvailable);
+      const players = (Array.isArray(this._state.players) ? this._state.players : []).filter(MaverickPlayersFoundation.isPlayerAvailable);
       const visible = players.filter((player) => !this._isLikelyBrowserPlayer(player) || this._isLocalSendspinPlayer(player));
       return visible.length ? visible : players;
     }
@@ -3736,7 +3736,7 @@ export function createHomeiiBaseMusicCard({
       const target = String(entityId || "").trim();
       if (!target) return null;
       if (typeof this._isPlayerExcluded === "function" && this._isPlayerExcluded(target)) return null;
-      const knownPlayer = HomeiiPlayersFoundation.playerByEntityId(
+      const knownPlayer = MaverickPlayersFoundation.playerByEntityId(
         target,
         [...(this._state.players || []), ...(this._directMaPlayers || [])],
         {},
@@ -3766,7 +3766,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _controlRoomGroupInfo(player = null) {
-      if (!player?.entity_id || HomeiiPlayersFoundation.isLikelyBrowserPlayer(player)) return { ids: [], count: 0, label: "" };
+      if (!player?.entity_id || MaverickPlayersFoundation.isLikelyBrowserPlayer(player)) return { ids: [], count: 0, label: "" };
       const allPlayers = this._controlRoomAllPlayers();
       const byId = new Map(allPlayers.map((entry) => [entry?.entity_id, entry]).filter(([entityId]) => !!entityId));
       let ids = this._playerGroupMemberIds(player);
@@ -3787,7 +3787,7 @@ export function createHomeiiBaseMusicCard({
       }
       ids = [...new Set(ids)]
         .filter((entityId) => entityId && byId.has(entityId))
-        .filter((entityId) => !HomeiiPlayersFoundation.isLikelyBrowserPlayer(byId.get(entityId)));
+        .filter((entityId) => !MaverickPlayersFoundation.isLikelyBrowserPlayer(byId.get(entityId)));
       const names = ids
         .map((entityId) => byId.get(entityId)?.attributes?.friendly_name || entityId)
         .filter(Boolean);
@@ -4222,7 +4222,7 @@ export function createHomeiiBaseMusicCard({
           };
         }
       }
-      if (this._homeiiEngineRequired?.()) {
+      if (this._maverickEngineRequired?.()) {
         try { return await this._fetchMusicAssistantQueueSnapshot(player); } catch (_) { return null; }
       }
       try { return await this._fetchMusicAssistantQueueSnapshot(player); } catch (_) { return null; }
@@ -4253,7 +4253,7 @@ export function createHomeiiBaseMusicCard({
     _controlRoomQueuePreviewHtml(entityId = "") {
       const player = this._playerByEntityId(entityId);
       const snapshot = this._controlRoomQueueCache(entityId);
-      const items = HomeiiMediaQueueFoundation.sortQueueItems(snapshot?.items || []);
+      const items = MaverickMediaQueueFoundation.sortQueueItems(snapshot?.items || []);
       const currentIndex = Number(snapshot?.state?.current_index);
       const currentItem = Number.isFinite(currentIndex)
         ? items.find((item) => Number(item?.sort_index) === currentIndex) || items[0]
@@ -4477,7 +4477,7 @@ export function createHomeiiBaseMusicCard({
       if (!sourcePlayer || !targetPlayerEntityId || sourcePlayer.entity_id === targetPlayerEntityId) return false;
       try {
         const snapshot = await this._fetchControlRoomQueueSnapshot(sourcePlayer.entity_id);
-        const items = HomeiiMediaQueueFoundation.sortQueueItems(snapshot?.items || []);
+        const items = MaverickMediaQueueFoundation.sortQueueItems(snapshot?.items || []);
         if (!items.length) throw new Error(this._i18n("ui.no_queue_to_clone"));
         const currentPos = sourcePlayer.entity_id === this._state.selectedPlayer ? this._getCurrentPosition() : 0;
         await this._rebuildQueue(targetPlayerEntityId, items, currentPos);
@@ -5640,27 +5640,27 @@ export function createHomeiiBaseMusicCard({
     }
 
     _stripLyricsTimestamps(text = "") {
-      return HomeiiMediaPresentationFoundation.stripLyricsTimestamps(text);
+      return MaverickMediaPresentationFoundation.stripLyricsTimestamps(text);
     }
 
     _coerceLyricsRawText(value) {
-      return HomeiiMediaPresentationFoundation.coerceLyricsRawText(value);
+      return MaverickMediaPresentationFoundation.coerceLyricsRawText(value);
     }
 
     _coerceLyricsText(value) {
-      return HomeiiMediaPresentationFoundation.coerceLyricsText(value);
+      return MaverickMediaPresentationFoundation.coerceLyricsText(value);
     }
 
     _parseLrcLyrics(text = "") {
-      return HomeiiMediaPresentationFoundation.parseLrcLyrics(text);
+      return MaverickMediaPresentationFoundation.parseLrcLyrics(text);
     }
 
     _extractCurrentLyricsRawText() {
-      return HomeiiMediaPresentationFoundation.extractCurrentLyricsRawText(this._state.maQueueState?.current_item || {});
+      return MaverickMediaPresentationFoundation.extractCurrentLyricsRawText(this._state.maQueueState?.current_item || {});
     }
 
     _extractCurrentLyricsText() {
-      return HomeiiMediaPresentationFoundation.extractCurrentLyricsText(this._state.maQueueState?.current_item || {});
+      return MaverickMediaPresentationFoundation.extractCurrentLyricsText(this._state.maQueueState?.current_item || {});
     }
 
     async _fetchLyricsForCurrentTrack({ singleflight = false } = {}) {
@@ -5697,7 +5697,7 @@ export function createHomeiiBaseMusicCard({
       if (uri && (media.media_type || "track") === "track") {
         try {
           const track = await this._callEngineMaCommand("music/item_by_uri", { uri, allow_update_metadata: false });
-          const embedded = HomeiiMediaPresentationFoundation.extractCurrentLyricsRawText({ media_item: track });
+          const embedded = MaverickMediaPresentationFoundation.extractCurrentLyricsRawText({ media_item: track });
           const result = embedded ? null : await this._callEngineMaCommand("metadata/get_track_lyrics", { track });
           const rawText = embedded || (Array.isArray(result) ? result[1] || result[0] : this._coerceLyricsRawText(result)) || "";
           if (rawText) {
@@ -6183,7 +6183,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _currentMediaLikeMeta() {
-      return HomeiiFavoritesFoundation.buildCurrentMediaLikeMeta({
+      return MaverickFavoritesFoundation.buildCurrentMediaLikeMeta({
         player: this._getSelectedPlayer(),
         queueItem: this._state.maQueueState?.current_item || {},
         resolvedUri: this._getCurrentMediaUri(),
@@ -6255,10 +6255,10 @@ export function createHomeiiBaseMusicCard({
       }
       if (
         this._state?.engineCapabilities?.favorites_aggregate === true
-        && typeof this._homeiiEngineGetFavorites === "function"
+        && typeof this._maverickEngineGetFavorites === "function"
       ) {
-        const result = await this._homeiiEngineGetFavorites({ refresh: !!force, limit: 160 });
-        if (!HomeiiRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+        const result = await this._maverickEngineGetFavorites({ refresh: !!force, limit: 160 });
+        if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
           this._engineSnapshotRevisions,
           "library",
           result,
@@ -6314,7 +6314,7 @@ export function createHomeiiBaseMusicCard({
 
     _currentMediaFavoriteState() {
       const cache = this._cache.library.get("liked:ma");
-      return HomeiiFavoritesFoundation.resolveCurrentMediaFavoriteState({
+      return MaverickFavoritesFoundation.resolveCurrentMediaFavoriteState({
         currentUri: this._getCurrentMediaUri(),
         override: this._state.currentMediaFavoriteOverride || null,
         queueItem: this._state.maQueueState?.current_item || {},
@@ -6342,7 +6342,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _resolveFavoriteButtonEntity(player = this._getSelectedPlayer()) {
-      if (this._homeiiEngineRequired?.() !== false) return "";
+      if (this._maverickEngineRequired?.() !== false) return "";
       if (!this._hass?.states || !player) return "";
       const configured = "";
       if (configured && this._hass.states[configured]) return configured;
@@ -6365,11 +6365,11 @@ export function createHomeiiBaseMusicCard({
     }
 
     async _toggleLikeViaFavoriteButton(sourceEl = null) {
-      if (this._homeiiEngineRequired?.() !== false) return false;
-      if (this._homeiiEngineRequired?.()) return false;
+      if (this._maverickEngineRequired?.() !== false) return false;
+      if (this._maverickEngineRequired?.()) return false;
       const entityId = this._resolveFavoriteButtonEntity();
       if (!entityId) return false;
-      if (this._homeiiEngineRequired?.() && entityId) return false;
+      if (this._maverickEngineRequired?.() && entityId) return false;
       if (sourceEl) this._flashInteraction(sourceEl);
       setTimeout(() => {
         this._cache.library.delete("liked:ma");
@@ -6472,10 +6472,10 @@ export function createHomeiiBaseMusicCard({
             if (!actionOk) {
               try { actionOk = await this._toggleLikeViaMassQueue(); } catch (_) {}
             }
-            if (!actionOk && fallbackFavoriteEntity && !this._homeiiEngineRequired?.()) {
+            if (!actionOk && fallbackFavoriteEntity && !this._maverickEngineRequired?.()) {
               actionOk = await this._pressFavoriteButtonEntity(fallbackFavoriteEntity);
             }
-            if (!actionOk && playerEntityId && !this._isDirectMaPlayer(playerEntityId) && !this._homeiiEngineRequired?.()) {
+            if (!actionOk && playerEntityId && !this._isDirectMaPlayer(playerEntityId) && !this._maverickEngineRequired?.()) {
               actionOk = await this._pressFavoriteButtonEntity(playerEntityId);
             }
             if (!actionOk) throw new Error("Music Assistant favorite action was not available");
@@ -6557,11 +6557,11 @@ export function createHomeiiBaseMusicCard({
       if (!uri) return false;
       if (
         this._state?.engineCapabilities?.favorite_mutation === true
-        && typeof this._homeiiEngineSetFavorite === "function"
+        && typeof this._maverickEngineSetFavorite === "function"
       ) {
         const removeArgs = likedNow ? await this._resolveMaFavoriteRemoveArgs(entry, mediaType) : null;
         const parsed = this._parseMediaReference(uri, mediaType);
-        const result = await this._homeiiEngineSetFavorite({
+        const result = await this._maverickEngineSetFavorite({
           favorite: !likedNow,
           uri,
           media_type: parsed.media_type || mediaType,
@@ -6619,7 +6619,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     async _toggleMaLikeViaHaService(entry = {}, likedNow = false, mediaType = "track") {
-      if (this._homeiiEngineRequired?.()) return false;
+      if (this._maverickEngineRequired?.()) return false;
       const uri = String(entry?.uri || "").trim();
       if (!uri) return false;
       const parsed = this._parseMediaReference(uri, mediaType);
@@ -6673,9 +6673,9 @@ export function createHomeiiBaseMusicCard({
     }
 
     _applyMaFavoriteOptimisticState(entry = {}, liked = false) {
-      const nextEntry = HomeiiFavoritesFoundation.buildOptimisticFavoriteEntry(entry, liked);
+      const nextEntry = MaverickFavoritesFoundation.buildOptimisticFavoriteEntry(entry, liked);
       const cache = this._cache.library.get("liked:ma");
-      const items = HomeiiFavoritesFoundation.applyOptimisticFavoriteCache(
+      const items = MaverickFavoritesFoundation.applyOptimisticFavoriteCache(
         Array.isArray(cache?.items) ? cache.items : [],
         nextEntry,
         liked,
@@ -6708,7 +6708,7 @@ export function createHomeiiBaseMusicCard({
       }
       const currentEntryMatches = this._entryTargetsCurrentMedia(entry);
       const currentEntry = currentEntryMatches ? this._currentMediaLikeMeta() : null;
-      const resolvedFromKnownState = HomeiiFavoritesFoundation.resolveCachedFavoriteRemoveArgs({
+      const resolvedFromKnownState = MaverickFavoritesFoundation.resolveCachedFavoriteRemoveArgs({
         entry,
         mediaType,
         likedItems,
@@ -6730,13 +6730,13 @@ export function createHomeiiBaseMusicCard({
     }
 
     _findMaLikedEntryMatch(entry = {}, likedItems = []) {
-      return HomeiiFavoritesFoundation.findFavoriteEntryMatch(entry, likedItems, {
+      return MaverickFavoritesFoundation.findFavoriteEntryMatch(entry, likedItems, {
         parseMediaReferenceFn: (uri, fallbackType) => this._parseMediaReference(uri, fallbackType),
       });
     }
 
     _matchFavoriteLibraryItem(entry = {}, likedItems = [], fallbackType = "") {
-      return HomeiiFavoritesFoundation.matchFavoriteLibraryItem(
+      return MaverickFavoritesFoundation.matchFavoriteLibraryItem(
         entry,
         likedItems,
         fallbackType || entry?.media_type || entry?.type || "track",
@@ -6749,7 +6749,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _favoriteRemoveArgsFromItem(item = {}, fallbackType = "track") {
-      return HomeiiFavoritesFoundation.favoriteRemoveArgsFromItem(
+      return MaverickFavoritesFoundation.favoriteRemoveArgsFromItem(
         item,
         fallbackType,
         (uri, mediaType) => this._parseMediaReference(uri, mediaType),
@@ -6777,7 +6777,7 @@ export function createHomeiiBaseMusicCard({
         return true;
       }
       const cache = this._cache.library.get("liked:ma");
-      return HomeiiFavoritesFoundation.isEntryLiked(
+      return MaverickFavoritesFoundation.isEntryLiked(
         entry,
         {
           useMaLikedMode: this._useMaLikedMode(),
@@ -6793,7 +6793,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _parseMediaReference(uri = "", fallbackType = "track") {
-      return HomeiiMediaQueueFoundation.parseMediaReference(uri, fallbackType);
+      return MaverickMediaQueueFoundation.parseMediaReference(uri, fallbackType);
     }
 
     _showQueueItemMenu(clientX, clientY, entry = {}) {
@@ -7020,7 +7020,7 @@ export function createHomeiiBaseMusicCard({
         const activeTag = active?.tagName?.toLowerCase?.() || "";
         const editingText = active && (activeTag === "input" || activeTag === "textarea" || active?.isContentEditable);
         const tabletStabilityMode = this._tabletStabilityModeEnabled();
-        const resizeStrategy = HomeiiResponsiveFoundation.resolveResizeStrategy({
+        const resizeStrategy = MaverickResponsiveFoundation.resolveResizeStrategy({
           previousWidth,
           currentWidth,
           previousHeight,
@@ -7094,16 +7094,16 @@ export function createHomeiiBaseMusicCard({
     }
 
     _loadingStateHtml(text = this._i18n("ui.loading"), { notice = false, compact = false } = {}) {
-      const className = notice ? "notice open homeii-loading-notice" : `homeii-loading-state${compact ? " compact" : ""}`;
+      const className = notice ? "notice open maverick-loading-notice" : `maverick-loading-state${compact ? " compact" : ""}`;
       return `
         <div class="${className}" role="status" aria-live="polite">
-          <div class="homeii-loading-content">
-            <span class="homeii-loading-mark" aria-hidden="true">
-              <span class="homeii-loading-ring"></span>
-              <span class="homeii-loading-ring secondary"></span>
-              <span class="homeii-loading-core"></span>
+          <div class="maverick-loading-content">
+            <span class="maverick-loading-mark" aria-hidden="true">
+              <span class="maverick-loading-ring"></span>
+              <span class="maverick-loading-ring secondary"></span>
+              <span class="maverick-loading-core"></span>
             </span>
-            <span class="homeii-loading-text">${this._esc(text)}</span>
+            <span class="maverick-loading-text">${this._esc(text)}</span>
           </div>
         </div>
       `;
@@ -7507,19 +7507,19 @@ export function createHomeiiBaseMusicCard({
     }
 
     _getQueueItemKey(item) {
-      return HomeiiMediaQueueFoundation.getQueueItemKey(item);
+      return MaverickMediaQueueFoundation.getQueueItemKey(item);
     }
 
     _getQueueItemStableId(item) {
-      return HomeiiMediaQueueFoundation.getQueueItemStableId(item);
+      return MaverickMediaQueueFoundation.getQueueItemStableId(item);
     }
 
     _getQueueItemPlaybackId(item) {
-      return HomeiiMediaQueueFoundation.getQueueItemPlaybackId(item);
+      return MaverickMediaQueueFoundation.getQueueItemPlaybackId(item);
     }
 
     _getQueueItemUri(item) {
-      return HomeiiMediaQueueFoundation.getQueueItemUri(item);
+      return MaverickMediaQueueFoundation.getQueueItemUri(item);
     }
 
     _queueItemOrderIdentity(item = {}, index = 0) {
@@ -7557,7 +7557,7 @@ export function createHomeiiBaseMusicCard({
 
     _queueVisibleItemsForMove(items = []) {
       const allItems = Array.isArray(items) ? items.filter(Boolean) : [];
-      const currentIndex = HomeiiMediaQueueFoundation.normalizeFiniteNumber(this._state.maQueueState?.current_index);
+      const currentIndex = MaverickMediaQueueFoundation.normalizeFiniteNumber(this._state.maQueueState?.current_index);
       if (!Number.isFinite(currentIndex)) return allItems;
       const visibleItems = allItems.filter((item) => Number(item?.sort_index ?? -1) >= currentIndex);
       return visibleItems.length ? visibleItems : allItems;
@@ -7565,7 +7565,7 @@ export function createHomeiiBaseMusicCard({
 
     _queueFirstMovableIndex(items = []) {
       const allItems = Array.isArray(items) ? items : [];
-      const currentIndex = HomeiiMediaQueueFoundation.normalizeFiniteNumber(this._state.maQueueState?.current_index);
+      const currentIndex = MaverickMediaQueueFoundation.normalizeFiniteNumber(this._state.maQueueState?.current_index);
       if (!Number.isFinite(currentIndex)) return 0;
       const currentArrayIndex = allItems.findIndex((item) => Number(item?.sort_index) === currentIndex);
       return Math.max(0, currentArrayIndex + 1);
@@ -7581,7 +7581,7 @@ export function createHomeiiBaseMusicCard({
       const targetKey = this._getQueueItemKey(targetItem);
       const targetStableId = this._getQueueItemStableId(targetItem);
       const targetUri = this._getQueueItemUri(targetItem);
-      const targetSortIndex = HomeiiMediaQueueFoundation.normalizeFiniteNumber(targetItem?.sort_index);
+      const targetSortIndex = MaverickMediaQueueFoundation.normalizeFiniteNumber(targetItem?.sort_index);
       const targetGlobalIndex = allItems.findIndex((item) =>
         item === targetItem
         || (targetKey && this._getQueueItemKey(item) === targetKey)
@@ -7598,7 +7598,7 @@ export function createHomeiiBaseMusicCard({
       const entryKey = this._getQueueItemKey(entry) || String(entry?.queue_item_id || entry?.queueItemId || entry?.key || "").trim();
       const entryStableId = this._getQueueItemStableId(entry);
       const entryUri = this._getQueueItemUri(entry) || String(entry?.uri || entry?.media_item?.uri || "").trim();
-      const entrySortIndex = HomeiiMediaQueueFoundation.normalizeFiniteNumber(entry?.sort_index);
+      const entrySortIndex = MaverickMediaQueueFoundation.normalizeFiniteNumber(entry?.sort_index);
       const index = visibleItems.findIndex((item) =>
         (entryKey && this._getQueueItemKey(item) === entryKey)
         || (entryStableId && this._getQueueItemStableId(item) === entryStableId)
@@ -7614,7 +7614,7 @@ export function createHomeiiBaseMusicCard({
       const allItems = Array.isArray(items) ? items : [];
       const rawKey = String(queueItemId || "").trim();
       const uri = String(fallbackUri || "").trim();
-      const numericSortIndex = HomeiiMediaQueueFoundation.normalizeFiniteNumber(sortIndex);
+      const numericSortIndex = MaverickMediaQueueFoundation.normalizeFiniteNumber(sortIndex);
       return (rawKey ? allItems.find((item) =>
         this._getQueueItemKey(item) === rawKey
         || this._getQueueItemStableId(item) === rawKey
@@ -7632,11 +7632,11 @@ export function createHomeiiBaseMusicCard({
     }
 
     _queueItemPrimaryArtist(item = {}) {
-      return HomeiiMediaQueueFoundation.queueItemPrimaryArtist(item);
+      return MaverickMediaQueueFoundation.queueItemPrimaryArtist(item);
     }
 
     _queueItemPrimaryTitle(item = {}) {
-      return HomeiiMediaQueueFoundation.queueItemPrimaryTitle(item);
+      return MaverickMediaQueueFoundation.queueItemPrimaryTitle(item);
     }
 
     _isQueueItemCurrent(item = {}) {
@@ -7655,7 +7655,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _mobileUpNextItem() {
-      return HomeiiMediaQueueFoundation.resolveMobileUpNextItem(
+      return MaverickMediaQueueFoundation.resolveMobileUpNextItem(
         this._state.maQueueState || {},
         this._state.queueItems || [],
       );
@@ -7966,7 +7966,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _queueItemsContainCurrent(items = [], queueState = this._state.maQueueState) {
-      return HomeiiMediaQueueFoundation.queueItemsContainCurrent(items, queueState);
+      return MaverickMediaQueueFoundation.queueItemsContainCurrent(items, queueState);
     }
 
     _queueSnapshotCacheTtlMs() {
@@ -8037,7 +8037,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _queueItemMatchesPlayer(item, player = this._getSelectedPlayer()) {
-      return HomeiiMediaQueueFoundation.queueItemMatchesPlayer(
+      return MaverickMediaQueueFoundation.queueItemMatchesPlayer(
         item,
         player,
         (uriA, uriB, fallbackType) => this._mediaRefsEquivalent(uriA, uriB, fallbackType),
@@ -8047,7 +8047,7 @@ export function createHomeiiBaseMusicCard({
     _applyQueueSnapshot(queueState, items = [], force = false) {
       if (!queueState) return;
       const normalizedState = { ...queueState };
-      const pendingState = HomeiiNowPlayingFoundation.pendingQueuePlayState(this._state, Date.now());
+      const pendingState = MaverickNowPlayingFoundation.pendingQueuePlayState(this._state, Date.now());
       const { hasPendingPlay, pendingKey, pendingUri, pendingIndex } = pendingState;
       const shouldConsiderReplace = force || !this._state.queueItems.length || this._isQueueUiVisible();
       const nextItems = this._queueItemsWithSequentialSortIndexes(Array.isArray(items) ? items : []);
@@ -8070,7 +8070,7 @@ export function createHomeiiBaseMusicCard({
           if (nextFromItems) normalizedState.next_item = nextFromItems;
         }
       }
-      if (nextItems.length && !this._homeiiEngineRequired?.()) {
+      if (nextItems.length && !this._maverickEngineRequired?.()) {
         const player = this._getSelectedPlayer();
         const playerUri = String(player?.attributes?.media_content_id || "").trim();
         const playerTitle = String(player?.attributes?.media_title || "").trim().toLowerCase();
@@ -8118,7 +8118,7 @@ export function createHomeiiBaseMusicCard({
         } else if (matchesPending) {
           const playerCaughtUp = this._queueItemMatchesPlayer(normalizedState.current_item);
           if (playerCaughtUp) {
-            Object.assign(this._state, HomeiiNowPlayingFoundation.clearPendingQueuePlayPatch());
+            Object.assign(this._state, MaverickNowPlayingFoundation.clearPendingQueuePlayPatch());
           }
         }
       }
@@ -8198,7 +8198,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _markMobileQueuePlayPending(item, playIndex) {
-      const patch = HomeiiNowPlayingFoundation.buildPendingQueuePlayPatch({
+      const patch = MaverickNowPlayingFoundation.buildPendingQueuePlayPatch({
         item,
         playIndex,
         selectedPlayerId: this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "",
@@ -8213,11 +8213,11 @@ export function createHomeiiBaseMusicCard({
     }
 
     _clearMobileQueuePlayPending() {
-      Object.assign(this._state, HomeiiNowPlayingFoundation.clearPendingQueuePlayPatch());
+      Object.assign(this._state, MaverickNowPlayingFoundation.clearPendingQueuePlayPatch());
     }
 
     _resolveQueuePlayIndex(queueItemId = "", fallbackUri = "", explicitSortIndex = "") {
-      return HomeiiMediaQueueFoundation.resolveQueuePlayIndex(
+      return MaverickMediaQueueFoundation.resolveQueuePlayIndex(
         this._state.queueItems || [],
         { queueItemId, fallbackUri, explicitSortIndex },
         (uriA, uriB, fallbackType) => this._mediaRefsEquivalent(uriA, uriB, fallbackType),
@@ -8225,7 +8225,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _getQueueItemByIndexOrKey(sortIndex = "", queueItemId = "", fallbackUri = "") {
-      return HomeiiMediaQueueFoundation.getQueueItemByIndexOrKey(
+      return MaverickMediaQueueFoundation.getQueueItemByIndexOrKey(
         this._state.queueItems || [],
         { sortIndex, queueItemId, fallbackUri },
         (uriA, uriB, fallbackType) => this._mediaRefsEquivalent(uriA, uriB, fallbackType),
@@ -8261,7 +8261,7 @@ export function createHomeiiBaseMusicCard({
           if (player?.entity_id) this._setPlayerPlaybackOptimistic(player.entity_id, { state: "playing", until: optimisticUntil });
           else this._syncNowPlayingUI();
         }
-        this._debugLog("info", "[Homeii Queue] play item", {
+        this._debugLog("info", "[Maverick Queue] play item", {
           queueId,
           queueItemId,
           fallbackUri,
@@ -8288,15 +8288,15 @@ export function createHomeiiBaseMusicCard({
     }
 
     async _callService(service, data, options = {}) {
-      if (this._homeiiEngineRequired?.()) {
-        if (service === "search" && typeof this._homeiiEngineSearch === "function") {
-          return this._homeiiEngineSearch(data || {});
+      if (this._maverickEngineRequired?.()) {
+        if (service === "search" && typeof this._maverickEngineSearch === "function") {
+          return this._maverickEngineSearch(data || {});
         }
-        if (service === "get_library" && typeof this._homeiiEngineGetLibrary === "function") {
-          return this._homeiiEngineGetLibrary(data || {});
+        if (service === "get_library" && typeof this._maverickEngineGetLibrary === "function") {
+          return this._maverickEngineGetLibrary(data || {});
         }
-        if (service === "get_queue" && typeof this._homeiiEngineGetQueue === "function") {
-          return this._homeiiEngineGetQueue(data || {});
+        if (service === "get_queue" && typeof this._maverickEngineGetQueue === "function") {
+          return this._maverickEngineGetQueue(data || {});
         }
         throw new Error(`Music Assistant frontend service ${service} is disabled in Maverick Music 6. Use Maverick Music Engine.`);
       }
@@ -8307,7 +8307,7 @@ export function createHomeiiBaseMusicCard({
         if (!configEntryId) {
           if (!this._hasMusicAssistantServiceSignal()) {
             const error = new Error(this._musicAssistantSetupMessage());
-            error.code = "HOMEII_MA_NOT_READY";
+            error.code = "MAVERICK_MA_NOT_READY";
             throw error;
           }
         } else {
@@ -8398,7 +8398,7 @@ export function createHomeiiBaseMusicCard({
       const mediaUri = mediaItem?.uri || item.uri || item.media_content_id || item.media_id || "";
       const rawQueueItemId = String(item.queue_item_id || item.queueItemId || item.queue_item?.queue_item_id || item.queueItem?.queue_item_id || "").trim();
       const rawItemId = String(item.item_id || item.id || "").trim();
-      const parsedMediaRef = HomeiiMediaQueueFoundation.parseMediaReference(mediaUri, mediaItem?.media_type || item.media_type || "track");
+      const parsedMediaRef = MaverickMediaQueueFoundation.parseMediaReference(mediaUri, mediaItem?.media_type || item.media_type || "track");
       const rawItemLooksLikeMediaId = !!(
         rawItemId
         && (
@@ -8428,7 +8428,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _normalizeQueueSnapshot(raw, entityId = "") {
-      if (!HomeiiRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+      if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
         this._engineSnapshotRevisions,
         "queue",
         raw,
@@ -8436,7 +8436,7 @@ export function createHomeiiBaseMusicCard({
       )) {
         this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine queue snapshot", {
           entityId,
-          snapshot: HomeiiRevisionedSnapshotsFoundation.engineSnapshotMeta(raw),
+          snapshot: MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(raw),
         });
         return null;
       }
@@ -8551,9 +8551,9 @@ export function createHomeiiBaseMusicCard({
       }, 0);
     }
 
-    _homeiiEngineQueueSourceOfTruth() {
-      if (!this._homeiiEngineEnabled?.()) return false;
-      if (this._homeiiEngineRequired?.()) return true;
+    _maverickEngineQueueSourceOfTruth() {
+      if (!this._maverickEngineEnabled?.()) return false;
+      if (this._maverickEngineRequired?.()) return true;
       if (!this._state?.engineAvailable) return false;
       const capabilities = this._state?.engineCapabilities || {};
       return capabilities.queue_source_of_truth === true
@@ -8562,14 +8562,14 @@ export function createHomeiiBaseMusicCard({
         || capabilities.item_artwork_proxy === true;
     }
 
-    async _ensureHomeiiEngineReadyForAction() {
-      if (!this._homeiiEngineRequired?.()) return true;
+    async _ensureMaverickEngineReadyForAction() {
+      if (!this._maverickEngineRequired?.()) return true;
       if (this._state?.engineAvailable) return true;
-      if (typeof this._ensureHomeiiEngineHandshake === "function") {
-        return !!(await this._ensureHomeiiEngineHandshake());
+      if (typeof this._ensureMaverickEngineHandshake === "function") {
+        return !!(await this._ensureMaverickEngineHandshake());
       }
-      if (typeof this._refreshHomeiiEngineContext === "function") {
-        const context = await this._refreshHomeiiEngineContext({ force: true }).catch((error) => {
+      if (typeof this._refreshMaverickEngineContext === "function") {
+        const context = await this._refreshMaverickEngineContext({ force: true }).catch((error) => {
           this._state.engineLastError = error?.message || String(error || "Maverick Music Engine is not available.");
           return null;
         });
@@ -8597,12 +8597,12 @@ export function createHomeiiBaseMusicCard({
     async _fetchMusicAssistantQueueSnapshot(player) {
       if (!player?.entity_id) return null;
       const queueId = this._queueIdForPlayer(player);
-      const engineReady = await this._ensureHomeiiEngineReadyForAction();
-      if (!this._homeiiEngineRequired?.() || !engineReady || typeof this._homeiiEngineGetQueue !== "function") {
+      const engineReady = await this._ensureMaverickEngineReadyForAction();
+      if (!this._maverickEngineRequired?.() || !engineReady || typeof this._maverickEngineGetQueue !== "function") {
         return null;
       }
       try {
-        const engineResult = await this._homeiiEngineGetQueue({
+        const engineResult = await this._maverickEngineGetQueue({
           entity_id: player.entity_id,
           queue_id: queueId,
           limit_before: 50,
@@ -8648,16 +8648,16 @@ export function createHomeiiBaseMusicCard({
         }
         return collected;
       }
-      const engineReady = await this._ensureHomeiiEngineReadyForAction();
-      const canUseEngineLibrary = this._homeiiEngineEnabled?.()
+      const engineReady = await this._ensureMaverickEngineReadyForAction();
+      const canUseEngineLibrary = this._maverickEngineEnabled?.()
         && engineReady
-        && typeof this._homeiiEngineGetLibrary === "function";
+        && typeof this._maverickEngineGetLibrary === "function";
       if (!canUseEngineLibrary) {
         this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.";
         throw new Error(this._state.musicAssistantIssueMessage);
       }
       try {
-        const engineResult = await this._homeiiEngineGetLibrary({
+        const engineResult = await this._maverickEngineGetLibrary({
           media_type: mediaType,
           query: search,
           order_by: orderBy,
@@ -8668,14 +8668,14 @@ export function createHomeiiBaseMusicCard({
         });
         const libraryIdentity = `${mediaType}:${orderBy}:${favoritesOnly ? "favorites" : "all"}:${search || ""}:${options.offset || 0}:${limit}`;
         if (options.snapshot) {
-          const meta = HomeiiRevisionedSnapshotsFoundation.engineSnapshotMeta(engineResult);
+          const meta = MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(engineResult);
           if (meta) {
             const revision = `${meta.epoch || ""}:${meta.revision || 0}`;
             if (options.snapshot.revision && options.snapshot.revision !== revision) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
             options.snapshot.revision = revision;
           }
         }
-        if (!HomeiiRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+        if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
           this._engineSnapshotRevisions,
           "library",
           engineResult,
@@ -8684,7 +8684,7 @@ export function createHomeiiBaseMusicCard({
           if (options.strict) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
           this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine library snapshot", {
             libraryIdentity,
-            snapshot: HomeiiRevisionedSnapshotsFoundation.engineSnapshotMeta(engineResult),
+            snapshot: MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(engineResult),
           });
           const cachedPrefix = `${mediaType}:${orderBy}:`;
           const cachedSuffix = `:${favoritesOnly}`;
@@ -8959,11 +8959,11 @@ export function createHomeiiBaseMusicCard({
     _captureCurrentLibraryDetailForStack() {
       const current = this._state?.mobileLibraryDetail;
       if (!current || typeof current !== "object") return null;
-      const scrollSnapshot = this._captureMobileMenuScroll?.("media_detail") || current._homeiiScrollSnapshot || null;
+      const scrollSnapshot = this._captureMobileMenuScroll?.("media_detail") || current._maverickScrollSnapshot || null;
       return {
         ...current,
-        _homeiiParentPage: this._state.mobileLibraryDetailParentPage || "",
-        _homeiiScrollSnapshot: scrollSnapshot,
+        _maverickParentPage: this._state.mobileLibraryDetailParentPage || "",
+        _maverickScrollSnapshot: scrollSnapshot,
       };
     }
 
@@ -8981,14 +8981,14 @@ export function createHomeiiBaseMusicCard({
 
     _findAlbumBrowseIndex(albums = [], entry = {}) {
       const entryUri = String(entry?.uri || entry?.media_item?.uri || "").trim().toLowerCase();
-      const entryName = HomeiiMediaQueueFoundation.normalizeComparableText(entry?.name || entry?.title || entry?.media_item?.name || "");
+      const entryName = MaverickMediaQueueFoundation.normalizeComparableText(entry?.name || entry?.title || entry?.media_item?.name || "");
       const entryYear = this._mediaYearValue(entry) || "";
       const uriIndex = entryUri
         ? albums.findIndex((album) => String(album?.uri || album?.media_item?.uri || "").trim().toLowerCase() === entryUri)
         : -1;
       if (uriIndex >= 0) return uriIndex;
       return albums.findIndex((album) => {
-        const albumName = HomeiiMediaQueueFoundation.normalizeComparableText(album?.name || album?.title || album?.media_item?.name || "");
+        const albumName = MaverickMediaQueueFoundation.normalizeComparableText(album?.name || album?.title || album?.media_item?.name || "");
         const albumYear = this._mediaYearValue(album) || "";
         return albumName && albumName === entryName && (!entryYear || !albumYear || entryYear === albumYear);
       });
@@ -9160,10 +9160,10 @@ export function createHomeiiBaseMusicCard({
     }
 
     _libraryTrackMatchesAlbum(track = {}, entry = {}) {
-      const albumName = HomeiiMediaQueueFoundation.normalizeComparableText(entry?.name || entry?.title || "");
+      const albumName = MaverickMediaQueueFoundation.normalizeComparableText(entry?.name || entry?.title || "");
       if (!albumName) return true;
       const albumValue = track?.album || track?.media_item?.album || {};
-      const trackAlbumName = HomeiiMediaQueueFoundation.normalizeComparableText(
+      const trackAlbumName = MaverickMediaQueueFoundation.normalizeComparableText(
         typeof albumValue === "string" ? albumValue : (albumValue?.name || track?.album_name || track?.media_album_name || "")
       );
       if (!trackAlbumName) return false;
@@ -9172,7 +9172,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _libraryTrackMatchesArtist(track = {}, entry = {}) {
-      const artistName = HomeiiMediaQueueFoundation.normalizeComparableText(entry?.artist || entry?.artist_str || this._artistName(entry) || "");
+      const artistName = MaverickMediaQueueFoundation.normalizeComparableText(entry?.artist || entry?.artist_str || this._artistName(entry) || "");
       if (!artistName) return true;
       const artists = [
         this._artistName(track),
@@ -9183,7 +9183,7 @@ export function createHomeiiBaseMusicCard({
         ...(Array.isArray(track?.media_item?.artists) ? track.media_item.artists.map((artist) => artist?.name || artist) : []),
       ];
       return artists.some((artist) => {
-        const normalized = HomeiiMediaQueueFoundation.normalizeComparableText(artist);
+        const normalized = MaverickMediaQueueFoundation.normalizeComparableText(artist);
         return normalized && (normalized === artistName || normalized.includes(artistName) || artistName.includes(normalized));
       });
     }
@@ -9326,7 +9326,7 @@ export function createHomeiiBaseMusicCard({
 
     _albumKindLabel(item = {}) {
       const metadata = item?.metadata || item?.media_item?.metadata || {};
-      const name = HomeiiMediaQueueFoundation.normalizeComparableText(item?.name || item?.title || item?.media_item?.name || "");
+      const name = MaverickMediaQueueFoundation.normalizeComparableText(item?.name || item?.title || item?.media_item?.name || "");
       const rawValues = [
         item.album_type,
         item.albumType,
@@ -9338,7 +9338,7 @@ export function createHomeiiBaseMusicCard({
         metadata.type,
         metadata.musicbrainz_albumtype,
         ...(Array.isArray(metadata.release_group_types) ? metadata.release_group_types : []),
-      ].map((value) => HomeiiMediaQueueFoundation.normalizeComparableText(value)).filter(Boolean);
+      ].map((value) => MaverickMediaQueueFoundation.normalizeComparableText(value)).filter(Boolean);
       const haystack = `${rawValues.join(" ")} ${name}`;
       if (/(^| )(single|סינגל)( |$)/.test(haystack)) return this._m("Single", "סינגל");
       if (/(^| )(live|concert|הופעה|חיה)( |$)/.test(haystack)) return this._m("Live", "הופעה חיה");
@@ -9382,7 +9382,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _artistAlbumMatches(album = {}, artistName = "") {
-      const target = HomeiiMediaQueueFoundation.normalizeComparableText(artistName);
+      const target = MaverickMediaQueueFoundation.normalizeComparableText(artistName);
       if (!target) return true;
       const artistValues = [
         this._artistName(album),
@@ -9396,7 +9396,7 @@ export function createHomeiiBaseMusicCard({
         ...(Array.isArray(album.media_item?.album_artists) ? album.media_item.album_artists.map((artist) => artist?.name || artist) : []),
       ];
       return artistValues.some((value) => {
-        const normalized = HomeiiMediaQueueFoundation.normalizeComparableText(value);
+        const normalized = MaverickMediaQueueFoundation.normalizeComparableText(value);
         return normalized && (normalized === target || normalized.includes(target) || target.includes(normalized));
       });
     }
@@ -9439,7 +9439,7 @@ export function createHomeiiBaseMusicCard({
       const byUri = new Set();
       const byIdentity = new Map();
       const titleKeyForAlbum = (album = {}) => {
-        const name = HomeiiMediaQueueFoundation.normalizeComparableText(album?.name || album?.title || album?.media_item?.name || "");
+        const name = MaverickMediaQueueFoundation.normalizeComparableText(album?.name || album?.title || album?.media_item?.name || "");
         if (!name) return "";
         const year = this._mediaYearValue(album) || "";
         return year ? `${name}::${year}` : name;
@@ -9449,7 +9449,7 @@ export function createHomeiiBaseMusicCard({
         const name = titleKey.split("::")[0] || "";
         if (!name) return "";
         const year = this._mediaYearValue(album) || "";
-        const artist = HomeiiMediaQueueFoundation.normalizeComparableText(this._artistName(album) || album?.artist_str || album?.artist || "");
+        const artist = MaverickMediaQueueFoundation.normalizeComparableText(this._artistName(album) || album?.artist_str || album?.artist || "");
         return [name, year, artist].filter((part) => part !== "").join("::");
       };
       const scoreAlbum = (album = {}) => {
@@ -9501,7 +9501,7 @@ export function createHomeiiBaseMusicCard({
     async _loadArtistPlaylistRecommendations(artistName = "") {
       const name = String(artistName || "").trim();
       if (!name) return [];
-      const normalizedArtist = HomeiiMediaQueueFoundation.normalizeComparableText(name);
+      const normalizedArtist = MaverickMediaQueueFoundation.normalizeComparableText(name);
       const seen = new Set();
       const playlists = [];
       const addPlaylist = (item = {}) => {
@@ -9511,7 +9511,7 @@ export function createHomeiiBaseMusicCard({
         if (!uri && !title) return;
         const key = String(uri || title).toLowerCase();
         if (seen.has(key)) return;
-        const haystack = HomeiiMediaQueueFoundation.normalizeComparableText([
+        const haystack = MaverickMediaQueueFoundation.normalizeComparableText([
           title,
           normalized?.description,
           normalized?.metadata?.description,
@@ -9522,7 +9522,7 @@ export function createHomeiiBaseMusicCard({
         playlists.push({
           ...normalized,
           media_type: "playlist",
-          _homeiiArtistPlaylistScore: haystack.includes(normalizedArtist) ? 4 : 1,
+          _maverickArtistPlaylistScore: haystack.includes(normalizedArtist) ? 4 : 1,
         });
       };
       for (const query of [`${name} playlist`, `${name} playlists`, name]) {
@@ -9533,9 +9533,9 @@ export function createHomeiiBaseMusicCard({
         if (playlists.length >= 12) break;
       }
       return playlists
-        .sort((a, b) => Number(b._homeiiArtistPlaylistScore || 0) - Number(a._homeiiArtistPlaylistScore || 0))
+        .sort((a, b) => Number(b._maverickArtistPlaylistScore || 0) - Number(a._maverickArtistPlaylistScore || 0))
         .slice(0, 12)
-        .map(({ _homeiiArtistPlaylistScore, ...item }) => item);
+        .map(({ _maverickArtistPlaylistScore, ...item }) => item);
     }
 
     async _loadLibraryMediaDetailTracksViaHaBrowse(entry = {}) {
@@ -9549,10 +9549,10 @@ export function createHomeiiBaseMusicCard({
       const ttl = Number(this._config.cache_ttl || 300000);
       const cached = this._cache.library.get(cacheKey);
       if (cached && Date.now() - cached.ts < ttl) return cached.items;
-      if (entry?._homeiiSingleflight !== true) {
+      if (entry?._maverickSingleflight !== true) {
         const existing = this._libraryDetailLoadPromises.get(cacheKey);
         if (existing) return existing;
-        const task = this._loadLibraryMediaDetailTracks({ ...entry, _homeiiSingleflight: true });
+        const task = this._loadLibraryMediaDetailTracks({ ...entry, _maverickSingleflight: true });
         this._libraryDetailLoadPromises.set(cacheKey, task);
         try {
           return await task;
@@ -9645,10 +9645,10 @@ export function createHomeiiBaseMusicCard({
       const ttl = Number(this._config.cache_ttl || 300000);
       const cached = this._cache.library.get(cacheKey);
       if (cached && Date.now() - cached.ts < ttl && cached.detail) return cached.detail;
-      if (entry?._homeiiSingleflight !== true) {
+      if (entry?._maverickSingleflight !== true) {
         const existing = this._artistDetailLoadPromises.get(cacheKey);
         if (existing) return existing;
-        const task = this._loadLibraryArtistDetail({ ...entry, _homeiiSingleflight: true });
+        const task = this._loadLibraryArtistDetail({ ...entry, _maverickSingleflight: true });
         this._artistDetailLoadPromises.set(cacheKey, task);
         try {
           return await task;
@@ -9659,7 +9659,7 @@ export function createHomeiiBaseMusicCard({
         }
       }
       let artistInfo = { ...entry, media_type: "artist", uri };
-      delete artistInfo._homeiiSingleflight;
+      delete artistInfo._maverickSingleflight;
       let rawArtistPayload = null;
       if (uri) {
         try {
@@ -9897,7 +9897,7 @@ export function createHomeiiBaseMusicCard({
       ).map((option) => [option.value, option.label]);
       const current = this._mobileRadioBrowserCountry();
       if (current !== "all" && !base.some(([code]) => code === current)) {
-        base.push([current, homeiiRadioBrowserCountryLabel(current, (key) => this._i18n(key), language)]);
+        base.push([current, maverickRadioBrowserCountryLabel(current, (key) => this._i18n(key), language)]);
       }
       return base;
     }
@@ -9940,7 +9940,7 @@ export function createHomeiiBaseMusicCard({
 
     async _fetchRadioBrowserStations(query = "", limit = 40, options = {}) {
       if (this._state?.engineCapabilities?.radio_directory) {
-        return this._homeiiEngineCommand("radio/search", {query, limit:Math.max(8,Math.min(80,Number(limit) || 40)), country:options.countryCode || "", tag:options.tag || ""}, {timeoutMs:15000});
+        return this._maverickEngineCommand("radio/search", {query, limit:Math.max(8,Math.min(80,Number(limit) || 40)), country:options.countryCode || "", tag:options.tag || ""}, {timeoutMs:15000});
       }
       const safeLimit = Math.max(8, Math.min(80, Number(limit) || 40));
       const q = String(query || "").trim();
@@ -10248,14 +10248,14 @@ export function createHomeiiBaseMusicCard({
           const score = scoreItem(item, mediaType);
           if (!score) return;
           seen.add(stableKey);
-          out[group].push({ ...item, media_type: item?.media_type || mediaType, _homeiiSearchScore: score });
+          out[group].push({ ...item, media_type: item?.media_type || mediaType, _maverickSearchScore: score });
         });
       }
       Object.keys(out).forEach((group) => {
         out[group] = out[group]
-          .sort((a, b) => (Number(b._homeiiSearchScore || 0) - Number(a._homeiiSearchScore || 0)))
+          .sort((a, b) => (Number(b._maverickSearchScore || 0) - Number(a._maverickSearchScore || 0)))
           .slice(0, limit)
-          .map(({ _homeiiSearchScore, ...item }) => item);
+          .map(({ _maverickSearchScore, ...item }) => item);
       });
       return out;
     }
@@ -10285,16 +10285,16 @@ export function createHomeiiBaseMusicCard({
       const mode = options?.providerOnly ? "provider" : options?.fastOnly ? "fast" : "full";
       const limit = Math.max(5, Math.min(80, Number(options?.limit || 25) || 25));
       const mediaTypes = ["radio", "podcast", "album", "artist", "track", "playlist", "genre"];
-      const canUseEngineSearch = this._homeiiEngineEnabled?.()
-        && await this._ensureHomeiiEngineReadyForAction()
-        && typeof this._homeiiEngineSearch === "function";
+      const canUseEngineSearch = this._maverickEngineEnabled?.()
+        && await this._ensureMaverickEngineReadyForAction()
+        && typeof this._maverickEngineSearch === "function";
       if (!canUseEngineSearch) {
         this._state.musicAssistantIssueMessage = this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.";
         if (options.strict) throw new Error(this._state.musicAssistantIssueMessage);
         return this._emptySearchResults();
       }
       try {
-        const engineResult = await this._homeiiEngineSearch({
+        const engineResult = await this._maverickEngineSearch({
           query: q,
           limit,
           media_types: mediaTypes,
@@ -10322,11 +10322,11 @@ export function createHomeiiBaseMusicCard({
     }
 
     async _callEngineMaCommand(command, args = {}) {
-      const engineReady = await this._ensureHomeiiEngineReadyForAction();
-      if (typeof this._homeiiEngineMaCommand !== "function" || !engineReady) {
+      const engineReady = await this._ensureMaverickEngineReadyForAction();
+      if (typeof this._maverickEngineMaCommand !== "function" || !engineReady) {
         throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
       }
-      const response = await this._homeiiEngineMaCommand?.(command, args);
+      const response = await this._maverickEngineMaCommand?.(command, args);
       if (response === undefined || response === null) {
         throw new Error(`Maverick Music Engine did not return a response for ${command}.`);
       }
@@ -10379,21 +10379,21 @@ export function createHomeiiBaseMusicCard({
         volume_mute: "volume_mute",
       };
       const command = commandByService[service] || service;
-      return this._callHomeiiEnginePlayerCommand(targetId, command, data);
+      return this._callMaverickEnginePlayerCommand(targetId, command, data);
     }
 
     async _callMusicAssistantTransferQueue(sourcePlayerEntityId, targetPlayerEntityId) {
       const sourceId = String(sourcePlayerEntityId || "").trim();
       const targetId = String(targetPlayerEntityId || "").trim();
       if (!sourceId || !targetId || sourceId === targetId) return false;
-      const engineReady = await this._ensureHomeiiEngineReadyForAction();
-      const canUseHomeiiEngineTransfer = typeof this._homeiiEngineTransferQueue === "function"
-        && this._homeiiEngineRequired?.()
+      const engineReady = await this._ensureMaverickEngineReadyForAction();
+      const canUseMaverickEngineTransfer = typeof this._maverickEngineTransferQueue === "function"
+        && this._maverickEngineRequired?.()
         && engineReady;
-      if (!canUseHomeiiEngineTransfer) {
+      if (!canUseMaverickEngineTransfer) {
         throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
       }
-      const result = await this._homeiiEngineTransferQueue({
+      const result = await this._maverickEngineTransferQueue({
         source_player: sourceId,
         target_player: targetId,
         auto_play: true,
@@ -10498,8 +10498,8 @@ export function createHomeiiBaseMusicCard({
     _isMusicAssistantAvailabilityError(error = null) {
       const message = String(error?.message || error || "").toLowerCase();
       return this._isMissingMusicAssistantConfigError(error)
-        || error?.code === "HOMEII_TIMEOUT"
-        || error?.code === "HOMEII_MA_NOT_READY"
+        || error?.code === "MAVERICK_TIMEOUT"
+        || error?.code === "MAVERICK_MA_NOT_READY"
         || (message.includes("music assistant") && message.includes("timeout"))
         || (message.includes("music_assistant") && (message.includes("not found") || message.includes("not loaded")))
         || (message.includes("service") && message.includes("music_assistant") && message.includes("not found"));
@@ -10508,7 +10508,7 @@ export function createHomeiiBaseMusicCard({
     _handleMusicAssistantIssue(error = null) {
       const rawMessage = String(error?.message || error || "").trim();
       if (
-        this._homeiiEngineRequired?.()
+        this._maverickEngineRequired?.()
         && this._state?.engineContext
         && this._isMusicAssistantAvailabilityError(error)
       ) {
@@ -10679,7 +10679,7 @@ export function createHomeiiBaseMusicCard({
       return {
         ...player,
         entity_id: entityId,
-        state: HomeiiPlayersFoundation.isPlayerAvailable(player) ? (player.state || "idle") : "unavailable",
+        state: MaverickPlayersFoundation.isPlayerAvailable(player) ? (player.state || "idle") : "unavailable",
         attributes: attrs,
       };
     }
@@ -10696,7 +10696,7 @@ export function createHomeiiBaseMusicCard({
         try { await this._enginePlayersRefreshPromise; } catch {}
         return this._refreshEnginePlayers(options);
       }
-      if (!this._homeiiEngineRequired?.() || typeof this._homeiiEngineGetPlayers !== "function") {
+      if (!this._maverickEngineRequired?.() || typeof this._maverickEngineGetPlayers !== "function") {
         this._state.enginePlayers = [];
         return [];
       }
@@ -10704,25 +10704,25 @@ export function createHomeiiBaseMusicCard({
       this._state.enginePlayersLastAttemptAt = Date.now();
       this._enginePlayersRefreshPromise = (async () => {
         try {
-          if (!this._state?.engineAvailable && typeof this._refreshHomeiiEngineContext === "function") {
-            await this._refreshHomeiiEngineContext({ force: true });
+          if (!this._state?.engineAvailable && typeof this._refreshMaverickEngineContext === "function") {
+            await this._refreshMaverickEngineContext({ force: true });
           }
           if (!this._state?.engineAvailable) {
             if (options.requireFresh) throw new Error("Maverick Music Engine is unavailable.");
             return lastGoodPlayers;
           }
-          const result = await this._homeiiEngineGetPlayers({ include_all: false });
+          const result = await this._maverickEngineGetPlayers({ include_all: false });
           if (!Array.isArray(result?.music_assistant_players) && !Array.isArray(result?.players)) {
             throw new Error("Maverick Music Engine returned an invalid player catalog.");
           }
-          if (!HomeiiRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+          if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
             this._engineSnapshotRevisions,
             "players",
             result,
             "music_assistant",
           )) {
             this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine player snapshot", {
-              snapshot: HomeiiRevisionedSnapshotsFoundation.engineSnapshotMeta(result),
+              snapshot: MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(result),
             });
             if (options.requireFresh) throw new Error("Maverick Music Engine returned a stale player snapshot.");
             return lastGoodPlayers;
@@ -10758,7 +10758,7 @@ export function createHomeiiBaseMusicCard({
       const enginePlayersRetryReady = Date.now() - Number(this._state.enginePlayersLastAttemptAt || 0) > 5000;
       if (
         !entities.length
-        && this._homeiiEngineRequired?.()
+        && this._maverickEngineRequired?.()
         && !this._enginePlayersRefreshPromise
         && enginePlayersRetryReady
       ) {
@@ -10843,7 +10843,7 @@ export function createHomeiiBaseMusicCard({
       const configuredDefaultPlayer = configuredDefaultEntityId
         ? entities.find((entity) => entity?.entity_id === configuredDefaultEntityId)
         : null;
-      const pendingPlayerLock = HomeiiNowPlayingFoundation.pendingPlayerLockState(this._state, entities, Date.now());
+      const pendingPlayerLock = MaverickNowPlayingFoundation.pendingPlayerLockState(this._state, entities, Date.now());
       if (pendingPlayerLock.lockedPlayerId && this._state.selectedPlayer !== pendingPlayerLock.lockedPlayerId) {
         this._state.selectedPlayer = pendingPlayerLock.lockedPlayerId;
       }
@@ -10852,7 +10852,7 @@ export function createHomeiiBaseMusicCard({
         this._state.selectedPlayer = urlPlayerOverride.entity_id;
         this._state.hasAutoSelectedPlayer = true;
       }
-      const preferredFrontPlayerEntity = (holdSelectedPlayerDuringTransition || urlPlayerOverride?.entity_id) ? "" : HomeiiPlayersFoundation.resolvePreferredFrontPlayerEntity(entities, {
+      const preferredFrontPlayerEntity = (holdSelectedPlayerDuringTransition || urlPlayerOverride?.entity_id) ? "" : MaverickPlayersFoundation.resolvePreferredFrontPlayerEntity(entities, {
         currentEntityId: this._state.selectedPlayer,
         frontPinnedEntityId: this._frontPinnedPlayerEntity(entities),
         manualFrontEntityId: this._manualFrontPlayerEntity(entities),
@@ -10955,17 +10955,17 @@ export function createHomeiiBaseMusicCard({
       const label = this._mediaFeedbackLabel(uri, options.label || "");
       try {
         const targetPlayer = this._playerByEntityId(entityId);
-        if (targetPlayer && !HomeiiPlayersFoundation.isPlayerAvailable(targetPlayer)) {
+        if (targetPlayer && !MaverickPlayersFoundation.isPlayerAvailable(targetPlayer)) {
           throw new Error(this._m("This player is offline. Choose an available player.", "הנגן אינו מחובר. בחר נגן זמין."));
         }
-        const engineReady = await this._ensureHomeiiEngineReadyForAction();
-        const canUseHomeiiEnginePlayback = typeof this._homeiiEnginePlayMedia === "function"
-          && this._homeiiEngineRequired?.()
+        const engineReady = await this._ensureMaverickEngineReadyForAction();
+        const canUseMaverickEnginePlayback = typeof this._maverickEnginePlayMedia === "function"
+          && this._maverickEngineRequired?.()
           && engineReady;
-        if (!canUseHomeiiEnginePlayback) {
+        if (!canUseMaverickEnginePlayback) {
           throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
         }
-        const engineResult = await this._homeiiEnginePlayMedia({
+        const engineResult = await this._maverickEnginePlayMedia({
           player: entityId,
           media_id: uri,
           media_type: mediaType,
@@ -11068,7 +11068,7 @@ export function createHomeiiBaseMusicCard({
       const action = this._playPauseActionForPlayer(player);
       const nextState = action === "stop" ? "idle" : (action === "pause" ? "paused" : "playing");
       this._setPlayerPlaybackOptimistic(player.entity_id, { state: nextState });
-      this._callHomeiiEnginePlayerCommand(player.entity_id, action)
+      this._callMaverickEnginePlayerCommand(player.entity_id, action)
         .catch((error) => {
           this._clearPlayerPlaybackOptimistic(player.entity_id);
           this._toastError(this._mediaControlFailureMessage(error));
@@ -11080,7 +11080,7 @@ export function createHomeiiBaseMusicCard({
     _playerCmd(cmd) {
       const player = this._getSelectedPlayer();
       if (!player) return;
-      let queueItems = HomeiiMediaQueueFoundation.sortQueueItems(this._state.queueItems || []);
+      let queueItems = MaverickMediaQueueFoundation.sortQueueItems(this._state.queueItems || []);
       const currentQueueIndex = Number(this._state.maQueueState?.current_index);
       let baseIndex = Number.isFinite(currentQueueIndex)
         ? queueItems.findIndex((item) => Number(item?.sort_index) === currentQueueIndex)
@@ -11098,7 +11098,7 @@ export function createHomeiiBaseMusicCard({
         this._refreshMobileArtStack(true);
         this._syncNowPlayingUI();
       }
-      this._callHomeiiEnginePlayerCommand(player.entity_id, cmd === "previous" ? "previous" : "next")
+      this._callMaverickEnginePlayerCommand(player.entity_id, cmd === "previous" ? "previous" : "next")
         .catch((error) => this._toastError(this._mediaControlFailureMessage(error)));
       this._scheduleQueueRefreshAfterMutation(700);
     }
@@ -11106,7 +11106,7 @@ export function createHomeiiBaseMusicCard({
     async _playerCmdFor(entityId, cmd = "next") {
       const player = this._playerByEntityId(entityId);
       if (!player) return;
-      await this._callHomeiiEnginePlayerCommand(player.entity_id, cmd === "previous" ? "previous" : "next");
+      await this._callMaverickEnginePlayerCommand(player.entity_id, cmd === "previous" ? "previous" : "next");
       if (entityId === this._state.selectedPlayer) {
         this._scheduleQueueRefreshAfterMutation(700);
       }
@@ -11120,7 +11120,7 @@ export function createHomeiiBaseMusicCard({
         this._setPlayerPlaybackOptimistic(entityId, { state: action === "stop" ? "idle" : (action === "pause" ? "paused" : "playing") });
       }
       try {
-        await this._callHomeiiEnginePlayerCommand(entityId, action);
+        await this._callMaverickEnginePlayerCommand(entityId, action);
       } catch (error) {
         this._clearPlayerPlaybackOptimistic(entityId);
         this._schedulePlayerStateRefresh(0);
@@ -11133,7 +11133,7 @@ export function createHomeiiBaseMusicCard({
       if (!player) return;
       const nextShuffle = !player.attributes.shuffle;
       this._setPlayerPlaybackOptimistic(player.entity_id, { shuffle: nextShuffle });
-      this._callHomeiiEnginePlayerCommand(player.entity_id, "shuffle", { shuffle: nextShuffle })
+      this._callMaverickEnginePlayerCommand(player.entity_id, "shuffle", { shuffle: nextShuffle })
         .catch((error) => {
           this._clearPlayerPlaybackOptimistic(player.entity_id);
           this._toastError(this._mediaControlFailureMessage(error));
@@ -11156,7 +11156,7 @@ export function createHomeiiBaseMusicCard({
       const current = player.attributes.repeat || "off";
       const next = modes[(modes.indexOf(current) + 1) % modes.length];
       this._setPlayerPlaybackOptimistic(player.entity_id, { repeat: next });
-      this._callHomeiiEnginePlayerCommand(player.entity_id, "repeat", { repeat: next })
+      this._callMaverickEnginePlayerCommand(player.entity_id, "repeat", { repeat: next })
         .catch((error) => {
           this._clearPlayerPlaybackOptimistic(player.entity_id);
           this._toastError(this._mediaControlFailureMessage(error));
@@ -11191,13 +11191,13 @@ export function createHomeiiBaseMusicCard({
             const target = request.pending;
             request.pending = null;
             try {
-              await this._callHomeiiEnginePlayerCommand(playerId, "volume", { volume_level: target });
+              await this._callMaverickEnginePlayerCommand(playerId, "volume", { volume_level: target });
               // Set the requested level before unmuting, so the previous loudness never leaks through.
               if (target > 0) {
                 const muteRequest = this._muteRequestsByPlayer?.get(playerId);
                 if (muteRequest) await muteRequest;
                 if (this._isMuted(this._playerByEntityId(playerId))) {
-                  await this._callHomeiiEnginePlayerCommand(playerId, "volume_mute", { is_volume_muted: false });
+                  await this._callMaverickEnginePlayerCommand(playerId, "volume_mute", { is_volume_muted: false });
                   this._setPlayerVolumeOptimistic(playerId, request.pending ?? target, false);
                 }
               }
@@ -11358,7 +11358,7 @@ export function createHomeiiBaseMusicCard({
           let applied;
           do {
             applied = this._muteTargetsByPlayer.get(entityId);
-            await this._callHomeiiEnginePlayerCommand(entityId, "volume_mute", { is_volume_muted: applied });
+            await this._callMaverickEnginePlayerCommand(entityId, "volume_mute", { is_volume_muted: applied });
             const current = this._playerByEntityId(entityId) || player;
             this._setPlayerVolumeOptimistic(entityId, Number(current.attributes?.volume_level ?? 0), applied);
           } while (this._muteTargetsByPlayer.get(entityId) !== applied);
@@ -11406,7 +11406,7 @@ export function createHomeiiBaseMusicCard({
 
     _getCurrentDuration() {
       const player = this._getSelectedPlayer();
-      return HomeiiMediaPresentationFoundation.coercePlaybackSeconds(
+      return MaverickMediaPresentationFoundation.coercePlaybackSeconds(
         this._state.maQueueState?.current_item?.duration
         || this._state.maQueueState?.current_item?.media_item?.duration
         || player?.attributes?.media_duration
@@ -11426,7 +11426,7 @@ export function createHomeiiBaseMusicCard({
           const asMilliseconds = numeric / 1000;
           if (asMilliseconds <= duration + 5) return Math.max(0, asMilliseconds);
         }
-        return HomeiiMediaPresentationFoundation.coercePlaybackSeconds(value || 0);
+        return MaverickMediaPresentationFoundation.coercePlaybackSeconds(value || 0);
       };
       const hasPlayerPosition = player?.attributes?.media_position !== undefined
         && player?.attributes?.media_position !== null
@@ -11437,7 +11437,7 @@ export function createHomeiiBaseMusicCard({
       const applyLiveDelta = (basePosition = 0, updatedAtValue = "") => {
         let position = coercePosition(basePosition || 0);
         if (player?.state === "playing" && updatedAtValue) {
-          const updatedAt = HomeiiMediaPresentationFoundation.parsePlaybackTimestampMs(updatedAtValue);
+          const updatedAt = MaverickMediaPresentationFoundation.parsePlaybackTimestampMs(updatedAtValue);
           if (updatedAt) position += Math.max(0, (Date.now() - updatedAt) / 1000);
         }
         return position;
@@ -11455,10 +11455,10 @@ export function createHomeiiBaseMusicCard({
     }
 
     _applyProgressUi(position = this._getCurrentPosition(), duration = this._getCurrentDuration()) {
-      const safeDuration = HomeiiMediaPresentationFoundation.coercePlaybackSeconds(duration);
+      const safeDuration = MaverickMediaPresentationFoundation.coercePlaybackSeconds(duration);
       const safePosition = safeDuration
-        ? Math.max(0, Math.min(safeDuration, HomeiiMediaPresentationFoundation.coercePlaybackSeconds(position)))
-        : Math.max(0, HomeiiMediaPresentationFoundation.coercePlaybackSeconds(position));
+        ? Math.max(0, Math.min(safeDuration, MaverickMediaPresentationFoundation.coercePlaybackSeconds(position)))
+        : Math.max(0, MaverickMediaPresentationFoundation.coercePlaybackSeconds(position));
       const pct = safeDuration ? Math.min(100, (safePosition / safeDuration) * 100) : 0;
       const wave = this.$("progressBar")?.querySelector?.(".waveform-played");
       if (wave) wave.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
@@ -11491,7 +11491,7 @@ export function createHomeiiBaseMusicCard({
       clearTimeout(this._seekTimer);
       const runSeek = async () => {
         try {
-          await this._callHomeiiEnginePlayerCommand(player.entity_id, "seek", { seek_position: newPos });
+          await this._callMaverickEnginePlayerCommand(player.entity_id, "seek", { seek_position: newPos });
           if (this._getSelectedPlayer()?.entity_id === player.entity_id) await this._ensureQueueSnapshot?.(true);
           return true;
         } catch (error) {
@@ -11510,8 +11510,8 @@ export function createHomeiiBaseMusicCard({
       const text = String(value || "—");
       const shouldScroll = this._nowPlayingSubtitleShouldScroll(scrollWhenOverflow);
       const existingInner = el.querySelector?.(".scrolling-text-inner");
-      const unchanged = el.dataset.homeiiSubtitleText === text
-        && el.dataset.homeiiSubtitleScroll === String(shouldScroll)
+      const unchanged = el.dataset.maverickSubtitleText === text
+        && el.dataset.maverickSubtitleScroll === String(shouldScroll)
         && existingInner;
 
       el.title = text;
@@ -11521,8 +11521,8 @@ export function createHomeiiBaseMusicCard({
         return;
       }
 
-      el.dataset.homeiiSubtitleText = text;
-      el.dataset.homeiiSubtitleScroll = String(shouldScroll);
+      el.dataset.maverickSubtitleText = text;
+      el.dataset.maverickSubtitleScroll = String(shouldScroll);
       el.classList.remove("is-overflowing");
       el.style.removeProperty("--scroll-distance");
       el.style.removeProperty("--scroll-duration");
@@ -11739,7 +11739,7 @@ export function createHomeiiBaseMusicCard({
       try {
         this._syncSleepTimerState();
         this._syncScheduledStartState();
-        const enginePlayerSnapshotExpired = this._homeiiEngineRequired?.()
+        const enginePlayerSnapshotExpired = this._maverickEngineRequired?.()
           && Date.now() - Number(this._state?.enginePlayersLastAttemptAt || 0) >= 5000;
         if (enginePlayerSnapshotExpired && typeof this._refreshEnginePlayers === "function") {
           // HA Companion/WebView can occasionally miss an Engine event while the
@@ -11812,7 +11812,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _queueItemImageUrl(item, size = 120) {
-      if (this._homeiiEngineRequired?.()) {
+      if (this._maverickEngineRequired?.()) {
         return this._artUrl(item, { size })
           || this._artUrl(item?.media_item || item, { size })
           || null;
@@ -12095,8 +12095,8 @@ export function createHomeiiBaseMusicCard({
         const serviceQueueItemId = targetItem
           ? String(targetItem.queue_service_id || (targetItem.queue_item_id_trusted !== false ? targetItem.queue_item_id : "") || this._getQueueItemPlaybackId(targetItem) || "").trim()
           : "";
-        const numericSortIndex = HomeiiMediaQueueFoundation.normalizeFiniteNumber(targetItem?.sort_index ?? sortIndex);
-        this._debugLog("info", "[Homeii Queue] action", {
+        const numericSortIndex = MaverickMediaQueueFoundation.normalizeFiniteNumber(targetItem?.sort_index ?? sortIndex);
+        this._debugLog("info", "[Maverick Queue] action", {
           action,
           queueId,
           queueItemId,
@@ -12107,12 +12107,12 @@ export function createHomeiiBaseMusicCard({
         });
 
         let acted = false;
-        const engineReady = await this._ensureHomeiiEngineReadyForAction();
-        if (typeof this._homeiiEngineQueueAction !== "function" || !this._homeiiEngineRequired?.() || !engineReady) {
+        const engineReady = await this._ensureMaverickEngineReadyForAction();
+        if (typeof this._maverickEngineQueueAction !== "function" || !this._maverickEngineRequired?.() || !engineReady) {
           throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "Maverick Music Engine is required.");
         }
         if (serviceQueueItemId && (massQueueServiceByAction[action] || action === "move_to")) {
-          const result = await this._homeiiEngineQueueAction({
+          const result = await this._maverickEngineQueueAction({
             entity_id: player.entity_id,
             queue_id: queueId,
             action,
@@ -12189,7 +12189,7 @@ export function createHomeiiBaseMusicCard({
 
       if (seekPosition > 0) {
         setTimeout(() => {
-          this._callHomeiiEnginePlayerCommand(targetEntityId, "seek", {
+          this._callMaverickEnginePlayerCommand(targetEntityId, "seek", {
             seek_position: Math.floor(seekPosition),
           }).catch(() => {});
         }, 900);
@@ -12278,24 +12278,24 @@ export function createHomeiiBaseMusicCard({
     }
 
     _normalizeMediaItem(item) {
-      return HomeiiMediaPresentationFoundation.normalizeMediaItem(item, this._maArtworkBaseUrl());
+      return MaverickMediaPresentationFoundation.normalizeMediaItem(item, this._maArtworkBaseUrl());
     }
 
     _imageProxyUrl(path, provider = "", size = 300) {
-      return HomeiiMediaPresentationFoundation.imageProxyUrl(path, provider, size, this._maArtworkBaseUrl());
+      return MaverickMediaPresentationFoundation.imageProxyUrl(path, provider, size, this._maArtworkBaseUrl());
     }
 
     _imageUrl(value, size = 300, seen = new Set(), depth = 0) {
       const maUrl = this._maArtworkBaseUrl();
-      const raw = HomeiiMediaPresentationFoundation.imageUrl(value, size, {
+      const raw = MaverickMediaPresentationFoundation.imageUrl(value, size, {
         maUrl,
         seen,
         depth,
       });
       const resolved = this._normalizeArtworkUrl(raw, { size });
-      const rebasedRaw = HomeiiMediaPresentationFoundation.rebaseImageProxyUrl(raw, size, maUrl);
+      const rebasedRaw = MaverickMediaPresentationFoundation.rebaseImageProxyUrl(raw, size, maUrl);
       const rebased = this._normalizeArtworkUrl(rebasedRaw, { size });
-      const fallbackRaw = HomeiiMediaPresentationFoundation.legacyImageProxyFallbackUrl(value, size, {
+      const fallbackRaw = MaverickMediaPresentationFoundation.legacyImageProxyFallbackUrl(value, size, {
         maUrl,
       });
       const fallback = this._normalizeArtworkUrl(fallbackRaw, { size });
@@ -12307,16 +12307,16 @@ export function createHomeiiBaseMusicCard({
       const size = Number(options?.size || 300) || 300;
       const engineArt = String(
         item?.homeii_artwork_url
-        || item?.homeiiArtworkUrl
+        || item?.maverickArtworkUrl
         || item?.media_item?.homeii_artwork_url
-        || item?.media_item?.homeiiArtworkUrl
+        || item?.media_item?.maverickArtworkUrl
         || item?.album?.homeii_artwork_url
-        || item?.album?.homeiiArtworkUrl
+        || item?.album?.maverickArtworkUrl
         || item?.metadata?.homeii_artwork_url
         || ""
       ).trim();
       if (engineArt) return this._normalizeArtworkUrl(engineArt, { size, cacheKey: options?.cacheKey || "" }) || engineArt;
-      if (this._homeiiEngineRequired?.()) {
+      if (this._maverickEngineRequired?.()) {
         const safeCandidates = [
           item?.image,
           item?.image_url,
@@ -12346,20 +12346,20 @@ export function createHomeiiBaseMusicCard({
         return "";
       }
       const maUrl = this._maArtworkBaseUrl();
-      const raw = HomeiiMediaPresentationFoundation.artUrl(item, maUrl, size);
+      const raw = MaverickMediaPresentationFoundation.artUrl(item, maUrl, size);
       const resolved = this._normalizeArtworkUrl(raw, { size, cacheKey: options?.cacheKey || "" });
-      const rebasedRaw = HomeiiMediaPresentationFoundation.rebaseImageProxyUrl(raw, size, maUrl);
+      const rebasedRaw = MaverickMediaPresentationFoundation.rebaseImageProxyUrl(raw, size, maUrl);
       const rebased = this._normalizeArtworkUrl(rebasedRaw, { size, cacheKey: options?.cacheKey || "" });
-      const fallbackRaw = HomeiiMediaPresentationFoundation.legacyImageProxyFallbackUrl(item, size, {
+      const fallbackRaw = MaverickMediaPresentationFoundation.legacyImageProxyFallbackUrl(item, size, {
         maUrl,
       });
       const fallback = this._normalizeArtworkUrl(fallbackRaw, { size, cacheKey: options?.cacheKey || "" });
       const primary = resolved || rebased;
       return this._rememberArtworkFallback(primary, [rebased, fallback]);
     }
-    _artistName(item) { return HomeiiMediaPresentationFoundation.artistName(item); }
+    _artistName(item) { return MaverickMediaPresentationFoundation.artistName(item); }
     _fmtDur(sec) {
-      return HomeiiMediaPresentationFoundation.formatDuration(sec);
+      return MaverickMediaPresentationFoundation.formatDuration(sec);
     }
     _esc(value) {
       return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -12374,7 +12374,7 @@ export function createHomeiiBaseMusicCard({
       const fetchPriority = options.fetchpriority || options.fetchPriority || "low";
       const fetchPriorityAttr = fetchPriority ? ` fetchpriority="${this._esc(fetchPriority)}"` : "";
       const fallbackIcon = options.fallbackIcon || options.placeholder || "album";
-      return `<img${className} src="${this._esc(url)}" alt="${this._esc(alt)}" loading="${this._esc(loading)}" decoding="${this._esc(decoding)}"${fetchPriorityAttr} data-homeii-inline-art="1" data-homeii-art-src="${this._esc(url)}" data-homeii-art-fallback-icon="${this._esc(fallbackIcon)}">`;
+      return `<img${className} src="${this._esc(url)}" alt="${this._esc(alt)}" loading="${this._esc(loading)}" decoding="${this._esc(decoding)}"${fetchPriorityAttr} data-maverick-inline-art="1" data-maverick-art-src="${this._esc(url)}" data-maverick-art-fallback-icon="${this._esc(fallbackIcon)}">`;
     }
 
     _toast(message, variant = "info", options = {}) {
@@ -12430,7 +12430,7 @@ export function createHomeiiBaseMusicCard({
     }
 
     _mediaFeedbackLabel(uri = "", fallback = "") {
-      return HomeiiMediaHistoryFoundation.mediaFeedbackLabel(
+      return MaverickMediaHistoryFoundation.mediaFeedbackLabel(
         uri,
         fallback,
         this._state.queueItems || [],
@@ -12466,7 +12466,7 @@ export function createHomeiiBaseMusicCard({
         this._menuImgObserver?.disconnect?.();
         this._menuImgObserver = null;
         const priority = [
-          ...Array.from(root.querySelectorAll(".active[data-img], .active [data-img], [data-homeii-art-priority='1'][data-img]")),
+          ...Array.from(root.querySelectorAll(".active[data-img], .active [data-img], [data-maverick-art-priority='1'][data-img]")),
           ...pending.slice(0, 6),
         ].filter((el, index, list) => el?.dataset?.img && list.indexOf(el) === index);
         priority.forEach(hydrate);
@@ -12605,10 +12605,10 @@ export function createHomeiiBaseMusicCard({
       this._cancelLocalSendspinDisconnect();
       this._attachLocalSendspinLifecycleListeners();
       this._scheduleLocalSendspinReconnect("connected", 600);
-      if (typeof this._refreshHomeiiEngineContext === "function") {
-        setTimeout(() => this._refreshHomeiiEngineContext({ force: true }).catch(() => {}), 800);
+      if (typeof this._refreshMaverickEngineContext === "function") {
+        setTimeout(() => this._refreshMaverickEngineContext({ force: true }).catch(() => {}), 800);
       }
-      this._subscribeHomeiiEngineMusicAssistantEvents?.();
+      this._subscribeMaverickEngineMusicAssistantEvents?.();
     }
 
     disconnectedCallback() {
@@ -12622,8 +12622,8 @@ export function createHomeiiBaseMusicCard({
       clearTimeout(this._seekTimer);
       clearTimeout(this._resizeTimer);
       clearTimeout(this._layoutRecoveryTimer);
-      clearTimeout(this._homeiiMaContextEventTimer);
-      this._unsubscribeHomeiiEngineMusicAssistantEvents?.();
+      clearTimeout(this._maverickMaContextEventTimer);
+      this._unsubscribeMaverickEngineMusicAssistantEvents?.();
       if (this._layoutRecoveryFrame && typeof cancelAnimationFrame === "function") {
         cancelAnimationFrame(this._layoutRecoveryFrame);
         this._layoutRecoveryFrame = null;

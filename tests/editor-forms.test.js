@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  configureHomeiiEditorForms,
+  configureMaverickEditorForms,
   getBaseCardConfigForm,
   getMobileCardConfigForm,
   getMobileEditorTexts,
@@ -10,13 +10,13 @@ import {
 import { radioBrowserCountrySelectorOptions } from "../src/core/radio-browser-countries.js";
 
 function configureTestEditorForms() {
-  configureHomeiiEditorForms({
-    homeiiEditorI18n: (key, params = {}, fallback = "") => {
+  configureMaverickEditorForms({
+    maverickEditorI18n: (key, params = {}, fallback = "") => {
       void params;
       return fallback || key;
     },
-    homeiiEditorLabelFor: (schema = {}, labels = {}) => labels?.[schema?.name] || schema?.label || schema?.title || schema?.name || "",
-    homeiiEditorHelperFor: (schema = {}, helpers = {}) => helpers?.[schema?.name] || schema?.helper || "",
+    maverickEditorLabelFor: (schema = {}, labels = {}) => labels?.[schema?.name] || schema?.label || schema?.title || schema?.name || "",
+    maverickEditorHelperFor: (schema = {}, helpers = {}) => helpers?.[schema?.name] || schema?.helper || "",
     detectEditorHebrew: () => false,
     visibleLanguageOptions: [
       { value: "en", label: "English" },

@@ -143,4 +143,4 @@ await copyFile(brandLogoPngPath, distLogoPngPath);
 await copyFile(path.join(rootDir, "src", "homeii-flow-logo-v2.png"), path.join(rootDir, "dist", "homeii-flow-logo-v2.png"));
 await copyFile(brandIconPngPath, distIconPngPath);
 
-console.log(`Synced Homeii release artifacts for ${version}`);
+console.log(`Synced Maverick release artifacts for ${version}`);

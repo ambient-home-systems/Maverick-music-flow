@@ -1,5 +1,5 @@
-export const HOMEII_ENGINE_COMMAND_PREFIX = "homeii_flow";
-export const HOMEII_ENGINE_MODES = Object.freeze(["required"]);
+export const MAVERICK_ENGINE_COMMAND_PREFIX = "homeii_flow";
+export const MAVERICK_ENGINE_MODES = Object.freeze(["required"]);
 
 // Documented config key -> legacy HOMEii config key. Both are accepted; the
 // documented name wins when a config carries both.
@@ -38,39 +38,39 @@ export function normalizeEngineConfigKeys(config, { dropLegacy = false } = {}) {
   return next;
 }
 
-export function normalizeHomeiiEngineMode(value = "required") {
+export function normalizeMaverickEngineMode(value = "required") {
   const mode = String(value || "").trim().toLowerCase();
-  return HOMEII_ENGINE_MODES.includes(mode) ? mode : "required";
+  return MAVERICK_ENGINE_MODES.includes(mode) ? mode : "required";
 }
 
-export function homeiiEngineModeAllowsCalls(value = "required") {
-  return normalizeHomeiiEngineMode(value) !== "off";
+export function maverickEngineModeAllowsCalls(value = "required") {
+  return normalizeMaverickEngineMode(value) !== "off";
 }
 
-export function homeiiEngineModeRequiresEngine(value = "required") {
-  return normalizeHomeiiEngineMode(value) === "required";
+export function maverickEngineModeRequiresEngine(value = "required") {
+  return normalizeMaverickEngineMode(value) === "required";
 }
 
-export function clampHomeiiEngineTimeoutMs(value, fallback = 3500) {
+export function clampMaverickEngineTimeoutMs(value, fallback = 3500) {
   const numeric = Number(value);
   const safe = Number.isFinite(numeric) ? numeric : fallback;
   return Math.max(1000, Math.min(30000, safe));
 }
 
-export function normalizeHomeiiEngineId(value = "") {
+export function normalizeMaverickEngineId(value = "") {
   return String(value || "").trim().slice(0, 128);
 }
 
-export function homeiiEngineCommandType(command = "get_context") {
+export function maverickEngineCommandType(command = "get_context") {
   const clean = String(command || "get_context")
     .trim()
     .replace(/^\/+|\/+$/g, "")
     .replace(/[^a-zA-Z0-9_/-]+/g, "_")
     || "get_context";
-  return `${HOMEII_ENGINE_COMMAND_PREFIX}/${clean}`;
+  return `${MAVERICK_ENGINE_COMMAND_PREFIX}/${clean}`;
 }
 
-export function normalizeHomeiiEngineCapabilities(payload = null) {
+export function normalizeMaverickEngineCapabilities(payload = null) {
   const source = payload?.capabilities || payload?.data?.capabilities || payload;
   if (Array.isArray(source)) {
     return source.reduce((acc, capability) => {
@@ -83,20 +83,20 @@ export function normalizeHomeiiEngineCapabilities(payload = null) {
   return {};
 }
 
-export function normalizeHomeiiEngineContext(payload = null) {
+export function normalizeMaverickEngineContext(payload = null) {
   const context = payload?.context && typeof payload.context === "object" ? payload.context : payload;
   const data = context && typeof context === "object" ? context : {};
   return {
     available: !!payload,
     version: String(data.version || data.engine_version || payload?.version || "").trim(),
-    instanceId: normalizeHomeiiEngineId(data.instance_id || data.instanceId || payload?.instance_id || ""),
-    profileId: normalizeHomeiiEngineId(data.profile_id || data.profileId || payload?.profile_id || ""),
-    capabilities: normalizeHomeiiEngineCapabilities(data.capabilities || payload?.capabilities),
+    instanceId: normalizeMaverickEngineId(data.instance_id || data.instanceId || payload?.instance_id || ""),
+    profileId: normalizeMaverickEngineId(data.profile_id || data.profileId || payload?.profile_id || ""),
+    capabilities: normalizeMaverickEngineCapabilities(data.capabilities || payload?.capabilities),
     raw: payload || null,
   };
 }
 
-export function summarizeHomeiiEngineCapabilities(capabilities = {}) {
+export function summarizeMaverickEngineCapabilities(capabilities = {}) {
   const keys = Object.entries(capabilities || {})
     .filter(([, enabled]) => enabled !== false && enabled != null)
     .map(([key]) => key)

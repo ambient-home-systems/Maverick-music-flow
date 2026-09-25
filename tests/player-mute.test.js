@@ -8,7 +8,7 @@ const prototype = globalThis.customElements.get("maverick-music").prototype;
 function context(command = vi.fn(async () => {})) {
   return {
     _playerByEntityId: () => ({ entity_id: "computer", attributes: { volume_level: 0.49 } }),
-    _callHomeiiEnginePlayerCommand: command,
+    _callMaverickEnginePlayerCommand: command,
     _setPlayerVolumeOptimistic: vi.fn(), _optimisticMuteByPlayer: new Map(), _softMutedPlayers: new Set(),
     _schedulePlayerStateRefresh: vi.fn(), _toastError: vi.fn(), _mediaControlFailureMessage: (e) => e.message,
   };
@@ -52,7 +52,7 @@ describe("consistent player mute", () => {
     card._isMuted = (item) => item.attributes.is_volume_muted;
     card._optimisticVolumeByPlayer = new Map();
     card._loadPlayers = vi.fn(); card._syncNowPlayingUI = vi.fn();
-    card._callHomeiiEnginePlayerCommand = vi.fn(async (_, command) => {
+    card._callMaverickEnginePlayerCommand = vi.fn(async (_, command) => {
       if (command === "volume_mute" && failUnmute) throw new Error("unmute failed");
     });
     return card;
@@ -62,7 +62,7 @@ describe("consistent player mute", () => {
     const result = prototype._setPlayerVolumeFor.call(card, "computer", .2);
     await vi.runAllTimersAsync();
     expect(await result).toBe(true);
-    expect(card._callHomeiiEnginePlayerCommand.mock.calls).toEqual([
+    expect(card._callMaverickEnginePlayerCommand.mock.calls).toEqual([
       ["computer", "volume", { volume_level: .2 }],
       ["computer", "volume_mute", { is_volume_muted: false }],
     ]);
@@ -73,7 +73,7 @@ describe("consistent player mute", () => {
     const result = prototype._setPlayerVolumeFor.call(card, "computer", 0);
     await vi.runAllTimersAsync();
     expect(await result).toBe(true);
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledExactlyOnceWith("computer", "volume", { volume_level: 0 });
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledExactlyOnceWith("computer", "volume", { volume_level: 0 });
   });
   it("reports unmute failure without showing the player as unmuted", async () => {
     const card = volumeContext(true);
@@ -95,7 +95,7 @@ describe("consistent player mute", () => {
   it("sends one mute command and preserves the volume", async () => {
     const card = context();
     await expect(prototype._setPlayerMutedFor.call(card, "computer", true)).resolves.toBe(true);
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledExactlyOnceWith("computer", "volume_mute", { is_volume_muted: true });
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledExactlyOnceWith("computer", "volume_mute", { is_volume_muted: true });
     expect(card._setPlayerVolumeOptimistic).toHaveBeenCalledWith("computer", 0.49, true);
   });
   it("does not fabricate muted state or zero the volume on failure", async () => {
@@ -110,7 +110,7 @@ describe("consistent player mute", () => {
     const card = context(vi.fn(() => new Promise((resolve) => { complete = resolve; })));
     const first = prototype._setPlayerMutedFor.call(card, "computer", true);
     const second = prototype._setPlayerMutedFor.call(card, "computer", true);
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledOnce();
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledOnce();
     expect(card._setPlayerVolumeOptimistic).not.toHaveBeenCalled();
     complete();
     await Promise.all([first, second]);

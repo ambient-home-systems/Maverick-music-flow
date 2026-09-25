@@ -12,7 +12,7 @@ describe("Maverick Music 6 Engine performance contract", () => {
       source.indexOf("async _callHaServiceRaw"),
     );
 
-    expect(commandMethod).toContain("_homeiiEngineMaCommand");
+    expect(commandMethod).toContain("_maverickEngineMaCommand");
     expect(commandMethod).not.toContain("fetch(");
     expect(commandMethod).not.toContain("_wsSend");
     expect(source).not.toContain("new WebSocket(wsUrl)");
@@ -22,7 +22,7 @@ describe("Maverick Music 6 Engine performance contract", () => {
     const source = await readSource("src/maverick-music.js");
     const validators = await readSource("src/config/validators.js");
 
-    expect(source).toContain('_homeiiEngineVersionAtLeast("0.7.6")');
+    expect(source).toContain('_maverickEngineVersionAtLeast("0.7.6")');
     expect(source).toContain('"music_assistant_schema_63"');
     expect(source).toContain('"music_assistant_websocket_commands"');
     expect(source).toContain('"typed_music_assistant_contract"');
@@ -71,8 +71,8 @@ describe("Maverick Music 6 Engine performance contract", () => {
     const baseSource = await readSource("src/core/base-music-card.js");
     const cardSource = await readSource("src/maverick-music.js");
 
-    expect(baseSource).toContain("_homeiiEngineGetFavorites");
-    expect(baseSource).toContain("_homeiiEngineSetFavorite");
+    expect(baseSource).toContain("_maverickEngineGetFavorites");
+    expect(baseSource).toContain("_maverickEngineSetFavorite");
     expect(baseSource).toContain("favorites_aggregate");
     expect(baseSource).toContain("favorite_mutation");
     expect(cardSource).toContain('data-library-liked-open="library_liked"');
@@ -103,11 +103,11 @@ describe("Maverick Music 6 Engine performance contract", () => {
   it("allows the Engine bootstrap enough time for authenticated contract probes", async () => {
     const source = await readSource("src/maverick-music.js");
     const bootstrap = source.slice(
-      source.indexOf("async _refreshHomeiiEngineContext"),
-      source.indexOf("_subscribeHomeiiEngineMusicAssistantEvents"),
+      source.indexOf("async _refreshMaverickEngineContext"),
+      source.indexOf("_subscribeMaverickEngineMusicAssistantEvents"),
     );
 
-    expect(bootstrap).toContain("Math.max(20000, this._homeiiEngineTimeoutMs())");
-    expect(bootstrap).toContain("Math.max(10000, this._homeiiEngineTimeoutMs())");
+    expect(bootstrap).toContain("Math.max(20000, this._maverickEngineTimeoutMs())");
+    expect(bootstrap).toContain("Math.max(10000, this._maverickEngineTimeoutMs())");
   });
 });

@@ -295,7 +295,7 @@ export function voiceAssistantCandidateScore(candidate = {}, query = "", request
   else if (!request.explicit && type === "artist") score += 2;
   else if (!request.explicit && type === "playlist") score -= 8;
   else if (request.explicit) score -= 8;
-  if (candidate?._homeiiVoiceFocused === true) score += 8;
+  if (candidate?._maverickVoiceFocused === true) score += 8;
   if (q && title === q) score += 28;
   else if (q && title.startsWith(q)) score += 16;
   else if (q && title.includes(q)) score += 10;

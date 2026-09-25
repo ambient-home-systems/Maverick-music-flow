@@ -8,7 +8,7 @@ const prototype = globalThis.customElements.get("maverick-music").prototype;
 function context() {
   return {
     _state: { selectedPlayer: "computer", engineCapabilities: { queue_autoplay: true }, maQueueState: { queue_id: "queue", autoplay_enabled: false }, menuOpen: true },
-    _renderMobileMenu: vi.fn(async () => {}), _callHomeiiEnginePlayerCommand: vi.fn(async () => {}),
+    _renderMobileMenu: vi.fn(async () => {}), _callMaverickEnginePlayerCommand: vi.fn(async () => {}),
     _ensureQueueSnapshot: vi.fn(async () => {}), _toastError: vi.fn(), _mediaControlFailureMessage: (e) => e.message,
     _esc: (v) => v, _m: (v) => v, _iconSvg: () => '<svg></svg>', _mobileFooterMode: () => "icon",
   };
@@ -51,21 +51,21 @@ describe("queue Autoplay", () => {
   it("requests the target value once and reads authoritative state without fabricating it", async () => {
     const card = context();
     await prototype._toggleQueueAutoplay.call(card);
-    expect(card._callHomeiiEnginePlayerCommand).toHaveBeenCalledExactlyOnceWith("computer", "autoplay", { autoplay_enabled: true });
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledExactlyOnceWith("computer", "autoplay", { autoplay_enabled: true });
     expect(card._ensureQueueSnapshot).toHaveBeenCalledWith(true);
     expect(card._state.maQueueState.autoplay_enabled).toBe(false);
     expect(card._autoplayPendingPlayer).toBe(null);
   });
   it("keeps state unchanged and reports command failures", async () => {
     const card = context();
-    card._callHomeiiEnginePlayerCommand.mockRejectedValue(new Error("offline"));
+    card._callMaverickEnginePlayerCommand.mockRejectedValue(new Error("offline"));
     await prototype._toggleQueueAutoplay.call(card);
     expect(card._toastError).toHaveBeenCalledWith("offline");
     expect(card._state.maQueueState.autoplay_enabled).toBe(false);
   });
   it("does not refresh a newly selected player's queue using the previous action", async () => {
     const card = context();
-    card._callHomeiiEnginePlayerCommand.mockImplementation(async () => { card._state.selectedPlayer = "kitchen"; });
+    card._callMaverickEnginePlayerCommand.mockImplementation(async () => { card._state.selectedPlayer = "kitchen"; });
     await prototype._toggleQueueAutoplay.call(card);
     expect(card._ensureQueueSnapshot).not.toHaveBeenCalled();
   });

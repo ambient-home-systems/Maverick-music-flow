@@ -51,20 +51,20 @@ describe("group disconnect failure", () => {
     const leader={entity_id:'leader'},child={entity_id:'child',state:'unavailable'};
     const card={_state:{players:[leader,child]},_currentSpeakerGroupOwnerId:()=> 'leader',
       _playerByEntityId:id=>id==='leader'?leader:child,_isStaticGroupPlayer:()=>false,
-      _currentSpeakerGroupMemberIds:()=>['leader','child'],_homeiiEngineEnabled:()=>true,
-      _homeiiEngineApplyGroup:vi.fn(async()=>{}),_callHaMediaPlayerService:vi.fn(),
+      _currentSpeakerGroupMemberIds:()=>['leader','child'],_maverickEngineEnabled:()=>true,
+      _maverickEngineApplyGroup:vi.fn(async()=>{}),_callHaMediaPlayerService:vi.fn(),
       _waitForSpeakerGroupConfirmation:vi.fn(async()=>({ok:true})),_clearLocalGroupState:vi.fn(),
       _loadPlayers:vi.fn(),_refreshGroupingState:vi.fn()};
     expect(await prototype._clearSpeakerGroupFor.call(card,'leader')).toBe(true);
-    expect(card._homeiiEngineApplyGroup).toHaveBeenCalledWith({owner:'leader',entity_id:'leader',members:[],remove_members:['child']});
+    expect(card._maverickEngineApplyGroup).toHaveBeenCalledWith({owner:'leader',entity_id:'leader',members:[],remove_members:['child']});
     expect(card._callHaMediaPlayerService).not.toHaveBeenCalled();
   });
   it("retains cached players for display but rejects them as command confirmation", async () => {
     const card=new (globalThis.customElements.get("maverick-music"))();
     const cached=[{entity_id:'media_player.computer',state:'idle'}];
     card._state.enginePlayers=cached; card._state.engineAvailable=true;
-    card._homeiiEngineRequired=()=>true;
-    card._homeiiEngineGetPlayers=vi.fn(async()=>{throw new Error('Offline');});
+    card._maverickEngineRequired=()=>true;
+    card._maverickEngineGetPlayers=vi.fn(async()=>{throw new Error('Offline');});
     expect(await card._refreshEnginePlayers()).toBe(cached);
     await expect(card._refreshEnginePlayers({requireFresh:true})).rejects.toThrow('Offline');
     expect(card._state.enginePlayers).toBe(cached);
@@ -87,7 +87,7 @@ describe("group disconnect failure", () => {
   });
   it("fetches fresh Engine membership before confirming a group", async () => {
     let members=["leader"];
-    const card={_hass:{states:{}},_homeiiEngineRequired:()=>true,_loadPlayers:vi.fn(),
+    const card={_hass:{states:{}},_maverickEngineRequired:()=>true,_loadPlayers:vi.fn(),
       _refreshEnginePlayers:vi.fn(async()=>{members=["leader","child"];}),
       _currentSpeakerGroupMemberIds:()=>members,_sameSpeakerGroupMembers:prototype._sameSpeakerGroupMembers};
     const pending=prototype._waitForSpeakerGroupConfirmation.call(card,"leader",["leader","child"]);
@@ -96,7 +96,7 @@ describe("group disconnect failure", () => {
     expect(card._refreshEnginePlayers).toHaveBeenCalledWith({force:true,requireFresh:true}); expect(result.ok).toBe(true);
   });
   it("does not confirm cached membership when the server refresh fails", async () => {
-    const card={_hass:{states:{}},_homeiiEngineRequired:()=>true,_loadPlayers:vi.fn(),
+    const card={_hass:{states:{}},_maverickEngineRequired:()=>true,_loadPlayers:vi.fn(),
       _refreshEnginePlayers:vi.fn(async()=>{throw new Error('Offline');}),
       _currentSpeakerGroupMemberIds:()=>['leader','child'],_sameSpeakerGroupMembers:prototype._sameSpeakerGroupMembers};
     const pending=prototype._waitForSpeakerGroupConfirmation.call(card,'leader',['leader','child'],{timeoutMs:700,intervalMs:350});
@@ -114,7 +114,7 @@ describe("group disconnect failure", () => {
   });
   it("does not replay a failed Engine group mutation through a second command path", async () => {
     const card={_state:{engineAvailable:true},_groupSelectionDelta:()=>({owner:"leader",current:[],desired:["child"],added:["child"],removed:[]}),
-      _homeiiEngineEnabled:()=>true,_homeiiEngineRequired:()=>true,_homeiiEngineApplyGroup:vi.fn(async()=>{throw new Error("Group rejected");}),_callHaMediaPlayerService:vi.fn()};
+      _maverickEngineEnabled:()=>true,_maverickEngineRequired:()=>true,_maverickEngineApplyGroup:vi.fn(async()=>{throw new Error("Group rejected");}),_callHaMediaPlayerService:vi.fn()};
     await expect(prototype._applySpeakerGroupFor.call(card,"leader",["child"])).rejects.toThrow("Group rejected");
     expect(card._callHaMediaPlayerService).not.toHaveBeenCalled();
   });

@@ -315,7 +315,7 @@ export default function() {
           border:1px solid rgba(255,255,255,.14);
           background:rgba(10,14,22,.32);
           color:#f4f7ff;
-          font-family:var(--homeii-font-family);
+          font-family:var(--maverick-font-family);
           font-size:26px;
           font-weight:950;
           letter-spacing:.01em;

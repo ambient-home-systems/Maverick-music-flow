@@ -540,10 +540,10 @@ export default function() {
           mask-image:linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
         }
         .np-sub.scroll-when-overflow.is-overflowing .scrolling-text-inner {
-          animation:homeiiSubtitleScroll var(--scroll-duration, 12s) linear infinite;
+          animation:maverickSubtitleScroll var(--scroll-duration, 12s) linear infinite;
           will-change:transform;
         }
-        @keyframes homeiiSubtitleScroll {
+        @keyframes maverickSubtitleScroll {
           from { transform:translateX(0); }
           to { transform:translateX(calc(-1 * var(--scroll-distance, 0px))); }
         }
@@ -799,10 +799,10 @@ export default function() {
           pointer-events:none;
           -webkit-user-drag:none;
         }
-        .art-stack-card img[data-homeii-art-ready="0"] {
+        .art-stack-card img[data-maverick-art-ready="0"] {
           opacity:1;
         }
-        .art-stack-card img[data-homeii-art-ready="1"] {
+        .art-stack-card img[data-maverick-art-ready="1"] {
           transition:opacity .12s ease-out;
         }
         .art-stack-slide.center {
@@ -1139,7 +1139,7 @@ export default function() {
           background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); box-shadow:0 24px 48px rgba(0,0,0,.24); font-size:72px; color:rgba(255,255,255,.72);
         }
         .np-art.mobile-art img { width:100%; height:100%; object-fit:contain; object-position:center center; }
-        .homeii-art-fallback {
+        .maverick-art-fallback {
           width:100%;
           height:100%;
           display:grid;
@@ -1151,7 +1151,7 @@ export default function() {
           color:rgba(255,255,255,.78);
           box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
         }
-        .homeii-art-fallback-disc {
+        .maverick-art-fallback-disc {
           width:46%;
           height:46%;
           min-width:34px;
@@ -1163,7 +1163,7 @@ export default function() {
           border:1px solid rgba(255,255,255,.12);
           box-shadow:0 16px 34px rgba(0,0,0,.18);
         }
-        .homeii-art-fallback svg { width:48%; height:48%; color:currentColor; opacity:.92; }
+        .maverick-art-fallback svg { width:48%; height:48%; color:currentColor; opacity:.92; }
         .mobile-art-actions {
           position:relative;
           inset:auto;
@@ -1243,14 +1243,14 @@ export default function() {
           box-shadow:0 22px 42px rgba(111,126,150,.18);
           color:rgba(64,74,87,.6);
         }
-        .theme-light .homeii-art-fallback {
+        .theme-light .maverick-art-fallback {
           color:rgba(48,55,68,.7);
           background:
             radial-gradient(circle at 50% 36%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 54%),
             linear-gradient(145deg, rgba(255,255,255,.88), rgba(238,242,247,.58));
           box-shadow:inset 0 0 0 1px rgba(90,105,125,.12);
         }
-        .theme-light .homeii-art-fallback-disc {
+        .theme-light .maverick-art-fallback-disc {
           background:rgba(255,255,255,.48);
           border-color:rgba(82,96,118,.12);
         }
@@ -2408,8 +2408,8 @@ export default function() {
         .status-pill.offline .status-dot { background:#e26b6b; box-shadow:0 0 10px rgba(226,107,107,.42); }
         .notice { display:none; padding:14px 16px; border-radius:22px; line-height:1.45; }
         .notice.open { display:block; }
-        .homeii-loading-state,
-        .notice.open.homeii-loading-notice {
+        .maverick-loading-state,
+        .notice.open.maverick-loading-notice {
           min-height:180px;
           display:grid;
           place-items:center;
