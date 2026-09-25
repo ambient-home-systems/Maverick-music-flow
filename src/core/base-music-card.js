@@ -8,6 +8,8 @@ import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
 import { ensureInterfaceFont, interfaceStyles } from "./theme/interface.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_SENDSPIN_PATH, normalizeEngineConfigKeys } from "./engine-client.js";
+import { isSafeInterfaceUrl } from "../config/validators.js";
+import { cssUrl } from "./theme/css-url.js";
 
 const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
 const ENGINE_ARTWORK_ITEM_PATH = `${ENGINE_ARTWORK_PATH}item/`;
@@ -2096,7 +2098,7 @@ export function createMaverickBaseMusicCard({
         let settled = false;
         let ws = null;
         let timeout = null;
-        const WebSocketCtor = window.__maverickSendspinInterceptorV1?.original || window.WebSocket;
+        const WebSocketCtor = window.WebSocket;
         const cleanup = () => {
           if (timeout) clearTimeout(timeout);
           if (ws) {
@@ -2156,147 +2158,6 @@ export function createMaverickBaseMusicCard({
         ws.onerror = () => fail(new Error(this._localText("Could not open the Sendspin WebSocket.")));
         ws.onclose = () => fail(new Error(this._localText("Sendspin closed the connection before the player was ready.")));
       });
-    }
-
-    _createLocalSendspinBridge(ws) {
-      const listeners = { open: new Set(), message: new Set(), error: new Set(), close: new Set() };
-      const handlers = { open: null, message: null, error: null, close: null };
-      const dispatch = (type, event) => {
-        const handler = handlers[type];
-        if (typeof handler === "function") handler.call(bridge, event);
-        listeners[type]?.forEach((listener) => {
-          if (typeof listener === "function") listener.call(bridge, event);
-          else if (listener && typeof listener.handleEvent === "function") listener.handleEvent(event);
-        });
-      };
-      const emitLateOpenIfNeeded = (handler) => {
-        if (handler && bridge._isOpen) {
-          setTimeout(() => handler.call(bridge, new Event("open")), 0);
-        }
-      };
-      const bridge = {
-        CONNECTING: 0,
-        OPEN: 1,
-        CLOSING: 2,
-        CLOSED: 3,
-        _isOpen: ws.readyState === WebSocket.OPEN,
-        get onopen() { return handlers.open; },
-        set onopen(handler) {
-          handlers.open = handler;
-          emitLateOpenIfNeeded(handler);
-        },
-        get onmessage() { return handlers.message; },
-        set onmessage(handler) { handlers.message = handler; },
-        get onerror() { return handlers.error; },
-        set onerror(handler) { handlers.error = handler; },
-        get onclose() { return handlers.close; },
-        set onclose(handler) { handlers.close = handler; },
-        get readyState() { return ws.readyState; },
-        get binaryType() { return ws.binaryType || "arraybuffer"; },
-        set binaryType(value) { try { ws.binaryType = value; } catch (_) {} },
-        get bufferedAmount() { return ws.bufferedAmount || 0; },
-        get extensions() { return ws.extensions || ""; },
-        get protocol() { return ws.protocol || ""; },
-        get url() { return ws.url || ""; },
-        send: (data) => {
-          if (ws.readyState !== WebSocket.OPEN) {
-            this._debugLog("warn", "[Maverick Sendspin] bridge send ignored, socket not open");
-            return;
-          }
-          if (data instanceof Blob) {
-            data.arrayBuffer().then((buffer) => ws.send(buffer));
-          } else {
-            if (typeof data === "string") {
-              try {
-                const message = JSON.parse(data);
-                this._debugLog("info", "[Maverick Sendspin] client message", message?.type || message);
-              } catch (_) {}
-            }
-            ws.send(data);
-          }
-        },
-        close: (code, reason) => ws.close(code, reason),
-        addEventListener: (type, listener) => {
-          if (listeners[type]) listeners[type].add(listener);
-          if (type === "open" && bridge._isOpen && typeof listener === "function") {
-            setTimeout(() => listener.call(bridge, new Event("open")), 0);
-          }
-        },
-        removeEventListener: (type, listener) => {
-          if (listeners[type]) listeners[type].delete(listener);
-        },
-        dispatchEvent: () => false,
-      };
-      ws.onopen = (event) => {
-        bridge._isOpen = true;
-        dispatch("open", event || new Event("open"));
-      };
-      ws.onmessage = (event) => {
-        if (typeof event?.data === "string") {
-          try {
-            const message = JSON.parse(event.data);
-            this._debugLog("info", "[Maverick Sendspin] server message", message?.type || message);
-          } catch (_) {}
-        }
-        dispatch("message", event);
-      };
-      ws.onerror = (event) => {
-        this._debugLog("error", "[Maverick Sendspin] bridge socket error", event);
-        dispatch("error", event || new Event("error"));
-      };
-      ws.onclose = (event) => {
-        bridge._isOpen = false;
-        this._debugLog("warn", "[Maverick Sendspin] bridge socket closed", event?.code, event?.reason);
-        dispatch("close", event || new CloseEvent("close"));
-        this._handleLocalSendspinSocketClosed(event || new Event("close"));
-      };
-      return bridge;
-    }
-
-    _installLocalSendspinInterceptor() {
-      if (typeof window === "undefined" || !window.WebSocket) return null;
-      if (window.__maverickSendspinInterceptorV1?.installed) {
-        return window.__maverickSendspinInterceptorV1.original;
-      }
-      const OriginalWebSocket = window.WebSocket;
-      const WrappedWebSocket = function(url, protocols) {
-        const urlText = String(url || "");
-        const pendingBridge = window.__maverickSendspinPendingBridgeV1;
-        if (urlText.includes("/sendspin") && pendingBridge) {
-          this._debugLog("info", "[Maverick Sendspin] using prepared bridge for", urlText);
-          window.__maverickSendspinPendingBridgeV1 = null;
-          return pendingBridge;
-        }
-        return protocols === undefined ? new OriginalWebSocket(url) : new OriginalWebSocket(url, protocols);
-      };
-      WrappedWebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
-      WrappedWebSocket.OPEN = OriginalWebSocket.OPEN;
-      WrappedWebSocket.CLOSING = OriginalWebSocket.CLOSING;
-      WrappedWebSocket.CLOSED = OriginalWebSocket.CLOSED;
-      WrappedWebSocket.prototype = OriginalWebSocket.prototype;
-      window.WebSocket = WrappedWebSocket;
-      window.__maverickSendspinInterceptorV1 = { installed: true, original: OriginalWebSocket };
-      this._debugLog("info", "[Maverick Sendspin] WebSocket interceptor installed");
-      return OriginalWebSocket;
-    }
-
-    _restoreLocalSendspinInterceptor() {
-      if (typeof window === "undefined") return;
-      const installed = window.__maverickSendspinInterceptorV1;
-      if (installed?.installed && installed.original) {
-        try { window.WebSocket = installed.original; } catch (_) {}
-      }
-      try { window.__maverickSendspinPendingBridgeV1 = null; } catch (_) {}
-      try { delete window.__maverickSendspinInterceptorV1; } catch (_) {
-        window.__maverickSendspinInterceptorV1 = null;
-      }
-    }
-
-    _prepareLocalSendspinSession(ws) {
-      const bridge = this._createLocalSendspinBridge(ws);
-      this._installLocalSendspinInterceptor();
-      window.__maverickSendspinPendingBridgeV1 = bridge;
-      return bridge;
     }
 
     _ensureLocalSendspinAudioElement() {
@@ -2535,7 +2396,6 @@ export function createMaverickBaseMusicCard({
         this._clearLocalSendspinReconnectTimer();
       }
       this._clearLocalSendspinDiscoveryTimers();
-      if (typeof window !== "undefined") window.__maverickSendspinPendingBridgeV1 = null;
       const suppressClose = ["another_server", "shutdown", "restart", "user_request"].includes(reason);
       if (suppressClose) this._localSendspinSuppressClose = true;
       if (this._localSendspinPlayer) {
@@ -2593,7 +2453,6 @@ export function createMaverickBaseMusicCard({
           throw new Error(this._localText("The local Sendspin module is missing SendspinPlayer."));
         }
         this._stopLocalSendspinPlayer("restart");
-        this._restoreLocalSendspinInterceptor();
         const webSocket = await this._openAuthenticatedSendspinSocket(playerId);
         this._localSendspinSocket = webSocket;
         const audioElement = this._ensureLocalSendspinAudioElement();
@@ -3237,11 +3096,14 @@ export function createMaverickBaseMusicCard({
 
     _normalizedMusicAssistantInterfaceUrl() {
       const configured = String(this._config?.ma_interface_url || "").trim();
-      return configured || "/music-assistant";
+      return isSafeInterfaceUrl(configured) ? configured : "/music-assistant";
     }
 
     _launchMusicAssistant() {
-      window.open(this._normalizedMusicAssistantInterfaceUrl(), this._config.ma_interface_target || "_self");
+      const target = this._config?.ma_interface_target === "_blank" ? "_blank" : "_self";
+      const url = this._normalizedMusicAssistantInterfaceUrl();
+      if (target === "_blank") window.open(url, target, "noopener");
+      else window.open(url, target);
     }
 
     _openNowPlayingView() {
@@ -4837,7 +4699,7 @@ export function createMaverickBaseMusicCard({
       const queueCount = this._controlRoomQueueCount(player, snapshot);
       const protocolLabel = this._controlRoomProtocolLabel(player);
       const muted = this._isMuted(player);
-      const tileStyle = art ? `style="--control-room-tile-art:url('${this._esc(art)}')"` : "";
+      const tileStyle = art ? `style="--control-room-tile-art:${this._esc(cssUrl(art))}"` : "";
       return `
         <article class="control-room-tile ${art ? "has-art" : "no-art"} ${isSelected ? "selected" : ""} ${isPrimary ? "primary" : ""} ${playing ? "is-playing" : ""} ${groupCount ? "grouped" : ""}" data-room-tile="${this._esc(player.entity_id)}" ${tileStyle}>
           <div class="control-room-tile-bg"></div>
@@ -5333,7 +5195,7 @@ export function createMaverickBaseMusicCard({
       const primary = this._controlRoomPrimaryPlayer();
       const primaryArt = this._playerArtworkUrl(primary, 320);
       const roomStyleVars = this._controlRoomGridStyle(players.length);
-      const sceneStyle = `style="${primaryArt ? `--control-room-scene-art:url('${this._esc(primaryArt)}');` : ""}${roomStyleVars}"`;
+      const sceneStyle = `style="${primaryArt ? `--control-room-scene-art:${this._esc(cssUrl(primaryArt))};` : ""}${roomStyleVars}"`;
       const focusTarget = this._controlRoomFocusTarget();
       const focusArt = focusTarget.art || primaryArt;
       const targetIds = this._controlRoomActionTargetIds();
@@ -5422,7 +5284,6 @@ export function createMaverickBaseMusicCard({
           el.dataset.liveHtml = html;
         }
       };
-      const cssUrl = (url) => `url("${String(url || "").replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
       host.querySelectorAll("[data-room-tile]").forEach((tile) => {
         const entityId = tile.dataset.roomTile || "";
         const player = playerMap.get(entityId);
@@ -5772,7 +5633,7 @@ export function createMaverickBaseMusicCard({
       const offsetLabel = this._lyricsSyncOffsetLabel();
       const lyricsArt = this._currentArtworkUrl(this._getSelectedPlayer(), this._state.maQueueState?.current_item || null, 920, { preferPlayerArtwork: true });
       if (lyricsArt) {
-        backdrop.style.setProperty("--lyrics-dynamic-art", `url(${JSON.stringify(lyricsArt)})`);
+        backdrop.style.setProperty("--lyrics-dynamic-art", cssUrl(lyricsArt));
         backdrop.classList.add("has-lyrics-art");
       } else {
         backdrop.style.removeProperty("--lyrics-dynamic-art");
@@ -6859,8 +6720,8 @@ export function createMaverickBaseMusicCard({
       const repeat = player.attributes.repeat || "off";
       backdrop.innerHTML = `
         <div class="immersive-shell">
-          <div class="immersive-bg" ${art ? `style="background-image:url('${this._esc(art)}')"` : ""}></div>
-          <div class="immersive-cover-glow" ${art ? `style="background-image:url('${this._esc(art)}')"` : ""}></div>
+          <div class="immersive-bg" ${art ? `style="background-image:${this._esc(cssUrl(art))}"` : ""}></div>
+          <div class="immersive-cover-glow" ${art ? `style="background-image:${this._esc(cssUrl(art))}"` : ""}></div>
           <div class="immersive-frost"></div>
           <div class="immersive-vignette"></div>
           <div class="immersive-header">
@@ -6973,9 +6834,9 @@ export function createMaverickBaseMusicCard({
       const artBox = backdrop.querySelector("#immersiveArt");
       if (artBox) artBox.innerHTML = art ? this._imgHtml(art, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album");
       const bg = backdrop.querySelector(".immersive-bg");
-      if (bg) bg.style.backgroundImage = art ? `url("${art}")` : "";
+      if (bg) bg.style.backgroundImage = art ? cssUrl(art) : "";
       const glow = backdrop.querySelector(".immersive-cover-glow");
-      if (glow) glow.style.backgroundImage = art ? `url("${art}")` : "";
+      if (glow) glow.style.backgroundImage = art ? cssUrl(art) : "";
     }
 
     _handleWindowResize() {
@@ -12335,7 +12196,7 @@ export function createMaverickBaseMusicCard({
       return MaverickMediaPresentationFoundation.formatDuration(sec);
     }
     _esc(value) {
-      return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
 
     _imgHtml(src = "", alt = "", options = {}) {

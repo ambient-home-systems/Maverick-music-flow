@@ -52,6 +52,32 @@ export function assertCardIdIfDefined(value, key) {
   }
 }
 
+// A same-site path ("/music-assistant") or an absolute http(s) URL. Protocol-relative
+// paths, backslashes, control characters and other schemes are rejected.
+export function isSafeInterfaceUrl(value) {
+  if (typeof value !== "string") return false;
+  const url = value.trim();
+  if (!url || Array.from(url).some((char) => char < " " || char === "\\")) return false;
+  if (url.startsWith("/")) return !url.startsWith("//");
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch (_) {
+    return false;
+  }
+}
+
+export function assertInterfaceUrlIfDefined(value, key) {
+  if (value == null) return;
+  if (typeof value !== "string") throw new Error(`${key} must be a string`);
+  if (value.trim() === "") return;
+  if (!isSafeInterfaceUrl(value)) {
+    throw new Error(
+      `${key} must be a path starting with "/" (for example "/music-assistant") or an http:// or https:// URL`
+    );
+  }
+}
+
 export function validateBaseCardEditorConfig(config) {
   if (!config || typeof config !== "object" || Array.isArray(config)) {
     throw new Error("Card config must be an object");
@@ -70,7 +96,7 @@ export function validateBaseCardEditorConfig(config) {
   assertNumberIfDefined(config.homeii_engine_timeout_ms, "homeii_engine_timeout_ms");
   assertStringIfDefined(config.config_entry_id, "config_entry_id");
   assertStringIfDefined(config.active_player_helper_entity, "active_player_helper_entity");
-  assertStringIfDefined(config.ma_interface_url, "ma_interface_url");
+  assertInterfaceUrlIfDefined(config.ma_interface_url, "ma_interface_url");
   assertValueInList(config.ma_interface_target, "ma_interface_target", ["_self", "_blank"]);
   assertNumberIfDefined(config.height, "height");
   assertNumberIfDefined(config.main_opacity, "main_opacity");

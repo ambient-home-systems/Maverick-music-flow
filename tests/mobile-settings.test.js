@@ -255,9 +255,32 @@ describe("mobile settings foundation", () => {
     expect(normalizeVisualMobileState({ performance_profile: "turbo", performance_mode: true }).performanceProfile).toBe("low");
   });
 
+  it("keeps the home shortcut on this site", () => {
+    const offSite = [
+      "//evil.example/x",
+      "https://evil.example",
+      "javascript:alert(1)",
+      "JavaScript:alert(1)",
+      " //evil.example",
+      "/\\evil.example",
+      "\\\\evil.example",
+      "java\tscript:alert(1)",
+      "\u0001javascript:alert(1)",
+      "data:text/html,hi",
+    ];
+    for (const value of offSite) {
+      expect(normalizeHomeShortcutPath(value)).toBe("/");
+      expect(normalizeHomeShortcutPath(value, { leadingSlash: true })).toBe("/");
+    }
+    expect(normalizeHomeShortcutPath("/lovelace/0", { leadingSlash: true })).toBe("/lovelace/0");
+    expect(normalizeHomeShortcutPath("/lovelace/0?view=a:b", { leadingSlash: true })).toBe("/lovelace/0?view=a:b");
+  });
+
   it("stabilizes home shortcut, footer, mic, and volume modes", () => {
     expect(normalizeHomeShortcutPath("lovelace/media", { leadingSlash: true })).toBe("/lovelace/media");
     expect(normalizeHomeShortcutPath(" /dashboard ", { leadingSlash: true })).toBe("/dashboard");
+    expect(normalizeHomeShortcutPath("/lovelace/0")).toBe("/lovelace/0");
+    expect(normalizeHomeShortcutPath("/lovelace/0", { leadingSlash: true })).toBe("/lovelace/0");
     expect(normalizeMobileFooterMode("invalid")).toBe("icon");
     expect(normalizeMobileFooterMode("both")).toBe("both");
     expect(normalizeMobileMicMode("OFF")).toBe("off");

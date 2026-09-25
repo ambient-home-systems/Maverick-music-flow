@@ -1,12 +1,13 @@
 import heeboUrl from "./heebo.ttf?inline";
 import { liveDiagnosticsStyles } from "./sheets/live-diagnostics.js";
+import { cssUrl } from "./css-url.js";
 
 let fontPromise;
 
 export function ensureInterfaceFont() {
   if (typeof FontFace === "undefined" || !globalThis.document?.fonts) return;
   if (!fontPromise) {
-    const face = new FontFace("Maverick Heebo", `url(${heeboUrl})`, { weight: "100 900", display: "swap" });
+    const face = new FontFace("Maverick Heebo", cssUrl(heeboUrl), { weight: "100 900", display: "swap" });
     document.fonts.add(face);
     fontPromise = face.load().catch(() => { document.fonts.delete(face); fontPromise = null; });
   }
