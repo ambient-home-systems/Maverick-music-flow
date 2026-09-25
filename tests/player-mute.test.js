@@ -18,7 +18,7 @@ describe("consistent player mute", () => {
     const player={entity_id:'computer'};
     const card={_state:{players:[player],selectedPlayer:'computer'},_activePlaybackPlayers:()=>[player],_groupedPlayerIds:()=>[],_isStopClearTarget:()=>true,_isLocalSendspinDesired:()=>false,
       _hapticTap:vi.fn(),_disconnectPlayerGroups:vi.fn(async()=>({ok:true,failed:false})),_stopPlayer:vi.fn(async()=>{}),_clearQueueForPlayer:vi.fn(async()=>{}),_clearLocalPlaybackStateForPlayers:vi.fn(),
-      _toastError:vi.fn(),_toastSuccess:vi.fn(),_i18n:s=>s,_m:s=>s,_syncNowPlayingUI:vi.fn(),_updateNowPlayingState:vi.fn()};
+      _toastError:vi.fn(),_toastSuccess:vi.fn(),_i18n:s=>s,_m:s=>s,_syncNowPlayingUI:vi.fn(),_updateNowPlayingState:vi.fn(),_timeout:vi.fn()};
     await prototype._stopAllPlayers.call(card);
     expect(card._stopPlayer).toHaveBeenCalledWith('computer');
     expect(card._disconnectPlayerGroups).toHaveBeenCalledOnce();

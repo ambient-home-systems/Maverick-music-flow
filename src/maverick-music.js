@@ -5851,7 +5851,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const results = await Promise.allSettled(dynamicIds.map((id) => this._callHaMediaPlayerService(id, "unjoin")));
     const succeeded = results.filter((result) => result.status === "fulfilled").length;
     const failed = succeeded === 0;
-    setTimeout(() => {
+    this._timeout(() => {
       this._loadPlayers();
       this._refreshGroupingState();
       if (this._state.menuOpen) this._renderMobileMenu();
@@ -5919,7 +5919,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._syncNowPlayingUI();
     if (this._state.menuOpen) this._renderMobileMenu();
     if (this._state.controlRoomOpen) this._syncControlRoomUi({ force: true });
-    setTimeout(() => this._updateNowPlayingState(), 500);
+    this._timeout(() => this._updateNowPlayingState(), 500);
   }
 
   async _ungroupAllPlayers() {
@@ -6056,7 +6056,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       return !(this._muteTargetsByPlayer?.has(id) ? this._muteTargetsByPlayer.get(id) : this._isMuted(target));
     });
     await Promise.all(targets.map((id) => this._setPlayerMutedFor(id, shouldMute)));
-    setTimeout(() => this._renderMobileMenu(), 120);
+    this._timeout(() => this._renderMobileMenu(), 120);
   }
 
   _isGroupMuted(player) {
@@ -7010,7 +7010,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     artHost.classList.remove("dragging", "resetting");
     this._setArtDragYOffset(appliedStep > 0 ? -168 : 168);
     const scheduleFrame = typeof requestAnimationFrame === "function" ? requestAnimationFrame : (callback) => setTimeout(callback, 0);
-    setTimeout(() => {
+    this._timeout(() => {
       const moved = this._moveMobileCoverFlow(appliedStep, { keepDragOffset: true });
       if (!moved) {
         this._clearArtDragOffset();
@@ -7055,7 +7055,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     artHost?.classList.remove("dragging", "resetting");
     this._setArtDragOffset(direction === "next" ? -132 : 132);
     const scheduleFrame = typeof requestAnimationFrame === "function" ? requestAnimationFrame : (callback) => setTimeout(callback, 0);
-    setTimeout(() => {
+    this._timeout(() => {
       artHost?.classList.add("resetting");
       applyChange?.();
       const settle = () => {
@@ -8038,7 +8038,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._toastSuccess(player?.state === "playing"
             ? this._m(`${this._controlRoomPlayerName(entityId)} paused`)
             : this._m(`${this._controlRoomPlayerName(entityId)} started playing`));
-          setTimeout(() => this._updateNowPlayingState(), 250);
+          this._timeout(() => this._updateNowPlayingState(), 250);
         } catch (error) {
           this._toastError(error?.message || this._i18n("ui.playback_command_failed_2"));
         }
@@ -8053,7 +8053,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         try {
           await this._playerCmdFor(entityId, "next");
           this._toastSuccess(this._m(`${this._controlRoomPlayerName(entityId)} skipped to next`));
-          setTimeout(() => this._updateNowPlayingState(), 250);
+          this._timeout(() => this._updateNowPlayingState(), 250);
         } catch (error) {
           this._toastError(error?.message || this._i18n("ui.next_track_failed"));
         }
@@ -8071,7 +8071,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._toastSuccess(wasMuted
             ? this._m(`${this._controlRoomPlayerName(entityId)} unmuted`)
             : this._m(`${this._controlRoomPlayerName(entityId)} muted`));
-          setTimeout(() => this._updateNowPlayingState(), 160);
+          this._timeout(() => this._updateNowPlayingState(), 160);
         } catch (error) {
           this._toastError(error?.message || this._i18n("ui.mute_command_failed"));
         }
@@ -8114,7 +8114,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         if (ok) this._state.controlRoomPanel = "";
         if (ok) this._toastSuccess(this._i18n("ui.queue_transferred"));
         else this._toastError(this._i18n("ui.could_not_transfer_the_queue"));
-        setTimeout(() => this._updateNowPlayingState(), 300);
+        this._timeout(() => this._updateNowPlayingState(), 300);
         return;
       }
       const cloneBtn = e.target.closest("[data-room-clone]");
@@ -8125,7 +8125,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         const ok = await this._cloneQueueBetween(this._state.controlRoomTransferSource, this._state.controlRoomTransferTarget, { silent: true });
         if (ok) this._toastSuccess(this._i18n("ui.queue_cloned"));
         else this._toastError(this._i18n("ui.could_not_clone_the_queue"));
-        setTimeout(() => this._updateNowPlayingState(), 300);
+        this._timeout(() => this._updateNowPlayingState(), 300);
         return;
       }
       const refreshQueuesBtn = e.target.closest("[data-room-refresh-queues]");
@@ -8183,7 +8183,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             like: this._i18n("ui.favorite_updated"),
           };
           this._toastSuccess(messages[action] || messages.play);
-          setTimeout(() => this._updateNowPlayingState(), 350);
+          this._timeout(() => this._updateNowPlayingState(), 350);
         } else {
           this._toastError(this._i18n("ui.studio_media_action_failed"));
         }
@@ -8207,7 +8207,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         if (played) {
           this._state.controlRoomPanel = "";
           this._toastSuccess(this._m(`Started ${entry.name || "media"} in Studio`));
-          setTimeout(() => this._updateNowPlayingState(), 350);
+          this._timeout(() => this._updateNowPlayingState(), 350);
         } else {
           this._toastError(this._i18n("ui.could_not_start_playback_in_studio"));
         }
@@ -8361,7 +8361,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             this._toastSuccess(player?.state === "playing"
               ? this._m(`${this._controlRoomPlayerName(primaryId)} paused`)
               : this._m(`${this._controlRoomPlayerName(primaryId)} started playing`));
-            setTimeout(() => this._updateNowPlayingState(), 250);
+            this._timeout(() => this._updateNowPlayingState(), 250);
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.playback_command_failed_2"));
           }
@@ -8373,7 +8373,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           try {
             await this._playerCmdFor(primaryId, "next");
             this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} skipped to next`));
-            setTimeout(() => this._updateNowPlayingState(), 250);
+            this._timeout(() => this._updateNowPlayingState(), 250);
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.next_track_failed"));
           }
@@ -8388,7 +8388,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             this._toastSuccess(wasMuted
               ? this._m(`${this._controlRoomPlayerName(primaryId)} unmuted`)
               : this._m(`${this._controlRoomPlayerName(primaryId)} muted`));
-            setTimeout(() => this._updateNowPlayingState(), 160);
+            this._timeout(() => this._updateNowPlayingState(), 160);
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.mute_command_failed"));
           }
@@ -8400,7 +8400,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           try {
             await this._stopPlayer(primaryId);
             this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} stopped`));
-            setTimeout(() => this._updateNowPlayingState(), 250);
+            this._timeout(() => this._updateNowPlayingState(), 250);
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.stop_command_failed"));
           }
@@ -8416,7 +8416,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._toastSuccess(this._m(
             `Play / pause sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
           ));
-          setTimeout(() => this._updateNowPlayingState(), 250);
+          this._timeout(() => this._updateNowPlayingState(), 250);
           return;
         }
         if (action === "next") {
@@ -8425,7 +8425,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._toastSuccess(this._m(
             `Next sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
           ));
-          setTimeout(() => this._updateNowPlayingState(), 250);
+          this._timeout(() => this._updateNowPlayingState(), 250);
           return;
         }
         if (action === "mute") {
@@ -8434,7 +8434,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._toastSuccess(this._m(
             `Mute sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
           ));
-          setTimeout(() => this._updateNowPlayingState(), 250);
+          this._timeout(() => this._updateNowPlayingState(), 250);
           return;
         }
         if (action === "clear") {
@@ -8444,13 +8444,13 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             `Queues cleared for ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
           ));
           this._loadControlRoomQueues(selectedIds).catch(() => {});
-          setTimeout(() => this._updateNowPlayingState(), 250);
+          this._timeout(() => this._updateNowPlayingState(), 250);
           return;
         }
         if (action === "stop_all") {
           this._pressUiButton(dockBtn);
           await this._stopAllPlayers();
-          setTimeout(() => this._updateNowPlayingState(), 350);
+          this._timeout(() => this._updateNowPlayingState(), 350);
           return;
         }
         if (action === "group") {
@@ -8468,14 +8468,14 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           } catch (error) {
             this._toastError(error?.message || this._i18n("ui.player_groups_could_not_be_disconnected"));
           }
-          setTimeout(() => this._updateNowPlayingState(), 350);
+          this._timeout(() => this._updateNowPlayingState(), 350);
           return;
         }
         if (action === "ungroup") {
           this._pressUiButton(dockBtn);
           await Promise.allSettled(selectedIds.map((entityId) => this._clearSpeakerGroupFor(entityId)));
           this._toastSuccess(this._i18n("ui.group_cleared_2"));
-          setTimeout(() => this._updateNowPlayingState(), 350);
+          this._timeout(() => this._updateNowPlayingState(), 350);
         }
       }
     });
@@ -9841,8 +9841,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       apply();
       requestAnimationFrame(apply);
     });
-    setTimeout(apply, 80);
-    setTimeout(apply, 180);
+    this._timeout(apply, 80);
+    this._timeout(apply, 180);
   }
 
   _restoreMobileMenuScroll(scrollTop = this._state.mobileSettingsScrollTop || 0, page = this._state.menuPage || "main") {
@@ -10917,7 +10917,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
     this._selectPlayer(primaryId, true);
     this._showSimpleWizardPopup(candidate, targets);
-    setTimeout(() => {
+    this._timeout(() => {
       this._closeMobileMenu();
       this._syncNowPlayingUI();
     }, 1750);
@@ -14406,7 +14406,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         const members = memberPlayerIds.map((entityId) => this._controlRoomPlayerName(entityId)).join(", ");
         const message = this._i18n("ui.voice_group_connected_players", { primary, members });
         this._toastSuccess(message);
-        setTimeout(() => {
+        this._timeout(() => {
           this._loadPlayers();
           this._refreshGroupingState();
           if (this._state.menuOpen) this._renderMobileMenu();
@@ -17407,7 +17407,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const pct = Math.max(0, Math.min(100, Number(volumePresetBtn.dataset.volumePreset) || 0));
       this._setVolume(pct / 100);
       this._closeMobileVolumePresets();
-      setTimeout(() => this._syncNowPlayingUI(), 120);
+      this._timeout(() => this._syncNowPlayingUI(), 120);
       return;
     }
     const likedSelectBox = eventTarget.closest(".liked-select-box");

@@ -711,6 +711,22 @@ export function createMaverickBaseMusicCard({
       if (base.protocol !== "https:") throw new Error(this._maMixedContentMessage());
     }
 
+    _timeout(fn, ms = 0) {
+      // One-shot UI work that should not run against a disconnected card.
+      this._pendingTimeouts ||= new Set();
+      const handle = setTimeout(() => {
+        this._pendingTimeouts?.delete(handle);
+        fn();
+      }, ms);
+      this._pendingTimeouts.add(handle);
+      return handle;
+    }
+
+    _clearTimeouts() {
+      this._pendingTimeouts?.forEach((handle) => clearTimeout(handle));
+      this._pendingTimeouts?.clear();
+    }
+
     _runDetached(task, label = "background task") {
       return Promise.resolve(task).catch((error) => {
         this._debugLog("warn", `[Maverick Music] ${label} failed`, error);
@@ -1748,7 +1764,7 @@ export function createMaverickBaseMusicCard({
         else if (this._state.query) await this._renderGlobalSearch(this._state.query);
         else await this._renderCurrentView();
         this._startLoops();
-        setTimeout(() => { if (this._state.view === "home" && !this._state.query) this._renderHome(); }, 2500);
+        this._timeout(() => { if (this._state.view === "home" && !this._state.query) this._renderHome(); }, 2500);
       } catch (e) {
         this._renderError(e);
       }
@@ -3101,7 +3117,7 @@ export function createMaverickBaseMusicCard({
       this._closeCleanAllConfirm();
       this._closeMobileMenu();
       await this._stopAllPlayers();
-      setTimeout(() => this._updateNowPlayingState(), 350);
+      this._timeout(() => this._updateNowPlayingState(), 350);
     }
 
     _normalizedMusicAssistantInterfaceUrl() {
@@ -4298,7 +4314,7 @@ export function createMaverickBaseMusicCard({
           `Started ${playable.length} items in Studio`
         ));
       }
-      setTimeout(() => this._updateNowPlayingState(), 500);
+      this._timeout(() => this._updateNowPlayingState(), 500);
       return true;
     }
 
@@ -4545,7 +4561,7 @@ export function createMaverickBaseMusicCard({
       }
       this._syncControlRoomUi({ force: true });
       this._toastSuccess(this._m(`Scene "${saved.name}" applied`));
-      setTimeout(() => this._updateNowPlayingState(), 350);
+      this._timeout(() => this._updateNowPlayingState(), 350);
       return true;
     }
 
@@ -12455,7 +12471,7 @@ export function createMaverickBaseMusicCard({
       this._attachLocalSendspinLifecycleListeners();
       this._scheduleLocalSendspinReconnect("connected", 600);
       if (typeof this._refreshMaverickEngineContext === "function") {
-        setTimeout(() => this._refreshMaverickEngineContext({ force: true }).catch(() => {}), 800);
+        this._timeout(() => this._refreshMaverickEngineContext({ force: true }).catch(() => {}), 800);
       }
       this._subscribeMaverickEngineMusicAssistantEvents?.();
       if (this._config?.debug && typeof window !== "undefined" && !this._boundDebugUnhandledRejection) {
@@ -12465,6 +12481,7 @@ export function createMaverickBaseMusicCard({
     }
 
     disconnectedCallback() {
+      this._clearTimeouts();
       if (this._boundDebugUnhandledRejection && typeof window !== "undefined") {
         window.removeEventListener("unhandledrejection", this._boundDebugUnhandledRejection);
         this._boundDebugUnhandledRejection = null;
