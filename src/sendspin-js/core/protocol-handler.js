@@ -23,7 +23,18 @@ export class ProtocolHandler {
     handleMessage(event) {
         if (typeof event.data === "string") {
             // JSON message
-            const message = JSON.parse(event.data);
+            let message;
+            try {
+                message = JSON.parse(event.data);
+            }
+            catch (error) {
+                // Drop malformed frames; log only the first so a bad server cannot flood the console.
+                if (!this.loggedMalformedFrame) {
+                    this.loggedMalformedFrame = true;
+                    console.debug("Sendspin: Ignoring malformed JSON frame:", error);
+                }
+                return;
+            }
             this.handleServerMessage(message);
         }
         else if (event.data instanceof ArrayBuffer) {
