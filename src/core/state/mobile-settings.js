@@ -183,11 +183,24 @@ export function clampMobileVolumeStepPercent(value) {
   return Math.round(Math.max(1, Math.min(10, Number.isFinite(number) ? number : 5)));
 }
 
+const URL_SCHEME_PATTERN = /^[a-z][a-z0-9+.-]*:/i;
+
+// Checks the path the way the URL parser will see it: leading control
+// characters and embedded tabs/newlines are dropped and "\" acts as "/".
+function isOffSiteHomeShortcutPath(path) {
+  const chars = Array.from(path).filter((char) => char !== "\t" && char !== "\n" && char !== "\r");
+  while (chars.length && chars[0] <= " ") chars.shift();
+  const parsed = chars.join("").replace(/\\/g, "/");
+  return parsed.startsWith("//") || URL_SCHEME_PATTERN.test(parsed);
+}
+
 export function normalizeHomeShortcutPath(value, { leadingSlash = false } = {}) {
   const normalized = String(value || "/").trim() || "/";
+  if (isOffSiteHomeShortcutPath(normalized)) return "/";
   if (!leadingSlash) return normalized;
   if (normalized.startsWith("/")) return normalized;
-  return `/${normalized.replace(/^\/+/, "")}`;
+  const prefixed = `/${normalized.replace(/^\/+/, "")}`;
+  return isOffSiteHomeShortcutPath(prefixed) ? "/" : prefixed;
 }
 
 export function normalizeMobileFooterMode(value) {

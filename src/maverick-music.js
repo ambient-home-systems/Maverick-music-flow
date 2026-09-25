@@ -4838,11 +4838,19 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       try { window.dispatchEvent(new Event("location-changed")); } catch (_) {}
       try { window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } })); } catch (_) {}
     };
+    // Only ever navigate within this origin; anything else goes to the dashboard root.
+    let nextPath = "/";
     try {
       const targetUrl = new URL(path, window.location.origin);
-      const nextPath = `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`;
+      if (targetUrl.origin === window.location.origin) {
+        nextPath = `${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}`;
+      }
+    } catch (_) {
+      nextPath = "/";
+    }
+    try {
       const currentPath = `${window.location.pathname || ""}${window.location.search || ""}${window.location.hash || ""}`;
-      if (targetUrl.origin === window.location.origin && nextPath !== currentPath) {
+      if (nextPath !== currentPath) {
         window.history.pushState(null, "", nextPath);
         emitLocationChanged();
         return;
@@ -4851,9 +4859,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       // Fall through to full navigation.
     }
     try {
-      window.location.assign(path);
+      window.location.assign(nextPath);
     } catch (_) {
-      try { window.location.href = path; } catch (_) {}
+      try { window.location.href = nextPath; } catch (_) {}
     }
   }
 
