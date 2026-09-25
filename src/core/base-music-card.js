@@ -6338,7 +6338,7 @@ export function createMaverickBaseMusicCard({
         ...playerName.split(/[_\s-]+/),
       ].filter(Boolean);
       const buttons = Object.keys(this._hass.states).filter((entityId) =>
-        entityId.startsWith("button.") && /(favorite|אהב|אהבתי)/i.test(entityId)
+        entityId.startsWith("button.") && /favorite/i.test(entityId)
       );
       const matched = buttons.find((entityId) => {
         const lower = entityId.toLowerCase();
@@ -9322,9 +9322,9 @@ export function createMaverickBaseMusicCard({
         ...(Array.isArray(metadata.release_group_types) ? metadata.release_group_types : []),
       ].map((value) => MaverickMediaQueueFoundation.normalizeComparableText(value)).filter(Boolean);
       const haystack = `${rawValues.join(" ")} ${name}`;
-      if (/(^| )(single|סינגל)( |$)/.test(haystack)) return this._m("Single");
-      if (/(^| )(live|concert|הופעה|חיה)( |$)/.test(haystack)) return this._m("Live");
-      if (/(^| )(ep|mini album|מיני)( |$)/.test(haystack)) return "EP";
+      if (/(^| )single( |$)/.test(haystack)) return this._m("Single");
+      if (/(^| )(live|concert)( |$)/.test(haystack)) return this._m("Live");
+      if (/(^| )(ep|mini album)( |$)/.test(haystack)) return "EP";
       return this._m("Studio");
     }
 
