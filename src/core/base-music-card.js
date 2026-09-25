@@ -4,6 +4,7 @@ import * as SpeakerGroups from "./media/speaker-groups.js";
 import { syncPlayerVolumeControls } from "./media/player-volume.js";
 import { syncScreenDock } from "./media/screen-dock.js";
 import { isScheduleFormEditing, loadScheduledStartPlaylists, syncScheduledStartState, syncSleepTimerChip, syncSleepTimerState } from "./media/timers.js";
+import { studioAnnouncePanelHtml } from "./media/announcements.js";
 import { bindProgressSeek } from "./media/progress-seek.js";
 import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
@@ -4332,47 +4333,6 @@ export function createMaverickBaseMusicCard({
       }
     }
 
-    async _sendControlRoomAnnouncement(sourceEl = null) {
-      const input = this.$("controlRoomAnnouncementText");
-      const volumeInput = this.$("controlRoomAnnouncementVolumeInput");
-      const message = String(input?.value || this._state.controlRoomAnnouncementText || "").trim();
-      if (!message) {
-        this._toastError(this._i18n("ui.enter_an_announcement_first"));
-        return false;
-      }
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      const targets = selectedIds.length ? selectedIds : [this._controlRoomPrimaryPlayerId()].filter(Boolean);
-      if (!targets.length) {
-        this._toastError(this._i18n("ui.select_at_least_one_studio_player"));
-        return false;
-      }
-      if (sourceEl) this._pressUiButton(sourceEl);
-      const previousText = this._state.mobileAnnouncementText;
-      const previousTarget = this._state.mobileAnnouncementTarget;
-      const previousVolume = this._state.mobileAnnouncementVolume;
-      this._state.mobileAnnouncementText = message;
-      this._state.mobileAnnouncementTarget = targets.length === this._announcementEligiblePlayers().length ? "all" : targets[0];
-      this._state.mobileAnnouncementVolume = Math.max(20, Math.min(50, Number(volumeInput?.value || this._state.controlRoomAnnouncementVolume || 20) || 20));
-      try {
-        if (targets.length === 1) {
-          await this._sendMobileAnnouncement();
-        } else {
-          const eligibleMap = new Map(this._announcementEligiblePlayers().map((player) => [player.entity_id, player]));
-          const volumeSnapshots = this._prepareAnnouncementVolumes(targets.map((entityId) => eligibleMap.get(entityId)).filter(Boolean));
-          for (const entityId of targets) {
-            this._state.mobileAnnouncementTarget = entityId;
-            await this._sendMobileAnnouncement();
-          }
-          this._scheduleAnnouncementVolumeRestore(volumeSnapshots, this._announcementRestoreDelayMs(message));
-        }
-        return true;
-      } finally {
-        this._state.mobileAnnouncementText = previousText;
-        this._state.mobileAnnouncementTarget = previousTarget;
-        this._state.mobileAnnouncementVolume = previousVolume;
-      }
-    }
-
     _controlRoomScenesStorageKey() {
       return this._lsKey("maverick_music_control_room_scenes_v1");
     }
@@ -5022,40 +4982,7 @@ export function createMaverickBaseMusicCard({
           </div>
         `;
       }
-      if (panel === "announce") {
-        const volume = Math.max(20, Math.min(50, Number(this._state.controlRoomAnnouncementVolume || 20) || 20));
-        return `
-          <div class="control-room-tray open compact control-room-announcement-tray">
-            <div class="control-room-announce-hero">
-              <span class="control-room-announce-icon">${this._iconSvg("announcement")}</span>
-              <span class="control-room-announce-copy">
-                <span class="control-room-tray-title">${this._esc(this._i18n("ui.announcement_studio_2"))}</span>
-                <span class="control-room-tray-sub">${this._esc(this._i18n("ui.send_a_short_voice_message_or_announcement_url"))}</span>
-              </span>
-            </div>
-            ${context}
-            <div class="control-room-announce-panel">
-              <label class="control-room-announce-compose">
-                <span>${this._esc(this._i18n("ui.message"))}</span>
-                <textarea id="controlRoomAnnouncementText" class="announcement-textarea" rows="3" placeholder="${this._esc(this._i18n("ui.type_what_should_be_announced"))}">${this._esc(this._state.controlRoomAnnouncementText || "")}</textarea>
-              </label>
-              <div class="control-room-announce-controls">
-                <div class="control-room-announce-volume-card announcement-volume-field">
-                  <div class="control-room-announce-volume-head">
-                    <span>${this._esc(this._i18n("ui.volume_boost"))}</span>
-                    <strong class="settings-value">+${this._esc(String(volume))}%</strong>
-                  </div>
-                  <input id="controlRoomAnnouncementVolumeInput" type="range" min="20" max="50" step="1" value="${this._esc(String(volume))}">
-                </div>
-                <button class="control-room-panel-action primary wide control-room-announce-send" data-room-announce-send>
-                  ${this._iconSvg("announcement")}
-                  <span>${this._esc(this._i18n("ui.send_announcement"))}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }
+      if (panel === "announce") return studioAnnouncePanelHtml(this, context);
       if (panel === "pro") {
         const primary = this._controlRoomPrimaryPlayer();
         const protocol = primary ? this._controlRoomProtocolLabel(primary) : "";

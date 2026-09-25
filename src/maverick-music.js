@@ -15,6 +15,11 @@ import {
   loadScheduledStartPlaylists, markScheduleFormControlActive, normalizeScheduledStartSchedule, renderTimersPage, scheduledStartDays,
   scheduledStartSchedules, sleepTimerFabHtml, sleepTimerId, sleepTimerRemainingLabel, sleepTimerRemainingMs, syncSleepTimerChip, syncSleepTimerState,
 } from "./core/media/timers.js";
+import {
+  announcementsPageHtml, announcementsSettingsSectionHtml, announcementVolumePct, announcementLanguageSetting, defaultAnnouncementPresets,
+  handleAnnouncementFormChange, handleAnnouncementMenuClick, handleStudioAnnouncementInput, isDefaultAnnouncementPresetSet, normalizeAnnouncementLanguage,
+  sendControlRoomAnnouncement,
+} from "./core/media/announcements.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -424,7 +429,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._state.mobileRadioBrowseCountry = "";
     this._state.mobileRadioBrowseCountryName = "";
     this._state.mobileAnnouncementText = "";
-    this._state.mobileAnnouncementPresets = this._defaultAnnouncementPresets();
+    this._state.mobileAnnouncementPresets = defaultAnnouncementPresets();
     this._state.mobileAnnouncementVolume = 20;
     this._state.mobileAnnouncementTtsEntity = "";
     this._state.mobileAnnouncementTtsLanguage = "auto";
@@ -662,8 +667,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try {
       const presets = JSON.parse(localStorage.getItem(this._lsKey("maverick_music_mobile_announcement_presets")) || "[]");
       if (Array.isArray(presets) && presets.length) {
-        this._state.mobileAnnouncementPresets = this._isDefaultAnnouncementPresetSet(presets)
-          ? this._defaultAnnouncementPresets()
+        this._state.mobileAnnouncementPresets = isDefaultAnnouncementPresetSet(presets)
+          ? defaultAnnouncementPresets()
           : presets.slice(0, 3);
       }
     } catch (_) {}
@@ -672,7 +677,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (Number.isFinite(announcementVolume)) this._state.mobileAnnouncementVolume = Math.max(20, Math.min(50, announcementVolume));
     } catch (_) {}
     try { this._state.mobileAnnouncementTtsEntity = localStorage.getItem(this._lsKey("maverick_music_mobile_announcement_tts_entity")) || this._config?.announcement_tts_entity || ""; } catch (_) {}
-    try { this._state.mobileAnnouncementTtsLanguage = this._normalizeAnnouncementLanguage(localStorage.getItem(this._lsKey("maverick_music_mobile_announcement_tts_language")) || this._config?.announcement_tts_language || "auto"); } catch (_) {}
+    try { this._state.mobileAnnouncementTtsLanguage = normalizeAnnouncementLanguage(localStorage.getItem(this._lsKey("maverick_music_mobile_announcement_tts_language")) || this._config?.announcement_tts_language || "auto"); } catch (_) {}
     try { this._state.ambientLightEnabled = JSON.parse(localStorage.getItem(this._lsKey("maverick_music_ambient_light_enabled")) ?? "false"); } catch {}
     try { this._state.ambientLightEntities = MaverickMobileSettingsFoundation.normalizeEntityList(JSON.parse(localStorage.getItem(this._lsKey("maverick_music_ambient_light_entities")) || "[]")); } catch {}
     try { this._state.ambientLightPlayerMap = MaverickMobileSettingsFoundation.normalizeStringArray(JSON.parse(localStorage.getItem(this._lsKey("maverick_music_ambient_light_player_map")) || "[]")); } catch {}
@@ -1087,7 +1092,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!this._config) return;
     const cfg = this._config;
     if (this._usesVisualSettings()) {
-      const visualCfg = this._isDefaultAnnouncementPresetSet(cfg.mobile_announcement_presets)
+      const visualCfg = isDefaultAnnouncementPresetSet(cfg.mobile_announcement_presets)
         ? { ...cfg, mobile_announcement_presets: [] }
         : cfg;
       const previousLibraryDefaultLayout = this._state.mobileLibraryDefaultLayout || this._defaultMobileMediaLayout();
@@ -1099,7 +1104,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         defaultLibraryTabs: this._defaultMobileLibraryTabs(),
         defaultMainBarItems: this._defaultMobileMainBarItems(),
         defaultQuickActions: this._defaultMobileQuickActions(),
-        defaultAnnouncementPresets: this._defaultAnnouncementPresets(),
+        defaultAnnouncementPresets: defaultAnnouncementPresets(),
       }));
       if (previousEdgeReturnAvailable && this._state.mobileLayoutMode === "edge_to_edge") {
         this._state.mobileLayoutMode = "full";
@@ -1116,7 +1121,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.mobileAnnouncementTtsEntity = String(cfg.announcement_tts_entity || "").trim();
     }
     if (!this._usesVisualSettings() && String(cfg.announcement_tts_language || "").trim()) {
-      this._state.mobileAnnouncementTtsLanguage = this._normalizeAnnouncementLanguage(cfg.announcement_tts_language);
+      this._state.mobileAnnouncementTtsLanguage = normalizeAnnouncementLanguage(cfg.announcement_tts_language);
     }
     if (!this._usesVisualSettings() && !this._state.performanceModeLocalOverride) {
       const performanceProfile = MaverickMobileSettingsFoundation.normalizePerformanceProfile(cfg.performance_profile, cfg.performance_mode);
@@ -3051,9 +3056,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_radio_source_mode"), this._mobileRadioSourceMode()); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_radio_country"), this._mobileRadioBrowserCountry()); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_presets"), JSON.stringify(this._state.mobileAnnouncementPresets || [])); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_volume"), String(this._announcementVolumePct())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_volume"), String(announcementVolumePct(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_tts_entity"), this._state.mobileAnnouncementTtsEntity || ""); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_tts_language"), this._announcementLanguageSetting()); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_tts_language"), announcementLanguageSetting(this)); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_ambient_light_enabled"), JSON.stringify(!!this._state.ambientLightEnabled)); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_ambient_light_entities"), JSON.stringify(this._ambientLightEntities())); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_ambient_light_player_map"), JSON.stringify(this._ambientLightPlayerMap())); } catch {}
@@ -3095,17 +3100,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _defaultMobileQuickActions() {
     return ["timer", "like", "lyrics", "queue", "queue_flow", "radio", "history"];
-  }
-
-  _defaultAnnouncementPresets() {
-    return ["Dinner is ready", "Please come to the living room", "Leaving in five minutes"];
-  }
-
-  _isDefaultAnnouncementPresetSet(presets = []) {
-    if (!Array.isArray(presets) || !presets.length) return false;
-    const normalize = (items) => items.slice(0, 3).map((item) => String(item || "").trim()).join("\n");
-    const current = normalize(presets);
-    return current === normalize(this._defaultAnnouncementPresets());
   }
 
   _mobileHomeShortcutEnabled() {
@@ -4622,23 +4616,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
   }
 
-  _announcementEligiblePlayers() {
-    return MaverickPlayersFoundation.announcementEligiblePlayers(this._state.players || []);
-  }
-
-  _announcementTargetValue() {
-    const raw = String(this._state.mobileAnnouncementTarget || "").trim();
-    if (raw === "all") return "all";
-    const eligible = this._announcementEligiblePlayers();
-    if (eligible.some((player) => player.entity_id === raw)) return raw;
-    return eligible.find((player) => player.entity_id === this._state.selectedPlayer)?.entity_id || eligible[0]?.entity_id || "";
-  }
-
-  _announcementVolumePct() {
-    const raw = Number(this._state.mobileAnnouncementVolume ?? this._config?.mobile_announcement_volume ?? 20);
-    return Number.isFinite(raw) ? Math.max(20, Math.min(50, raw)) : 20;
-  }
-
   _mobileNavigableActivePlayers() {
     return MaverickPlayersFoundation.mobileNavigableActivePlayers(
       this._state.players || [],
@@ -5188,13 +5165,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       : playerOrEntityId;
     const value = Number(player?.attributes?.volume_level);
     return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
-  }
-
-  async _setPlayerVolumeForAnnouncement(entityId, level) {
-    const normalized = Math.max(0, Math.min(1, Number(level) || 0));
-    if (!entityId) return false;
-    await this._callMaverickEnginePlayerCommand(entityId, "volume", { volume_level: normalized });
-    return true;
   }
 
   _playerVolumeLevel(entityId) {
@@ -7417,7 +7387,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (announceBtn) {
         e.preventDefault();
         e.stopPropagation();
-        await this._sendControlRoomAnnouncement(announceBtn);
+        await sendControlRoomAnnouncement(this, announceBtn);
         return;
       }
       const thisDeviceBtn = e.target.closest("[data-room-this-device]");
@@ -7660,22 +7630,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._state.controlRoomSmartQuery = smartInput.value || "";
         return;
       }
-      const announceText = e.target.closest?.("#controlRoomAnnouncementText");
-      if (announceText) {
-        this._state.controlRoomAnnouncementText = announceText.value || "";
-        return;
-      }
+      if (handleStudioAnnouncementInput(this, e)) return;
       const sceneNameInput = e.target.closest?.("#controlRoomSceneNameInput");
       if (sceneNameInput) {
         this._state.controlRoomSceneName = sceneNameInput.value || "";
-        return;
-      }
-      const announceVolume = e.target.closest?.("#controlRoomAnnouncementVolumeInput");
-      if (announceVolume) {
-        const pct = Math.max(20, Math.min(50, Number(announceVolume.value || 20)));
-        this._state.controlRoomAnnouncementVolume = pct;
-        const label = announceVolume.closest(".announcement-volume-field")?.querySelector(".settings-value");
-        if (label) label.textContent = `+${pct}%`;
         return;
       }
       const sourceSelect = e.target.closest?.("#controlRoomTransferSource");
@@ -10881,7 +10839,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ${this._settingsAccordionWrap("quick_actions_bar", this._i18n("ui.settings_section_quick_actions_bar", {}, "Quick Actions Bar"), this._settingsSectionQuickActionsBar())}
       ${this._settingsAccordionWrap("voice_assistant", this._i18n("ui.settings_section_voice_assistant", {}, "Voice Assistant"), this._settingsSectionVoiceAssistant())}
       ${this._settingsAccordionWrap("smart_home", this._i18n("ui.settings_section_smart_home", {}, "Smart Home"), this._settingsSectionSmartHome())}
-      ${this._settingsAccordionWrap("announcements", this._i18n("ui.settings_section_announcements", {}, "Announcements"), this._settingsSectionAnnouncements())}
+      ${this._settingsAccordionWrap("announcements", this._i18n("ui.settings_section_announcements", {}, "Announcements"), announcementsSettingsSectionHtml(this))}
       ${this._settingsAccordionWrap("music_assistant", this._i18n("ui.settings_section_music_assistant", {}, "Music Assistant"), this._settingsSectionMusicAssistant())}
       <div class="settings-version">Version ${MAVERICK_CARD_VERSION}</div>
     </div>`;
@@ -11345,43 +11303,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             ${this._settingsPill(this._i18n("ui.enabled"), "on", this._discoveryModeEnabled() ? "on" : "off", "data-setting-discovery-mode")}
             ${this._settingsPill(this._i18n("ui.disabled"), "off", this._discoveryModeEnabled() ? "on" : "off", "data-setting-discovery-mode")}
           </div>
-        </div>`;
-  }
-
-  _settingsSectionAnnouncements() {
-    const presets = Array.isArray(this._state.mobileAnnouncementPresets)
-      ? this._state.mobileAnnouncementPresets.slice(0, 3)
-      : this._defaultAnnouncementPresets().slice(0, 3);
-    while (presets.length < 3) presets.push("");
-    const announcementVolume = this._announcementVolumePct();
-    const ttsEntity = this._announcementTtsEntity();
-    const announcementLanguage = this._announcementLanguageSetting();
-    const languageOptions = this._announcementLanguageOptions();
-    return `
-        <div class="settings-group announcement-settings-card">
-          <div class="settings-label">${this._esc(this._i18n("ui.announcement_presets"))}</div>
-          <div class="scheduled-start-grid two-col">
-            ${presets.map((preset, index) => `
-              <label class="scheduled-start-field">
-                <span class="settings-label">${this._esc(`${this._i18n("ui.announcement")} ${index + 1}`)}</span>
-                <input class="settings-text-input" data-announcement-preset-index="${this._esc(String(index))}" type="text" value="${this._esc(preset)}" placeholder="${this._esc(this._i18n("ui.type_an_announcement"))}">
-              </label>
-            `).join("")}
-          </div>
-          <div class="settings-hint">${this._esc(this._i18n("ui.configure_ready_made_announcement_phrases"))}</div>
-          <div class="settings-range announcement-volume-field">
-            <div class="settings-label">${this._esc(this._i18n("ui.announcement_volume_boost"))}</div>
-            <input id="mobileAnnouncementVolumeInput" type="range" min="20" max="50" step="1" value="${this._esc(String(announcementVolume))}">
-            <div class="settings-value">+${this._esc(String(announcementVolume))}%</div>
-          </div>
-          <div class="settings-label">${this._esc(this._i18n("ui.tts_entity"))}</div>
-          <input class="settings-text-input" id="mobileAnnouncementTtsEntity" type="text" value="${this._esc(ttsEntity)}" placeholder="tts.home_assistant_cloud">
-          <div class="settings-hint">${this._esc(this._i18n("ui.tts_entity_used_by_the_announcement_screen"))}</div>
-          <div class="settings-label">${this._esc(this._i18n("ui.announcement_language"))}</div>
-          <select class="media-sort-select settings-select" id="mobileAnnouncementTtsLanguageSelect" aria-label="${this._esc(this._i18n("ui.announcement_language"))}">
-            ${languageOptions.map(([value, label]) => `<option value="${this._esc(value)}" ${value === announcementLanguage ? "selected" : ""}>${this._esc(label)}</option>`).join("")}
-          </select>
-          <div class="settings-hint">${this._esc(this._i18n("ui.auto_leaves_home_assistant_cloud_voice_defaults_untouched_manual_choices"))}</div>
         </div>`;
   }
 
@@ -14683,317 +14604,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
   }
 
-  _announcementsMenuHtml() {
-    const text = this._state.mobileAnnouncementText || "";
-    const presets = (this._state.mobileAnnouncementPresets || []).slice(0, 3);
-    const targetValue = this._announcementTargetValue();
-    const announcementVolume = this._announcementVolumePct();
-    const announcementLanguage = this._announcementLanguageSetting();
-    const targetOptions = [
-      ["all", this._i18n("ui.announce_to_all_players")],
-      ...this._announcementEligiblePlayers().map((player) => [player.entity_id, player.attributes?.friendly_name || player.entity_id]),
-    ];
-    const languageOptions = this._announcementLanguageOptions();
-    return `
-      <div class="announcements-shell">
-        <div class="announcement-target">
-          <span class="announcement-target-icon">${this._iconSvg("speaker")}</span>
-          <select class="media-sort-select announcement-target-select" id="mobileAnnouncementTargetSelect" aria-label="${this._esc(this._i18n("ui.announcement_target"))}">
-            ${targetOptions.map(([value, label]) => `<option value="${this._esc(value)}" ${value === targetValue ? "selected" : ""}>${this._esc(label)}</option>`).join("")}
-          </select>
-        </div>
-        <div class="announcement-target announcement-language-target">
-          <span class="announcement-target-icon">${this._iconSvg("announcement")}</span>
-          <select class="media-sort-select announcement-target-select" id="mobileAnnouncementTtsLanguageSelect" aria-label="${this._esc(this._i18n("ui.announcement_language"))}">
-            ${languageOptions.map(([value, label]) => `<option value="${this._esc(value)}" ${value === announcementLanguage ? "selected" : ""}>${this._esc(label)}</option>`).join("")}
-          </select>
-        </div>
-        <div class="announcement-input-wrap">
-          <textarea id="mobileAnnouncementText" class="announcement-textarea" rows="4" placeholder="${this._esc(this._i18n("ui.type_an_announcement"))}">${this._esc(text)}</textarea>
-          <button class="announcement-voice-btn" data-announcement-voice title="${this._esc(this._i18n("ui.dictate"))}">${this._iconSvg("mic")}</button>
-        </div>
-        <div class="announcement-presets">
-          ${presets.map((preset, index) => preset ? `
-            <button class="settings-pill" data-announcement-preset-fill="${this._esc(index)}">${this._esc(preset)}</button>
-          ` : ``).join("")}
-        </div>
-        <div class="settings-range announcement-volume-field">
-          <div class="settings-label">${this._esc(this._i18n("ui.announcement_volume_boost"))}</div>
-          <input id="mobileAnnouncementVolumeInput" type="range" min="20" max="50" step="1" value="${this._esc(String(announcementVolume))}">
-          <div class="settings-value">+${this._esc(String(announcementVolume))}%</div>
-        </div>
-        <button class="action-btn announcement-send-btn" data-announcement-send>
-          ${this._iconSvg("announcement")}
-          <span>${this._esc(this._i18n("ui.announce"))}</span>
-        </button>
-      </div>
-    `;
-  }
-
-  _announcementTtsEntity() {
-    const explicit = String(this._state.mobileAnnouncementTtsEntity || this._config?.announcement_tts_entity || "").trim();
-    if (explicit) return explicit;
-    const ttsEntity = Object.keys(this._hass?.states || {}).find((entityId) => entityId.startsWith("tts."));
-    return String(ttsEntity || "").trim();
-  }
-
-  _announcementLanguageOptions() {
-    return [
-      ["auto", this._i18n("ui.auto_cloud_default")],
-      ["en-US", "English (US)"],
-      ["en-GB", "English (UK)"],
-    ];
-  }
-
-  _normalizeAnnouncementLanguage(value = "") {
-    const normalized = String(value || "auto").trim();
-    const allowed = new Set(this._announcementLanguageOptions().map(([option]) => option));
-    return allowed.has(normalized) ? normalized : "auto";
-  }
-
-  _announcementLanguageSetting() {
-    return this._normalizeAnnouncementLanguage(this._state.mobileAnnouncementTtsLanguage || this._config?.announcement_tts_language || "auto");
-  }
-
-  _announcementLanguageCode() {
-    const configured = this._announcementLanguageSetting();
-    if (configured !== "auto") return configured;
-    return "";
-  }
-
-  _announcementRecognitionLanguageCode() {
-    const configured = this._announcementLanguageSetting();
-    if (configured !== "auto") return configured;
-    try {
-      const browserLanguage = typeof navigator !== "undefined" ? navigator.language : "";
-      const lang = this._hass?.locale?.language || this._hass?.language || browserLanguage || "";
-      if (lang) return String(lang);
-    } catch (_) {}
-    return "en-US";
-  }
-
-  _announcementPayloadWithLanguage(payload = {}, language = "") {
-    const next = { ...payload };
-    if (language) next.language = language;
-    else delete next.language;
-    if (next.options && !Object.keys(next.options).length) delete next.options;
-    return next;
-  }
-
-  _preferredAnnouncementSayService() {
-    const services = Object.keys(this._hass?.services?.tts || {});
-    return services.find((service) => service === "google_translate_say" || service.endsWith("_say")) || "";
-  }
-
-  _prepareAnnouncementVolumes(targets = []) {
-    const boost = this._announcementVolumePct() / 100;
-    return (Array.isArray(targets) ? targets : [])
-      .map((player) => {
-        const entityId = String(player?.entity_id || "").trim();
-        const previousVolume = this._playerVolumeLevel(entityId);
-        return {
-          entityId,
-          previousVolume,
-          targetVolume: Number.isFinite(previousVolume) ? Math.max(0, Math.min(1, previousVolume + boost)) : boost,
-          targetVolumePct: Math.round((Number.isFinite(previousVolume) ? Math.max(0, Math.min(1, previousVolume + boost)) : boost) * 100),
-        };
-      })
-      .filter((snapshot) => snapshot.entityId);
-  }
-
-  _announcementVolumeSnapshot(playerOrEntityId, snapshots = []) {
-    const entityId = String(playerOrEntityId?.entity_id || playerOrEntityId || "").trim();
-    return snapshots.find((item) => item.entityId === entityId) || null;
-  }
-
-  _announcementTargetVolumePct(playerOrEntityId, snapshots = []) {
-    const snapshot = this._announcementVolumeSnapshot(playerOrEntityId, snapshots);
-    const value = Number(snapshot?.targetVolumePct);
-    return Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : null;
-  }
-
-  _announcementTtsOptions(player, snapshots = [], language = "") {
-    const options = {};
-    if (language) options.language = language;
-    const targetVolumePct = this._announcementTargetVolumePct(player, snapshots);
-    if (Number.isFinite(targetVolumePct)) options.announce_volume = targetVolumePct;
-    return options;
-  }
-
-  async _callMusicAssistantAnnouncement(player, url, snapshots = []) {
-    const targetVolumePct = this._announcementTargetVolumePct(player, snapshots);
-    return this._maverickEngineAnnounce({
-      message: url,
-      player: player?.entity_id || "",
-      players: [player?.entity_id || ""].filter(Boolean),
-      volume: Number.isFinite(targetVolumePct) ? targetVolumePct : this._announcementVolumePct(),
-      target: player?.entity_id || "",
-    });
-  }
-
-  _announcementRestoreDelayMs(message = "") {
-    const textLength = String(message || "").trim().length;
-    return Math.max(5000, Math.min(22000, 3200 + textLength * 90));
-  }
-
-  _scheduleAnnouncementVolumeRestore(snapshots = [], delayMs = 0) {
-    this._announcementVolumeRestoreTimers = this._announcementVolumeRestoreTimers || new Map();
-    snapshots.forEach((snapshot) => {
-      if (!snapshot?.entityId || !Number.isFinite(snapshot.previousVolume)) return;
-      const existing = this._announcementVolumeRestoreTimers.get(snapshot.entityId);
-      if (Array.isArray(existing)) existing.forEach((timer) => clearTimeout(timer));
-      else if (existing) clearTimeout(existing);
-      const baseDelay = Math.max(0, Number(delayMs) || 0);
-      const delays = [baseDelay, baseDelay + 4500, baseDelay + 9000];
-      const timers = delays.map((delay, index) => setTimeout(() => {
-        this._setPlayerVolumeForAnnouncement(snapshot.entityId, snapshot.previousVolume).catch(() => {});
-        if (index === delays.length - 1) this._announcementVolumeRestoreTimers.delete(snapshot.entityId);
-      }, delay));
-      this._announcementVolumeRestoreTimers.set(snapshot.entityId, timers);
-    });
-  }
-
-  async _recordAnnouncementInMaverickEngine(message = "", targets = [], options = {}) {
-    if (!this._maverickEngineEnabled()) return false;
-    const cleanMessage = String(message || "").trim();
-    if (!cleanMessage) return false;
-    const players = (Array.isArray(targets) ? targets : [])
-      .map((player) => String(player?.entity_id || player || "").trim())
-      .filter(Boolean);
-    try {
-      const ready = await this._maverickEngineReadyForPersistence();
-      if (!ready) return false;
-      await this._maverickEngineAnnounce({
-        message: cleanMessage,
-        player: players.length === 1 ? players[0] : "",
-        players,
-        volume: this._announcementVolumePct(),
-        language: String(options.language || "").trim(),
-        target: String(options.target || this._announcementTargetValue() || "").trim(),
-        sent: options.sent !== false,
-      });
-      return true;
-    } catch (error) {
-      this._debugLog("Engine announcement record skipped", error?.message || error);
-      return false;
-    }
-  }
-
-  async _sendMobileAnnouncement() {
-    if (this._announcementSendPending) return;
-    const message = String(this._state.mobileAnnouncementText || "").trim();
-    const targetValue = this._announcementTargetValue();
-    const eligiblePlayers = this._announcementEligiblePlayers();
-    const targets = targetValue === "all"
-      ? eligiblePlayers
-      : eligiblePlayers.filter((player) => player.entity_id === targetValue);
-    if (!message) {
-      this._toastError(this._i18n("ui.enter_an_announcement_first"));
-      return;
-    }
-    if (!targets.length) {
-      this._toastError(this._i18n("ui.select_a_player_first"));
-      return;
-    }
-    this._hapticTap([12, 24, 12]);
-    const playerName = targetValue === "all"
-      ? this._i18n("ui.all_players_2")
-      : (targets[0]?.attributes?.friendly_name || targets[0]?.entity_id || this._selectedPlayerName());
-    const preview = message.length > 72 ? `${message.slice(0, 69)}...` : message;
-    const language = this._announcementLanguageCode();
-    this._toast(this._i18n("ui.announcement_to_player_preview", {
-      player: playerName,
-      preview,
-    }));
-    this._announcementSendPending = true;
-    try {
-      const ttsEntity = this._announcementTtsEntity();
-      const targetEntityIds = targets
-        .map((player) => String(player?.entity_id || "").trim())
-        .filter(Boolean);
-      const volumeGroups = new Map();
-      for (const snapshot of this._prepareAnnouncementVolumes(targets)) {
-        const group = volumeGroups.get(snapshot.targetVolumePct) || [];
-        group.push(snapshot.entityId);
-        volumeGroups.set(snapshot.targetVolumePct, group);
-      }
-      const responses = await Promise.all([...volumeGroups].map(async ([volume, players]) => {
-        try {
-          const result = await this._maverickEngineAnnounce({
-            message, player: players.length === 1 ? players[0] : "", players,
-            volume, language, tts_entity: ttsEntity, target: targetValue,
-          });
-          return Array.isArray(result?.results) && result.results.length ? result.results
-            : players.map((player) => ({ player, ok: result?.ok === true || result?.sent === true }));
-        } catch (error) {
-          return players.map((player) => ({ player, ok: false, error: error?.message }));
-        }
-      }));
-      const results = responses.flat();
-      const failures = results.filter((item) => item?.ok !== true);
-      const acknowledged = targetEntityIds.every((id) => results.some((item) => item?.player === id && item?.ok === true));
-      if (!acknowledged || failures.length) {
-        const names = targetEntityIds.filter((id) => !results.some((item) => item?.player === id && item?.ok === true))
-          .map((id) => targets.find((player) => player.entity_id === id)?.attributes?.friendly_name || id);
-        throw new Error(`${this._m("Announcement not confirmed")}: ${names.join(", ") || playerName}`);
-      }
-      this._toastSuccess(this._i18n("ui.announcement_sent_to_player", { player: playerName }));
-    } catch (error) {
-      this._toastError(this._i18n("ui.announcement_failed_with_error", {
-        error: error?.message ? `: ${error.message}` : "",
-      }));
-    } finally {
-      // MA owns announcement completion and restores playback/volume. A browser
-      // timer cannot infer audio duration and would overwrite later user changes.
-      this._announcementSendPending = false;
-    }
-  }
-
-  _startMobileAnnouncementVoice() {
-    const SpeechRecognition = this._speechRecognitionCtor();
-    const input = this.$("mobileAnnouncementText");
-    if (!SpeechRecognition) {
-      this._toastError(this._i18n("ui.voice_input_is_not_supported_on_this_device"));
-      return;
-    }
-    try { this._voiceRecognition?.abort?.(); } catch (_) {}
-    const recognition = new SpeechRecognition();
-    this._voiceRecognition = recognition;
-    recognition.lang = this._announcementRecognitionLanguageCode();
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
-    let capturedTranscript = false;
-    let recognitionFailed = false;
-    this._toast(this._i18n("ui.listening"));
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results || [])
-        .map((result) => result?.[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      if (!transcript) return;
-      capturedTranscript = true;
-      this._state.mobileAnnouncementText = transcript;
-      if (input) {
-        input.value = transcript;
-        input.focus({ preventScroll: true });
-      }
-    };
-    recognition.onnomatch = () => {
-      recognitionFailed = true;
-      this._toastError(this._i18n("ui.no_speech_was_captured"));
-    };
-    recognition.onerror = () => {
-      recognitionFailed = true;
-      this._toastError(this._i18n("ui.voice_input_failed"));
-    };
-    recognition.onend = () => {
-      if (!capturedTranscript && !recognitionFailed) this._toastError(this._i18n("ui.no_speech_was_captured"));
-      if (this._voiceRecognition === recognition) this._voiceRecognition = null;
-    };
-    try { recognition.start(); } catch (_) { this._toastError(this._i18n("ui.voice_input_failed")); }
-  }
-
   _groupPlayerStatusText(checked = false, connected = false, isOwner = false) {
     if (isOwner && connected && !checked) return this._m("Disconnects all");
     if (isOwner && connected) return this._m("Master");
@@ -16110,7 +15720,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (!isCurrentRender()) return;
     }
     else if (page === "group") body.innerHTML = this._groupMenuHtml();
-    else if (page === "announcements") body.innerHTML = this._announcementsMenuHtml();
+    else if (page === "announcements") body.innerHTML = announcementsPageHtml(this);
     else if (page === "ungroup_all") {
       body.innerHTML = this._loadingStateHtml(this._i18n("ui.disconnecting_player_groups"), { notice: true });
       await this._ungroupAllPlayers();
@@ -16304,35 +15914,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._refreshAfterSettingsChange({ playerListChanged: true });
       return;
     }
-    const announcementPresetBtn = eventTarget.closest("[data-announcement-preset-fill]");
-    if (announcementPresetBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      const index = Number(announcementPresetBtn.dataset.announcementPresetFill);
-      const preset = (this._state.mobileAnnouncementPresets || [])[index] || "";
-      this._state.mobileAnnouncementText = preset;
-      const input = this.$("mobileAnnouncementText");
-      if (input) input.value = preset;
-      this._flashInteraction(announcementPresetBtn);
-      this._hapticTap([8]);
-      return;
-    }
-    const announcementVoiceBtn = eventTarget.closest("[data-announcement-voice]");
-    if (announcementVoiceBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._flashInteraction(announcementVoiceBtn);
-      this._startMobileAnnouncementVoice();
-      return;
-    }
-    const announcementSendBtn = eventTarget.closest("[data-announcement-send]");
-    if (announcementSendBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._flashInteraction(announcementSendBtn);
-      await this._sendMobileAnnouncement();
-      return;
-    }
+    if (await handleAnnouncementMenuClick(this, e, eventTarget)) return;
     const discoveryPathBtn = eventTarget.closest("[data-discovery-path], [data-discovery-retry]");
     if (discoveryPathBtn) {
       e.preventDefault();
@@ -17355,46 +16937,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       );
       return;
     }
-    if (e.target?.id === "mobileAnnouncementText") {
-      this._state.mobileAnnouncementText = e.target.value || "";
-      return;
-    }
-    if (e.target?.id === "mobileAnnouncementTargetSelect") {
-      this._state.mobileAnnouncementTarget = e.target.value || "";
-      return;
-    }
-    if (e.target?.id === "mobileAnnouncementVolumeInput") {
-      const pct = Math.max(20, Math.min(50, Number(e.target.value || 20)));
-      this._state.mobileAnnouncementVolume = pct;
-      const valueEl = e.target.closest(".announcement-volume-field")?.querySelector(".settings-value");
-      if (valueEl) valueEl.textContent = `+${pct}%`;
-      this._persistMobileAppearance();
-      return;
-    }
-    if (e.target?.dataset?.announcementPresetIndex !== undefined) {
-      const index = Number(e.target.dataset.announcementPresetIndex);
-      if (Number.isFinite(index)) {
-        const presets = Array.isArray(this._state.mobileAnnouncementPresets) ? [...this._state.mobileAnnouncementPresets] : ["", "", ""];
-        presets[index] = e.target.value || "";
-        this._state.mobileAnnouncementPresets = presets.slice(0, 3);
-        this._persistMobileAppearance();
-      }
-      return;
-    }
-    if (e.target?.id === "mobileAnnouncementTtsEntity") {
-      this._state.mobileAnnouncementTtsEntity = e.target.value || "";
-      this._persistMobileAppearance();
-      return;
-    }
+    if (handleAnnouncementFormChange(this, e)) return;
     if (e.target?.id === "mobileLanguageSelect") {
       this._state.lang = e.target.value || "en";
       try { localStorage.setItem(this._lsKey("maverick_music_lang"), this._state.lang); } catch (_) {}
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
-      return;
-    }
-    if (e.target?.id === "mobileAnnouncementTtsLanguageSelect") {
-      this._state.mobileAnnouncementTtsLanguage = this._normalizeAnnouncementLanguage(e.target.value || "auto");
-      this._persistMobileAppearance();
       return;
     }
     if (e.target?.id === "voiceAssistantAgentSelect") {

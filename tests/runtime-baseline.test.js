@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { extractCardVersion } from "../src/core/version-utils.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } from "../src/core/engine-client.js";
 import { normalizeScheduledStartSchedule, scheduledStartEnginePayload } from "../src/core/media/timers.js";
+import { recordAnnouncementInEngine } from "../src/core/media/announcements.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -532,7 +533,7 @@ describe("runtime baseline", () => {
     card._maverickEngineReadyForPersistence = vi.fn(async () => true);
     card._maverickEngineAnnounce = vi.fn(async () => ({ accepted: true }));
 
-    await expect(card._recordAnnouncementInMaverickEngine("Dinner is ready", [
+    await expect(recordAnnouncementInEngine(card, "Dinner is ready", [
       { entity_id: "media_player.kitchen" },
       "media_player.living_room",
     ], { language: "en-US", target: "all" })).resolves.toBe(true);

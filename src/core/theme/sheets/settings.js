@@ -268,99 +268,6 @@ export default function() {
             padding-inline:12px;
           }
         }
-        .announcements-shell {
-          display:grid;
-          gap:14px;
-        }
-        .announcement-target {
-          min-height:68px;
-          display:grid;
-          grid-template-columns:54px minmax(0,1fr);
-          align-items:center;
-          gap:12px;
-          padding:8px 12px;
-          border-radius:22px;
-          border:1px solid color-mix(in srgb, var(--ma-accent) 24%, transparent);
-          background:color-mix(in srgb, var(--ma-accent) 12%, transparent);
-          font-size:17px;
-          font-weight:950;
-        }
-        .announcement-target-icon {
-          width:46px;
-          height:46px;
-          border-radius:17px;
-          display:grid;
-          place-items:center;
-          color:#18120a;
-          background:linear-gradient(135deg, var(--ma-accent), color-mix(in srgb, var(--ma-accent) 72%, white 28%));
-          box-shadow:0 14px 24px color-mix(in srgb, var(--ma-accent) 20%, transparent);
-        }
-        .announcement-target-icon .ui-ic {
-          width:22px;
-          height:22px;
-        }
-        .announcement-target-select {
-          width:100%;
-          min-width:0;
-          min-height:48px;
-          border:none;
-          background:transparent;
-          box-shadow:none;
-          padding:0;
-          font:inherit;
-          color:inherit;
-          white-space:nowrap;
-          overflow:hidden;
-          text-overflow:ellipsis;
-        }
-        .theme-dark .announcement-target {
-          background:rgba(20,24,32,.74);
-          border-color:rgba(255,255,255,.12);
-        }
-        .theme-dark .announcement-target-select {
-          background:rgba(15,18,28,.82);
-          color:#f4f6fb;
-          border-radius:14px;
-          padding:10px 12px;
-          border:1px solid rgba(255,255,255,.12);
-          color-scheme:dark;
-        }
-        .theme-dark #mobileAnnouncementTargetSelect option,
-        .theme-dark #mobileAnnouncementTtsLanguageSelect option {
-          background:#171d28;
-          color:#f4f6fb;
-        }
-        .announcement-input-wrap {
-          position:relative;
-          display:grid;
-        }
-        .announcement-textarea {
-          resize:vertical;
-          min-height:124px;
-          line-height:1.5;
-          padding-inline-end:64px;
-        }
-        .announcement-voice-btn {
-          position:absolute;
-          inset-block-start:10px;
-          inset-inline-end:10px;
-          width:44px;
-          height:44px;
-          border:none;
-          border-radius:16px;
-          display:grid;
-          place-items:center;
-          color:#18120a;
-          background:linear-gradient(135deg, var(--ma-accent), color-mix(in srgb, var(--ma-accent) 72%, white 28%));
-          box-shadow:0 12px 22px color-mix(in srgb, var(--ma-accent) 18%, transparent);
-          cursor:pointer;
-        }
-        .announcement-voice-btn .ui-ic { width:20px; height:20px; }
-        .announcement-presets {
-          display:flex;
-          flex-wrap:wrap;
-          gap:10px;
-        }
         .surprise-popup {
           position:absolute;
           inset-inline:0;
@@ -424,16 +331,6 @@ export default function() {
           background:linear-gradient(145deg, rgba(255,255,255,.96), rgba(244,247,251,.88));
           border-color:rgba(147,161,183,.18);
         }
-        .announcement-send-btn {
-          min-height:62px;
-          display:flex !important;
-          flex-direction:row !important;
-          align-items:center;
-          justify-content:center;
-          gap:12px;
-          font-size:17px;
-        }
-        .announcement-send-btn .ui-ic { width:24px; height:24px; flex:none; }
         .settings-stat-row {
           display:flex;
           align-items:center;
