@@ -8,6 +8,7 @@ import { extractCardVersion } from "../src/core/version-utils.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } from "../src/core/engine-client.js";
 import { normalizeScheduledStartSchedule, scheduledStartEnginePayload } from "../src/core/media/timers.js";
 import { recordAnnouncementInEngine } from "../src/core/media/announcements.js";
+import { openTabletLyricsScreensaver, screensaverBlocked, screensaverControlButtonHtml, screensaverControlButtons, screensaverEnabled, showScreensaver, hideScreensaver, syncScreensaverLyricsUi } from "../src/core/media/screensaver.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -3501,7 +3502,7 @@ describe("runtime baseline", () => {
     const card = new CardCtor();
     card._state.lyricsOpen = true;
 
-    expect(card._screensaverBlocked()).toBe(true);
+    expect(screensaverBlocked(card)).toBe(true);
   });
 
   it("blocks the screensaver for a visible player picker but allows a hidden picker", async () => {
@@ -3510,15 +3511,15 @@ describe("runtime baseline", () => {
     await vi.runAllTimersAsync();
     const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    card._screensaverSuppressedByEditor = () => false;
+    card._isVisualEditorContext = () => false;
     card.$ = () => null;
     let visible = true;
     card.shadowRoot = {
       querySelector: (selector) => visible && selector.includes(".player-picker-fan:not([hidden])") ? {} : null,
     };
-    expect(card._screensaverBlocked()).toBe(true);
+    expect(screensaverBlocked(card)).toBe(true);
     visible = false;
-    expect(card._screensaverBlocked()).toBe(false);
+    expect(screensaverBlocked(card)).toBe(false);
   });
 
   it("suppresses the screensaver while the card is open in the visual editor", async () => {
@@ -3537,13 +3538,13 @@ describe("runtime baseline", () => {
     card.getBoundingClientRect = () => ({ width: 900, height: 700 });
     card._state.screensaverEnabled = true;
 
-    expect(card._screensaverEnabled()).toBe(true);
+    expect(screensaverEnabled(card)).toBe(true);
 
     card.editMode = true;
 
-    expect(card._screensaverEnabled()).toBe(true);
-    expect(card._screensaverBlocked()).toBe(true);
-    card._showScreensaver({ force: true });
+    expect(screensaverEnabled(card)).toBe(true);
+    expect(screensaverBlocked(card)).toBe(true);
+    showScreensaver(card, { force: true });
     expect(card._state.screensaverOpen).toBe(false);
   });
 
@@ -3557,6 +3558,7 @@ describe("runtime baseline", () => {
     const overlay = {
       classList: createClassList(),
       dataset: {},
+      style: { setProperty() {}, getPropertyValue() { return ""; } },
       setAttribute(name, value) {
         this[name] = value;
       },
@@ -3576,15 +3578,15 @@ describe("runtime baseline", () => {
       screensaverBackdrop: overlay,
       lyricsBackdrop,
     }[id] || null);
-    card._screensaverEnabled = () => true;
-    card._screensaverBlocked = () => false;
+    card._isVisualEditorContext = () => false;
+    card._state.screensaverEnabled = true;
+    card.getBoundingClientRect = () => ({ width: 900, height: 700 });
     card._ensureQueueSnapshot = async () => {};
-    card._syncScreensaverUi = () => {};
     card._syncLyricsForCurrentTrack = () => {};
     card._state.lyricsOpen = true;
     card._state.lyricsText = "Current lyric";
 
-    card._showScreensaver();
+    showScreensaver(card, { force: true });
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.lyricsOpen).toBe(false);
@@ -3604,6 +3606,7 @@ describe("runtime baseline", () => {
     const overlay = {
       classList: createClassList(),
       dataset: {},
+      style: { setProperty() {}, getPropertyValue() { return ""; } },
       setAttribute(name, value) {
         this[name] = value;
       },
@@ -3614,25 +3617,25 @@ describe("runtime baseline", () => {
       querySelector: (selector) => (selector === ".card" ? cardEl : null),
     };
     card.$ = (id) => ({ screensaverBackdrop: overlay }[id] || null);
-    card._screensaverEnabled = () => true;
-    card._screensaverBlocked = () => false;
+    card._isVisualEditorContext = () => false;
+    card._state.screensaverEnabled = true;
+    card.getBoundingClientRect = () => ({ width: 900, height: 700 });
     card._ensureQueueSnapshot = async () => {};
-    card._syncScreensaverUi = () => {};
     card._syncLyricsForCurrentTrack = vi.fn();
     card._state.screensaverAutoLyricsWhenPlaying = true;
     card._getSelectedPlayer = () => ({ entity_id: "media_player.office", state: "playing", attributes: {} });
 
-    card._showScreensaver();
+    showScreensaver(card);
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.screensaverLyricsOpen).toBe(true);
     expect(card._syncLyricsForCurrentTrack).toHaveBeenCalled();
 
-    card._hideScreensaver();
+    hideScreensaver(card);
     card._syncLyricsForCurrentTrack.mockClear();
     card._getSelectedPlayer = () => ({ entity_id: "media_player.office", state: "idle", attributes: {} });
 
-    card._showScreensaver();
+    showScreensaver(card);
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.screensaverLyricsOpen).toBe(false);
@@ -3649,6 +3652,7 @@ describe("runtime baseline", () => {
     const overlay = {
       classList: createClassList(),
       dataset: {},
+      style: { setProperty() {}, getPropertyValue() { return ""; } },
       setAttribute(name, value) {
         this[name] = value;
       },
@@ -3670,12 +3674,12 @@ describe("runtime baseline", () => {
     card._layoutModeConfig = () => "tablet";
     card._getSelectedPlayer = () => ({ entity_id: "media_player.main", state: "playing", attributes: {} });
     card._ensureQueueSnapshot = async () => {};
-    card._syncScreensaverUi = vi.fn();
+    card._isVisualEditorContext = () => false;
     card._syncLyricsForCurrentTrack = vi.fn();
     card._screensaverSuppressUntil = Date.now() + 60000;
     card._state.lyricsOpen = true;
 
-    expect(card._openTabletLyricsScreensaver()).toBe(true);
+    expect(openTabletLyricsScreensaver(card)).toBe(true);
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.lyricsOpen).toBe(false);
@@ -3727,13 +3731,13 @@ describe("runtime baseline", () => {
     ];
     card._getCurrentPosition = () => 11;
 
-    card._syncScreensaverLyricsUi({ state: "playing", attributes: {} });
+    syncScreensaverLyricsUi(card, { state: "playing", attributes: {} });
     expect(overlay.classList.contains("lyrics-mode")).toBe(true);
     expect(host.innerHTML).toContain("Current line");
 
-    card._syncScreensaverLyricsUi({ state: "paused", attributes: {} });
+    syncScreensaverLyricsUi(card, { state: "paused", attributes: {} });
     vi.advanceTimersByTime(31000);
-    card._syncScreensaverLyricsUi({ state: "paused", attributes: {} });
+    syncScreensaverLyricsUi(card, { state: "paused", attributes: {} });
 
     expect(overlay.classList.contains("lyrics-mode")).toBe(false);
     expect(host.innerHTML).toBe("");
@@ -3748,10 +3752,11 @@ describe("runtime baseline", () => {
     const card = new CardCtor();
     card._state.screensaverControlsEnabled = true;
     card._state.screensaverControlButtons = ["lyrics", "lyrics_sync", "lyrics_font_minus", "lyrics_font_plus"];
-    const html = card._screensaverControlButtons()
-      .map((value) => card._screensaverControlButtonHtml(value))
+    const html = screensaverControlButtons(card)
+      .map((value) => screensaverControlButtonHtml(card, value))
       .join("");
     const source = await readCardPresentationSource();
+    const moduleSource = await readProjectFile("src", "core", "media", "screensaver.js");
 
     expect(html).toContain('id="screensaverLyricsBtn"');
     expect(html).toContain('data-screensaver-control="lyrics"');
@@ -3761,8 +3766,8 @@ describe("runtime baseline", () => {
     expect(html).toContain('data-screensaver-control="lyrics_font_minus"');
     expect(html).toContain('id="screensaverLyricsFontPlusBtn"');
     expect(html).toContain('data-screensaver-control="lyrics_font_plus"');
-    expect(source).toContain("screensaverLyricsFontMinusBtn");
-    expect(source).toContain("screensaverLyricsFontPlusBtn");
+    expect(moduleSource).toContain("screensaverLyricsFontMinusBtn");
+    expect(moduleSource).toContain("screensaverLyricsFontPlusBtn");
     expect(source).toContain("--lyrics-font-scale");
     expect(source).toContain("flex-wrap:nowrap;");
     expect(source).toContain("max-width:min(92vw, 860px);");

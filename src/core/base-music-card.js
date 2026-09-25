@@ -5,6 +5,7 @@ import { syncPlayerVolumeControls } from "./media/player-volume.js";
 import { syncScreenDock } from "./media/screen-dock.js";
 import { isScheduleFormEditing, loadScheduledStartPlaylists, syncScheduledStartState, syncSleepTimerChip, syncSleepTimerState } from "./media/timers.js";
 import { studioAnnouncePanelHtml } from "./media/announcements.js";
+import { markScreensaverPageEntry, startScreensaverVisibilityTracking, stopScreensaverVisibilityTracking, syncScreensaverDynamicArtwork, syncScreensaverLyricsUi, syncScreensaverUi } from "./media/screensaver.js";
 import { bindProgressSeek } from "./media/progress-seek.js";
 import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
@@ -534,8 +535,8 @@ export function createMaverickBaseMusicCard({
       this._syncActivePlayerHelper(selectedPlayer);
       if (selectedPlaybackChanged) this._syncAmbientLightForCurrentMedia("playback-change");
       if (this._state?.screensaverOpen) {
-        this._syncScreensaverDynamicArtwork();
-        this._syncScreensaverUi();
+        syncScreensaverDynamicArtwork(this);
+        syncScreensaverUi(this);
         this._syncAmbientLightForCurrentMedia("screensaver");
         return;
       }
@@ -5655,7 +5656,7 @@ export function createMaverickBaseMusicCard({
       timeline.querySelectorAll("[data-lyrics-word-time]").forEach(word => word.classList.toggle("sung", Number(word.dataset.lyricsWordTime) <= wordPosition));
       if (!force && activeIndex === this._state.lyricsActiveIndex) return;
       this._state.lyricsActiveIndex = activeIndex;
-      this._syncScreensaverLyricsUi?.();
+      syncScreensaverLyricsUi(this);
       timeline.querySelectorAll(".lyrics-line").forEach((row, index) => {
         row.classList.toggle("active", index === activeIndex);
       });
@@ -5736,7 +5737,7 @@ export function createMaverickBaseMusicCard({
       const trackKey = this._currentLyricsTrackKey() || info.key || info.title || "";
       if (!force && trackKey && this._state.lyricsTrackKey === trackKey) {
         this._syncLyricsHighlight();
-        this._syncScreensaverLyricsUi?.();
+        syncScreensaverLyricsUi(this);
         return;
       }
       const subtitle = [info.artist, info.album].filter(Boolean).join(" · ");
@@ -5755,7 +5756,7 @@ export function createMaverickBaseMusicCard({
           `<div class="lyrics-state">${this._esc(this._i18n("ui.loading_lyrics"))}</div>`,
         );
       }
-      this._syncScreensaverLyricsUi?.();
+      syncScreensaverLyricsUi(this);
       try {
         const payload = await this._fetchLyricsForCurrentTrack();
         if (!this._lyricsSessionActive() || this._lyricsRequestToken !== token) return;
@@ -5776,7 +5777,7 @@ export function createMaverickBaseMusicCard({
               : `<div class="lyrics-state">${this._esc(this._i18n("ui.no_lyrics_found"))}</div>`,
           );
         }
-        this._syncScreensaverLyricsUi?.();
+        syncScreensaverLyricsUi(this);
         if (lines.length) requestAnimationFrame(() => this._syncLyricsHighlight(true));
       } catch (_) {
         if (!this._lyricsSessionActive() || this._lyricsRequestToken !== token) return;
@@ -5791,7 +5792,7 @@ export function createMaverickBaseMusicCard({
             `<div class="lyrics-state">${this._esc(this._i18n("ui.lyrics_unavailable_right_now"))}</div>`,
           );
         }
-        this._syncScreensaverLyricsUi?.();
+        syncScreensaverLyricsUi(this);
       }
     }
 
@@ -5816,7 +5817,7 @@ export function createMaverickBaseMusicCard({
         lyricsSubtitle,
         `<div class="lyrics-state">${this._esc(this._i18n("ui.loading_lyrics"))}</div>`,
       );
-      this._syncScreensaverLyricsUi?.();
+      syncScreensaverLyricsUi(this);
       try {
         const payload = await this._fetchLyricsForCurrentTrack();
         if (!this._lyricsSessionActive() || this._lyricsRequestToken !== token) return;
@@ -5837,7 +5838,7 @@ export function createMaverickBaseMusicCard({
               : `<div class="lyrics-state">${this._esc(this._i18n("ui.no_lyrics_found"))}</div>`,
           );
         }
-        this._syncScreensaverLyricsUi?.();
+        syncScreensaverLyricsUi(this);
         if (lines.length) requestAnimationFrame(() => this._syncLyricsHighlight(true));
       } catch (_) {
         if (!this._lyricsSessionActive() || this._lyricsRequestToken !== token) return;
@@ -5852,7 +5853,7 @@ export function createMaverickBaseMusicCard({
             `<div class="lyrics-state">${this._esc(this._i18n("ui.lyrics_unavailable_right_now"))}</div>`,
           );
         }
-        this._syncScreensaverLyricsUi?.();
+        syncScreensaverLyricsUi(this);
       }
     }
 
@@ -5861,7 +5862,7 @@ export function createMaverickBaseMusicCard({
       const trackKey = this._currentLyricsTrackKey();
       if (!force && trackKey && this._state.lyricsTrackKey === trackKey) {
         this._syncLyricsHighlight();
-        this._syncScreensaverLyricsUi?.();
+        syncScreensaverLyricsUi(this);
         return;
       }
       if (this._lyricsRefreshPromise) {
@@ -11394,7 +11395,7 @@ export function createMaverickBaseMusicCard({
       this._syncStatus();
       this._syncNowPlayingPageLive();
       this._syncGroupVolumeShortcut(player);
-      if (this._state.screensaverOpen) this._syncScreensaverUi();
+      if (this._state.screensaverOpen) syncScreensaverUi(this);
     }
 
     _syncNowPlayingPageLive() {
@@ -11477,7 +11478,7 @@ export function createMaverickBaseMusicCard({
       syncSleepTimerChip(this);
       if (this._lyricsSessionActive()) this._syncLyricsForCurrentTrack();
       if (this._state.screensaverOpen) {
-        this._syncScreensaverUi();
+        syncScreensaverUi(this);
         return;
       }
       const player = this._getSelectedPlayer();
@@ -12360,8 +12361,8 @@ export function createMaverickBaseMusicCard({
 
     connectedCallback() {
       this._startResizeTracking();
-      this._startScreensaverVisibilityTracking();
-      this._markScreensaverPageEntry("connected");
+      startScreensaverVisibilityTracking(this);
+      markScreensaverPageEntry(this, "connected");
       this._lastCardWidth = this._getCardWidth(this._lastCardWidth);
       this._lastCardHeight = this._getAllocatedCardHeight(this._lastCardHeight || this._configuredCardHeightFallback(0));
       this._scheduleLayoutRecovery("connected");
@@ -12422,7 +12423,7 @@ export function createMaverickBaseMusicCard({
       this._clearManualFrontPlayer({ sync: false });
       try { this._voiceRecognition?.abort?.(); } catch {}
       this._voiceRecognition = null;
-      this._stopScreensaverVisibilityTracking();
+      stopScreensaverVisibilityTracking(this);
       clearInterval(this._mobileSmartVoiceTimer);
       this._mobileSmartVoiceTimer = null;
       if (this._imgObserver) {

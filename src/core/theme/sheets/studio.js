@@ -1765,60 +1765,6 @@ export default function() {
   background:rgba(255,255,255,.96)!important;
   border-color:rgba(123,139,164,.2)!important;
 }
-.card.performance-ultra-lite.screensaver-active .bg,
-.card.performance-ultra-lite.screensaver-active .shade,
-.card.performance-ultra-lite.screensaver-active .glow,
-.card.performance-ultra-lite .screensaver-backdrop.empty-mode::before,
-.card.performance-ultra-lite .screensaver-backdrop.empty-mode::after{
-  display:none!important;
-}
-.card.performance-ultra-lite .screensaver-backdrop{
-  background:#02060d!important;
-}
-.theme-light.card.performance-ultra-lite .screensaver-backdrop{
-  background:#f8fafc!important;
-}
-.card.performance-ultra-lite .screensaver-bg{
-  filter:none!important;
-  transform:none!important;
-  opacity:.18!important;
-  background:
-    linear-gradient(180deg, rgba(3,7,13,.78), rgba(3,7,13,.94)),
-    var(--screensaver-art-url, none) center/cover no-repeat!important;
-}
-.card.performance-ultra-lite .screensaver-backdrop.empty-mode .screensaver-bg{
-  display:none!important;
-}
-.card.performance-ultra-lite .screensaver-brand{
-  display:none!important;
-}
-.card.performance-ultra-lite .screensaver-art,
-.card.performance-ultra-lite .screensaver-analog-clock,
-.card.performance-ultra-lite .screensaver-message,
-.card.performance-ultra-lite .screensaver-voice-btn{
-  backdrop-filter:none!important;
-  -webkit-backdrop-filter:none!important;
-  box-shadow:none!important;
-}
-.card.performance-ultra-lite .screensaver-art{
-  border-color:rgba(255,255,255,.12)!important;
-}
-.card.performance-ultra-lite .screensaver-info,
-.card.performance-ultra-lite .screensaver-next{
-  text-shadow:none!important;
-}
-.card.performance-ultra-lite .screensaver-empty-logo{
-  filter:none!important;
-  opacity:.68!important;
-}
-.card.performance-ultra-lite .screensaver-voice-btn{
-  background:rgba(18,22,30,.96)!important;
-  opacity:.62!important;
-}
-.card.performance-ultra-lite .screensaver-voice-btn.listening::after{
-  display:none!important;
-}
-
 .menu-sheet,
 .queue-action-sheet,
 .history-drawer{

@@ -20,6 +20,11 @@ import {
   handleAnnouncementFormChange, handleAnnouncementMenuClick, handleStudioAnnouncementInput, isDefaultAnnouncementPresetSet, normalizeAnnouncementLanguage,
   sendControlRoomAnnouncement,
 } from "./core/media/announcements.js";
+import {
+  bindScreensaver, handleScreensaverSettingsClick, hideScreensaver, openTabletLyricsScreensaver, restoreScreensaverIfOpen, screensaverClockMode,
+  screensaverClockSize, screensaverClockX, screensaverClockY, screensaverControlButtons, screensaverMessage, screensaverOverlayHtml,
+  screensaverSettingsPillsHtml, screensaverTimeoutSeconds, syncScreensaverClockVars, syncScreensaverDynamicArtwork, syncScreensaverUi,
+} from "./core/media/screensaver.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -530,7 +535,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._boundMobileMenuScroll = this._handleMobileMenuScroll.bind(this);
     this._boundMobileMenuPointerDown = this._handleMobileMenuPointerDown.bind(this);
     this._boundMobileMediaInput = (e) => this._runDetached(this._handleMobileMediaInput(e), "mobile media input");
-    this._boundScreensaverActivity = this._handleScreensaverActivity.bind(this);
     this._loadStoredState();
   }
 
@@ -864,8 +868,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     // therefore used the unsuffixed keys.
     this._loadStoredState();
     this._applyConfiguredMobileSettings();
-    this._syncScreensaverClockVars();
-    if (this._state.screensaverOpen) this._syncScreensaverUi();
+    syncScreensaverClockVars(this);
+    if (this._state.screensaverOpen) syncScreensaverUi(this);
     this._hydrateSystemMobileState().catch(() => {});
   }
 
@@ -878,7 +882,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.shadowRoot?.querySelector?.(".card")?.classList?.remove("mobile-edge-to-edge");
     clearTimeout(this._screensaverTimer);
     this._screensaverTimer = null;
-    this._hideScreensaver?.();
+    hideScreensaver(this);
   }
 
   get editMode() {
@@ -2694,10 +2698,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
   }
 
-  async _syncMaverickEngineScreensaverConnection() {
-    return false;
-  }
-
   _maverickEngineGetQueue(payload = {}) {
     return this._maverickEngineCommand("queue/get", payload, { timeoutMs: Math.max(12000, this._maverickEngineTimeoutMs()) });
   }
@@ -3067,13 +3067,13 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_ambient_light_cooldown"), String(this._ambientLightCooldown())); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_screensaver_enabled"), JSON.stringify(!!this._state.screensaverEnabled)); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_screensaver_auto_lyrics_when_playing"), JSON.stringify(!!this._state.screensaverAutoLyricsWhenPlaying)); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_control_buttons"), JSON.stringify(this._screensaverControlButtons({ includeDisabled: true }))); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_mode"), this._screensaverClockMode()); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_timeout_seconds"), String(this._screensaverTimeoutSeconds())); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_message"), this._screensaverMessage()); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_size"), String(this._screensaverClockSize())); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_x"), String(this._screensaverClockX())); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_y"), String(this._screensaverClockY())); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_control_buttons"), JSON.stringify(screensaverControlButtons(this, { includeDisabled: true }))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_mode"), screensaverClockMode(this)); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_timeout_seconds"), String(screensaverTimeoutSeconds(this))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_message"), screensaverMessage(this)); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_size"), String(screensaverClockSize(this))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_x"), String(screensaverClockX(this))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_y"), String(screensaverClockY(this))); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_power_button_enabled"), JSON.stringify(!!this._state.powerButtonEnabled)); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_power_button_name"), this._state.powerButtonName || ""); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_power_button_icon"), this._powerButtonIcon()); } catch {}
@@ -3233,137 +3233,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return false;
   }
 
-  _screensaverSuppressedByEditor() {
-    return this._isVisualEditorContext();
-  }
-
-  _screensaverEnabled() {
-    if (this._state.screensaverEnabled !== true) return false;
-    const rect = this.getBoundingClientRect?.();
-    const width = Math.max(
-      Number(rect?.width || 0),
-      Number(this.offsetWidth || 0),
-      typeof window !== "undefined" ? Number(window.innerWidth || 0) : 0,
-    );
-    const height = Math.max(
-      Number(rect?.height || 0),
-      typeof window !== "undefined" ? Number(window.innerHeight || 0) : 0,
-    );
-    return width >= 760 && height >= 620;
-  }
-
-  _screensaverControlsEnabled() {
-    return this._state.screensaverControlsEnabled === true;
-  }
-
-  _screensaverAutoLyricsWhenPlaying() {
-    return this._state.screensaverAutoLyricsWhenPlaying === true;
-  }
-
-  _maybeOpenScreensaverLyricsForPlayback(player = this._getSelectedPlayer()) {
-    if (!this._screensaverAutoLyricsWhenPlaying()) return false;
-    if (this._state.lyricsOpen || this._state.screensaverLyricsOpen) return false;
-    if (player?.state !== "playing") return false;
-    this._state.screensaverLyricsOpen = true;
-    return true;
-  }
-
-  _defaultScreensaverControlButtons() {
-    return ["previous", "next"];
-  }
-
-  _screensaverControlButtons(options = {}) {
-    const buttons = MaverickMobileSettingsFoundation.normalizeScreensaverControlButtons(
-      this._state.screensaverControlButtons,
-      this._defaultScreensaverControlButtons(),
-    );
-    this._state.screensaverControlButtons = buttons;
-    if (options.includeDisabled === true) return buttons;
-    return this._screensaverControlsEnabled() ? buttons : [];
-  }
-
-  _screensaverControlButtonOptions() {
-    return [
-      { value: "previous", icon: "previous", label: this._i18n("ui.previous") },
-      { value: "play_pause", icon: this._playPauseIconName(this._getSelectedPlayer()), label: this._i18n("ui.play_pause") },
-      { value: "next", icon: "next", label: this._i18n("ui.next") },
-      { value: "mute", icon: this._volumeIconName(this._getSelectedPlayer()), label: this._i18n("ui.mute") },
-      { value: "power", icon: this._powerButtonIcon(), label: this._i18n("ui.auxiliary_button") },
-      { value: "like", icon: this._currentMediaFavoriteState() ? "heart_filled" : "heart_outline", label: this._i18n("ui.like_2") },
-      { value: "lyrics", icon: "lyrics", label: this._i18n("ui.lyrics") },
-      { value: "lyrics_sync", icon: "sync", label: this._i18n("ui.sync_lyrics") },
-      { value: "lyrics_font_minus", icon: "minus", label: this._i18n("ui.smaller_lyrics") },
-      { value: "lyrics_font_plus", icon: "plus", label: this._i18n("ui.larger_lyrics") },
-      { value: "voice", icon: "mic", label: this._flowAssistantLabel() },
-    ];
-  }
-
-  _screensaverControlButtonHtml(value = "") {
-    const option = this._screensaverControlButtonOptions().find((item) => item.value === value);
-    if (!option) return "";
-    if (value === "voice" && !this._voiceAssistantEnabled()) return "";
-    const idMap = {
-      previous: "screensaverPrevBtn",
-      play_pause: "screensaverPlayPauseBtn",
-      next: "screensaverNextBtn",
-      mute: "screensaverMuteBtn",
-      power: "screensaverPowerBtn",
-      lyrics: "screensaverLyricsBtn",
-      lyrics_sync: "screensaverLyricsSyncBtn",
-      lyrics_font_minus: "screensaverLyricsFontMinusBtn",
-      lyrics_font_plus: "screensaverLyricsFontPlusBtn",
-      voice: "screensaverVoiceBtn",
-    };
-    const id = idMap[value];
-    if (!id) return "";
-    const voiceAttrs = value === "voice" ? " data-screensaver-voice" : "";
-    const pressedClass = value === "voice" && this._state.voiceAssistantListening ? " listening" : "";
-    const activeClass = value === "lyrics_sync" && this._state.mobileLyricsSyncEnabled !== false ? " active" : "";
-    const primaryClass = value === "play_pause" ? " primary" : "";
-    return `<button class="screensaver-voice-btn screensaver-control-btn${primaryClass}${pressedClass}${activeClass}" id="${id}" data-screensaver-control="${this._esc(value)}"${voiceAttrs} title="${this._esc(option.label)}" aria-label="${this._esc(option.label)}">${this._iconSvg(option.icon)}</button>`;
-  }
-
-  _screensaverClockMode() {
-    const mode = MaverickMobileSettingsFoundation.normalizeScreensaverClockMode(this._state.screensaverClockMode);
-    this._state.screensaverClockMode = mode;
-    return mode;
-  }
-
-  _screensaverClockSize() {
-    const size = MaverickMobileSettingsFoundation.clampNumber(this._state.screensaverClockSize, 1, { min: 0.75, max: 1.45 });
-    this._state.screensaverClockSize = size;
-    return size;
-  }
-
-  _screensaverClockX() {
-    const x = MaverickMobileSettingsFoundation.clampNumber(this._state.screensaverClockX, 82, { min: 8, max: 92 });
-    this._state.screensaverClockX = x;
-    return x;
-  }
-
-  _screensaverClockY() {
-    const y = MaverickMobileSettingsFoundation.clampNumber(this._state.screensaverClockY, 24, { min: 8, max: 70 });
-    this._state.screensaverClockY = y;
-    return y;
-  }
-
-  _syncScreensaverClockVars() {
-    const card = this.shadowRoot?.querySelector?.(".card");
-    if (!card) return;
-    card.style.setProperty("--screensaver-clock-scale", this._screensaverClockSize().toFixed(2));
-    card.style.setProperty("--screensaver-clock-x", `${this._screensaverClockX().toFixed(1)}%`);
-    card.style.setProperty("--screensaver-clock-y", `${this._screensaverClockY().toFixed(1)}%`);
-  }
-
-  _screensaverTimeoutSeconds() {
-    const seconds = MaverickMobileSettingsFoundation.clampSeconds(this._state.screensaverTimeoutSeconds, 90, { min: 15, max: 3600 });
-    this._state.screensaverTimeoutSeconds = seconds;
-    return seconds;
-  }
-
-  _screensaverMessage() {
-    return String(this._state.screensaverMessage || "").trim();
-  }
   _powerButtonEnabled() {
     return this._state.powerButtonEnabled === true;
   }
@@ -3520,423 +3389,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     await this._runAuxiliaryButtonAction(0);
   }
 
-  _handleScreensaverActivity(event = null) {
-    if (event && event.isTrusted === false) return;
-    if (event?.target?.closest?.("[data-screensaver-control], [data-screensaver-voice]")) return;
-    if (
-      this._state.voiceAssistantKeepScreensaver === true
-      && event?.target?.closest?.("#voiceAssistantDialog, .voice-assistant-panel")
-    ) {
-      return;
-    }
-    if (event?.target?.closest?.("#screensaverBackdrop")) {
-      event.preventDefault?.();
-      event.stopPropagation?.();
-    }
-    this._resetScreensaverTimer({ hide: true, activity: true });
-  }
-
-  _startScreensaverVisibilityTracking() {
-    if (this._screensaverVisibilityObserver || typeof IntersectionObserver === "undefined") {
-      this._markScreensaverPageEntry("connected");
-      return;
-    }
-    this._screensaverVisibilityObserver = new IntersectionObserver((entries = []) => {
-      const visible = entries.some((entry) => entry.isIntersecting && Number(entry.intersectionRatio || 0) > 0);
-      const wasVisible = this._screensaverVisible !== false;
-      this._screensaverVisibilityKnown = true;
-      this._screensaverVisible = visible;
-      if (visible && !wasVisible) {
-        this._markScreensaverPageEntry("visible");
-      } else if (!visible && wasVisible) {
-        this._pauseScreensaverWhileHidden();
-      } else if (visible && this._screensaverPageEntryPending) {
-        this._markScreensaverPageEntry("visible");
-      }
-    }, { threshold: 0.01 });
-    this._screensaverVisibilityObserver.observe(this);
-  }
-
-  _stopScreensaverVisibilityTracking() {
-    if (this._screensaverVisibilityObserver) {
-      this._screensaverVisibilityObserver.disconnect();
-      this._screensaverVisibilityObserver = null;
-    }
-    this._screensaverVisibilityKnown = false;
-    this._screensaverVisible = true;
-  }
-
-  _pauseScreensaverWhileHidden() {
-    clearTimeout(this._screensaverTimer);
-    this._screensaverTimer = null;
-    this._hideScreensaver();
-  }
-
-  _markScreensaverPageEntry(reason = "entry") {
-    this._screensaverPageEntryPending = true;
-    this._screensaverPageEntryReason = reason;
-    this._screensaverSuppressUntil = Date.now() + (this._screensaverTimeoutSeconds() * 1000);
-    this._resetScreensaverTimer({ hide: true, activity: true });
-  }
-
-  _resetScreensaverTimer({ hide = false, delayMs = null, activity = false } = {}) {
-    clearTimeout(this._screensaverTimer);
-    this._screensaverTimer = null;
-    if (hide) this._hideScreensaver();
-    if (this._screensaverSuppressedByEditor()) {
-      this._hideScreensaver();
-      return;
-    }
-    if (!this._screensaverEnabled() || !this.isConnected) return;
-    if (this._screensaverVisibilityKnown && this._screensaverVisible === false) return;
-    const defaultDelayMs = this._screensaverTimeoutSeconds() * 1000;
-    if (activity || hide) {
-      this._screensaverSuppressUntil = Date.now() + defaultDelayMs;
-    }
-    const timeoutMs = delayMs !== null && Number.isFinite(Number(delayMs))
-      ? Math.max(500, Number(delayMs))
-      : defaultDelayMs;
-    this._screensaverTimer = setTimeout(() => {
-      this._showScreensaver();
-    }, timeoutMs);
-  }
-
-  _screensaverBlocked() {
-    return !!(
-      this._screensaverSuppressedByEditor()
-      || this._state.menuOpen
-      || this._state.lyricsOpen
-      || this.shadowRoot?.querySelector(".fan-catalogue,.volume-wheel-popover,.player-picker-fan:not([hidden])")
-      || this.$("immersiveActionsToggle")?.getAttribute("aria-expanded") === "true"
-      || this._state.controlRoomOpen
-      || this._state.mobileHistoryDrawerOpen
-      || (this._state.voiceAssistantDialogOpen && this._state.voiceAssistantKeepScreensaver !== true)
-      || this.$("mobileQueueActionModal")?.classList?.contains("open")
-      || this.$("mobileVolumePresetModal")?.classList?.contains("open")
-      || this.$("mobileSmartVoiceModal")?.classList?.contains("open")
-    );
-  }
-
-  _showScreensaver(options = {}) {
-    const force = options?.force === true;
-    if (this._screensaverSuppressedByEditor()) {
-      this._hideScreensaver();
-      return;
-    }
-    if (!force && !this._screensaverEnabled()) return;
-    const now = Date.now();
-    const suppressUntil = Number(this._screensaverSuppressUntil || 0);
-    if (!force && suppressUntil > now) {
-      this._resetScreensaverTimer({ delayMs: suppressUntil - now });
-      return;
-    }
-    if (!force && this._screensaverBlocked()) {
-      this._resetScreensaverTimer({ delayMs: 2000 });
-      return;
-    }
-    this._state.screensaverOpen = true;
-    const overlay = this.$("screensaverBackdrop");
-    if (!overlay) return;
-    clearTimeout(this._screensaverExitTimer);
-    this._screensaverExitTimer = null;
-    this.classList.add("screensaver-page-open");
-    this.shadowRoot?.querySelector?.(".card")?.classList?.add("screensaver-active");
-    overlay.classList.remove("closing");
-    overlay.classList.add("open");
-    overlay.setAttribute("aria-hidden", "false");
-    if (this._state.lyricsOpen) {
-      this._state.screensaverLyricsOpen = true;
-      this._closeLyricsModal?.({ preserveLyrics: true, sync: false });
-    } else {
-      this._maybeOpenScreensaverLyricsForPlayback(this._getSelectedPlayer());
-    }
-    if (this._lyricsSessionActive?.()) this._syncLyricsForCurrentTrack();
-    this._ensureQueueSnapshot(true)
-      .then(() => { if (this._state.screensaverOpen) this._syncScreensaverUi(); })
-      .catch(() => {});
-    this._syncScreensaverUi();
-    clearInterval(this._screensaverClockTimer);
-    this._screensaverClockTimer = setInterval(() => this._syncScreensaverUi(), 1000);
-  }
-
-  _hideScreensaver() {
-    const overlay = this.$("screensaverBackdrop");
-    const wasVisible = !!(this._state.screensaverOpen || overlay?.classList?.contains("open") || overlay?.classList?.contains("closing"));
-    if (!wasVisible) {
-      this.classList.remove("screensaver-page-open");
-      this.shadowRoot?.querySelector?.(".card")?.classList?.remove("screensaver-active");
-      return;
-    }
-    this._state.screensaverOpen = false;
-    this._screensaverLyricsInactiveSince = 0;
-    this._state.screensaverLyricsOpen = false;
-    if (!this._state.lyricsOpen) this._clearLyricsState?.();
-    overlay?.classList.remove("open");
-    overlay?.classList.add("closing");
-    overlay?.setAttribute("aria-hidden", "true");
-    if (this._state.voiceAssistantKeepScreensaver) {
-      this._state.voiceAssistantKeepScreensaver = false;
-      this._syncVoiceAssistantDialog();
-    }
-    clearInterval(this._screensaverClockTimer);
-    this._screensaverClockTimer = null;
-    clearTimeout(this._screensaverExitTimer);
-    const finishHide = () => {
-      if (this._state.screensaverOpen) return;
-      overlay?.classList.remove("closing");
-      this.classList.remove("screensaver-page-open");
-      this.shadowRoot?.querySelector?.(".card")?.classList?.remove("screensaver-active");
-      this._screensaverExitTimer = null;
-      this._syncNowPlayingUI();
-    };
-    const reduceMotion = (() => {
-      try { return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true; } catch { return false; }
-    })();
-    this._screensaverExitTimer = setTimeout(finishHide, reduceMotion ? 0 : 520);
-  }
-
-  _restoreScreensaverIfOpen() {
-    if (!this._state.screensaverOpen) return;
-    const overlay = this.$("screensaverBackdrop");
-    if (!overlay) return;
-    clearTimeout(this._screensaverExitTimer);
-    this._screensaverExitTimer = null;
-    this.classList.add("screensaver-page-open");
-    this.shadowRoot?.querySelector?.(".card")?.classList?.add("screensaver-active");
-    overlay.classList.remove("closing");
-    overlay.classList.add("open");
-    overlay.setAttribute("aria-hidden", "false");
-    this._syncScreensaverUi();
-    if (!this._screensaverClockTimer) {
-      this._screensaverClockTimer = setInterval(() => this._syncScreensaverUi(), 1000);
-    }
-  }
-
-  _setScreensaverImageHost(host, url = "", fallbackHtml = "") {
-    if (!host) return;
-    const nextUrl = String(url || "").trim();
-    if (host.dataset.artUrl === nextUrl) return;
-    host.dataset.artUrl = nextUrl;
-    host.dataset.artReady = nextUrl ? "0" : "1";
-    if (!nextUrl) {
-      host.innerHTML = fallbackHtml;
-      return;
-    }
-    const img = document.createElement("img");
-    img.alt = "";
-    img.decoding = "async";
-    img.loading = "eager";
-    const applyImage = () => {
-      if (!host.isConnected || host.dataset.artUrl !== nextUrl) return;
-      host.dataset.artReady = "1";
-      host.replaceChildren(img);
-    };
-    img.addEventListener("load", applyImage, { once: true });
-    img.addEventListener("error", () => {
-      if (!host.isConnected || host.dataset.artUrl !== nextUrl) return;
-      host.dataset.artReady = "1";
-      host.innerHTML = fallbackHtml;
-    }, { once: true });
-    img.src = nextUrl;
-    if (img.complete) applyImage();
-  }
-
-  _setScreensaverBackgroundArt(overlay, url = "") {
-    if (!overlay) return;
-    const nextUrl = String(url || "").trim();
-    if (overlay.dataset.bgArtUrl === nextUrl) return;
-    overlay.dataset.bgArtUrl = nextUrl;
-    if (!nextUrl) {
-      overlay.style.setProperty("--screensaver-art-url", "none");
-      return;
-    }
-    const img = new Image();
-    img.decoding = "async";
-    const applyImage = () => {
-      if (!overlay.isConnected || overlay.dataset.bgArtUrl !== nextUrl) return;
-      overlay.style.setProperty("--screensaver-art-url", cssUrl(nextUrl));
-    };
-    img.addEventListener("load", applyImage, { once: true });
-    img.addEventListener("error", () => {
-      if (!overlay.isConnected || overlay.dataset.bgArtUrl !== nextUrl) return;
-      if (!overlay.style.getPropertyValue("--screensaver-art-url")) {
-        overlay.style.setProperty("--screensaver-art-url", "none");
-      }
-    }, { once: true });
-    img.src = nextUrl;
-    if (img.complete) applyImage();
-  }
-
-  _screensaverLyricsModeActive(player = null) {
-    if (!(this._state.lyricsOpen || this._state.screensaverLyricsOpen) || !this._state.screensaverOpen) {
-      this._screensaverLyricsInactiveSince = 0;
-      return false;
-    }
-    if (player?.state === "playing") {
-      this._screensaverLyricsInactiveSince = 0;
-      return true;
-    }
-    const now = Date.now();
-    if (!this._screensaverLyricsInactiveSince) this._screensaverLyricsInactiveSince = now;
-    const active = now - this._screensaverLyricsInactiveSince < 30000;
-    if (!active) {
-      this._state.screensaverLyricsOpen = false;
-      if (!this._state.lyricsOpen) this._clearLyricsState?.();
-    }
-    return active;
-  }
-
-  _screensaverLyricsRows() {
-    const lines = Array.isArray(this._state.lyricsLines) ? this._state.lyricsLines : [];
-    if (lines.length) {
-      const activeIndex = Math.max(0, this._currentLyricsActiveIndex(lines));
-      return [
-        { kind: "muted", text: lines[activeIndex - 1]?.text || "" },
-        { kind: "current", text: lines[activeIndex]?.text || "" },
-        { kind: "muted", text: lines[activeIndex + 1]?.text || "" },
-      ].filter((row) => String(row.text || "").trim());
-    }
-    if (this._state.lyricsLoading) {
-      return [{ kind: "current", text: this._i18n("ui.loading_lyrics") }];
-    }
-    const textRows = String(this._state.lyricsText || "")
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .slice(0, 4);
-    if (textRows.length) {
-      return textRows.map((text, index) => ({ kind: index === 0 ? "current" : "muted", text }));
-    }
-    return [{ kind: "current", text: this._i18n("ui.no_lyrics_found") }];
-  }
-
-  _syncScreensaverLyricsUi(player = null) {
-    const overlay = this.$("screensaverBackdrop");
-    const host = this.$("screensaverLyrics");
-    if (!overlay || !host) return;
-    host.style?.setProperty("--lyrics-font-scale", this._lyricsFontScale().toFixed(2));
-    const active = this._screensaverLyricsModeActive(player);
-    overlay.classList.toggle("lyrics-mode", active);
-    if (!active) {
-      host.dataset.lyricsSignature = "";
-      host.innerHTML = "";
-      return;
-    }
-    const rows = this._screensaverLyricsRows();
-    const signature = rows.map((row) => `${row.kind}:${row.text}`).join("\n");
-    if (host.dataset.lyricsSignature === signature) return;
-    host.dataset.lyricsSignature = signature;
-    host.innerHTML = rows.map((row) => `
-      <div class="screensaver-lyric-line ${this._esc(row.kind)}">${this._esc(row.text)}</div>
-    `).join("");
-  }
-  _openTabletLyricsScreensaver() {
-    if (this._layoutModeConfig() !== "tablet") return false;
-    if (!this._getSelectedPlayer()) return false;
-    if (this._screensaverSuppressedByEditor()) return false;
-    this._screensaverSuppressUntil = 0;
-    this._state.lyricsOpen = false;
-    this._state.screensaverLyricsOpen = true;
-    this._closeLyricsModal?.({ preserveLyrics: true, sync: false });
-    this._showScreensaver({ force: true });
-    this._syncScreensaverUi();
-    return true;
-  }
-
-  _syncScreensaverUi() {
-    const overlay = this.$("screensaverBackdrop");
-    if (!overlay) return;
-    const mode = this._screensaverClockMode();
-    const now = new Date();
-    const player = this._getSelectedPlayer();
-    const queueItem = this._state.maQueueState?.current_item || null;
-    this._syncLocalSendspinMediaSession(player, queueItem);
-    const art = this._currentArtworkUrl(player, queueItem, 720, { preferPlayerArtwork: true });
-    const mediaTitle = player?.attributes?.media_title || queueItem?.media_item?.name || "";
-    const mediaArtist = player?.attributes?.media_artist || (queueItem?.media_item?.artists || []).map((artistEntry) => artistEntry?.name).filter(Boolean).join(", ") || "";
-    const hasMedia = !!(mediaTitle || mediaArtist || art);
-    ["screensaverPrevBtn", "screensaverPlayPauseBtn", "screensaverNextBtn", "screensaverMuteBtn", "screensaverPowerBtn", "screensaverLyricsBtn", "screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((id) => {
-      const btn = this.$(id);
-      if (!btn) return;
-      const available = id === "screensaverPowerBtn" ? !!this._hass : !!player;
-      btn.disabled = !available;
-      btn.setAttribute("aria-disabled", available ? "false" : "true");
-    });
-    this._setButtonIcon(this.$("screensaverPlayPauseBtn"), this._playPauseIconName(player));
-    this._setButtonIcon(this.$("screensaverMuteBtn"), this._volumeIconName(player));
-    const muteBtn = this.$("screensaverMuteBtn");
-    if (muteBtn) muteBtn.classList.toggle("active", this._isMuted(player));
-    const likeBtn = this.$("screensaverLikeBtn");
-    if (likeBtn) {
-      likeBtn.hidden = !hasMedia;
-      likeBtn.disabled = !hasMedia;
-      likeBtn.setAttribute("aria-disabled", hasMedia ? "false" : "true");
-      const liked = this._currentMediaFavoriteState();
-      likeBtn.classList.toggle("active", liked);
-      this._setButtonIcon(likeBtn, liked ? "heart_filled" : "heart_outline");
-    }
-    const title = mediaTitle || this._i18n("ui.nothing_playing");
-    const nextItem = this._mobileUpNextItem();
-    const nextTitle = nextItem ? this._queueItemPrimaryTitle(nextItem) : "";
-    const nextArtist = nextItem ? this._queueItemPrimaryArtist(nextItem) : "";
-    const nextArt = nextItem ? this._queueItemImageUrl(nextItem, 96) : "";
-    const message = this._screensaverMessage();
-    overlay.classList.toggle("analog-mode", mode === "analog");
-    overlay.classList.toggle("digital-mode", mode !== "analog");
-    overlay.classList.toggle("empty-mode", !hasMedia);
-    this._setScreensaverBackgroundArt(overlay, art);
-    this._syncScreensaverLyricsUi(player);
-    const lyricsBtn = this.$("screensaverLyricsBtn");
-    const lyricsActive = overlay.classList.contains("lyrics-mode");
-    if (lyricsBtn) {
-      lyricsBtn.classList.toggle("active", lyricsActive);
-      lyricsBtn.setAttribute("aria-pressed", lyricsActive ? "true" : "false");
-    }
-    ["screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((id) => {
-      const btn = this.$(id);
-      if (!btn) return;
-      btn.disabled = !lyricsActive;
-      btn.setAttribute("aria-disabled", lyricsActive ? "false" : "true");
-    });
-    const lyricsSyncBtn = this.$("screensaverLyricsSyncBtn");
-    if (lyricsSyncBtn) {
-      const syncActive = lyricsActive && this._state.mobileLyricsSyncEnabled !== false;
-      lyricsSyncBtn.classList.toggle("active", syncActive);
-      lyricsSyncBtn.setAttribute("aria-pressed", syncActive ? "true" : "false");
-    }
-    const clock = this.$("screensaverClock");
-    if (clock) {
-      clock.textContent = new Intl.DateTimeFormat(this._language(), {
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(now);
-    }
-    this._setScreensaverImageHost(this.$("screensaverArt"), art, this._tabletBrandSignatureHtml("screensaver-empty-logo"));
-    if (this.$("screensaverTitle")) this.$("screensaverTitle").textContent = title;
-    if (this.$("screensaverArtist")) this.$("screensaverArtist").textContent = hasMedia ? (mediaArtist || this._selectedPlayerName()) : "";
-    const messageEl = this.$("screensaverMessage");
-    if (messageEl) {
-      messageEl.hidden = !message;
-      messageEl.textContent = message;
-    }
-    const nextEl = this.$("screensaverNext");
-    if (nextEl) {
-      nextEl.hidden = !nextTitle;
-      if (nextTitle) {
-        this._setScreensaverImageHost(this.$("screensaverNextArt"), nextArt, this._iconSvg("tracks"));
-        if (this.$("screensaverNextLabel")) this.$("screensaverNextLabel").textContent = this._i18n("ui.up_next_2");
-        if (this.$("screensaverNextTitle")) this.$("screensaverNextTitle").textContent = nextTitle;
-        if (this.$("screensaverNextArtist")) this.$("screensaverNextArtist").textContent = nextArtist;
-      }
-    }
-    const seconds = now.getSeconds();
-    const minutes = now.getMinutes() + (seconds / 60);
-    const hours = (now.getHours() % 12) + (minutes / 60);
-    this.$("screensaverHour")?.style?.setProperty("--hand-rotation", `${hours * 30}deg`);
-    this.$("screensaverMinute")?.style?.setProperty("--hand-rotation", `${minutes * 6}deg`);
-    this.$("screensaverSecond")?.style?.setProperty("--hand-rotation", `${seconds * 6}deg`);
-  }
-
   _mobileStudioShortcutEnabled() {
     return this._state.mobileStudioShortcutEnabled !== false;
   }
@@ -3971,7 +3423,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     };
     bindButton("mobileLyricsBtn", (e) => {
       this._pressUiButton(e.currentTarget);
-      if (this._openTabletLyricsScreensaver()) return;
+      if (openTabletLyricsScreensaver(this)) return;
       this._openLyricsModal();
     });
     bindButton("mobileLikeBtn", (e) => {
@@ -6514,18 +5966,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const height = Math.max(280, Math.min(2200, Math.round(allocatedHeight || (mobileLayoutMode === "full" ? fullInlineTargetHeight : fallbackHeight))));
     const minCardHeight = layoutProfile.heightSize === "short" ? 280 : (layoutMode === "tablet" ? 420 : 360);
     const hostMinWidth = layoutMode === "tablet" && !immersiveDesign ? "min(calc(100vw - 32px), 720px)" : "0px";
-    const screensaverClockSize = this._screensaverClockSize();
-    const screensaverClockX = this._screensaverClockX();
-    const screensaverClockY = this._screensaverClockY();
-    const screensaverControlButtons = this._screensaverControlButtons();
-    const screensaverActionButtonsHtml = screensaverControlButtons
-      .filter((value) => value !== "like")
-      .map((value) => this._screensaverControlButtonHtml(value))
-      .filter(Boolean)
-      .join("");
-    const screensaverLikeButtonHtml = screensaverControlButtons.includes("like")
-      ? `<button class="screensaver-voice-btn screensaver-control-btn screensaver-like-btn ${this._currentMediaFavoriteState() ? "active" : ""}" id="screensaverLikeBtn" data-screensaver-control="like" title="${this._esc(this._i18n("ui.like_2"))}" aria-label="${this._esc(this._i18n("ui.like_2"))}">${this._iconSvg(this._currentMediaFavoriteState() ? "heart_filled" : "heart_outline")}</button>`
-      : "";
+    const clockScale = screensaverClockSize(this);
+    const clockX = screensaverClockX(this);
+    const clockY = screensaverClockY(this);
     const compactTransition = String(this._state.mobileCompactTransition || "");
     const compactTransitionClass = compactTransition === "expand"
       ? " compact-transition-expand"
@@ -6776,7 +6219,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
     this.shadowRoot.innerHTML = `
       <style>${buildCardStyles({ hostMinWidth, height, minCardHeight, fontScale: this._state.mobileFontScale || 1, iconScale: mobileIconScale.toFixed(2), customRgb: this._customRgb(), customText: this._customTextColor(), customColor: this._state.mobileCustomColor || "#e0a11b", fullInlineTargetHeight })}</style>
-      <div class="card theme-${visualTheme} layout-${layoutMode}${layoutProfileClass ? ` ${layoutProfileClass}` : ""} mobile-layout-${mobileLayoutMode}${mobileLayoutMode === "full" ? " mobile-layout-forced-full" : ""}${mobileLayoutMode === "compact" ? " mobile-layout-forced-compact" : ""}${mobileEdgeToEdgeMode ? " mobile-edge-to-edge" : ""} performance-profile-${performanceProfile}${performanceMode ? " performance-lite" : ""}${performanceUltraLite ? " performance-ultra-lite" : ""}${hotelMode ? " hotel-mode" : ""}${compactTileMode ? " compact-mode compact-collapsed" : compactMode ? " compact-expanded" : ""}${compactMiniWidget ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${compactTransitionClass}${nightActive ? " night-mode" : ""}${showNightRow ? " night-mode-enabled" : ""}${tabletAutoFit ? " tablet-auto-fit" : ""}${tabletDenseUi ? " tablet-fit-dense" : ""}${showNightRow ? " tablet-fit-night" : ""}${showUpNextInline ? " tablet-fit-up-next" : ""}${mobileDenseContent ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!hotelMode && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${layoutProfileStyle}--screensaver-clock-scale:${this._esc(screensaverClockSize.toFixed(2))};--screensaver-clock-x:${this._esc(screensaverClockX.toFixed(1))}%;--screensaver-clock-y:${this._esc(screensaverClockY.toFixed(1))}%;">
+      <div class="card theme-${visualTheme} layout-${layoutMode}${layoutProfileClass ? ` ${layoutProfileClass}` : ""} mobile-layout-${mobileLayoutMode}${mobileLayoutMode === "full" ? " mobile-layout-forced-full" : ""}${mobileLayoutMode === "compact" ? " mobile-layout-forced-compact" : ""}${mobileEdgeToEdgeMode ? " mobile-edge-to-edge" : ""} performance-profile-${performanceProfile}${performanceMode ? " performance-lite" : ""}${performanceUltraLite ? " performance-ultra-lite" : ""}${hotelMode ? " hotel-mode" : ""}${compactTileMode ? " compact-mode compact-collapsed" : compactMode ? " compact-expanded" : ""}${compactMiniWidget ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${compactTransitionClass}${nightActive ? " night-mode" : ""}${showNightRow ? " night-mode-enabled" : ""}${tabletAutoFit ? " tablet-auto-fit" : ""}${tabletDenseUi ? " tablet-fit-dense" : ""}${showNightRow ? " tablet-fit-night" : ""}${showUpNextInline ? " tablet-fit-up-next" : ""}${mobileDenseContent ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!hotelMode && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${layoutProfileStyle}--screensaver-clock-scale:${this._esc(clockScale.toFixed(2))};--screensaver-clock-x:${this._esc(clockX.toFixed(1))}%;--screensaver-clock-y:${this._esc(clockY.toFixed(1))}%;">
         <div class="bg" id="mobileBg"></div><div class="shade"></div><div class="glow"></div>
         ${compactCollapseFabHtml}
         ${homeShortcutFabHtml}
@@ -6859,42 +6302,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         <div class="hidden-tools"><select id="playerSel"></select><button id="themeToggleBtn"></button><button id="langBtn"></button><button id="maOpenBtn"></button><div id="content"></div></div>
         <audio id="maverickLocalAudio" class="maverick-local-audio" playsinline aria-hidden="true"></audio>
         <div class="lyrics-backdrop" id="lyricsBackdrop"></div>
-        <div class="screensaver-backdrop digital-mode" id="screensaverBackdrop" aria-hidden="true">
-          <div class="screensaver-bg"></div>
-          <div class="screensaver-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("screensaver-brand-logo")}</div>
-          ${screensaverActionButtonsHtml ? `<div class="screensaver-action-cluster" aria-hidden="false">${screensaverActionButtonsHtml}</div>` : ""}
-          <div class="screensaver-shell">
-            <div class="screensaver-art-wrap">
-              <div class="screensaver-art" id="screensaverArt"></div>
-              ${screensaverLikeButtonHtml}
-            </div>
-            <div class="screensaver-info">
-              <div class="screensaver-clock" id="screensaverClock">00:00</div>
-              <div class="screensaver-analog-clock" aria-hidden="true">
-                <span class="screensaver-hand hour" id="screensaverHour"></span>
-                <span class="screensaver-hand minute" id="screensaverMinute"></span>
-                <span class="screensaver-hand second" id="screensaverSecond"></span>
-                <span class="screensaver-pin"></span>
-              </div>
-              <div class="screensaver-track">
-                <div class="screensaver-title" id="screensaverTitle">${this._esc(this._i18n("ui.nothing_playing"))}</div>
-                <div class="screensaver-artist" id="screensaverArtist"></div>
-              </div>
-              <div class="screensaver-lyrics" id="screensaverLyrics" aria-live="polite"></div>
-              <div class="screensaver-next" id="screensaverNext" hidden>
-                <span class="screensaver-next-label" id="screensaverNextLabel">${this._esc(this._i18n("ui.up_next_2"))}</span>
-                <span class="screensaver-next-main">
-                  <span class="screensaver-next-art" id="screensaverNextArt"></span>
-                  <span class="screensaver-next-copy">
-                    <span class="screensaver-next-title" id="screensaverNextTitle"></span>
-                    <span class="screensaver-next-artist" id="screensaverNextArtist"></span>
-                  </span>
-                </span>
-              </div>
-              <div class="screensaver-message" id="screensaverMessage" hidden></div>
-            </div>
-          </div>
-        </div>
+        ${screensaverOverlayHtml(this)}
         <div class="toast-wrap" id="toastWrap"></div>
         <div class="surprise-popup" id="surprisePopup"></div>
       </div>
@@ -6908,106 +6316,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._syncControlRoomUi();
     this._syncVoiceAssistantDialog();
     this._restoreMobileMenuAfterBuild("build");
-    const cardEl = this.shadowRoot.querySelector(".card");
-    cardEl?.addEventListener("pointerdown", this._boundScreensaverActivity, { passive: false });
-    cardEl?.addEventListener("keydown", this._boundScreensaverActivity);
-    this.$("screensaverBackdrop")?.addEventListener("click", this._boundScreensaverActivity);
-    this.$("screensaverVoiceBtn")?.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }, { passive: false });
-    this.$("screensaverVoiceBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget, [8, 18, 8])) return;
-      this._startVoiceAssistantCommand({ keepScreensaver: true, ignoreWhenListening: true });
-    });
-    ["screensaverPrevBtn", "screensaverPlayPauseBtn", "screensaverNextBtn", "screensaverMuteBtn", "screensaverPowerBtn", "screensaverLikeBtn", "screensaverLyricsBtn", "screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((id) => {
-      this.$(id)?.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }, { passive: false });
-    });
-    this.$("screensaverPrevBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._playerCmd("previous");
-    });
-    this.$("screensaverPlayPauseBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._togglePlay();
-    });
-    this.$("screensaverNextBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._playerCmd("next");
-    });
-    this.$("screensaverMuteBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._toggleMute();
-    });
-    this.$("screensaverPowerBtn")?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget, [12, 18])) return;
-      await this._runAuxiliaryButtonAction(0, { force: true });
-    });
-    this.$("screensaverLyricsBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      const overlay = this.$("screensaverBackdrop");
-      if (overlay?.classList?.contains("lyrics-mode")) {
-        this._state.screensaverLyricsOpen = false;
-        if (!this._state.lyricsOpen) this._clearLyricsState?.();
-        this._syncScreensaverUi();
-        return;
-      }
-      if (!this._getSelectedPlayer()) return;
-      this._state.screensaverLyricsOpen = true;
-      this._syncLyricsForCurrentTrack?.();
-      this._syncScreensaverUi();
-    });
-    this.$("screensaverLyricsSyncBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._toggleLyricsSyncEnabled();
-      this._syncScreensaverUi();
-    });
-    this.$("screensaverLyricsFontMinusBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._nudgeLyricsFontScale(-0.08);
-      this._syncScreensaverUi();
-    });
-    this.$("screensaverLyricsFontPlusBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._nudgeLyricsFontScale(0.08);
-      this._syncScreensaverUi();
-    });
-    this.$("screensaverLikeBtn")?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      await this._toggleLikeCurrentMedia(e.currentTarget);
-    });
-    if (this._screensaverPageEntryPending) {
-      this._screensaverPageEntryPending = false;
-      this._resetScreensaverTimer({ hide: true, activity: true });
-    } else {
-      this._resetScreensaverTimer();
-      this._restoreScreensaverIfOpen();
-    }
+    bindScreensaver(this);
     this.$("btnPlay")?.addEventListener("click", () => this._togglePlay());
     this.$("btnPrev")?.addEventListener("click", () => this._playerCmd("previous"));
     this.$("btnNext")?.addEventListener("click", () => this._playerCmd("next"));
@@ -7797,7 +7106,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       await this._ensureQueueSnapshot();
       this._renderCurrentView();
       this._startLoops();
-      if (!this._screensaverPageEntryPending) this._restoreScreensaverIfOpen();
+      if (!this._screensaverPageEntryPending) restoreScreensaverIfOpen(this);
       this._restoreMobileMenuAfterBuild("init");
     } catch (e) {
       this._renderError(e);
@@ -8552,12 +7861,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     notice.classList.remove("open");
   }
 
-  _syncScreensaverDynamicArtwork() {
-    const player = this._getSelectedPlayer();
-    const art = this._currentArtworkUrl(player, this._state.maQueueState?.current_item || null, 720, { preferPlayerArtwork: true });
-    this._syncDynamicThemeArtwork(art || "").catch(() => {});
-  }
-
   _syncNowPlayingUI() {
     this.shadowRoot?.querySelector(".volume-wheel-popover")?._refreshVolumeState?.();
     if (this.$("immersiveActionsToggle")) queueMicrotask(() => syncImmersivePlayer(this));
@@ -8567,8 +7870,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const currentQueueItem = this._state.maQueueState?.current_item || null;
     if (this._lyricsSessionActive?.()) this._syncLyricsForCurrentTrack();
     if (this._state.screensaverOpen) {
-      this._syncScreensaverDynamicArtwork();
-      this._syncScreensaverUi();
+      syncScreensaverDynamicArtwork(this);
+      syncScreensaverUi(this);
       this._syncAmbientLightForCurrentMedia("screensaver");
       this._syncLocalSendspinMediaSession(player, currentQueueItem);
       return;
@@ -8884,7 +8187,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._syncLikeButtons();
     this._updateActivePlayersBubble();
     this._syncControlRoomUi();
-    if (this._state.screensaverOpen) this._syncScreensaverUi();
+    if (this._state.screensaverOpen) syncScreensaverUi(this);
     this._syncLocalSendspinMediaSession(player, displayQueueItem);
   }
 
@@ -11194,7 +10497,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _settingsSectionSmartHome() {
     const ambientEntitiesText = this._ambientLightEntities().join(", ");
     const ambientPlayerMapText = this._ambientLightPlayerMap().join("\n");
-    const screensaverAutoLyrics = this._screensaverAutoLyricsWhenPlaying();
     const powerButtonAction = this._powerButtonAction();
     const auxiliaryButtonConfigs = this._auxiliaryButtonConfigs();
     const auxiliaryIconOptions = [
@@ -11219,17 +10521,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return `
         <div class="settings-group smart-home-settings-card">
           <div class="settings-label">${this._i18n("ui.smart_home")}</div>
-          <div class="settings-label">${this._i18n("ui.screensaver", {}, "Screensaver")}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.enabled"), "on", this._state.screensaverEnabled ? "on" : "off", "data-setting-screensaver")}
-            ${this._settingsPill(this._i18n("ui.disabled"), "off", this._state.screensaverEnabled ? "on" : "off", "data-setting-screensaver")}
-          </div>
-          <div class="settings-label">${this._esc(this._i18n("ui.lyrics_while_playing", {}, "Lyrics while playing"))}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.enabled"), "on", screensaverAutoLyrics ? "on" : "off", "data-setting-screensaver-auto-lyrics")}
-            ${this._settingsPill(this._i18n("ui.disabled"), "off", screensaverAutoLyrics ? "on" : "off", "data-setting-screensaver-auto-lyrics")}
-          </div>
-          <div class="settings-hint">${this._esc(this._i18n("ui.screensaver_lyrics_while_playing_helper", {}, "When enabled, the screensaver opens directly in lyrics mode while music is playing, and stays in clock mode when idle."))}</div>
+          ${screensaverSettingsPillsHtml(this)}
           <div class="settings-label">${this._i18n("ui.ambient_light")}</div>
           <div class="settings-pills">
             ${this._settingsPill(this._i18n("ui.enabled"), "on", this._ambientLightEnabled() ? "on" : "off", "data-setting-ambient-light")}
@@ -16243,39 +15535,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       else this._reopenSettingsMenuPreservingScroll();
       return;
     }
-    const screensaverBtn = eventTarget.closest("[data-setting-screensaver]");
-    if (screensaverBtn?.dataset.settingScreensaver) {
-      this._flashInteraction(screensaverBtn);
-      this._state.screensaverEnabled = screensaverBtn.dataset.settingScreensaver === "on";
-      this._persistMobileAppearance();
-      this._resetScreensaverTimer({ hide: true });
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
-    const screensaverAutoLyricsBtn = eventTarget.closest("[data-setting-screensaver-auto-lyrics]");
-    if (screensaverAutoLyricsBtn?.dataset.settingScreensaverAutoLyrics) {
-      this._flashInteraction(screensaverAutoLyricsBtn);
-      this._state.screensaverAutoLyricsWhenPlaying = screensaverAutoLyricsBtn.dataset.settingScreensaverAutoLyrics === "on";
-      if (!this._state.screensaverAutoLyricsWhenPlaying && !this._state.lyricsOpen) {
-        this._state.screensaverLyricsOpen = false;
-        this._clearLyricsState?.();
-      } else if (this._state.screensaverOpen) {
-        this._maybeOpenScreensaverLyricsForPlayback();
-      }
-      this._persistMobileAppearance();
-      this._syncScreensaverUi();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
-    const screensaverControlsBtn = eventTarget.closest("[data-setting-screensaver-controls]");
-    if (screensaverControlsBtn?.dataset.settingScreensaverControls) {
-      this._flashInteraction(screensaverControlsBtn);
-      this._state.screensaverControlsEnabled = screensaverControlsBtn.dataset.settingScreensaverControls === "on";
-      this._persistMobileAppearance();
-      this._syncScreensaverUi();
-      this._refreshAfterSettingsChange({});
-      return;
-    }
+    if (handleScreensaverSettingsClick(this, eventTarget)) return;
     const powerButtonBtn = eventTarget.closest("[data-setting-power-button]");
     if (powerButtonBtn?.dataset.settingPowerButton) {
       this._flashInteraction(powerButtonBtn);
@@ -16982,12 +16242,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._persistMobileAppearance();
       return;
     }
-    if (e.target?.id === "screensaverClockModeSelect") {
-      this._state.screensaverClockMode = MaverickMobileSettingsFoundation.normalizeScreensaverClockMode(e.target.value || "digital");
-      this._persistMobileAppearance();
-      this._syncScreensaverUi();
-      return;
-    }
     if (e.target?.id === "powerButtonActionSelect") {
       this._state.powerButtonAction = MaverickMobileSettingsFoundation.normalizePowerButtonAction(e.target.value || "stop_player");
       this._persistMobileAppearance();
@@ -17271,17 +16525,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (item === "home") this._state.mobileHomeShortcutEnabled = !!quickActionCheckbox.checked;
       this._persistMobileAppearance();
       this._refreshAfterSettingsChange({ quickActionsChanged: true });
-      return;
-    }
-    const screensaverControlCheckbox = e.target?.closest?.("input[data-setting-screensaver-control]");
-    if (screensaverControlCheckbox) {
-      const item = String(screensaverControlCheckbox.dataset.settingScreensaverControl || "").trim();
-      const current = new Set(this._screensaverControlButtons({ includeDisabled: true }));
-      if (screensaverControlCheckbox.checked) current.add(item); else current.delete(item);
-      this._state.screensaverControlButtons = MaverickMobileSettingsFoundation.normalizeScreensaverControlButtons(Array.from(current), []);
-      this._persistMobileAppearance();
-      this._syncScreensaverUi();
-      this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
       return;
     }
     const studioShortcutCheckbox = e.target?.closest?.("input[data-setting-studio-shortcut]");
