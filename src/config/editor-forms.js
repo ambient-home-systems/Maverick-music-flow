@@ -2,7 +2,6 @@ let editorFormDeps = {
   maverickEditorI18n: (key, _params = {}, fallback = "") => fallback || key,
   maverickEditorLabelFor: (schema = {}, labels = {}) => labels?.[schema?.name] || schema?.label || schema?.title || schema?.name || "",
   maverickEditorHelperFor: (schema = {}, helpers = {}) => helpers?.[schema?.name] || schema?.helper || "",
-  detectEditorHebrew: () => false,
   visibleLanguageOptions: [],
   radioBrowserCountrySelectorOptions: (translateFn = null) => [{ value: "all", label: typeof translateFn === "function" ? translateFn("ui.all_countries") : "ui.all_countries" }],
 };
@@ -16,12 +15,6 @@ export function configureMaverickEditorForms(deps = {}) {
 function maverickEditorI18n(key, params = {}, fallback = "") {
   return editorFormDeps.maverickEditorI18n(key, params, fallback);
 }
-
-const MaverickEditorLocale = Object.freeze({
-  detectEditorHebrew() {
-    return editorFormDeps.detectEditorHebrew();
-  },
-});
 
 function maverickEditorLabelFor(schema = {}, labels = {}) {
   return editorFormDeps.maverickEditorLabelFor(schema, labels);
@@ -200,7 +193,7 @@ export function getMobileEditorTexts() {
     { value: "voice", label: maverickEditorI18n("ui.flow_assistant", {}, "FLOW ASSISTANT") },
     { value: "history", label: maverickEditorI18n("ui.history") },
     { value: "info", label: maverickEditorI18n("ui.info") },
-    { value: "disconnect_all", label: maverickEditorI18n("ui.clean_all", {}, MaverickEditorLocale.detectEditorHebrew() ? "נקה הכל" : "Clean all") },
+    { value: "disconnect_all", label: maverickEditorI18n("ui.clean_all", {}, "Clean all") },
   ];
   return {
     sections: {
@@ -248,12 +241,12 @@ export function getMobileEditorTexts() {
       mobile_footer_search_enabled: maverickEditorI18n("ui.footer_search"),
       mobile_mic_mode: maverickEditorI18n("ui.microphone_2"),
       mobile_footer_mode: maverickEditorI18n("ui.footer_style_2"),
-      show_source_badge: MaverickEditorLocale.detectEditorHebrew() ? "הצגת ספק המוזיקה" : "Show music provider badge",
-      show_quality_badge: MaverickEditorLocale.detectEditorHebrew() ? "הצגת איכות השמע" : "Show audio quality badge",
-      fan_theme: MaverickEditorLocale.detectEditorHebrew() ? "מראה המניפה" : "Fan appearance",
-      volume_wheel: MaverickEditorLocale.detectEditorHebrew() ? "גלגל עוצמה" : "Volume wheel",
+      show_source_badge: "Show music provider badge",
+      show_quality_badge: "Show audio quality badge",
+      fan_theme: "Fan appearance",
+      volume_wheel: "Volume wheel",
       action_menu_labels: maverickEditorI18n("ui.action_menu_labels", {}, "Action menu labels"),
-      player_design: MaverickEditorLocale.detectEditorHebrew() ? "עיצוב הנגן" : "Player design",
+      player_design: "Player design",
       mobile_studio_shortcut: maverickEditorI18n("ui.studio_shortcut"),
       mobile_home_shortcut: maverickEditorI18n("ui.home_shortcut"),
       mobile_home_shortcut_path: maverickEditorI18n("ui.home_shortcut_path"),
@@ -306,9 +299,9 @@ export function getMobileEditorTexts() {
       ...auxiliaryLabels,
       discovery_mode_enabled: maverickEditorI18n("ui.discovery_mode"),
       pinned_player_entities: maverickEditorI18n("ui.pinned_players"),
-      pinned_player_master: MaverickEditorLocale.detectEditorHebrew() ? "נגן MASTER" : "MASTER player",
-      entity_sticky: MaverickEditorLocale.detectEditorHebrew() ? "חזור ל־MASTER לאחר חוסר פעילות" : "Return to MASTER after inactivity",
-      pinned_players_exclusive: MaverickEditorLocale.detectEditorHebrew() ? "מצב Exclusive" : "Exclusive mode",
+      pinned_player_master: "MASTER player",
+      entity_sticky: "Return to MASTER after inactivity",
+      pinned_players_exclusive: "Exclusive mode",
       excluded_player_entities: maverickEditorI18n("ui.excluded_players"),
       player_sort_mode: maverickEditorI18n("ui.player_sort"),
       player_order_entities: maverickEditorI18n("ui.player_order"),
@@ -407,9 +400,9 @@ export function getMobileEditorTexts() {
       ...auxiliaryHelpers,
       discovery_mode_enabled: maverickEditorI18n("ui.show_the_fullscreen_discovery_mode_in_actions"),
       pinned_player_entities: maverickEditorI18n("ui.choose_music_assistant_players_only_the_in_card_pinning_list_shows_only"),
-      pinned_player_master: MaverickEditorLocale.detectEditorHebrew() ? "בחר נגן ראשי אחד מתוך הנגנים המוצמדים. ה־Sticky תמיד חוזר אליו." : "Choose one primary player from the pinned players. Sticky always returns to it.",
-      entity_sticky: MaverickEditorLocale.detectEditorHebrew() ? "מאפשר לבחור ולעבוד זמנית עם כל נגן זמין, ולאחר 10 שניות ללא פעולה חוזר ל־MASTER." : "Allows temporary access to any available player, then returns to MASTER after 10 idle seconds.",
-      pinned_players_exclusive: MaverickEditorLocale.detectEditorHebrew() ? "כאשר מופעל, רק נגני PINNED מוצגים. כאשר כבוי, כל הנגנים הזמינים נשארים נגישים." : "When enabled, only PINNED players are shown. When disabled, every available player remains accessible.",
+      pinned_player_master: "Choose one primary player from the pinned players. Sticky always returns to it.",
+      entity_sticky: "Allows temporary access to any available player, then returns to MASTER after 10 idle seconds.",
+      pinned_players_exclusive: "When enabled, only PINNED players are shown. When disabled, every available player remains accessible.",
       excluded_player_entities: maverickEditorI18n("ui.choose_music_assistant_players_to_hide_from_the_card"),
       player_sort_mode: maverickEditorI18n("ui.choose_how_players_are_sorted"),
       player_order_entities: maverickEditorI18n("ui.set_custom_player_order"),
@@ -597,7 +590,7 @@ export function getMobileEditorTexts() {
 }
 
 export function getRadioBrowserCountrySelectorOptions(translateFn = maverickEditorI18n, language = "") {
-  const lang = language || (MaverickEditorLocale.detectEditorHebrew() ? "he" : "en");
+  const lang = language || "en";
   return maverickRadioBrowserCountrySelectorOptions(translateFn, lang);
 }
 
@@ -606,8 +599,8 @@ export function getMobileCardConfigForm() {
   return {
     schema: [
       { name: "player_design", selector: { select: { mode: "dropdown", options: [
-        { value: "immersive", label: MaverickEditorLocale.detectEditorHebrew() ? "Immersive — עטיפה גדולה ומניפת פעולות" : "Immersive — artwork and action fan" },
-        { value: "classic", label: MaverickEditorLocale.detectEditorHebrew() ? "קלאסי — העיצוב הקיים" : "Classic — current design" },
+        { value: "immersive", label: "Immersive — artwork and action fan" },
+        { value: "classic", label: "Classic — current design" },
       ] } } },
       { name: "performance_profile", selector: { select: { mode: "dropdown", options: t.options.performance_profile } } },
       {
@@ -676,7 +669,7 @@ export function getMobileCardConfigForm() {
               { name: "show_source_badge", selector: { boolean: {} } },
               { name: "show_quality_badge", selector: { boolean: {} } },
               { name: "volume_wheel", selector: { boolean: {} } },
-              { name: "fan_theme", selector: { select: { mode: "dropdown", options: [{value:"adaptive",label:MaverickEditorLocale.detectEditorHebrew() ? "מותאם לעטיפה" : "Artwork"},{value:"dark",label:MaverickEditorLocale.detectEditorHebrew() ? "כהה" : "Dark"},{value:"light",label:MaverickEditorLocale.detectEditorHebrew() ? "בהיר" : "Light"}] } } },
+              { name: "fan_theme", selector: { select: { mode: "dropdown", options: [{value:"adaptive",label:"Artwork"},{value:"dark",label:"Dark"},{value:"light",label:"Light"}] } } },
 
             ],
           },

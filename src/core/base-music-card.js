@@ -33,7 +33,6 @@ export function createMaverickBaseMusicCard({
   maverickRadioBrowserCountryLabel,
   maverickCountryFlagEmoji,
   maverickDetectLanguage,
-  maverickIsRtlLanguage,
   maverickTranslate,
   maverickTranslateText,
 }) {
@@ -633,21 +632,12 @@ export function createMaverickBaseMusicCard({
       });
     }
 
-    _isHebrew() {
-      return maverickIsRtlLanguage(this._language());
-    }
-
     _i18n(key, params = {}, fallback = "") {
       return maverickTranslate(this._language(), key, params, fallback);
     }
 
     _m(en, he, params = {}) {
-      return maverickTranslateText(
-        this._language(),
-        en,
-        params,
-        this._isHebrew() ? he : en,
-      );
+      return maverickTranslateText(this._language(), en, params);
     }
 
     _effectiveTheme() {
@@ -1522,7 +1512,6 @@ export function createMaverickBaseMusicCard({
       }
       this._cache.library.clear();
       this._clearImageBlobCache();
-      const rtl = this._isHebrew();
       const theme = this._effectiveTheme();
       const visualTheme = theme;
       const configuredHeight = Math.max(420, this._configuredCardHeightFallback(760));
@@ -1549,7 +1538,7 @@ export function createMaverickBaseMusicCard({
   ${interfaceStyles}
   </style>
 
-        <div class="card ${rtl ? "rtl" : ""} theme-${visualTheme}${theme === "custom" ? " theme-custom" : ""}${this._isHotelMode() ? " hotel-mode" : ""}${layoutProfileClass ? ` ${layoutProfileClass}` : ""}" style="${layoutProfileStyle}--v2-custom-text:${this._state.mobileCustomTextTone === "dark" ? "#1f2633" : "#ffffff"};">
+        <div class="card theme-${visualTheme}${theme === "custom" ? " theme-custom" : ""}${this._isHotelMode() ? " hotel-mode" : ""}${layoutProfileClass ? ` ${layoutProfileClass}` : ""}" style="${layoutProfileStyle}--v2-custom-text:${this._state.mobileCustomTextTone === "dark" ? "#1f2633" : "#ffffff"};">
           <aside class="sidebar">
             <div class="brand">
               <button class="brand-icon" id="brandPlayersBtn" title="${this._i18n("ui.open_music_assistant")}">▶</button>
@@ -1916,7 +1905,7 @@ export function createMaverickBaseMusicCard({
     }
 
     _localText(en, he) {
-      return typeof this._m === "function" ? this._m(en, he) : (this._isHebrew() ? he : en);
+      return typeof this._m === "function" ? this._m(en) : en;
     }
 
     _localSendspinIdStorageKey() {
@@ -4793,7 +4782,7 @@ export function createMaverickBaseMusicCard({
       try { this._voiceRecognition?.abort?.(); } catch {}
       const recognition = new SpeechRecognition();
       this._voiceRecognition = recognition;
-      recognition.lang = this._isHebrew() ? "he-IL" : "en-US";
+      recognition.lang = "en-US";
       recognition.interimResults = true;
       recognition.continuous = false;
       recognition.maxAlternatives = 1;
@@ -6881,10 +6870,8 @@ export function createMaverickBaseMusicCard({
       const volumePct = Math.round((player.attributes.volume_level || 0) * 100);
       const shuffle = !!player.attributes.shuffle;
       const repeat = player.attributes.repeat || "off";
-      const rtl = this._isHebrew();
-
       backdrop.innerHTML = `
-        <div class="immersive-shell ${rtl ? "rtl" : ""}">
+        <div class="immersive-shell">
           <div class="immersive-bg" ${art ? `style="background-image:url('${this._esc(art)}')"` : ""}></div>
           <div class="immersive-cover-glow" ${art ? `style="background-image:url('${this._esc(art)}')"` : ""}></div>
           <div class="immersive-frost"></div>
@@ -9755,7 +9742,7 @@ export function createMaverickBaseMusicCard({
           const leftYear = this._mediaYearValue(left);
           const rightYear = this._mediaYearValue(right);
           if (leftYear !== rightYear) return rightYear - leftYear;
-          return String(left?.name || "").localeCompare(String(right?.name || ""), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: true });
+          return String(left?.name || "").localeCompare(String(right?.name || ""), "en", { sensitivity: "base", numeric: true });
         });
       // Albums are the primary content. Recommendations enrich the same cached
       // detail afterwards, without holding the album screen behind provider search.
@@ -11550,7 +11537,7 @@ export function createMaverickBaseMusicCard({
     }
 
     _nowPlayingSubtitleShouldScroll(scrollWhenOverflow = false) {
-      return !!scrollWhenOverflow && !this._isHebrew() && !this._performanceUltraLiteEnabled();
+      return !!scrollWhenOverflow && !this._performanceUltraLiteEnabled();
     }
 
     _queueNowPlayingSubtitleOverflowSync(el) {

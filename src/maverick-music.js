@@ -15,17 +15,11 @@ import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBod
 import {
   LANGUAGE_OPTIONS as MAVERICK_LANGUAGE_OPTIONS,
   detectLanguage as maverickDetectLanguage,
-  isRtlLanguage as maverickIsRtlLanguage,
   translate as maverickTranslate,
   translateText as maverickTranslateText,
 } from "./localization/index.js";
 import MaverickEmblaCarousel from "./vendor/embla-carousel.js";
 import { buildCardStyles } from "./core/theme/card-styles.js";
-import {
-  detectEditorHebrew as maverickDetectEditorHebrew,
-  isHebrewLanguageTag as maverickIsHebrewLanguageTag,
-  pickEditorLanguageCandidate as maverickPickEditorLanguageCandidate,
-} from "./core/editor-locale.js";
 import {
   assertBooleanIfDefined as maverickAssertBooleanIfDefined,
   assertNumberIfDefined as maverickAssertNumberIfDefined,
@@ -114,19 +108,12 @@ const MAVERICK_MOBILE_EDITOR_TAG = "maverick-music-editor-v601";
 const AMBIENT_LIGHT_PAIR_PLAYER_PREFIX = "__homeii_ambient_light_pair_player_";
 const AMBIENT_LIGHT_PAIR_LIGHTS_PREFIX = "__homeii_ambient_light_pair_lights_";
 
-const MaverickEditorLocale = Object.freeze({
-  isHebrewLanguageTag: maverickIsHebrewLanguageTag,
-  pickEditorLanguageCandidate: maverickPickEditorLanguageCandidate,
-  detectEditorHebrew: maverickDetectEditorHebrew,
-});
-
 const MaverickRevisionedSnapshotsFoundation = Object.freeze({
   ...MaverickRevisionedSnapshotsFoundationSource,
 });
 
 function maverickEditorI18n(key, params = {}, fallback = "") {
-  const language = MaverickEditorLocale.detectEditorHebrew() ? "he" : "en";
-  return maverickTranslate(language, key, params, fallback);
+  return maverickTranslate("en", key, params, fallback);
 }
 
 function maverickEditorSchemaName(schema = {}) {
@@ -239,7 +226,6 @@ configureMaverickEditorForms({
   maverickEditorI18n,
   maverickEditorLabelFor,
   maverickEditorHelperFor,
-  detectEditorHebrew: MaverickEditorLocale.detectEditorHebrew,
   visibleLanguageOptions: MAVERICK_VISIBLE_LANGUAGE_OPTIONS,
   radioBrowserCountrySelectorOptions: maverickRadioBrowserCountrySelectorOptions,
 });
@@ -275,7 +261,6 @@ const MaverickBaseMusicCard = createMaverickBaseMusicCard({
   maverickRadioBrowserCountryLabel,
   maverickCountryFlagEmoji,
   maverickDetectLanguage,
-  maverickIsRtlLanguage,
   maverickTranslate,
   maverickTranslateText,
 });
@@ -283,8 +268,6 @@ const MaverickBaseMusicCard = createMaverickBaseMusicCard({
 const MaverickBaseMusicEditor = createMaverickBaseMusicEditor({
   MaverickBaseMusicCard,
   ensureHaEditorComponents,
-  maverickIsRtlLanguage,
-  maverickDetectLanguage,
   MaverickConfigValidators,
   MaverickPlayersFoundation,
   MaverickMobileSettingsFoundation,
@@ -1162,12 +1145,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _m(en, he, params = {}) {
-    return maverickTranslateText(
-      this._language(),
-      en,
-      params,
-      this._isHebrew() ? he : en,
-    );
+    return maverickTranslateText(this._language(), en, params);
   }
 
   _effectiveTheme() {
@@ -3914,9 +3892,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _defaultAnnouncementPresets(lang = this._state?.lang || this._config?.language || "en") {
-    return MaverickEditorLocale.isHebrewLanguageTag(lang)
-      ? ["ארוחת הערב מוכנה", "נא להגיע לסלון", "יוצאים בעוד חמש דקות"]
-      : ["Dinner is ready", "Please come to the living room", "Leaving in five minutes"];
+    return ["Dinner is ready", "Please come to the living room", "Leaving in five minutes"];
   }
 
   _isDefaultAnnouncementPresetSet(presets = []) {
@@ -5591,7 +5567,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const rowActions = layoutMode === "tablet"
       ? actions.filter((action) => action !== "history" && action !== "timer")
       : actions;
-    const historyEdgeClass = this._isHebrew() ? "left-edge" : "right-edge";
+    const historyEdgeClass = "right-edge";
     const historyToggleButtonHtml = layoutMode !== "tablet" && actions.includes("history")
       ? `<button class="history-toggle-fab ${historyEdgeClass}" id="historyToggleFab" title="${this._i18n("ui.recently_played_2")}" aria-expanded="false" hidden>${this._iconSvg("history")}</button>`
       : "";
@@ -7281,7 +7257,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _build() {
     this.classList.toggle("action-labels", this._mobileFooterMode() !== "icon");
-    const rtl = this._isHebrew();
     const visualTheme = this._visualTheme();
     const mobileLayoutMode = this._mobileLayoutMode();
     const compactMode = this._mobileCompactModeEnabled();
@@ -7469,9 +7444,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         <button class="volume-btn" id="btnMute" title="${this._i18n("ui.mute")}" aria-label="${this._i18n("ui.mute")}">${this._iconSvg("volume_high")}</button>
       </div>`;
     const compactCollapseFabHtml = compactPopupMode
-      ? `<button class="compact-collapse-fab ${rtl ? "rtl" : "ltr"}" id="compactCollapseBtn" title="${this._i18n("ui.collapse_compact_player")}" aria-label="${this._i18n("ui.collapse_compact_player")}">${actionIconSvg(this, "minimize")}</button>`
+      ? `<button class="compact-collapse-fab ltr" id="compactCollapseBtn" title="${this._i18n("ui.collapse_compact_player")}" aria-label="${this._i18n("ui.collapse_compact_player")}">${actionIconSvg(this, "minimize")}</button>`
       : ``;
-    const mobileEdgeCornerClass = rtl ? "rtl" : "ltr";
+    const mobileEdgeCornerClass = "ltr";
     const mobileEdgeOverlayOpen = !!(
       this._state.menuOpen
       || this._state.controlRoomOpen
@@ -7486,7 +7461,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ? `<button class="mobile-edge-corner-btn mobile-edge-return ${mobileEdgeCornerClass}" id="mobileEdgeEnterBtn" title="${this._esc(this._m("Back to edge-to-edge", "חזרה לקצה לקצה"))}" aria-label="${this._esc(this._m("Back to edge-to-edge", "חזרה לקצה לקצה"))}">${actionIconSvg(this, "maximize")}</button>`
       : ``;
     const homeShortcutFabHtml = ``;
-    const historyEdgeClass = rtl ? "left-edge" : "right-edge";
+    const historyEdgeClass = "right-edge";
     const footerButtons = [...mainBarButtons, mobileEdgeExitHtml || mobileEdgeReturnHtml].filter(Boolean);
     const footerHtml = footerButtons.length
       ? `<div class="footer-nav count-${footerButtons.length}">${footerButtons.join("")}</div>`
@@ -7497,7 +7472,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const floatingHistoryToggleFabHtml = layoutMode === "tablet" && quickActionsWithPower.includes("history") ? historyToggleButtonHtml : ``;
     const mobileHistoryToggleButtonHtml = layoutMode !== "tablet" && quickActionsWithPower.includes("history") ? historyToggleButtonHtml : ``;
     const sleepTimerCornerMarkup = !compactTileMode ? `
-      <div class="sleep-timer-corner ${rtl ? "left" : "right"}" id="sleepTimerCorner" hidden></div>
+      <div class="sleep-timer-corner right" id="sleepTimerCorner" hidden></div>
     ` : ``;
     const floatingSleepTimerCornerHtml = layoutMode === "tablet" && (quickActionsWithPower.includes("timer") || sleepTimerActive) ? sleepTimerCornerMarkup : ``;
     const tabletBrandWatermarkHtml = layoutMode === "tablet" && !compactTileMode
@@ -7622,13 +7597,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         ${volumeMode === "always" ? volumeHtml : ``}
       </div>`;
     const tabletNavRailHtml = `<aside class="tablet-rail">${playerFocusHtml}${footerHtml}</aside>`;
-    const tabletStageHtml = rtl
-      ? `<div class="tablet-shell"><div class="tablet-main">${centerHtml}${bottomHtml}</div>${tabletNavRailHtml}</div>`
-      : `<div class="tablet-shell">${tabletNavRailHtml}<div class="tablet-main">${centerHtml}${bottomHtml}</div></div>`;
+    const tabletStageHtml = `<div class="tablet-shell">${tabletNavRailHtml}<div class="tablet-main">${centerHtml}${bottomHtml}</div></div>`;
 
     this.shadowRoot.innerHTML = `
       <style>${buildCardStyles({ hostMinWidth, height, minCardHeight, fontScale: this._state.mobileFontScale || 1, iconScale: mobileIconScale.toFixed(2), customRgb: this._customRgb(), customText: this._customTextColor(), customColor: this._state.mobileCustomColor || "#e0a11b", fullInlineTargetHeight })}</style>
-      <div class="card ${rtl ? "rtl" : ""} theme-${visualTheme} layout-${layoutMode}${layoutProfileClass ? ` ${layoutProfileClass}` : ""} mobile-layout-${mobileLayoutMode}${mobileLayoutMode === "full" ? " mobile-layout-forced-full" : ""}${mobileLayoutMode === "compact" ? " mobile-layout-forced-compact" : ""}${mobileEdgeToEdgeMode ? " mobile-edge-to-edge" : ""} performance-profile-${performanceProfile}${performanceMode ? " performance-lite" : ""}${performanceUltraLite ? " performance-ultra-lite" : ""}${hotelMode ? " hotel-mode" : ""}${compactTileMode ? " compact-mode compact-collapsed" : compactMode ? " compact-expanded" : ""}${compactMiniWidget ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${compactTransitionClass}${nightActive ? " night-mode" : ""}${showNightRow ? " night-mode-enabled" : ""}${tabletAutoFit ? " tablet-auto-fit" : ""}${tabletDenseUi ? " tablet-fit-dense" : ""}${showNightRow ? " tablet-fit-night" : ""}${showUpNextInline ? " tablet-fit-up-next" : ""}${mobileDenseContent ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!hotelMode && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${layoutProfileStyle}--screensaver-clock-scale:${this._esc(screensaverClockSize.toFixed(2))};--screensaver-clock-x:${this._esc(screensaverClockX.toFixed(1))}%;--screensaver-clock-y:${this._esc(screensaverClockY.toFixed(1))}%;">
+      <div class="card theme-${visualTheme} layout-${layoutMode}${layoutProfileClass ? ` ${layoutProfileClass}` : ""} mobile-layout-${mobileLayoutMode}${mobileLayoutMode === "full" ? " mobile-layout-forced-full" : ""}${mobileLayoutMode === "compact" ? " mobile-layout-forced-compact" : ""}${mobileEdgeToEdgeMode ? " mobile-edge-to-edge" : ""} performance-profile-${performanceProfile}${performanceMode ? " performance-lite" : ""}${performanceUltraLite ? " performance-ultra-lite" : ""}${hotelMode ? " hotel-mode" : ""}${compactTileMode ? " compact-mode compact-collapsed" : compactMode ? " compact-expanded" : ""}${compactMiniWidget ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${compactTransitionClass}${nightActive ? " night-mode" : ""}${showNightRow ? " night-mode-enabled" : ""}${tabletAutoFit ? " tablet-auto-fit" : ""}${tabletDenseUi ? " tablet-fit-dense" : ""}${showNightRow ? " tablet-fit-night" : ""}${showUpNextInline ? " tablet-fit-up-next" : ""}${mobileDenseContent ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!hotelMode && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${layoutProfileStyle}--screensaver-clock-scale:${this._esc(screensaverClockSize.toFixed(2))};--screensaver-clock-x:${this._esc(screensaverClockX.toFixed(1))}%;--screensaver-clock-y:${this._esc(screensaverClockY.toFixed(1))}%;">
         <div class="bg" id="mobileBg"></div><div class="shade"></div><div class="glow"></div>
         ${compactCollapseFabHtml}
         ${homeShortcutFabHtml}
@@ -11251,7 +11224,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const playing = players.filter((p) => p.state === "playing").length;
       const available = players.length;
       const thisDeviceTitle = options.thisDeviceTitle || this._i18n("ui.player_on_this_device");
-      return `<div class="player-choice-summary"><div class="player-choice-counts" dir="${this._isHebrew() ? "rtl" : "ltr"}"><span>${this._m("Available", "זמינים")}: <bdi>${available}</bdi></span><span>${this._m("Playing now", "מנגנים כעת")}: <bdi>${playing}</bdi></span></div><button class="player-this-device-cta" data-menu-action="${this._esc(options.thisDeviceActionName || "connect_this_device")}" title="${this._esc(thisDeviceTitle)}" aria-label="${this._esc(thisDeviceTitle)}"><span class="player-this-device-icon">${this._iconSvg("this_device")}</span><span class="player-this-device-copy"><strong>${this._esc(thisDeviceTitle)}</strong><small>${this._esc(this._m("Listen through this phone, tablet or browser", "האזנה דרך הטלפון, הטאבלט או הדפדפן הזה"))}</small></span><span class="player-this-device-arrow" aria-hidden="true">${this._isHebrew() ? "‹" : "›"}</span></button></div>`;
+      return `<div class="player-choice-summary"><div class="player-choice-counts" dir="ltr"><span>${this._m("Available", "זמינים")}: <bdi>${available}</bdi></span><span>${this._m("Playing now", "מנגנים כעת")}: <bdi>${playing}</bdi></span></div><button class="player-this-device-cta" data-menu-action="${this._esc(options.thisDeviceActionName || "connect_this_device")}" title="${this._esc(thisDeviceTitle)}" aria-label="${this._esc(thisDeviceTitle)}"><span class="player-this-device-icon">${this._iconSvg("this_device")}</span><span class="player-this-device-copy"><strong>${this._esc(thisDeviceTitle)}</strong><small>${this._esc(this._m("Listen through this phone, tablet or browser", "האזנה דרך הטלפון, הטאבלט או הדפדפן הזה"))}</small></span><span class="player-this-device-arrow" aria-hidden="true">›</span></button></div>`;
     }
     const queueCount = this._getNowPlayingQueueItems().length || Number(this._state.maQueueState?.items || 0) || 0;
     return `
@@ -11352,10 +11325,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _discoveryGenreLabel(en, he, de = en) {
-    const lang = this._language();
-    if (lang === "he") return he;
-    if (lang === "de") return de;
-    return en;
+    return this._i18n(en, {}, en);
   }
 
   _discoveryPopularGenreProfiles() {
@@ -13696,7 +13666,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (Number.isFinite(leftYear) && Number.isFinite(rightYear)) return rightYear - leftYear;
       if (Number.isFinite(leftYear)) return -1;
       if (Number.isFinite(rightYear)) return 1;
-      return String(left).localeCompare(String(right), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: true });
+      return String(left).localeCompare(String(right), "en", { sensitivity: "base", numeric: true });
     });
   }
 
@@ -14033,7 +14003,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _voiceAssistantRecognitionLanguage() {
-    if (this._isHebrew()) return "he-IL";
     try {
       const languages = Array.isArray(window.navigator?.languages)
         ? window.navigator.languages
@@ -14964,7 +14933,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     } catch (_) {}
     const recognition = new SpeechRecognition();
     this._voiceRecognition = recognition;
-    recognition.lang = this._isHebrew() ? "he-IL" : "en-US";
+    recognition.lang = "en-US";
     recognition.interimResults = true;
     recognition.continuous = false;
     recognition.maxAlternatives = 1;
@@ -15096,7 +15065,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const mode = this._state.mobileLibrarySort || "name_asc";
     const copy = [...items];
     if (mode === "name_desc") {
-      return copy.sort((a, b) => String(b?.name || "").localeCompare(String(a?.name || ""), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: true }));
+      return copy.sort((a, b) => String(b?.name || "").localeCompare(String(a?.name || ""), "en", { sensitivity: "base", numeric: true }));
     }
     if (mode === "date_desc") {
       const ranked = copy.map((item, index) => ({ item, index, date: this._itemDateValue(item) }));
@@ -15118,7 +15087,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       });
       return ranked.map((entry) => entry.item);
     }
-    return copy.sort((a, b) => String(a?.name || "").localeCompare(String(b?.name || ""), this._isHebrew() ? "he" : "en", { sensitivity: "base", numeric: true }));
+    return copy.sort((a, b) => String(a?.name || "").localeCompare(String(b?.name || ""), "en", { sensitivity: "base", numeric: true }));
   }
 
   _libraryTabSearchPageKey(page = this._state.menuPage) {
@@ -15845,7 +15814,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const lang = this._hass?.locale?.language || this._hass?.language || browserLanguage || "";
       if (lang) return String(lang);
     } catch (_) {}
-    return this._isHebrew() ? "he-IL" : "en-US";
+    return "en-US";
   }
 
   _announcementPayloadWithLanguage(payload = {}, language = "") {

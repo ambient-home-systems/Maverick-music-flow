@@ -19,7 +19,7 @@ function fixture() {
   const card = {
     shadowRoot, _config: { player_design: "immersive", action_menu_labels: true },
     _state: { maQueueState: { items: 3, current_item: { media_item: { media_type: "track" } } }, engineCapabilities: { queue_settings: true } },
-    _m: (en) => en, _i18n: (s) => s, _esc: (s) => String(s), _iconSvg: () => "<svg></svg>", _isHebrew: () => false,
+    _m: (en) => en, _i18n: (s) => s, _esc: (s) => String(s), _iconSvg: () => "<svg></svg>",
     _getSelectedPlayer: () => player, _getCurrentMediaUri: () => "library://track/1", _currentMediaFavoriteState: () => false,
     _isHotelMode: () => false, _discoveryModeEnabled: () => true,
     _openMobileMenu: vi.fn(), _openTabletLyricsScreensaver: () => false, _openLyricsModal: vi.fn(),

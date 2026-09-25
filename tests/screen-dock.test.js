@@ -166,7 +166,7 @@ describe("context screen wheel", () => {
     const sheet = document.createElement("div");
     const card = { _m:(a)=>a, _esc:String, _iconSvg:()=>"<svg></svg>", _config:{action_menu_labels:true}, _state:{},
       _sleepTimerRemainingMs:()=>0, _setSleepTimerMinutes:vi.fn(async()=>{}), _renderMobileMenu:vi.fn(async()=>{}),
-      shadowRoot:sheet, $:()=>null, _isHebrew:()=>false,
+      shadowRoot:sheet, $:()=>null,
     };
     syncScreenDock(card,sheet,"sleep_timer");
     sheet.querySelector("[data-screen-wheel]").click();

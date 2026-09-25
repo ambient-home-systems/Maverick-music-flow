@@ -326,7 +326,7 @@ export function bindImmersivePlayer(card, options = {}) {
     if (event.key === "Escape" && !fan.hidden) { event.stopPropagation(); close(true); }
     if (!fan.hidden && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
       event.preventDefault(); event.stopPropagation();
-      step((event.key === "ArrowRight" ? 1 : -1) * (card._isHebrew?.() ? -1 : 1), true);
+      step(event.key === "ArrowRight" ? 1 : -1, true);
     }
   });
   fan.addEventListener("wheel", (event) => {
