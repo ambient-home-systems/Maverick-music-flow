@@ -101,9 +101,9 @@ export function createMaverickBaseMusicCard({
       };
 
       this._boundDocClick = this._handleDocumentClick.bind(this);
-      this._boundContentClick = this._handleContentClick.bind(this);
+      this._boundContentClick = (e) => this._runDetached(this._handleContentClick(e), "content click");
       this._boundContentContext = this._handleContentContext.bind(this);
-      this._boundQueuePanelClick = this._handleQueuePanelClick.bind(this);
+      this._boundQueuePanelClick = (e) => this._runDetached(this._handleQueuePanelClick(e), "queue panel click");
       this._boundWindowResize = this._handleWindowResize.bind(this);
       this._boundBrandLogoError = this._handleBrandLogoError.bind(this);
       this._boundLocalSendspinLifecycle = this._handleLocalSendspinLifecycle.bind(this);
@@ -709,6 +709,16 @@ export function createMaverickBaseMusicCard({
       if (typeof window === "undefined" || window.location?.protocol !== "https:") return;
       const base = new URL(url, window.location.href);
       if (base.protocol !== "https:") throw new Error(this._maMixedContentMessage());
+    }
+
+    _runDetached(task, label = "background task") {
+      return Promise.resolve(task).catch((error) => {
+        this._debugLog("warn", `[Maverick Music] ${label} failed`, error);
+      });
+    }
+
+    _handleDebugUnhandledRejection(event) {
+      this._debugLog("error", "[Maverick Music] unhandled promise rejection", event?.reason);
     }
 
     _debugLog(level = "info", ...args) {
@@ -1710,8 +1720,8 @@ export function createMaverickBaseMusicCard({
       this.$("content").addEventListener("change", (e) => this._handleQueueMoveAutoChange(e));
       this.$("content").addEventListener("contextmenu", this._boundContentContext);
       this.$("groupList").addEventListener("change", (e) => this._handleGroupChange(e));
-      this.$("applyGroupBtn").addEventListener("click", (event) => this._runMenuButtonLoading(event.currentTarget, this._m("Updating group"), () => this._applySpeakerGroup(), { kind: "connect" }));
-      this.$("unGroupBtn").addEventListener("click", (event) => this._runMenuButtonLoading(event.currentTarget, this._m("Disconnecting all"), () => this._clearSpeakerGroup(), { kind: "disconnect" }));
+      this.$("applyGroupBtn").addEventListener("click", (event) => this._runDetached(this._runMenuButtonLoading(event.currentTarget, this._m("Updating group"), () => this._applySpeakerGroup(), { kind: "connect" }), "apply speaker group"));
+      this.$("unGroupBtn").addEventListener("click", (event) => this._runDetached(this._runMenuButtonLoading(event.currentTarget, this._m("Disconnecting all"), () => this._clearSpeakerGroup(), { kind: "disconnect" }), "clear speaker group"));
       this.$("groupModalClose").addEventListener("click", () => this._closeGroupModal());
       this.$("groupModal").addEventListener("click", (e) => { if (e.target === this.$("groupModal")) this._closeGroupModal(); });
       this.$("playerModalClose").addEventListener("click", () => this._closePlayerModal());
@@ -6669,7 +6679,7 @@ export function createMaverickBaseMusicCard({
           return;
         }
         if (action === "like") {
-          this._toggleLikeEntry(entry, item);
+          this._runDetached(this._toggleLikeEntry(entry, item), "toggle like");
           if (this._state.menuOpen && this._state.menuPage === "queue") await this._renderMobileMenu();
         } else {
           const targetPosition = action === "move_to" ? this._queueMoveTargetFromElement(item) : null;
@@ -11599,6 +11609,8 @@ export function createMaverickBaseMusicCard({
           if (this._state.modalMode === "transfer") this._openTransferQueuePicker(true);
           else this._renderPlayerModal();
         }
+      } catch (error) {
+        this._debugLog("warn", "[Maverick Music] now playing refresh failed", error);
       } finally {
         this._updateNowPlayingInFlight = false;
         if (this._updateNowPlayingQueued && this.isConnected) {
@@ -12443,9 +12455,17 @@ export function createMaverickBaseMusicCard({
         setTimeout(() => this._refreshMaverickEngineContext({ force: true }).catch(() => {}), 800);
       }
       this._subscribeMaverickEngineMusicAssistantEvents?.();
+      if (this._config?.debug && typeof window !== "undefined" && !this._boundDebugUnhandledRejection) {
+        this._boundDebugUnhandledRejection = (event) => this._handleDebugUnhandledRejection(event);
+        window.addEventListener("unhandledrejection", this._boundDebugUnhandledRejection);
+      }
     }
 
     disconnectedCallback() {
+      if (this._boundDebugUnhandledRejection && typeof window !== "undefined") {
+        window.removeEventListener("unhandledrejection", this._boundDebugUnhandledRejection);
+        this._boundDebugUnhandledRejection = null;
+      }
       clearInterval(this._pollTimer);
       clearInterval(this._progressTimer);
       clearTimeout(this._searchTimer);

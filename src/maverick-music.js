@@ -514,12 +514,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._screensaverLyricsInactiveSince = 0;
     this._state.mobileSmartVoice = null;
     this._state.simpleWizard = null;
-    this._boundMobileMenuClick = this._handleMobileMenuClick.bind(this);
-    this._boundMobileMenuChange = this._handleMobileMenuChange.bind(this);
-    this._boundMobileMenuKeydown = this._handleMobileMenuKeydown.bind(this);
+    this._boundMobileMenuClick = (e) => this._runDetached(this._handleMobileMenuClick(e), "mobile menu click");
+    this._boundMobileMenuChange = (e) => this._runDetached(this._handleMobileMenuChange(e), "mobile menu change");
+    this._boundMobileMenuKeydown = (e) => this._runDetached(this._handleMobileMenuKeydown(e), "mobile menu keydown");
     this._boundMobileMenuScroll = this._handleMobileMenuScroll.bind(this);
     this._boundMobileMenuPointerDown = this._handleMobileMenuPointerDown.bind(this);
-    this._boundMobileMediaInput = this._handleMobileMediaInput.bind(this);
+    this._boundMobileMediaInput = (e) => this._runDetached(this._handleMobileMediaInput(e), "mobile media input");
     this._boundScreensaverActivity = this._handleScreensaverActivity.bind(this);
     this._loadStoredState();
   }
@@ -16551,6 +16551,28 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   async _renderMobileMenu() {
+    // Most callers fire this without awaiting it, so a failed render must end
+    // here as a visible notice instead of an unhandled rejection.
+    try {
+      await this._renderMobileMenuPage();
+    } catch (error) {
+      this._renderMobileMenuError(error);
+    }
+  }
+
+  _renderMobileMenuError(error) {
+    try {
+      this._debugLog("warn", "[Maverick Menu] failed to render mobile menu", error);
+      const body = this.$("mobileMenuBody");
+      if (!body || !this._state.menuOpen) return;
+      delete body.dataset.menuPage;
+      delete body.dataset.queueSignature;
+      delete body.dataset.libraryLoadingKey;
+      body.innerHTML = `<div class="notice open" role="alert">${this._esc(error?.message || this._m("Could not load this page."))}</div><button class="chip-btn" data-menu-action="retry_library">${this._esc(this._m("Retry"))}</button>`;
+    } catch (_) {}
+  }
+
+  async _renderMobileMenuPage() {
     const body = this.$("mobileMenuBody");
     const title = this.$("mobileMenuTitle");
     const back = this.$("mobileMenuBackBtn");
