@@ -8278,12 +8278,13 @@ export function createMaverickBaseMusicCard({
     }
 
     _normalizeQueueSnapshot(raw, entityId = "") {
-      if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+      // A repeated revision is still current here; only stale payloads are dropped.
+      if (MaverickRevisionedSnapshotsFoundation.engineSnapshotDecision(
         this._engineSnapshotRevisions,
         "queue",
         raw,
         entityId,
-      )) {
+      ) === "stale") {
         this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine queue snapshot", {
           entityId,
           snapshot: MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(raw),
@@ -8525,12 +8526,13 @@ export function createMaverickBaseMusicCard({
             options.snapshot.revision = revision;
           }
         }
-        if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+        // A repeated revision is still current here; only stale payloads are dropped.
+        if (MaverickRevisionedSnapshotsFoundation.engineSnapshotDecision(
           this._engineSnapshotRevisions,
           "library",
           engineResult,
           libraryIdentity,
-        )) {
+        ) === "stale") {
           if (options.strict) throw new Error(this._m("Library changed while loading. Try again."));
           this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine library snapshot", {
             libraryIdentity,
@@ -10561,12 +10563,13 @@ export function createMaverickBaseMusicCard({
           if (!Array.isArray(result?.music_assistant_players) && !Array.isArray(result?.players)) {
             throw new Error("Maverick Music Engine returned an invalid player catalog.");
           }
-          if (!MaverickRevisionedSnapshotsFoundation.acceptEngineSnapshot(
+          // A repeated revision is still current here; only stale payloads are dropped.
+          if (MaverickRevisionedSnapshotsFoundation.engineSnapshotDecision(
             this._engineSnapshotRevisions,
             "players",
             result,
             "music_assistant",
-          )) {
+          ) === "stale") {
             this._debugLog?.("debug", "[Maverick Music] Ignored stale Engine player snapshot", {
               snapshot: MaverickRevisionedSnapshotsFoundation.engineSnapshotMeta(result),
             });
