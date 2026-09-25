@@ -24,11 +24,11 @@
     "dashboard-card"
   ],
   "dependencies": {
-    "opus-encdec": "^0.1.1"
+    "opus-encdec": "0.1.1"
   },
   "scripts": {
-    "build": "vite build && node ./scripts/release.mjs --preserve-main",
-    "release": "vite build && node ./scripts/release.mjs --preserve-main",
+    "build": "vite build && node ./scripts/release.mjs",
+    "release": "vite build && node ./scripts/release.mjs",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "esbuild": "^0.25.12",
     "eslint": "^9.25.0",
     "globals": "^15.15.0",
     "jsdom": "^26.0.0",

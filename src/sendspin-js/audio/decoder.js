@@ -393,6 +393,9 @@ export class SendspinDecoder {
         }
         this.opusDecoderReady = (async () => {
             console.log("[Opus] Initializing decoder (opus-encdec)...");
+            // These deep imports reach into opus-encdec's package layout rather than a
+            // public entry point, so they are version-specific: package.json pins
+            // opus-encdec exactly (0.1.1). Re-check both paths before bumping it.
             const [DecoderModuleExport, DecoderWrapperExport] = await Promise.all([
                 import("opus-encdec/dist/libopus-decoder.js"),
                 import("opus-encdec/src/oggOpusDecoder.js"),

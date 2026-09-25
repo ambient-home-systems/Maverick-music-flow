@@ -9,12 +9,9 @@
   - `LICENSE`
   - `hacs.json`
   - `dist/maverick-music.js`
-  - `dist/localization/`
-  - `dist/sendspin-js/`
-  - `dist/vendor/embla-carousel.umd.js`
-  - `dist/homeii-flow-logo.svg`
+  - `dist/homeii-flow-logo.svg`, `dist/homeii-flow-logo.png`, `dist/homeii-flow-logo-v2.png`, `dist/homeii-flow-icon.png`
   - `docs/brand/homeii-flow-logo.svg`
-  - `src/sendspin-js/`
+  - `src/sendspin-js/` (including `src/sendspin-js/LICENSE`)
   - `vendor/embla-carousel.umd.js`
   - `.github/workflows/validate.yml`
 - Confirm the README renders:
@@ -33,13 +30,21 @@
 - Tags with a prerelease suffix, such as `v5.8.2-beta.1`, should publish as GitHub pre-releases and must not be marked as Latest.
 - Do not attach a custom release zip asset for HACS. Keep the complete installable runtime in `dist/` and let HACS use the normal repository release/tag contents.
 
+## What `dist/` contains
+
+HACS downloads everything in `dist/`, so it holds only what an installation needs:
+
+- `dist/maverick-music.js`: the single self-contained runtime. `npm run build` runs `vite build` and then `scripts/release.mjs`, which verifies the `/*! MAVERICK_CARD_VERSION = "..."; */` banner against `package.json`, minifies whitespace and syntax with esbuild, and prepends a license banner (MIT for this project, Apache-2.0 for the bundled Sendspin client, MIT for Embla Carousel and opus-encdec). Sendspin, its Opus fallback decoder, Embla, the dictionaries, and the Heebo font are all inlined; the file imports nothing from sibling paths.
+- `dist/homeii-flow-logo.svg`, `dist/homeii-flow-logo.png`, `dist/homeii-flow-logo-v2.png`, `dist/homeii-flow-icon.png`: brand images copied from `docs/brand/`.
+
+`dist/` no longer carries copies of `src/core`, `src/config`, `src/localization`, `src/sendspin-js`, or `vendor/`. The Sendspin source and its Apache-2.0 license text stay in `src/sendspin-js/`, and Embla stays in `vendor/`. `tests/dist-bundle.test.js` checks the committed bundle for the version banner, the license notices, the absence of sibling imports, and the size budget.
+
 ## 3. Verify repository files after publishing
 
 - Confirm `hacs.json` still points to `maverick-music.js`.
-- Confirm `dist/maverick-music.js` matches the released runtime.
-- Confirm `dist/localization/` includes English, Hebrew, Spanish, French, Italian, Lithuanian, and Simplified Chinese dictionaries.
-- Confirm `dist/sendspin-js/` exists for the local Sendspin browser player.
-- Confirm `dist/vendor/embla-carousel.umd.js` exists for mobile swipe support.
+- Confirm `dist/maverick-music.js` matches the released runtime: it starts with the license banner and carries `/*! MAVERICK_CARD_VERSION = "X.Y.Z"; */` for the released version.
+- Confirm `dist/` contains only `maverick-music.js` and the four brand images (`npm run build` followed by `git status` should show no changes).
+- Confirm `src/sendspin-js/LICENSE` is still in the repository.
 - Confirm `dist/homeii-flow-logo.svg` and `docs/brand/homeii-flow-logo.svg` exist.
 - Confirm the HACS validation workflow is enabled on GitHub.
 - Confirm the README requirements section still matches the current release.
@@ -72,7 +77,7 @@ type: custom:maverick-music
 
 ## 6. Manual fallback
 
-If you need a manual fallback release path, copy the full contents of:
+If you need a manual fallback release path, copy the full contents of `dist/` (the bundle plus the brand images):
 
 `dist/`
 
