@@ -1317,7 +1317,7 @@ export function createMaverickBaseMusicCard({
     _versionedAssetUrl(url) {
       const value = String(url || "").trim();
       if (!value || /^data:/i.test(value) || /[?&]v=/.test(value)) return value;
-      const version = typeof MAVERICK_CARD_VERSION === "string" ? MAVERICK_CARD_VERSION : "5.9.3";
+      const version = typeof MAVERICK_CARD_VERSION === "string" && MAVERICK_CARD_VERSION ? MAVERICK_CARD_VERSION : "0.0.0";
       return `${value}${value.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
     }
 
