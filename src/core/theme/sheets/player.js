@@ -12,9 +12,6 @@ export default function() {
           position:relative;
           z-index:7;
         }
-        .card.layout-tablet.rtl .tablet-shell {
-          grid-template-columns:minmax(0,1fr) var(--tablet-rail);
-        }
         .hero-aura {
           position:absolute;
           top:-2%;
@@ -460,9 +457,6 @@ export default function() {
           max-width:390px;
           justify-items:start;
           text-align:start;
-        }
-        .card.rtl .hero-info {
-          direction:rtl;
         }
         .hero-copy {
           display:grid;
@@ -1514,9 +1508,6 @@ export default function() {
           scroll-padding-inline:var(--empty-quick-edge-fade);
           -webkit-mask-image:linear-gradient(90deg, transparent 0, rgba(0,0,0,.22) 10px, rgba(0,0,0,.72) 26px, #000 var(--empty-quick-edge-fade), #000 calc(100% - var(--empty-quick-edge-fade)), rgba(0,0,0,.72) calc(100% - 26px), rgba(0,0,0,.22) calc(100% - 10px), transparent 100%);
           mask-image:linear-gradient(90deg, transparent 0, rgba(0,0,0,.22) 10px, rgba(0,0,0,.72) 26px, #000 var(--empty-quick-edge-fade), #000 calc(100% - var(--empty-quick-edge-fade)), rgba(0,0,0,.72) calc(100% - 26px), rgba(0,0,0,.22) calc(100% - 10px), transparent 100%);
-        }
-        .rtl .empty-quick-shelf {
-          padding-inline:var(--empty-quick-edge-fade);
         }
         .empty-quick-shelf::-webkit-scrollbar {
           display:none;

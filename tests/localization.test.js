@@ -4,7 +4,6 @@ import {
   DICTIONARIES,
   LANGUAGE_OPTIONS,
   detectLanguage,
-  isRtlLanguage,
   keyForEnglishText,
   translate,
   translateText,
@@ -48,12 +47,6 @@ describe("localization", () => {
       { value: "auto", label: "Auto" },
       { value: "en", label: "English" },
     ]);
-  });
-
-  it("has no RTL languages", () => {
-    expect(isRtlLanguage("he")).toBe(false);
-    expect(isRtlLanguage("en")).toBe(false);
-    expect(isRtlLanguage("fr")).toBe(false);
   });
 
   it("only bundles the English dictionary", () => {

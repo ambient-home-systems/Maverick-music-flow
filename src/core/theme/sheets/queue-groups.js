@@ -520,9 +520,6 @@ export default function() {
           width:min(100%, 720px);
           margin:0 auto;
         }
-        .card.layout-tablet.rtl .players-premium-grid {
-          direction:rtl;
-        }
         .card.layout-tablet .menu-body {
           padding:18px 20px 22px;
         }
@@ -1250,16 +1247,6 @@ export default function() {
           align-content:start;
           width: 100%;
           box-sizing: border-box;
-        }
-        .rtl .settings-shell,
-        .rtl .settings-card {
-          direction:rtl;
-          text-align:right;
-        }
-        .rtl .settings-shell,
-        .rtl .settings-group {
-          direction:rtl;
-          text-align:right;
         }
         .settings-accordion {
           display: block;

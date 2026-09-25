@@ -32,7 +32,6 @@ describe("config validators", () => {
         music_assistant_timeout_ms: 12000,
         language: "en",
         theme_mode: "dark",
-        rtl: true,
         hotel_mode: true,
         performance_profile: "ultra_lite",
         performance_mode: true,

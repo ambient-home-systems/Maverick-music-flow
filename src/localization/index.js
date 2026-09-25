@@ -6,8 +6,6 @@ export const DICTIONARIES = Object.freeze({
   en,
 });
 
-export const RTL_LANGUAGE_CODES = Object.freeze([]);
-
 export const LANGUAGE_OPTIONS = Object.freeze([
   { value: "auto", label: "Auto" },
   { value: "en", label: "English" },
@@ -59,10 +57,6 @@ export function detectLanguage({
     if (normalized) return normalized;
   }
   return DEFAULT_LANGUAGE;
-}
-
-export function isRtlLanguage(value) {
-  return RTL_LANGUAGE_CODES.includes(baseLanguageCode(value));
 }
 
 export function keyForEnglishText(text) {

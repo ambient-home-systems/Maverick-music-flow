@@ -406,12 +406,6 @@ export default function() {
           align-self:end;
           z-index:5;
         }
-        .rtl .library-nav {
-          direction:rtl;
-        }
-        .rtl .library-nav-btn {
-          direction:ltr;
-        }
         .card.layout-tablet .library-nav {
           gap:6px;
           padding:6px;

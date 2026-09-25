@@ -79,7 +79,6 @@ export function validateBaseCardEditorConfig(config) {
   assertNumberIfDefined(config.music_assistant_timeout_ms, "music_assistant_timeout_ms");
   assertStringIfDefined(config.language, "language");
   assertValueInList(config.theme_mode, "theme_mode", ["auto", "dark", "light", "custom"]);
-  assertBooleanIfDefined(config.rtl, "rtl");
   assertBooleanIfDefined(config.hotel_mode, "hotel_mode");
   assertBooleanIfDefined(config.entity_sticky, "entity_sticky");
   assertBooleanIfDefined(config.pinned_players_exclusive, "pinned_players_exclusive");

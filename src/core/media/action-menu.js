@@ -86,7 +86,7 @@ export function mediaActionSheetHtml(card, entry, queue = false) {
     const position = Math.max(1, Math.min(count, card._queueDisplayPositionForEntry(entry, Math.round(Number(entry.sort_index || 0)) + 1 || 1)));
     move = `<div class="queue-move-control"><label><span>${card._esc(t("ui.move_to_position"))}</span>${card._queueMoveSelectHtml(count, position, entry)}</label></div>`;
   }
-  return `<div class="media-action-layout ${actionLabelsEnabled(card) ? "with-labels" : "icons-only"}" dir="${card._m("ltr")}">
+  return `<div class="media-action-layout ${actionLabelsEnabled(card) ? "with-labels" : "icons-only"}" dir="ltr">
     <div class="media-action-heading"><div class="media-action-art">${art ? card._imgHtml(art, "", { fallbackIcon: "music_note" }) : card._iconSvg("music_note")}</div><div class="media-action-copy"><div class="queue-action-player">${card._esc(card._selectedPlayerName())}</div><div class="queue-action-title">${card._esc(entry.name || t(queue ? "ui.queue_actions" : "ui.media_actions"))}</div></div>${button("close", "close", t("ui.close"))}</div>
     ${!queue ? `<button class="media-library-back" type="button" data-media-popup="close">${actionIconSvg(card,"back")}<span>${card._esc(card._m("Back to library"))}</span></button>` : ""}
     ${move}
@@ -142,7 +142,7 @@ export function actionMenuHtml() {
   const nav = (page, icon, title, subtitle) => this._navMenuItem(page, actionIconSvg(this, icon), title, subtitle);
   const section = (title, items) => `<section class="action-hub-section"><h3>${this._esc(title)}</h3><div class="action-hub-grid">${items.filter(Boolean).join("")}</div></section>`;
   if (this._isHotelMode()) return `<div class="action-hub ${labels ? "with-labels" : "icons-only"}">${section(text("Listen"), [nav("players", "speaker", this._i18n("ui.players"), text("Choose a room")), nav("quick_search", "search", this._i18n("ui.search"), text("Find music"))])}</div>`;
-  return `<div class="action-hub ${labels ? "with-labels" : "icons-only"}" dir="${text("ltr")}">
+  return `<div class="action-hub ${labels ? "with-labels" : "icons-only"}" dir="ltr">
     ${section(text("Music"), [
       nav("quick_search", "search", this._i18n("ui.search"), text("Search your providers and library")),
       this._discoveryModeEnabled() && nav("discovery", "compass", this._i18n("ui.discover_music"), text("Genres, playlists and radio")),

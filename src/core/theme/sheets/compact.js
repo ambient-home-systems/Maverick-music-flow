@@ -148,19 +148,11 @@ export default function() {
           mix-blend-mode:screen;
           filter:drop-shadow(0 10px 24px rgba(0,0,0,.2)) saturate(.9);
         }
-        .card.layout-tablet.rtl > .tablet-brand-watermark {
-          inset-inline-start:48px;
-          inset-inline-end:auto;
-        }
-        .card.layout-tablet:not(.rtl) > .tablet-brand-watermark {
+        .card.layout-tablet > .tablet-brand-watermark {
           inset-inline-end:48px;
           inset-inline-start:auto;
         }
-        .card.layout-tablet.rtl .control-room-brand-watermark {
-          inset-inline-start:48px;
-          inset-inline-end:auto;
-        }
-        .card.layout-tablet:not(.rtl) .control-room-brand-watermark {
+        .card.layout-tablet .control-room-brand-watermark {
           inset-inline-end:48px;
           inset-inline-start:auto;
         }
@@ -505,10 +497,6 @@ export default function() {
         .card:has(.control-room-backdrop.open) > .mobile-edge-return,
         .card:has(.screensaver-backdrop.open) > .mobile-edge-return {
           display:none !important;
-        }
-        .mobile-edge-corner-btn.rtl {
-          left:auto;
-          right:max(12px, env(safe-area-inset-right, 0px));
         }
         .mobile-edge-corner-btn .ui-ic {
           width:20px;
@@ -1011,10 +999,6 @@ export default function() {
           -webkit-backdrop-filter:blur(16px);
           transition:transform .16s ease, box-shadow .18s ease, background-color .18s ease;
         }
-        .card.rtl .compact-expand-ref {
-          right:0;
-          left:auto;
-        }
         .compact-expand-ref:hover {
           transform:translateY(-1px);
           box-shadow:
@@ -1037,15 +1021,13 @@ export default function() {
           z-index:9;
         }
         .compact-collapse-fab,
-        .compact-collapse-fab.ltr,
-        .compact-collapse-fab.rtl {
+        .compact-collapse-fab.ltr {
           left:16px;
           right:auto;
           inset-inline-start:auto;
           inset-inline-end:auto;
         }
         .card.compact-mode:not(.compact-collapsed) > .top-settings-fab.ltr { inset-inline-start:16px; inset-inline-end:auto; }
-        .card.compact-mode:not(.compact-collapsed) > .top-settings-fab.rtl { inset-inline-end:16px; inset-inline-start:auto; }
         .card.control-room-open > .compact-collapse-fab,
         .card.control-room-open > .top-settings-fab,
         .card.control-room-open > .home-shortcut-fab {
@@ -1343,9 +1325,6 @@ export default function() {
         .up-next-inline:active {
           transform:translateY(1px) scale(.99);
         }
-        .card.rtl .up-next-inline {
-          flex-direction:row-reverse;
-        }
         .up-next-art {
           width:22px;
           height:22px;
@@ -1381,9 +1360,6 @@ export default function() {
           gap:5px;
           line-height:1;
         }
-        .card.rtl .up-next-line {
-          flex-direction:row-reverse;
-        }
         .up-next-prefix {
           flex:0 0 auto;
           font-family:var(--maverick-font-family);
@@ -1405,12 +1381,6 @@ export default function() {
           justify-content:flex-start;
           text-align:start;
           max-width:min(320px, 100%);
-        }
-        .card.rtl .compact-up-next {
-          direction:rtl;
-          flex-direction:row;
-          justify-content:flex-start;
-          text-align:right;
         }
         .compact-up-next .up-next-line {
           min-width:0;
@@ -1715,10 +1685,6 @@ export default function() {
           box-shadow:
             0 12px 24px rgba(104,120,145,.16),
             inset 0 1px 0 rgba(255,255,255,.72) !important;
-        }
-        .card.rtl .compact-main {
-          direction:rtl;
-          text-align:right;
         }
         @media (max-width: 760px) {
           .compact-shell {

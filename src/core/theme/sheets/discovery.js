@@ -552,9 +552,6 @@ export default function() {
 .discovery-orb::before{
   content:none;
 }
-.rtl .discovery-orb{
-  transform:translateX(calc(var(--orb-shift) * -1));
-}
 .discovery-orb.is-active{
   color:var(--ma-text-1);
   z-index:8;
@@ -788,8 +785,7 @@ export default function() {
     gap:32px 10px;
     padding-bottom:70px;
   }
-  .discovery-orb,
-  .rtl .discovery-orb{
+  .discovery-orb {
     --orb-size:clamp(98px, 29vw, 126px);
     margin-block-start:0;
     transform:none;
@@ -810,8 +806,7 @@ export default function() {
     gap:26px 8px!important;
     padding-inline:0!important;
   }
-  .discovery-orb,
-  .rtl .discovery-orb{
+  .discovery-orb {
     --orb-size:clamp(86px, 26vw, 112px)!important;
     width:min(var(--orb-size), 100%)!important;
     transform:none!important;

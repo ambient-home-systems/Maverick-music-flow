@@ -233,10 +233,6 @@ export default function() {
   gap:12px;
   margin-top:2px;
 }
-#mobileMenu.rtl .media-detail-hero-actions,
-.rtl #mobileMenu .media-detail-hero-actions{
-  justify-content:flex-end;
-}
 #mobileMenu .media-detail-hero-actions .media-detail-play-btn{
   width:42px;
   min-width:42px;
@@ -276,10 +272,6 @@ export default function() {
   justify-self:start;
   margin-top:12px;
 }
-#mobileMenu.rtl .media-detail-album-picker,
-.rtl #mobileMenu .media-detail-album-picker{
-  justify-self:end;
-}
 #mobileMenu .media-detail-picker-label{
   display:none;
 }
@@ -295,11 +287,6 @@ export default function() {
   grid-template-areas:"art copy actions";
   align-items:center;
 }
-#mobileMenu.rtl .artist-detail-hero,
-.rtl #mobileMenu .artist-detail-hero{
-  grid-template-columns:auto minmax(0,1fr) 112px;
-  grid-template-areas:"actions copy art";
-}
 #mobileMenu .artist-detail-art{
   grid-area:art;
   width:112px;
@@ -311,11 +298,6 @@ export default function() {
 }
 #mobileMenu .artist-detail-copy{
   grid-area:copy;
-}
-#mobileMenu.rtl .artist-detail-copy,
-.rtl #mobileMenu .artist-detail-copy{
-  justify-items:end;
-  text-align:end;
 }
 #mobileMenu .artist-detail-actions{
   grid-area:actions;
@@ -599,15 +581,10 @@ export default function() {
   font-weight:780;
   direction:auto;
 }
-.card:not(.rtl) #mobileMenu .library-toolbar-search input,
-.card:not(.rtl) #mobileMenu .library-tab-search-row input{
+.card #mobileMenu .library-toolbar-search input,
+.card #mobileMenu .library-tab-search-row input {
   direction:ltr;
   text-align:left;
-}
-.card.rtl #mobileMenu .library-toolbar-search input,
-.card.rtl #mobileMenu .library-tab-search-row input{
-  direction:rtl;
-  text-align:right;
 }
 #mobileMenu .library-toolbar-search input::placeholder,
 #mobileMenu .library-tab-search-row input::placeholder{
@@ -839,11 +816,6 @@ export default function() {
     gap:10px;
     padding:13px;
   }
-  #mobileMenu.rtl .artist-detail-hero,
-  .rtl #mobileMenu .artist-detail-hero{
-    grid-template-columns:112px minmax(0,1fr) 82px;
-    grid-template-areas:"actions copy art";
-  }
   #mobileMenu .artist-detail-art{
     width:82px;
   }
@@ -868,12 +840,6 @@ export default function() {
     padding:11px;
     text-align:start;
   }
-  #mobileMenu.rtl .album-detail-player,
-  .rtl #mobileMenu .album-detail-player{
-    grid-template-columns:minmax(0,1fr) minmax(112px, 34vw);
-    grid-template-areas:"copy art";
-    text-align:end;
-  }
   #mobileMenu .media-detail-art-stage{
     width:min(34vw, 154px);
   }
@@ -881,10 +847,6 @@ export default function() {
     justify-items:start;
     max-width:none;
     gap:5px;
-  }
-  #mobileMenu.rtl .media-detail-copy,
-  .rtl #mobileMenu .media-detail-copy{
-    justify-items:end;
   }
   #mobileMenu .media-detail-title{
     font-size:clamp(19px, 6vw, 24px);
@@ -894,20 +856,10 @@ export default function() {
     justify-content:flex-start;
     font-size:12px;
   }
-  #mobileMenu.rtl .media-detail-sub,
-  .rtl #mobileMenu .media-detail-sub{
-    justify-content:flex-end;
-  }
-  #mobileMenu .media-detail-album-picker,
-  #mobileMenu.rtl .media-detail-album-picker,
-  .rtl #mobileMenu .media-detail-album-picker{
+  #mobileMenu .media-detail-album-picker {
     width:min(100%, 236px);
     justify-self:start;
     margin-top:4px;
-  }
-  #mobileMenu.rtl .media-detail-album-picker,
-  .rtl #mobileMenu .media-detail-album-picker{
-    justify-self:end;
   }
   #mobileMenu .media-detail-album-picker select{
     height:34px;
@@ -928,10 +880,6 @@ export default function() {
     justify-content:flex-start;
     gap:8px;
     margin-top:1px;
-  }
-  #mobileMenu.rtl .media-detail-hero-actions,
-  .rtl #mobileMenu .media-detail-hero-actions{
-    justify-content:flex-end;
   }
   #mobileMenu .media-detail-hero-actions .media-detail-play-btn{
     width:34px;

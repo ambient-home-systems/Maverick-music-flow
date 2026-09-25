@@ -149,7 +149,6 @@ export function createMaverickBaseMusicCard({
     setConfig(config) {
       const engineConfig = normalizeEngineConfigKeys(config);
       const nextConfig = {
-        rtl: true,
         language: "en",
         cache_ttl: 300000,
         music_assistant_timeout_ms: 12000,
@@ -594,7 +593,6 @@ export function createMaverickBaseMusicCard({
       return {
         config_entry_id: "",
         active_player_helper_entity: "",
-        rtl: true,
         language: "en",
         show_ma_button: true,
         ma_interface_url: "/music-assistant",

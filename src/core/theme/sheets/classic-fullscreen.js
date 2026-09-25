@@ -21,7 +21,6 @@ export default `          .immersive-backdrop {
             color:#f7f8fc;
             direction:ltr;
           }
-          .immersive-shell.rtl { direction:rtl; }
           .immersive-bg,
           .immersive-cover-glow,
           .immersive-frost,
@@ -73,17 +72,11 @@ export default `          .immersive-backdrop {
             justify-content:space-between;
             gap:16px;
           }
-          .immersive-shell.rtl .immersive-topbar {
-            flex-direction:row-reverse;
-          }
           .immersive-header {
             display:flex;
             align-items:flex-start;
             justify-content:space-between;
             gap:16px;
-          }
-          .immersive-shell.rtl .immersive-header {
-            flex-direction:row-reverse;
           }
           .immersive-backdrop .close-btn {
             width:58px;
@@ -104,7 +97,6 @@ export default `          .immersive-backdrop {
             text-align:start;
             max-width:min(44vw, 520px);
           }
-          .immersive-shell.rtl .immersive-meta { text-align:right; }
           .immersive-kicker {
             font-size:12px;
             letter-spacing:.16em;

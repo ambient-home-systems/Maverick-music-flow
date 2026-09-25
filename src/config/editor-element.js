@@ -509,7 +509,6 @@ return class MaverickBaseMusicEditor extends HTMLElement {
         ${interfaceStyles}
         :host {
           display:block;
-          direction:ltr;
         }
         .editor-shell {
           display:grid;
@@ -797,7 +796,6 @@ return class MaverickBaseMusicEditor extends HTMLElement {
 
   _syncEditorLiveContext() {
     this._ensureEditorShell();
-    this.style.direction = "ltr";
     this._refreshEditorShellClasses();
     if (this._editorUsePathBtn) {
       this._editorUsePathBtn.textContent = maverickEditorI18n("ui.use_current_view_for_home_button");
