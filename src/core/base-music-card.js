@@ -1760,7 +1760,6 @@ export function createMaverickBaseMusicCard({
 
     _languageShortLabel(value = "") {
       const code = this._languageBaseCode(value);
-      if (code === "he") return "עב";
       return code ? code.slice(0, 2).toUpperCase() : "EN";
     }
 

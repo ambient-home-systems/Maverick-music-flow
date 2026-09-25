@@ -1910,7 +1910,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return [
       "morning", "sunrise", "coffee", "breakfast", "wake", "wakeup", "wake up",
       "calm", "soft", "easy", "acoustic", "chill", "lofi", "lo-fi", "pleasant",
-      "בוקר", "זריחה", "קפה", "ארוחת בוקר", "יקיצה", "רגוע", "רך", "נעים", "אקוסטי", "צ׳יל", "שקט",
     ];
   }
 
