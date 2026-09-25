@@ -363,7 +363,6 @@ describe("runtime baseline", () => {
     card._closeMobileMenu = vi.fn();
     card._closeMobileQueueActionMenu = vi.fn();
     card._closeMobileVolumePresets = vi.fn();
-    card._closeSmartVoiceConfirm = vi.fn();
     card._closeControlRoom = vi.fn();
     card._persistMobileAppearance = vi.fn();
     card._state.mobileLayoutMode = "edge_to_edge";

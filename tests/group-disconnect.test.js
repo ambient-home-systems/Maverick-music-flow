@@ -22,7 +22,7 @@ describe("group disconnect failure", () => {
     root.innerHTML = '<section class="volume-wheel-popover"></section>';
     const card = {_state: {menuOpen:true, menuPage:"group_volume"}, shadowRoot:root,
       $:()=>null, _shortenManualFrontPlayerHold:()=>{}, _manualFrontDefaultHoldMs:()=>0,
-      _closeMobileQueueActionMenu:()=>{}, _closeSmartVoiceConfirm:()=>{}, _syncCompactMenuOverlayState:()=>{}};
+      _closeMobileQueueActionMenu:()=>{}, _syncCompactMenuOverlayState:()=>{}};
     prototype._closeMobileMenu.call(card);
     expect(root.querySelector(".volume-wheel-popover")).toBeNull();
     expect(card._state.menuOpen).toBe(false);

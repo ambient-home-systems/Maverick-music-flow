@@ -26,6 +26,26 @@ import {
   screensaverSettingsPillsHtml, screensaverTimeoutSeconds, syncScreensaverClockVars, syncScreensaverDynamicArtwork, syncScreensaverUi,
 } from "./core/media/screensaver.js";
 import { lyricsFontScale, lyricsSessionActive, lyricsSyncOffsetMs, openLyricsModal, syncLyricsForCurrentTrack } from "./core/media/lyrics.js";
+import {
+  bindEmptyVoiceButton,
+  bindSmartVoiceBackdrop,
+  closeSmartVoiceConfirm,
+  emptyVoiceButtonHtml,
+  flowAssistantLabel,
+  handleVoiceSettingsChange,
+  handleVoiceSettingsClick,
+  speechRecognitionCtor,
+  startControlRoomLibraryVoice,
+  startMobileVoiceSearch,
+  startVoiceAssistantCommand,
+  syncVoiceAssistantDialog,
+  voiceAssistantAgentId,
+  voiceAssistantEnabled,
+  voiceAssistantFabHtml,
+  voiceAssistantMode,
+  voiceAssistantSettingsSectionHtml,
+  voiceAssistantSpeakFeedbackEnabled,
+} from "./core/media/voice.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -93,7 +113,6 @@ import * as MaverickMediaHistoryFoundationSource from "./core/media/history.js";
 import * as MaverickEngineFoundationSource from "./core/engine-client.js";
 import { ENGINE_REST_COMMAND_PATH, ENGINE_EVENT_TYPE, ENGINE_SCREENSAVER_PATH } from "./core/engine-client.js";
 import * as MaverickRevisionedSnapshotsFoundationSource from "./core/state/revisioned-snapshots.js";
-import * as MaverickVoiceMatchingFoundation from "./core/voice-assistant-matching.js";
 import {
   countryFlagEmoji as maverickCountryFlagEmoji,
   radioBrowserCountryLabel as maverickRadioBrowserCountryLabel,
@@ -967,7 +986,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._closeMobileMenu?.();
     this._closeMobileQueueActionMenu?.();
     this._closeMobileVolumePresets?.();
-    this._closeSmartVoiceConfirm?.();
+    closeSmartVoiceConfirm(this);
     this._closeControlRoom?.({ silent: true });
     this._state.mobileLayoutMode = "full";
     this._state.mobileEdgeToEdge = false;
@@ -983,7 +1002,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._closeMobileMenu?.();
     this._closeMobileQueueActionMenu?.();
     this._closeMobileVolumePresets?.();
-    this._closeSmartVoiceConfirm?.();
+    closeSmartVoiceConfirm(this);
     this._closeControlRoom?.({ silent: true });
     this._state.mobileLayoutMode = "edge_to_edge";
     this._state.mobileEdgeToEdge = false;
@@ -3037,10 +3056,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_volume_step_buttons"), JSON.stringify(this._mobileVolumeStepButtonsEnabled())); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_volume_step_percent"), String(this._mobileVolumeStepPercent())); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_mic_mode"), this._mobileMicMode()); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_enabled"), JSON.stringify(this._voiceAssistantEnabled())); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_mode"), this._voiceAssistantMode()); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_agent_id"), this._voiceAssistantAgentId()); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_speak_feedback"), JSON.stringify(this._voiceAssistantSpeakFeedbackEnabled())); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_enabled"), JSON.stringify(voiceAssistantEnabled(this))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_mode"), voiceAssistantMode(this)); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_agent_id"), voiceAssistantAgentId(this)); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_speak_feedback"), JSON.stringify(voiceAssistantSpeakFeedbackEnabled(this))); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_library_tabs"), JSON.stringify(this._mobileLibraryTabs())); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_library_favorites_tabs"), JSON.stringify(this._libraryFavoritesOnlyTabs())); } catch (_) {}
     try {
@@ -3111,42 +3130,27 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return MaverickMobileSettingsFoundation.normalizeHomeShortcutPath(this._state.mobileHomeShortcutPath, { leadingSlash: true });
   }
 
+  // Voice facade: screensaver.js and announcements.js reach voice through
+  // the card so that voice.js stays the only one of those modules importing
+  // the other. Everything else calls core/media/voice.js directly.
+  _speechRecognitionCtor() {
+    return speechRecognitionCtor();
+  }
+
   _voiceAssistantEnabled() {
-    return this._state.voiceAssistantEnabled === true;
+    return voiceAssistantEnabled(this);
   }
 
-  _voiceAssistantMode() {
-    return MaverickMobileSettingsFoundation.normalizeVoiceAssistantMode(this._state.voiceAssistantMode);
+  _flowAssistantLabel() {
+    return flowAssistantLabel(this);
   }
 
-  _voiceAssistantAgentId() {
-    return String(this._state.voiceAssistantAgentId || "").trim();
+  _startVoiceAssistantCommand(options = {}) {
+    return startVoiceAssistantCommand(this, options);
   }
 
-  _voiceAssistantSpeakFeedbackEnabled() {
-    return this._state.voiceAssistantSpeakFeedback === true;
-  }
-
-  _voiceAssistantAgentOptions() {
-    const options = [{
-      value: "",
-      label: this._i18n("ui.default_assist_agent"),
-    }];
-    const current = this._voiceAssistantAgentId();
-    const states = Object.values(this._hass?.states || {})
-      .filter((entity) => entity?.entity_id?.startsWith?.("conversation."))
-      .map((entity) => ({
-        value: entity.entity_id,
-        label: entity.attributes?.friendly_name || entity.entity_id,
-      }))
-      .sort((left, right) => String(left.label).localeCompare(String(right.label), undefined, { sensitivity: "base" }));
-    states.forEach((option) => {
-      if (!options.some((item) => item.value === option.value)) options.push(option);
-    });
-    if (current && !options.some((item) => item.value === current)) {
-      options.push({ value: current, label: current });
-    }
-    return options;
+  _syncVoiceAssistantDialog() {
+    return syncVoiceAssistantDialog(this);
   }
 
   _ambientLightEnabled() {
@@ -3463,7 +3467,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     });
     bindButton("mobileVoiceAssistantBtn", (e) => {
       if (!this._pressUiButton(e.currentTarget, [8, 18, 8])) return;
-      this._startVoiceAssistantCommand();
+      startVoiceAssistantCommand(this);
     });
     bindButton("mobileDisconnectAllBtn", (e) => {
       if (!this._pressUiButton(e.currentTarget, [12, 18])) return;
@@ -4112,7 +4116,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       { value: "queue", icon: "queue", label: this._i18n("ui.queue_2") },
       { value: "queue_flow", icon: "queue_flow", label: this._queueFlowLabel() },
       { value: "radio", icon: "radio", label: this._i18n("ui.quick_mix") },
-      { value: "voice", icon: "mic", label: this._flowAssistantLabel() },
+      { value: "voice", icon: "mic", label: flowAssistantLabel(this) },
       { value: "history", icon: "history", label: this._i18n("ui.history") },
       { value: "info", icon: "info", label: this._i18n("ui.info") },
       { value: "disconnect_all", icon: "close", label: this._cleanAllLabel(), tone: "danger" },
@@ -4147,7 +4151,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       case "radio":
         return `<button class="mobile-art-fab" id="mobileRandomBtn" title="${this._i18n("ui.quick_mix")}">${this._iconSvg("radio")}</button>`;
       case "voice":
-        return `<button class="mobile-art-fab voice-assistant-fab ${this._state.voiceAssistantListening ? "listening" : ""}" id="mobileVoiceAssistantBtn" title="${this._esc(this._flowAssistantLabel())}" aria-label="${this._esc(this._flowAssistantLabel())}">${this._iconSvg("mic")}</button>`;
+        return voiceAssistantFabHtml(this);
       case "history":
         return historyToggleButtonHtml || `<button class="mobile-art-fab history-toggle-fab empty-history-fab" id="historyToggleFab" title="${this._i18n("ui.recently_played_2")}" aria-expanded="false">${this._iconSvg("history")}</button>`;
       case "info":
@@ -4175,7 +4179,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (this._isHotelMode()) return ["search"];
     const blocked = this._isLocalSendspinPlayer(player) ? new Set(["like", "radio"]) : null;
     return (Array.isArray(actions) ? actions : this._mobileQuickActions())
-      .filter((action) => action !== "voice" || this._voiceAssistantEnabled())
+      .filter((action) => action !== "voice" || voiceAssistantEnabled(this))
       .filter((action) => action !== "queue_flow" || this._mobileQueueFlowEnabled())
       .filter((action) => !blocked?.has(action));
   }
@@ -4219,7 +4223,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       rowActions.join(","),
       historyToggleButtonHtml ? "history-inline" : "history-floating",
       this._enabledAuxiliaryButtons().map((button) => `${button.index}:${button.icon}:${button.name}`).join("|"),
-      this._voiceAssistantEnabled() ? "voice-on" : "voice-off",
+      voiceAssistantEnabled(this) ? "voice-on" : "voice-off",
     ].join(";");
     const needsRefresh = options.force === true
       || host.dataset.maverickActionSignature !== signature
@@ -6315,7 +6319,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._syncRecentHistoryUi(true);
     syncSleepTimerChip(this);
     this._syncControlRoomUi();
-    this._syncVoiceAssistantDialog();
+    syncVoiceAssistantDialog(this);
     this._restoreMobileMenuAfterBuild("build");
     bindScreensaver(this);
     this.$("btnPlay")?.addEventListener("click", () => this._togglePlay());
@@ -6716,7 +6720,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         e.preventDefault();
         e.stopPropagation();
         this._pressUiButton(libraryMicBtn);
-        this._startControlRoomLibraryVoice();
+        startControlRoomLibraryVoice(this);
         return;
       }
       const selectionToggleBtn = e.target.closest("[data-room-selection-toggle]");
@@ -7038,9 +7042,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.$("mobileVolumePresetModal")?.addEventListener("click", (e) => {
       if (e.target === this.$("mobileVolumePresetModal")) this._closeMobileVolumePresets();
     });
-    this.$("mobileSmartVoiceModal")?.addEventListener("click", (e) => {
-      if (e.target === this.$("mobileSmartVoiceModal")) this._closeSmartVoiceConfirm();
-    });
+    bindSmartVoiceBackdrop(this);
     this.$("mobileVolumePresetSheet")?.addEventListener("click", this._boundMobileMenuClick);
     this.$("mobileQueueActionSheet")?.addEventListener("click", (event) => handleMediaActionClick(this, event));
     this.$("mobileQueueActionSheet")?.addEventListener("change", async (e) => {
@@ -7656,7 +7658,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._layoutModeConfig(),
         emptyQuickActions.join(","),
         this._enabledAuxiliaryButtons().map((button) => `${button.index}:${button.icon}:${button.name}`).join("|"),
-        this._voiceAssistantEnabled() ? "voice-on" : "voice-off",
+        voiceAssistantEnabled(this) ? "voice-on" : "voice-off",
       ].join(";");
       if (emptyActions.className !== emptyClassName) emptyActions.className = emptyClassName;
       if (emptyActions.dataset.maverickEmptyActionSignature !== emptySignature) {
@@ -7677,9 +7679,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (this.$("bigTotalTime")) this.$("bigTotalTime").textContent = "0:00";
     if (this.$("progressFill")) this.$("progressFill").style.width = "0%";
     if (!wasEmpty || !this.$("surpriseMeBtn") || displayArt || disableEmptyAction) {
-      const voiceButtonHtml = !disableEmptyAction && this._voiceAssistantEnabled()
-        ? `<button class="empty-voice-btn ${this._state.voiceAssistantListening ? "listening" : ""}" id="emptyVoiceAssistantBtn" title="${this._esc(this._flowAssistantLabel())}" aria-label="${this._esc(this._flowAssistantLabel())}">${this._iconSvg("mic")}</button>`
-        : "";
+      const voiceButtonHtml = disableEmptyAction ? "" : emptyVoiceButtonHtml(this);
       const magicVisualHtml = disableEmptyAction
         ? `<div class="surprise-me-card compact magic-empty disabled ${displayArt ? "has-art" : ""}" id="surpriseMeBtn" aria-hidden="true">
             ${displayArt
@@ -7709,12 +7709,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           if (!ok) this._hideEmptyPlaybackLoading();
         }, { lockMs: 1600 });
       });
-      if (!disableEmptyAction) this.$("emptyVoiceAssistantBtn")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!this._lockUiButton(e.currentTarget, [8, 18, 8], { lockMs: 1200, disabled: false })) return;
-        this._startVoiceAssistantCommand({ ignoreWhenListening: true });
-      });
+      if (!disableEmptyAction) bindEmptyVoiceButton(this);
     }
     if (!emptyActions?.classList.contains("empty-quick-actions")) this._setMobileRandomFabVisible(false);
     this._setMobileRandomFabDisabled(false);
@@ -8440,7 +8435,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._closeMobileQueueActionMenu();
     clearTimeout(this._mobileQueueArtworkPrefetchTimer);
     this._mobileQueueArtworkPrefetchTimer = null;
-    this._closeSmartVoiceConfirm();
+    closeSmartVoiceConfirm(this);
     this._syncCompactMenuOverlayState();
     this.$("mobileMenu")?.classList.remove("open", "search-open", "discovery-open", "action-fullscreen-open", "library-fullscreen-open");
     this.$("homeShortcutFab")?.removeAttribute("hidden");
@@ -10141,7 +10136,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ${this._settingsAccordionWrap("display", this._i18n("ui.settings_section_display", {}, "Display"), this._settingsSectionDisplay())}
       ${this._settingsAccordionWrap("players_library", this._i18n("ui.settings_section_players_library", {}, "Players & Library"), this._settingsSectionPlayersLibrary())}
       ${this._settingsAccordionWrap("quick_actions_bar", this._i18n("ui.settings_section_quick_actions_bar", {}, "Quick Actions Bar"), this._settingsSectionQuickActionsBar())}
-      ${this._settingsAccordionWrap("voice_assistant", this._i18n("ui.settings_section_voice_assistant", {}, "Voice Assistant"), this._settingsSectionVoiceAssistant())}
+      ${this._settingsAccordionWrap("voice_assistant", this._i18n("ui.settings_section_voice_assistant", {}, "Voice Assistant"), voiceAssistantSettingsSectionHtml(this))}
       ${this._settingsAccordionWrap("smart_home", this._i18n("ui.settings_section_smart_home", {}, "Smart Home"), this._settingsSectionSmartHome())}
       ${this._settingsAccordionWrap("announcements", this._i18n("ui.settings_section_announcements", {}, "Announcements"), announcementsSettingsSectionHtml(this))}
       ${this._settingsAccordionWrap("music_assistant", this._i18n("ui.settings_section_music_assistant", {}, "Music Assistant"), this._settingsSectionMusicAssistant())}
@@ -10460,40 +10455,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         </div>`;
   }
 
-  _settingsSectionVoiceAssistant() {
-    const voiceAssistantEnabled = this._voiceAssistantEnabled();
-    const voiceAssistantMode = this._voiceAssistantMode();
-    const voiceAssistantSpeakFeedback = this._voiceAssistantSpeakFeedbackEnabled();
-    const voiceAssistantAgentOptions = this._voiceAssistantAgentOptions();
-    return `
-        <div class="settings-group voice-assistant-settings-card">
-          <div class="settings-label">${this._flowAssistantLabel()}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.enabled"), "on", voiceAssistantEnabled ? "on" : "off", "data-setting-voice-assistant")}
-            ${this._settingsPill(this._i18n("ui.disabled"), "off", voiceAssistantEnabled ? "on" : "off", "data-setting-voice-assistant")}
-          </div>
-          <div class="settings-label">${this._i18n("ui.voice_assistant_mode")}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.hybrid_music_plus_assist"), "hybrid", voiceAssistantMode, "data-setting-voice-assistant-mode")}
-            ${this._settingsPill(this._i18n("ui.music_only"), "music", voiceAssistantMode, "data-setting-voice-assistant-mode")}
-            ${this._settingsPill(this._i18n("ui.assist_only"), "assist", voiceAssistantMode, "data-setting-voice-assistant-mode")}
-          </div>
-          <div class="settings-hint">${this._i18n("ui.hybrid_handles_music_locally_and_sends_unknown_commands_to_assist")}</div>
-          <div class="settings-label">${this._i18n("ui.assist_agent")}</div>
-          <select class="media-sort-select settings-select" id="voiceAssistantAgentSelect" aria-label="${this._esc(this._i18n("ui.assist_agent"))}">
-            ${voiceAssistantAgentOptions.map((option) => `
-              <option value="${this._esc(option.value)}" ${option.value === this._voiceAssistantAgentId() ? "selected" : ""}>${this._esc(option.label)}</option>
-            `).join("")}
-          </select>
-          <div class="settings-hint">${this._i18n("ui.optional_assist_agent_leave_empty_for_home_assistant_default")}</div>
-          <div class="settings-label">${this._i18n("ui.voice_feedback")}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.enabled"), "on", voiceAssistantSpeakFeedback ? "on" : "off", "data-setting-voice-feedback")}
-            ${this._settingsPill(this._i18n("ui.disabled"), "off", voiceAssistantSpeakFeedback ? "on" : "off", "data-setting-voice-feedback")}
-          </div>
-          <div class="settings-hint">${this._i18n("ui.speak_voice_assistant_responses_out_loud")}</div>
-        </div>`;
-  }
 
   _settingsSectionSmartHome() {
     const ambientEntitiesText = this._ambientLightEntities().join(", ");
@@ -11967,7 +11928,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _librarySearchHomeHtml() {
     const q = this._state.mediaQuery || "";
-    const voiceSupported = this._isVoiceSearchSupported();
+    const voiceSupported = !!speechRecognitionCtor();
     return `
       <div class="media-home-shell">
         <div class="media-search-zone">
@@ -12033,1117 +11994,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     `;
   }
 
-  _speechRecognitionCtor() {
-    if (typeof window === "undefined") return null;
-    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-  }
-
-  _isVoiceSearchSupported() {
-    return !!this._speechRecognitionCtor();
-  }
-
-  _normalizeSmartVoiceCandidates(results = {}) {
-    const order = [
-      ["playlists", "playlist"],
-      ["tracks", "track"],
-      ["albums", "album"],
-      ["artists", "artist"],
-      ["radio", "radio"],
-      ["podcasts", "podcast"],
-    ];
-    const items = [];
-    order.forEach(([groupKey, mediaType]) => {
-      const group = Array.isArray(results?.[groupKey]) ? results[groupKey] : [];
-      group.forEach((item) => {
-        const uri = String(item?.uri || item?.media_item?.uri || "").trim();
-        if (!uri) return;
-        const mediaItem = item?.media_item || {};
-        const artist = this._artistName(item)
-          || this._artistName(mediaItem)
-          || item?.artist
-          || item?.artist_str
-          || item?.media_artist
-          || mediaItem?.artist
-          || mediaItem?.artist_str
-          || mediaItem?.media_artist
-          || "";
-        items.push({
-          uri,
-          media_type: this._voiceAssistantCanonicalMediaType(item?.media_type || item?.type || mediaType, mediaType),
-          name: item?.name || item?.title || mediaItem?.name || mediaItem?.title || uri,
-          artist,
-          album: item?.album?.name || item?.album || mediaItem?.album?.name || mediaItem?.album || "",
-          image: this._artUrl(item) || item?.image || item?.image_url || mediaItem?.image || mediaItem?.image_url || "",
-          _maverickVoiceFocused: item?._maverickVoiceFocused === true,
-        });
-      });
-    });
-    return items;
-  }
-
-  _currentSmartVoiceCandidate() {
-    const state = this._state.mobileSmartVoice || null;
-    if (!state?.candidates?.length) return null;
-    const index = Math.max(0, Math.min(state.candidates.length - 1, Number(state.index || 0)));
-    return state.candidates[index] || null;
-  }
-
-  _stopSmartVoiceCountdown() {
-    clearInterval(this._mobileSmartVoiceTimer);
-    this._mobileSmartVoiceTimer = null;
-  }
-
-  _closeSmartVoiceConfirm() {
-    this._stopSmartVoiceCountdown();
-    this._state.mobileSmartVoice = null;
-    this.$("mobileSmartVoiceModal")?.classList.remove("open");
-    const host = this.$("mobileSmartVoiceSheet");
-    if (host) host.innerHTML = "";
-  }
-
-  _renderSmartVoiceConfirm() {
-    const host = this.$("mobileSmartVoiceSheet");
-    const state = this._state.mobileSmartVoice || null;
-    const candidate = this._currentSmartVoiceCandidate();
-    if (!host || !state || !candidate) return;
-    const targetName = this._selectedPlayerName();
-    const subtitle = [candidate.artist, candidate.album].filter(Boolean).join(" · ");
-      host.innerHTML = `
-      <div class="smart-voice-head">
-        <div class="smart-voice-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("smart-voice-logo")}</div>
-        <div class="smart-voice-title">${this._esc(this._i18n("ui.smart_voice_selection"))}</div>
-        <div class="smart-voice-target">${this._esc(this._i18n("ui.player_2"))}: ${this._esc(targetName)}</div>
-      </div>
-      <div class="smart-voice-card">
-        <div class="smart-voice-chip">${this._iconSvg("mic")}<span>${this._esc(state.query || "")}</span></div>
-        <div class="smart-voice-name">${this._esc(candidate.name || "")}</div>
-        <div class="smart-voice-sub">${this._esc(subtitle || this._i18n("ui.ready_to_play"))}</div>
-        <div class="smart-voice-countdown"><span>${this._esc(String(state.countdown || 0))}</span></div>
-      </div>
-      <div class="confirm-actions smart-voice-actions">
-        <button class="menu-item" id="smartVoicePlayNowBtn">${this._esc(this._i18n("ui.play"))}</button>
-        <button class="menu-item" id="smartVoiceOtherBtn">${this._esc(this._i18n("ui.other"))}</button>
-        <button class="menu-item" id="smartVoiceCancelBtn">${this._esc(this._i18n("ui.cancel_2"))}</button>
-      </div>
-    `;
-    host.querySelector("#smartVoiceCancelBtn")?.addEventListener("click", () => this._closeSmartVoiceConfirm());
-    host.querySelector("#smartVoiceOtherBtn")?.addEventListener("click", () => this._chooseAnotherSmartVoiceCandidate());
-    host.querySelector("#smartVoicePlayNowBtn")?.addEventListener("click", () => this._playSmartVoiceCandidateNow());
-  }
-
-  _openSmartVoiceConfirm(query = "", candidates = []) {
-    if (!Array.isArray(candidates) || !candidates.length) {
-      this._toastError(this._i18n("ui.no_matching_content_was_found"));
-      return;
-    }
-    this._state.mobileSmartVoice = {
-      query,
-      candidates,
-      index: 0,
-      countdown: 5,
-    };
-    this.$("mobileSmartVoiceModal")?.classList.add("open");
-    this._renderSmartVoiceConfirm();
-    this._stopSmartVoiceCountdown();
-    this._mobileSmartVoiceTimer = window.setInterval(() => {
-      const state = this._state.mobileSmartVoice;
-      if (!state) return this._closeSmartVoiceConfirm();
-      state.countdown = Number(state.countdown || 0) - 1;
-      if (state.countdown <= 0) {
-        this._playSmartVoiceCandidateNow();
-        return;
-      }
-      this._renderSmartVoiceConfirm();
-    }, 1000);
-  }
-
-  _chooseAnotherSmartVoiceCandidate() {
-    const state = this._state.mobileSmartVoice;
-    if (!state?.candidates?.length) return;
-    if (state.candidates.length === 1) {
-      state.countdown = 5;
-      this._renderSmartVoiceConfirm();
-      return;
-    }
-    const currentUri = this._currentSmartVoiceCandidate()?.uri || "";
-    const pool = state.candidates.filter((item) => item?.uri && item.uri !== currentUri);
-    const next = pool[Math.floor(Math.random() * pool.length)] || state.candidates[(Number(state.index || 0) + 1) % state.candidates.length];
-    const nextIndex = Math.max(0, state.candidates.findIndex((item) => item?.uri === next?.uri));
-    state.index = nextIndex;
-    state.countdown = 5;
-    this._hapticTap([8]);
-    this._renderSmartVoiceConfirm();
-  }
-
-  async _playSmartVoiceCandidateNow() {
-    const candidate = this._currentSmartVoiceCandidate();
-    if (!candidate?.uri) {
-      this._closeSmartVoiceConfirm();
-      return;
-    }
-    this._stopSmartVoiceCountdown();
-    await this._playMedia(candidate.uri, candidate.media_type || "playlist", "play", { label: candidate.name || "" });
-    this._closeSmartVoiceConfirm();
-    this._closeMobileMenu();
-  }
-
-  _voiceAssistantRecognitionLanguage() {
-    try {
-      const languages = Array.isArray(window.navigator?.languages)
-        ? window.navigator.languages
-        : [window.navigator?.language || ""];
-      if (languages.some((language) => String(language || "").toLowerCase().startsWith("he"))) return "he-IL";
-    } catch (_) {}
-    return "en-US";
-  }
-
-  _voiceAssistantAssistLanguage() {
-    return this._voiceAssistantRecognitionLanguage().toLowerCase().startsWith("he") ? "he" : "en";
-  }
-
-  _normalizeVoiceCommandText(value = "") {
-    return MaverickVoiceMatchingFoundation.normalizeVoiceCommandText(value);
-  }
-
-  _voiceCommandHasAny(normalizedText = "", terms = []) {
-    return MaverickVoiceMatchingFoundation.voiceCommandHasAny(normalizedText, terms);
-  }
-
-  _voiceAssistantAliasIndex(normalizedText = "", alias = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantAliasIndex(normalizedText, alias);
-  }
-
-  _voiceAssistantPlayerPool() {
-    this._loadPlayers();
-    return (this._state.players || [])
-      .filter(MaverickPlayersFoundation.isPlayerAvailable)
-      .filter((player) => this._isMusicAssistantPlayer(player))
-      .filter((player) => !this._isLikelyBrowserPlayer(player) || this._isLocalSendspinPlayer(player))
-      .filter((player) => this._isAvailableThisDevicePlayer(player));
-  }
-
-  _voiceAssistantPlayerAliases(player = null) {
-    if (!player) return [];
-    const attrs = player.attributes || {};
-    const raw = player.__maverickRawPlayer || {};
-    const candidates = [
-      player.entity_id,
-      String(player.entity_id || "").replace(/^media_player\./, "").replace(/_/g, " "),
-      attrs.friendly_name,
-      attrs.name,
-      attrs.display_name,
-      attrs.mass_player_id,
-      attrs.player_id,
-      raw.name,
-      raw.display_name,
-      raw.friendly_name,
-    ];
-    const aliases = [];
-    candidates.forEach((value) => {
-      const alias = this._normalizeVoiceCommandText(value);
-      if (!alias || alias.length < 2) return;
-      if (["media player", "music assistant", "homeii direct", "homeii flow"].includes(alias)) return;
-      if (!aliases.includes(alias)) aliases.push(alias);
-    });
-    return aliases.sort((left, right) => right.length - left.length);
-  }
-
-  _voiceAssistantMentionedPlayers(transcript = "") {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    if (!normalized) return [];
-    const matches = [];
-    this._voiceAssistantPlayerPool().forEach((player) => {
-      this._voiceAssistantPlayerAliases(player).forEach((alias) => {
-        const index = this._voiceAssistantAliasIndex(normalized, alias);
-        if (index < 0) return;
-        matches.push({ player, alias, index, end: index + alias.length });
-      });
-    });
-    const ranges = [];
-    const seen = new Set();
-    return matches
-      .sort((left, right) => left.index - right.index || right.alias.length - left.alias.length)
-      .filter((match) => {
-        if (!match.player?.entity_id || seen.has(match.player.entity_id)) return false;
-        const overlaps = ranges.some(([start, end]) => match.index < end && match.end > start);
-        if (overlaps) return false;
-        seen.add(match.player.entity_id);
-        ranges.push([match.index, match.end]);
-        return true;
-      })
-      .map((match) => match.player);
-  }
-
-  _voiceAssistantDefaultPlayer(excludeEntityIds = [], { allowIdle = false } = {}) {
-    const excluded = new Set((Array.isArray(excludeEntityIds) ? excludeEntityIds : []).filter(Boolean));
-    const players = this._voiceAssistantPlayerPool();
-    const selected = this._getSelectedPlayer();
-    if (selected?.entity_id && !excluded.has(selected.entity_id) && players.some((player) => player.entity_id === selected.entity_id)) return selected;
-    return players.find((player) => player.state === "playing" && !excluded.has(player.entity_id))
-      || (allowIdle ? players.find((player) => !excluded.has(player.entity_id)) : null)
-      || null;
-  }
-
-  _resolveVoiceAssistantTarget(transcript = "") {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    const players = this._voiceAssistantPlayerPool();
-    const explicit = players.find((player) => this._voiceAssistantPlayerAliases(player)
-      .some((alias) => normalized.includes(alias)));
-    if (explicit) return { player: explicit, explicit: true };
-    const selected = this._getSelectedPlayer();
-    if (selected && players.some((player) => player.entity_id === selected.entity_id)) {
-      return { player: selected, explicit: false };
-    }
-    return {
-      player: players.find((player) => player.state === "playing") || players[0] || null,
-      explicit: false,
-    };
-  }
-
-  _stripVoiceAssistantPlayerAliases(text = "", player = null) {
-    return MaverickVoiceMatchingFoundation.stripVoiceAssistantPlayerAliases(text, this._voiceAssistantPlayerAliases(player));
-  }
-
-  _extractVoiceAssistantMusicQuery(transcript = "", player = null) {
-    return MaverickVoiceMatchingFoundation.extractVoiceAssistantMusicQuery(transcript, this._voiceAssistantPlayerAliases(player));
-  }
-
-  _voiceAssistantQueueIntent(transcript = "") {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    if (!normalized) return null;
-    const hasQueueWord = this._voiceCommandHasAny(normalized, ["queue", "current queue", "play queue", "music queue"]);
-    const hasTransferWord = this._voiceCommandHasAny(normalized, ["transfer", "move", "send", "move queue", "transfer queue"]);
-    const mentioned = this._voiceAssistantMentionedPlayers(transcript);
-    if (!hasTransferWord || (!hasQueueWord && mentioned.length < 2)) return null;
-    let sourcePlayer = null;
-    let targetPlayer = null;
-    if (mentioned.length >= 2) {
-      sourcePlayer = mentioned[0];
-      targetPlayer = mentioned[1];
-    } else if (mentioned.length === 1) {
-      targetPlayer = mentioned[0];
-      sourcePlayer = this._voiceAssistantDefaultPlayer([targetPlayer.entity_id]);
-    }
-    return {
-      type: "queue_transfer",
-      sourcePlayerId: sourcePlayer?.entity_id || "",
-      targetPlayerId: targetPlayer?.entity_id || "",
-    };
-  }
-
-  _voiceAssistantSpeakerGroupIntent(transcript = "") {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    if (!normalized) return null;
-    const mentioned = this._voiceAssistantMentionedPlayers(transcript);
-    const hasSpeakerWord = this._voiceCommandHasAny(normalized, ["speaker", "speakers", "player", "players", "room", "rooms"]);
-    const hasGroupWord = this._voiceCommandHasAny(normalized, ["group", "group speakers", "join", "connect speakers", "link speakers", "ungroup", "disconnect group", "speaker group"]);
-    const hasDisconnectWord = this._voiceCommandHasAny(normalized, ["ungroup", "disconnect group", "disconnect speakers", "unjoin", "clear group"]);
-    const hasConnectWord = this._voiceCommandHasAny(normalized, ["group", "join", "connect", "link", "pair", "activate speakers", "start speakers"]);
-    const allGroups = this._voiceCommandHasAny(normalized, ["all groups", "all speakers", "all players"]);
-    const speakerCountHint = this._voiceCommandHasAny(normalized, ["two speakers", "2 speakers"]);
-    if (hasDisconnectWord && (hasGroupWord || hasSpeakerWord || allGroups || mentioned.length)) {
-      if (allGroups) return { type: "group_disconnect_all" };
-      const player = mentioned[0] || this._voiceAssistantDefaultPlayer();
-      return { type: "group_disconnect", playerId: player?.entity_id || "" };
-    }
-    if (!hasConnectWord || (!hasGroupWord && !hasSpeakerWord && !speakerCountHint && mentioned.length < 2)) return null;
-    let primaryPlayer = null;
-    let memberPlayers = [];
-    if (mentioned.length >= 2) {
-      primaryPlayer = mentioned[0];
-      memberPlayers = mentioned.slice(1);
-    } else if (mentioned.length === 1) {
-      primaryPlayer = this._voiceAssistantDefaultPlayer([mentioned[0].entity_id]);
-      memberPlayers = primaryPlayer ? [mentioned[0]] : [];
-    }
-    return {
-      type: "group_connect",
-      primaryPlayerId: primaryPlayer?.entity_id || "",
-      memberPlayerIds: memberPlayers.map((player) => player?.entity_id).filter(Boolean),
-    };
-  }
-
-  _voiceAssistantVolumeIntent(normalizedText = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantVolumeIntent(normalizedText);
-  }
-
-  _voiceAssistantCommandIntent(transcript = "", player = null, { forceMusic = false } = {}) {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    if (!normalized) return { type: "unknown" };
-    const queueIntent = this._voiceAssistantQueueIntent(transcript);
-    if (queueIntent) return queueIntent;
-    const speakerGroupIntent = this._voiceAssistantSpeakerGroupIntent(transcript);
-    if (speakerGroupIntent) return speakerGroupIntent;
-    const volumeIntent = this._voiceAssistantVolumeIntent(normalized);
-    if (volumeIntent) return volumeIntent;
-    if (this._voiceCommandHasAny(normalized, ["next", "skip"])) return { type: "next" };
-    if (this._voiceCommandHasAny(normalized, ["previous", "back", "last song"])) return { type: "previous" };
-    if (this._voiceCommandHasAny(normalized, ["pause", "hold"])) return { type: "pause" };
-    if (this._voiceCommandHasAny(normalized, ["stop", "turn off music"])) return { type: "stop" };
-    if (this._voiceCommandHasAny(normalized, ["resume", "continue", "play music"])) return { type: "resume" };
-    const hasMusicVerb = this._voiceCommandHasAny(normalized, [
-      "play",
-      "put on",
-      "listen to",
-      "start music",
-    ]);
-    if (hasMusicVerb || forceMusic) {
-      const query = this._extractVoiceAssistantMusicQuery(transcript, player);
-      return query ? { type: "music", query } : { type: "resume" };
-    }
-    return { type: "unknown" };
-  }
-
-  _voiceAssistantRequestedMediaType(query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantRequestedMediaType(query);
-  }
-
-  _voiceAssistantCanonicalMediaType(value = "", fallback = "track") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantCanonicalMediaType(value, fallback);
-  }
-
-  _voiceAssistantImportantMusicTokens(value = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantImportantMusicTokens(value);
-  }
-
-  _voiceAssistantCleanMusicPhrase(value = "", { allowStopWordFallback = false } = {}) {
-    return MaverickVoiceMatchingFoundation.voiceAssistantCleanMusicPhrase(value, { allowStopWordFallback });
-  }
-
-  _voiceAssistantLatinPhoneticKeys(value = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantLatinPhoneticKeys(value);
-  }
-
-  _voiceAssistantTextHasToken(normalizedText = "", token = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantTextHasToken(normalizedText, token);
-  }
-
-  _voiceAssistantMatchedTokenCount(tokens = [], normalizedText = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantMatchedTokenCount(tokens, normalizedText);
-  }
-
-  _voiceAssistantMusicQueryParts(query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantMusicQueryParts(query);
-  }
-
-  _voiceAssistantFocusedMusicQuery(query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantFocusedMusicQuery(query);
-  }
-
-  async _voiceAssistantFocusedMusicSearch(query = "", mediaType = "track") {
-    const safeQuery = String(query || "").trim();
-    const type = this._voiceAssistantCanonicalMediaType(mediaType, "track");
-    if (!safeQuery) return this._emptySearchResults();
-    try {
-      const raw = await this._callService("search", { name: safeQuery, query: safeQuery, limit: 30, media_type: [type] });
-      return this._normalizeSearchResponse(raw);
-    } catch (_) {
-      try {
-        const raw2 = await this._callService("search", { name: safeQuery, limit: 30, media_type: type });
-        return this._normalizeSearchResponse(raw2);
-      } catch (_) {}
-    }
-    return this._emptySearchResults();
-  }
-
-  _markVoiceAssistantFocusedResults(results = {}) {
-    const out = this._emptySearchResults();
-    Object.keys(out).forEach((group) => {
-      out[group] = (Array.isArray(results?.[group]) ? results[group] : [])
-        .map((item) => ({ ...item, _maverickVoiceFocused: true }));
-    });
-    return out;
-  }
-
-  _voiceAssistantCandidateScore(candidate = {}, query = "", request = this._voiceAssistantRequestedMediaType(query)) {
-    return MaverickVoiceMatchingFoundation.voiceAssistantCandidateScore(candidate, query, request);
-  }
-
-  _voiceAssistantCandidateMatch(candidate = {}, query = "", request = this._voiceAssistantRequestedMediaType(query), index = 0) {
-    return MaverickVoiceMatchingFoundation.voiceAssistantCandidateMatch(candidate, query, request, index);
-  }
-
-  _voiceAssistantRankedCandidates(results = {}, query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantRankedCandidates(
-      this._normalizeSmartVoiceCandidates(results),
-      query,
-    );
-  }
-
-  _voiceAssistantBestCandidate(results = {}, query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantBestCandidate(
-      this._normalizeSmartVoiceCandidates(results),
-      query,
-    );
-  }
-
-  async _playVoiceAssistantMusic(query = "", player = null) {
-    const target = player || this._getSelectedPlayer();
-    if (!target?.entity_id) {
-      const message = this._i18n("ui.voice_command_no_player");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    const safeQuery = String(query || "").trim();
-    if (!safeQuery) {
-      const message = this._i18n("ui.voice_command_not_understood");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    this._toast(this._i18n("ui.voice_music_searching", { query: safeQuery }));
-    try {
-      let results = this._emptySearchResults();
-      try {
-        results = await this._search(safeQuery);
-      } catch (error) {
-        this._debugLog?.("warn", "[Maverick Music Voice] Music search failed", { query: safeQuery, error });
-      }
-      const requested = this._voiceAssistantRequestedMediaType(safeQuery);
-      const focusedQuery = this._voiceAssistantFocusedMusicQuery(safeQuery);
-      const focusedType = this._voiceAssistantCanonicalMediaType(requested?.type || "track", "track");
-      if (!this._hasSearchResults(results) && focusedQuery && focusedType) {
-        const focusedResults = await this._voiceAssistantFocusedMusicSearch(focusedQuery, focusedType);
-        results = this._mergeSearchResults(this._markVoiceAssistantFocusedResults(focusedResults), results);
-      }
-      const rankedCandidates = this._voiceAssistantRankedCandidates(results, safeQuery);
-      const candidate = rankedCandidates.find((match) => match.accepted && match.candidate?.uri)?.candidate
-        || rankedCandidates.find((match) => match.candidate?.uri)?.candidate
-        || this._normalizeSmartVoiceCandidates(results).find((item) => item?.uri)
-        || null;
-      if (!candidate?.uri) {
-        const message = this._i18n("ui.no_matching_content_was_found");
-        this._toastError(message);
-        return { handled: true, ok: false, message };
-      }
-      if (target.entity_id !== this._state.selectedPlayer) this._selectPlayer(target.entity_id, true);
-      const title = candidate.name || safeQuery;
-      this._updateVoiceAssistantDialog({ status: "processing", response: this._i18n("ui.voice_starting_playback", { title }) });
-      const mediaType = this._voiceAssistantCanonicalMediaType(candidate.media_type || focusedType, focusedType);
-      const played = await this._playMediaOnPlayer(target.entity_id, candidate.uri, mediaType, "play", {
-        label: title,
-        silent: true,
-      });
-      if (!played) {
-        const message = this._i18n("ui.could_not_play_label", { label: title });
-        this._toastError(message);
-        return { handled: true, ok: false, message };
-      }
-      return {
-        handled: true,
-        ok: true,
-        message: this._i18n("ui.voice_playing_result", { title }),
-        autoCloseMs: 1400,
-      };
-    } catch (error) {
-      const message = error?.message || this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-  }
-
-  async _runVoiceAssistantPlayerManagementCommand(intent = {}) {
-    const type = String(intent?.type || "");
-    if (!["queue_transfer", "group_connect", "group_disconnect", "group_disconnect_all"].includes(type)) return null;
-    try {
-      if (type === "queue_transfer") {
-        const sourcePlayerId = String(intent.sourcePlayerId || "").trim();
-        const targetPlayerId = String(intent.targetPlayerId || "").trim();
-        if (!sourcePlayerId || !targetPlayerId || sourcePlayerId === targetPlayerId) {
-          const message = this._i18n("ui.voice_queue_transfer_needs_players");
-          this._toastError(message);
-          return { handled: true, ok: false, message };
-        }
-        const ok = await this._transferQueueBetween(sourcePlayerId, targetPlayerId, { silent: true });
-        const source = this._controlRoomPlayerName(sourcePlayerId);
-        const target = this._controlRoomPlayerName(targetPlayerId);
-        const message = ok
-          ? this._i18n("ui.voice_queue_transferred_between", { source, target })
-          : this._i18n("ui.queue_action_failed");
-        (ok ? this._toastSuccess : this._toastError).call(this, message);
-        return { handled: true, ok, message, autoCloseMs: ok ? 1400 : 0 };
-      }
-      if (type === "group_connect") {
-        const primaryPlayerId = String(intent.primaryPlayerId || "").trim();
-        const memberPlayerIds = [...new Set((Array.isArray(intent.memberPlayerIds) ? intent.memberPlayerIds : []).filter((id) => id && id !== primaryPlayerId))];
-        if (!primaryPlayerId || !memberPlayerIds.length) {
-          const message = this._i18n("ui.voice_group_connect_needs_players");
-          this._toastError(message);
-          return { handled: true, ok: false, message };
-        }
-        const grouped = await this._applySpeakerGroupFor(primaryPlayerId, memberPlayerIds);
-        if (!grouped) {
-          const message = this._i18n("ui.select_at_least_two_players_to_create_a_group");
-          this._toastError(message);
-          return { handled: true, ok: false, message };
-        }
-        const primary = this._controlRoomPlayerName(primaryPlayerId);
-        const members = memberPlayerIds.map((entityId) => this._controlRoomPlayerName(entityId)).join(", ");
-        const message = this._i18n("ui.voice_group_connected_players", { primary, members });
-        this._toastSuccess(message);
-        this._timeout(() => {
-          this._loadPlayers();
-          this._refreshGroupingState();
-          if (this._state.menuOpen) this._renderMobileMenu();
-        }, 550);
-        return { handled: true, ok: true, message, autoCloseMs: 1400 };
-      }
-      if (type === "group_disconnect") {
-        const playerId = String(intent.playerId || "").trim();
-        if (!playerId) {
-          const message = this._i18n("ui.voice_group_disconnect_needs_player");
-          this._toastError(message);
-          return { handled: true, ok: false, message };
-        }
-        const ok = await this._clearSpeakerGroupFor(playerId);
-        const player = this._controlRoomPlayerName(playerId);
-        const message = ok
-          ? this._i18n("ui.voice_group_disconnected_player", { player })
-          : this._i18n("ui.player_groups_could_not_be_disconnected");
-        (ok ? this._toastSuccess : this._toastError).call(this, message);
-        return { handled: true, ok, message, autoCloseMs: ok ? 1200 : 0 };
-      }
-      if (type === "group_disconnect_all") {
-        const result = await this._disconnectPlayerGroups({ silent: true });
-        const ok = result?.ok !== false;
-        const message = ok
-          ? (Number(result?.count || 0) > 0 ? this._i18n("ui.all_player_groups_disconnected") : this._i18n("ui.no_player_groups_to_disconnect"))
-          : this._i18n("ui.player_groups_could_not_be_disconnected");
-        (ok ? this._toastSuccess : this._toastError).call(this, message);
-        return { handled: true, ok, message, autoCloseMs: ok ? 1200 : 0 };
-      }
-    } catch (error) {
-      const message = error?.message || this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    return null;
-  }
-
-  async _runVoiceAssistantMediaCommand(intent = {}, player = null) {
-    const playerManagementResult = await this._runVoiceAssistantPlayerManagementCommand(intent);
-    if (playerManagementResult) return playerManagementResult;
-    if (!player?.entity_id) {
-      const message = this._i18n("ui.voice_command_no_player");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    const entityId = player.entity_id;
-    try {
-      if (entityId !== this._state.selectedPlayer) this._selectPlayer(entityId, true);
-      if (intent.type === "next" || intent.type === "previous") {
-        await this._playerCmdFor(entityId, intent.type === "previous" ? "previous" : "next");
-      } else if (intent.type === "pause") {
-        await this._callMaverickEnginePlayerCommand(entityId, "pause");
-      } else if (intent.type === "resume") {
-        await this._callMaverickEnginePlayerCommand(entityId, "play");
-      } else if (intent.type === "stop") {
-        await this._callMaverickEnginePlayerCommand(entityId, "stop");
-      } else if (intent.type === "mute" || intent.type === "unmute") {
-        const shouldMute = intent.type === "mute";
-        if (this._isMuted(player) !== shouldMute && !await this._toggleMuteFor(entityId)) throw new Error(this._i18n("ui.mute_command_failed"));
-      } else if (intent.type === "volume_set") {
-        if (!await this._setPlayerVolumeFor(entityId, intent.level)) throw new Error(this._i18n("ui.playback_command_failed"));
-      } else if (intent.type === "volume_delta") {
-        const current = Number(player.attributes?.volume_level);
-        const base = Number.isFinite(current) ? current : 0.35;
-        if (!await this._setPlayerVolumeFor(entityId, Math.max(0, Math.min(1, base + Number(intent.delta || 0))))) throw new Error(this._i18n("ui.playback_command_failed"));
-      } else {
-        return { handled: false, ok: false, message: "" };
-      }
-      const actionLabel = ({
-        next: this._m("next track"),
-        previous: this._m("previous track"),
-        pause: this._m("pause"),
-        resume: this._m("play"),
-        stop: this._m("stop"),
-        mute: this._m("mute"),
-        unmute: this._m("unmute"),
-        volume_set: this._m("volume"),
-        volume_delta: this._m("volume"),
-      })[intent.type] || this._i18n("ui.voice_command_executed");
-      const message = this._i18n("ui.voice_command_completed_action", { action: actionLabel });
-      this._toastSuccess(message);
-      return { handled: true, ok: true, message, autoCloseMs: 1200 };
-    } catch (error) {
-      const message = error?.message || this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-  }
-
-  _assistResponseSpeech(response = null) {
-    const candidates = [
-      response?.response?.speech?.plain?.speech,
-      response?.response?.speech?.plain,
-      response?.speech?.plain?.speech,
-      response?.speech?.plain,
-      response?.response?.speech,
-      response?.speech,
-    ];
-    const found = candidates.find((value) => typeof value === "string" && value.trim());
-    return String(found || "").trim();
-  }
-
-  async _sendVoiceCommandToAssist(transcript = "") {
-    const text = String(transcript || "").trim();
-    if (!text) return false;
-    const payload = {
-      type: "conversation/process",
-      text,
-      language: this._voiceAssistantAssistLanguage(),
-    };
-    const agentId = this._voiceAssistantAgentId();
-    if (agentId) payload.agent_id = agentId;
-    try {
-      const response = await this._callHomeAssistantWs(payload);
-      const speech = this._assistResponseSpeech(response);
-      if (speech) this._toast(speech, "info", { duration: 6500 });
-      else this._toastSuccess(this._i18n("ui.voice_command_sent"));
-      return {
-        handled: true,
-        ok: true,
-        message: speech || this._i18n("ui.voice_command_sent"),
-      };
-    } catch (error) {
-      const message = error?.message || this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-  }
-
-  async _handleVoiceAssistantTranscript(transcript = "") {
-    const text = String(transcript || "").trim();
-    if (!text) {
-      const message = this._i18n("ui.no_speech_was_captured");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    const mode = this._voiceAssistantMode();
-    const target = this._resolveVoiceAssistantTarget(text);
-    if (mode !== "assist") {
-      const intent = this._voiceAssistantCommandIntent(text, target.player, { forceMusic: mode === "music" });
-      if (intent.type === "music") {
-        return this._playVoiceAssistantMusic(intent.query, target.player);
-      }
-      if (intent.type !== "unknown") {
-        return this._runVoiceAssistantMediaCommand(intent, target.player);
-      }
-    }
-    if (mode !== "music") {
-      return this._sendVoiceCommandToAssist(text);
-    }
-    const message = this._i18n("ui.voice_command_not_understood");
-    this._toastError(message);
-    return { handled: true, ok: false, message };
-  }
-
-  _stopVoiceAssistantRecognition() {
-    clearTimeout(this._voiceAssistantRecognitionTimer);
-    this._voiceAssistantRecognitionTimer = null;
-    const recognition = this._voiceAssistantRecognition;
-    this._voiceAssistantRecognition = null;
-    this._state.voiceAssistantListening = false;
-    this.$("mobileVoiceAssistantBtn")?.classList.remove("listening");
-    this.$("emptyVoiceAssistantBtn")?.classList.remove("listening");
-    this.$("screensaverVoiceBtn")?.classList.remove("listening");
-    try {
-      if (recognition) recognition.__maverickCancelled = true;
-      recognition?.abort?.();
-    } catch {}
-  }
-
-  _voiceAssistantStatusLabel(status = "") {
-    const safeStatus = String(status || "").toLowerCase();
-    if (safeStatus === "listening") return this._i18n("ui.voice_listening_status");
-    if (safeStatus === "processing") return this._i18n("ui.voice_processing_status");
-    if (safeStatus === "success") return this._i18n("ui.voice_done_status");
-    if (safeStatus === "error") return this._i18n("ui.voice_error_status");
-    return this._i18n("ui.voice_ready_status");
-  }
-
-  _voiceAssistantDialogIcon(status = "") {
-    return String(status || "").toLowerCase() === "error" ? "close" : "mic";
-  }
-
-  _openVoiceAssistantDialog(status = "listening", updates = {}) {
-    clearTimeout(this._voiceAssistantDialogCloseTimer);
-    this._state.voiceAssistantDialogOpen = true;
-    this._state.voiceAssistantKeepScreensaver = updates.keepScreensaver === true;
-    this._state.voiceAssistantDialogStatus = status;
-    this._state.voiceAssistantTranscript = updates.transcript ?? "";
-    this._state.voiceAssistantResponse = updates.response ?? "";
-    this._syncVoiceAssistantDialog();
-  }
-
-  _updateVoiceAssistantDialog(updates = {}) {
-    if (updates.status && !["success", "error"].includes(String(updates.status || "").toLowerCase())) {
-      clearTimeout(this._voiceAssistantDialogCloseTimer);
-    }
-    this._state.voiceAssistantDialogOpen = updates.open ?? this._state.voiceAssistantDialogOpen ?? true;
-    if (updates.keepScreensaver !== undefined) this._state.voiceAssistantKeepScreensaver = updates.keepScreensaver === true;
-    if (updates.status !== undefined) this._state.voiceAssistantDialogStatus = updates.status;
-    if (updates.transcript !== undefined) this._state.voiceAssistantTranscript = updates.transcript;
-    if (updates.response !== undefined) this._state.voiceAssistantResponse = updates.response;
-    this._syncVoiceAssistantDialog();
-  }
-
-  _closeVoiceAssistantDialog({ stopRecognition = true } = {}) {
-    clearTimeout(this._voiceAssistantDialogCloseTimer);
-    clearTimeout(this._voiceAssistantRecognitionTimer);
-    this._voiceAssistantRecognitionTimer = null;
-    if (stopRecognition) this._stopVoiceAssistantRecognition();
-    this._state.voiceAssistantDialogOpen = false;
-    this._state.voiceAssistantKeepScreensaver = false;
-    this._syncVoiceAssistantDialog();
-  }
-
-  _scheduleVoiceAssistantDialogClose(delayMs = 1500) {
-    clearTimeout(this._voiceAssistantDialogCloseTimer);
-    this._voiceAssistantDialogCloseTimer = setTimeout(() => {
-      this._voiceAssistantDialogCloseTimer = null;
-      this._closeVoiceAssistantDialog({ stopRecognition: false });
-    }, Math.max(500, Number(delayMs) || 1500));
-  }
-
-  _syncVoiceAssistantDialog() {
-    const host = this.$("voiceAssistantDialog");
-    if (!host) return;
-    const open = !!this._state.voiceAssistantDialogOpen;
-    const status = String(this._state.voiceAssistantDialogStatus || "ready").toLowerCase();
-    const transcript = String(this._state.voiceAssistantTranscript || "").trim();
-    const response = String(this._state.voiceAssistantResponse || "").trim();
-    const keepScreensaver = this._state.voiceAssistantKeepScreensaver === true;
-    host.className = `voice-assistant-dialog ${open ? "open" : ""} ${keepScreensaver ? "keep-screensaver" : ""} status-${this._esc(status)}`;
-    if (!open) {
-      host.innerHTML = "";
-      return;
-    }
-    if (!host.querySelector(".voice-assistant-panel")) {
-      host.innerHTML = `
-      <div class="voice-assistant-panel" data-screensaver-dialog role="dialog" aria-label="FLOW ASSISTANT">
-        <div class="voice-assistant-head">
-          <div class="voice-assistant-title-row">
-            <span class="voice-assistant-icon" id="voiceAssistantDialogIconSlot"></span>
-            <span class="voice-assistant-copy">
-              <span class="voice-assistant-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("voice-assistant-logo")}</span>
-              <span class="voice-assistant-title">FLOW ASSISTANT</span>
-              <span class="voice-assistant-status" id="voiceAssistantDialogStatus"></span>
-            </span>
-          </div>
-          <button class="voice-assistant-close" id="voiceAssistantDialogClose" title="${this._esc(this._i18n("ui.close"))}">${this._iconSvg("close")}</button>
-        </div>
-        <div class="voice-assistant-meter" aria-hidden="true"><span></span></div>
-        <div class="voice-assistant-wave" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
-        <div class="voice-assistant-lines">
-          <div class="voice-assistant-line">
-            <span class="voice-assistant-line-label">${this._esc(this._i18n("ui.voice_transcript"))}</span>
-            <span class="voice-assistant-line-text" id="voiceAssistantDialogTranscript"></span>
-          </div>
-          <div class="voice-assistant-line">
-            <span class="voice-assistant-line-label">${this._esc(this._i18n("ui.voice_response"))}</span>
-            <span class="voice-assistant-line-text" id="voiceAssistantDialogResponse"></span>
-          </div>
-        </div>
-        <div class="voice-assistant-actions">
-          <button type="button" id="voiceAssistantDialogRetry" class="primary">${this._esc(this._i18n("ui.try_again"))}</button>
-          <button type="button" id="voiceAssistantDialogCloseSecondary">${this._esc(this._i18n("ui.close"))}</button>
-        </div>
-      </div>
-    `;
-      const panel = host.querySelector(".voice-assistant-panel");
-      const keepPanelEvent = (event) => {
-        if (this._state.screensaverOpen && this._state.voiceAssistantKeepScreensaver === true) {
-          event.stopPropagation();
-        }
-      };
-      panel?.addEventListener("pointerdown", keepPanelEvent);
-      panel?.addEventListener("click", keepPanelEvent);
-      panel?.addEventListener("keydown", keepPanelEvent);
-      host.querySelector("#voiceAssistantDialogClose")?.addEventListener("click", () => this._closeVoiceAssistantDialog());
-      host.querySelector("#voiceAssistantDialogCloseSecondary")?.addEventListener("click", () => this._closeVoiceAssistantDialog());
-      host.querySelector("#voiceAssistantDialogRetry")?.addEventListener("click", () => {
-        this._startVoiceAssistantCommand({ keepScreensaver: this._state.voiceAssistantKeepScreensaver === true });
-      });
-    }
-    const retryBtn = host.querySelector("#voiceAssistantDialogRetry");
-    if (retryBtn) retryBtn.hidden = status === "listening" || status === "processing";
-    const iconSlot = host.querySelector("#voiceAssistantDialogIconSlot");
-    const iconName = this._voiceAssistantDialogIcon(status);
-    if (iconSlot && iconSlot.dataset.iconName !== iconName) {
-      iconSlot.dataset.iconName = iconName;
-      iconSlot.innerHTML = this._iconSvg(iconName);
-    }
-    const statusEl = host.querySelector("#voiceAssistantDialogStatus");
-    if (statusEl) statusEl.textContent = this._voiceAssistantStatusLabel(status);
-    const transcriptEl = host.querySelector("#voiceAssistantDialogTranscript");
-    if (transcriptEl) {
-      transcriptEl.textContent = transcript || this._i18n("ui.waiting_for_speech");
-      transcriptEl.classList.toggle("voice-assistant-placeholder", !transcript);
-    }
-    const responseEl = host.querySelector("#voiceAssistantDialogResponse");
-    if (responseEl) {
-      responseEl.textContent = response || this._i18n("ui.voice_response_will_appear_here");
-      responseEl.classList.toggle("voice-assistant-placeholder", !response);
-    }
-  }
-
-  _voiceAssistantRecognitionErrorMessage(errorCode = "") {
-    const code = String(errorCode || "").trim();
-    if (code === "no-speech") return this._i18n("ui.no_speech_was_captured");
-    if (code === "not-allowed" || code === "service-not-allowed") return this._i18n("ui.microphone_permission_or_browser_blocked");
-    if (code === "language-not-supported") return this._i18n("ui.voice_language_is_not_supported");
-    if (code === "network") return this._i18n("ui.voice_recognition_network_failed");
-    return this._i18n("ui.voice_input_failed");
-  }
-
-  _speakVoiceAssistantFeedback(text = "") {
-    const message = String(text || "").trim();
-    if (!message || !this._voiceAssistantSpeakFeedbackEnabled()) return;
-    if (typeof window === "undefined") return;
-    const synth = window.speechSynthesis;
-    if (!synth || typeof window.SpeechSynthesisUtterance !== "function") return;
-    try {
-      synth.cancel();
-      const utterance = new window.SpeechSynthesisUtterance(message);
-      utterance.lang = this._voiceAssistantRecognitionLanguage();
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      synth.speak(utterance);
-    } catch (_) {}
-  }
-
-  _startVoiceAssistantCommand(options = {}) {
-    const keepScreensaver = options?.keepScreensaver === true;
-    const ignoreWhenListening = options?.ignoreWhenListening === true;
-    const scheduleAutoClose = (status = "error", requestedDelay = null) => {
-      const requested = Number(requestedDelay);
-      const closeMs = Number.isFinite(requested) && requested > 0
-        ? requested
-        : this._flowAssistantAutoCloseMs(status);
-      if (closeMs > 0) this._scheduleVoiceAssistantDialogClose(closeMs);
-    };
-    if (keepScreensaver) this._resetScreensaverTimer({ hide: false, activity: true });
-    if (!this._voiceAssistantEnabled()) {
-      const message = this._i18n("ui.voice_assistant_disabled");
-      this._toastError(message);
-      this._openVoiceAssistantDialog("error", { response: message, keepScreensaver });
-      scheduleAutoClose("error");
-      return;
-    }
-    if (this._mobileMicMode() === "off") {
-      const message = this._i18n("ui.microphone_is_disabled");
-      this._toastError(message);
-      this._openVoiceAssistantDialog("error", { response: message, keepScreensaver });
-      scheduleAutoClose("error");
-      return;
-    }
-    if (this._state.voiceAssistantListening) {
-      if (ignoreWhenListening) {
-        this._openVoiceAssistantDialog("listening", {
-          transcript: this._state.voiceAssistantTranscript || "",
-          response: this._state.voiceAssistantResponse || "",
-          keepScreensaver,
-        });
-        return;
-      }
-      this._stopVoiceAssistantRecognition();
-      this._closeVoiceAssistantDialog();
-      return;
-    }
-    if (!keepScreensaver) this._resetScreensaverTimer({ hide: true, activity: true });
-    this._openVoiceAssistantDialog("listening", { transcript: "", response: "", keepScreensaver });
-    const SpeechRecognition = this._speechRecognitionCtor();
-    const micButtons = Array.from(this.shadowRoot?.querySelectorAll("#mobileVoiceAssistantBtn, #emptyVoiceAssistantBtn, #screensaverVoiceBtn") || []);
-    if (!SpeechRecognition) {
-      const message = this._i18n("ui.voice_input_is_not_supported_on_this_device");
-      this._toastError(message);
-      this._updateVoiceAssistantDialog({ status: "error", response: message, keepScreensaver });
-      scheduleAutoClose("error");
-      return;
-    }
-    clearTimeout(this._voiceAssistantRecognitionTimer);
-    this._voiceAssistantRecognitionTimer = null;
-    try { this._voiceAssistantRecognition?.abort?.(); } catch {}
-    const recognition = new SpeechRecognition();
-    this._voiceAssistantRecognition = recognition;
-    recognition.lang = this._voiceAssistantRecognitionLanguage();
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
-    let capturedTranscript = "";
-    let handled = false;
-    let recognitionFailed = false;
-    const stopListeningUi = () => {
-      clearTimeout(this._voiceAssistantRecognitionTimer);
-      this._voiceAssistantRecognitionTimer = null;
-      this._state.voiceAssistantListening = false;
-      micButtons.forEach((btn) => btn.classList.remove("listening"));
-    };
-    const finishTranscript = (transcript) => {
-      if (handled) return;
-      handled = true;
-      stopListeningUi();
-      if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-      try { recognition.abort?.(); } catch {}
-      this._updateVoiceAssistantDialog({ status: "processing", transcript, response: this._i18n("ui.voice_processing_status") });
-      this._withTimeout(
-        this._handleVoiceAssistantTranscript(transcript),
-        this._flowAssistantResponseTimeoutMs(),
-        this._timeoutMessage(this._flowAssistantLabel()),
-      ).then((result) => {
-        const message = result?.message || (result?.ok === false ? this._i18n("ui.voice_command_failed") : this._i18n("ui.voice_command_executed"));
-        const status = result?.ok === false ? "error" : "success";
-        this._updateVoiceAssistantDialog({ status, transcript, response: message });
-        if (result?.ok !== false) {
-          this._speakVoiceAssistantFeedback(message);
-        }
-        scheduleAutoClose(status, result?.autoCloseMs);
-      }).catch((error) => {
-        const message = error?.message || this._i18n("ui.voice_command_failed");
-        this._toastError(message);
-        this._updateVoiceAssistantDialog({ status: "error", transcript, response: message });
-        scheduleAutoClose("error");
-      });
-    };
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results || [])
-        .map((result) => result?.[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      if (transcript) capturedTranscript = transcript;
-      if (capturedTranscript) this._updateVoiceAssistantDialog({ status: "listening", transcript: capturedTranscript });
-      const finalized = Array.from(event.results || []).some((result) => result?.isFinal);
-      if (finalized && capturedTranscript) finishTranscript(capturedTranscript);
-    };
-    recognition.onerror = (event) => {
-      if (handled) return;
-      if (recognition.__maverickCancelled) return;
-      recognitionFailed = true;
-      stopListeningUi();
-      if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-      const message = this._voiceAssistantRecognitionErrorMessage(event?.error);
-      this._toastError(message);
-      this._updateVoiceAssistantDialog({ status: "error", response: message });
-      scheduleAutoClose("error");
-    };
-    recognition.onend = () => {
-      stopListeningUi();
-      if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-      if (recognition.__maverickCancelled) return;
-      if (!handled && capturedTranscript) {
-        finishTranscript(capturedTranscript);
-      } else if (!handled && !recognitionFailed) {
-        const message = this._i18n("ui.no_speech_was_captured");
-        this._toastError(message);
-        this._updateVoiceAssistantDialog({ status: "error", response: message });
-        scheduleAutoClose("error");
-      }
-    };
-    try {
-      this._state.voiceAssistantListening = true;
-      micButtons.forEach((btn) => btn.classList.add("listening"));
-      this._hapticTap([8, 18, 8]);
-      this._toast(this._i18n("ui.voice_assistant_listening"));
-      recognition.start();
-      this._voiceAssistantRecognitionTimer = setTimeout(() => {
-        if (handled) return;
-        handled = true;
-        recognitionFailed = true;
-        stopListeningUi();
-        if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-        try {
-          recognition.__maverickCancelled = true;
-          recognition.abort?.();
-        } catch {}
-        const message = this._timeoutMessage(this._flowAssistantLabel());
-        this._toastError(message);
-        this._updateVoiceAssistantDialog({ status: "error", transcript: capturedTranscript, response: message });
-        scheduleAutoClose("error");
-      }, this._flowAssistantListenTimeoutMs());
-    } catch {
-      stopListeningUi();
-      if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-      const message = this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      this._updateVoiceAssistantDialog({ status: "error", response: message });
-      scheduleAutoClose("error");
-    }
-  }
-
-  async _handleSmartVoiceTranscript(transcript = "") {
-    const query = String(transcript || "").trim();
-    if (!query) return;
-    this._state.mediaQuery = query;
-    const input = this.$("mobileMediaSearchInput");
-    if (input) input.value = query;
-    this._toast(this._i18n("ui.searching_smart_selection"));
-    const results = await this._search(query);
-    const candidates = this._normalizeSmartVoiceCandidates(results);
-    this._openSmartVoiceConfirm(query, candidates);
-  }
-
-  _startMobileVoiceSearch() {
-    const SpeechRecognition = this._speechRecognitionCtor();
-    const input = this.$("mobileMediaSearchInput");
-    const micBtn = this.$("mobileVoiceSearchBtn");
-    const micMode = this._mobileMicMode();
-    if (!SpeechRecognition) {
-      this._toastError(this._i18n("ui.voice_search_is_not_supported_on_this_device"));
-      return;
-    }
-    if (micMode === "off") {
-      this._toastError(this._i18n("ui.microphone_is_disabled"));
-      return;
-    }
-    try {
-      this._voiceRecognition?.abort?.();
-    } catch (_) {}
-    const recognition = new SpeechRecognition();
-    this._voiceRecognition = recognition;
-    recognition.lang = "en-US";
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
-    micBtn?.classList.add("listening");
-    this._hapticTap([8, 18, 8]);
-    this._toast(this._i18n("ui.listening"));
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results || [])
-        .map((result) => result?.[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      if (!transcript) return;
-      const finalized = Array.from(event.results || []).some((result) => result?.isFinal);
-      this._state.mediaQuery = transcript;
-      if (input) {
-        input.value = transcript;
-        input.focus({ preventScroll: true });
-      }
-      if (micMode === "smart" && finalized) {
-        this._handleSmartVoiceTranscript(transcript).catch((error) => {
-          this._toastError(error?.message || this._i18n("ui.voice_search_failed"));
-        });
-        return;
-      }
-      clearTimeout(this._searchTimer);
-      this._searchTimer = setTimeout(() => this._renderMobileMediaResults(), 120);
-    };
-    recognition.onerror = () => {
-      this._toastError(this._i18n("ui.voice_search_failed"));
-    };
-    recognition.onend = () => {
-      micBtn?.classList.remove("listening");
-      if (this._voiceRecognition === recognition) this._voiceRecognition = null;
-    };
-    try {
-      recognition.start();
-    } catch (_) {
-      micBtn?.classList.remove("listening");
-      this._toastError(this._i18n("ui.voice_search_failed"));
-    }
-  }
 
   _mobileSortOptions() {
     return [
@@ -13779,7 +12629,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       voiceBtn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this._startMobileVoiceSearch();
+        startMobileVoiceSearch(this);
       });
     }
     if (clearBtn && !clearBtn.dataset.boundClear) {
@@ -15683,31 +14533,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
       return;
     }
-    const voiceAssistantBtn = eventTarget.closest("[data-setting-voice-assistant]");
-    if (voiceAssistantBtn?.dataset.settingVoiceAssistant) {
-      this._flashInteraction(voiceAssistantBtn);
-      this._state.voiceAssistantEnabled = voiceAssistantBtn.dataset.settingVoiceAssistant === "on";
-      if (!this._state.voiceAssistantEnabled) this._stopVoiceAssistantRecognition();
-      this._persistMobileAppearance();
-      this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
-      return;
-    }
-    const voiceAssistantModeBtn = eventTarget.closest("[data-setting-voice-assistant-mode]");
-    if (voiceAssistantModeBtn?.dataset.settingVoiceAssistantMode) {
-      this._flashInteraction(voiceAssistantModeBtn);
-      this._state.voiceAssistantMode = MaverickMobileSettingsFoundation.normalizeVoiceAssistantMode(voiceAssistantModeBtn.dataset.settingVoiceAssistantMode);
-      this._persistMobileAppearance();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
-    const voiceFeedbackBtn = eventTarget.closest("[data-setting-voice-feedback]");
-    if (voiceFeedbackBtn?.dataset.settingVoiceFeedback) {
-      this._flashInteraction(voiceFeedbackBtn);
-      this._state.voiceAssistantSpeakFeedback = voiceFeedbackBtn.dataset.settingVoiceFeedback === "on";
-      this._persistMobileAppearance();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
+    if (handleVoiceSettingsClick(this, eventTarget)) return;
     const footerModeBtn = eventTarget.closest("[data-setting-footer-mode]");
     const playerDesignBtn = eventTarget.closest("[data-setting-player-design]");
     if (playerDesignBtn) {
@@ -16205,11 +15031,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
       return;
     }
-    if (e.target?.id === "voiceAssistantAgentSelect") {
-      this._state.voiceAssistantAgentId = String(e.target.value || "").trim();
-      this._persistMobileAppearance();
-      return;
-    }
+    if (handleVoiceSettingsChange(this, e)) return;
     if (e.target?.id === "ambientLightEntitiesInput") {
       this._state.ambientLightEntities = MaverickMobileSettingsFoundation.normalizeEntityList(e.target.value || "");
       this._persistMobileAppearance();

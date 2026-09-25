@@ -203,7 +203,6 @@ describe("settings accordion open-set persistence (real methods on real card)", 
     card._settingsSectionDisplay = vi.fn(() => "display");
     card._settingsSectionPlayersLibrary = vi.fn(() => "players");
     card._settingsSectionQuickActionsBar = vi.fn(() => "quick actions");
-    card._settingsSectionVoiceAssistant = vi.fn(() => "voice");
     card._settingsSectionSmartHome = vi.fn(() => "smart home");
 
     let html = "";

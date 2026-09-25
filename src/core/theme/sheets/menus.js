@@ -1,6 +1,96 @@
 // menus styles. Order is preserved by card-styles.js.
 export default function() {
-  return `.menu-body.sheet-schedules .settings-shell > .settings-group,
+  return `.menu-sheet {
+          width:min(100%, 720px);
+          max-height:calc(100% - 8px);
+          margin-top:auto;
+          position:relative;
+          display:grid;
+          grid-template-rows:auto minmax(0,1fr);
+          overflow:hidden;
+          border-radius:30px;
+          box-shadow:0 24px 60px rgba(0,0,0,.34);
+        }
+        .action-grid {
+          display:grid;
+          grid-template-columns:minmax(0,1fr);
+          gap:12px;
+          align-content:start;
+          width:100%;
+        }
+        .menu-sheet.sheet-actions,
+        .menu-sheet.sheet-simple {
+          height:calc(100% - 8px);
+          max-height:calc(100% - 8px);
+          margin-top:0;
+        }
+        .menu-sheet.sheet-queue-flow {
+          width:min(calc(100% - 34px), 348px);
+          height:min(720px, calc(100% - 48px));
+          max-height:calc(100% - 48px);
+          align-self:center;
+          margin:auto;
+          border-radius:30px;
+          grid-template-rows:minmax(0,1fr);
+        }
+        .menu-sheet.sheet-queue-flow .menu-head {
+          position:absolute;
+          inset-block-start:8px;
+          inset-inline-end:8px;
+          z-index:8;
+          display:block;
+          padding:0;
+          border:0;
+          pointer-events:none;
+          background:transparent;
+        }
+        .menu-sheet.sheet-queue-flow .menu-title,
+        .menu-sheet.sheet-queue-flow #mobileMenuBackBtn,
+        .menu-sheet.sheet-queue-flow #mobileMenuAuxBtn {
+          display:none !important;
+        }
+        .menu-sheet.sheet-queue-flow #mobileMenuCloseBtn {
+          pointer-events:auto;
+          width:38px;
+          height:38px;
+          border-radius:999px;
+          display:grid;
+          place-items:center;
+          border:1px solid rgba(255,255,255,.16);
+          background:rgba(10,14,22,.46);
+          color:#fff;
+          font-size:22px;
+          line-height:1;
+          backdrop-filter:blur(10px);
+          -webkit-backdrop-filter:blur(10px);
+        }
+        .menu-sheet.sheet-media-detail {
+          width:min(calc(100% - 20px), 720px);
+          height:min(760px, calc(100% - 34px));
+          max-height:calc(100% - 34px);
+          align-self:center;
+          margin:auto;
+          border-radius:28px;
+        }
+        .menu-sheet.sheet-artist-detail {
+          width:min(100%, 920px);
+          height:calc(100% - 8px);
+          max-height:calc(100% - 8px);
+          margin-top:0;
+        }
+        .menu-body.sheet-media-detail {
+          padding:14px;
+          overflow:hidden;
+        }
+        .menu-body.sheet-artist-detail {
+          padding:14px;
+          overflow:auto;
+        }
+        .menu-body.sheet-actions,
+        .menu-body.sheet-simple {
+          padding:16px 14px 20px;
+        }
+        .menu-body.sheet-schedules .settings-shell > .settings-group,
         .menu-body.sheet-schedules .settings-shell > .scheduled-start-card {
           align-self:start;
         }
@@ -619,68 +709,6 @@ export default function() {
         .surprise-me-card.compact .surprise-me-wand .ui-ic {
           width:44px;
           height:44px;
-        }
-        .empty-voice-btn {
-          position:absolute;
-          inset-inline-end:-8px;
-          inset-block-end:-8px;
-          z-index:4;
-          width:46px;
-          height:46px;
-          border-radius:999px;
-          border:1px solid color-mix(in srgb, var(--ma-accent) 28%, rgba(255,255,255,.16));
-          background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.07));
-          color:#fff7df;
-          display:grid;
-          place-items:center;
-          cursor:pointer;
-          box-shadow:0 14px 28px rgba(0,0,0,.24), 0 0 0 5px rgba(255,255,255,.045), inset 0 1px 0 rgba(255,255,255,.14);
-          backdrop-filter:blur(16px) saturate(130%);
-          -webkit-backdrop-filter:blur(16px) saturate(130%);
-          transition:transform .16s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease, color .18s ease;
-        }
-        .empty-voice-btn .ui-ic {
-          width:20px;
-          height:20px;
-        }
-        .empty-voice-btn:hover,
-        .empty-voice-btn.listening,
-        .empty-voice-btn.pressed,
-        .empty-voice-btn.busy {
-          color:#fff;
-          border-color:color-mix(in srgb, var(--ma-accent) 54%, rgba(255,255,255,.18));
-          background:linear-gradient(180deg, color-mix(in srgb, var(--ma-accent) 28%, rgba(255,255,255,.14)), rgba(255,255,255,.07));
-          box-shadow:0 16px 32px color-mix(in srgb, var(--ma-accent) 20%, rgba(0,0,0,.22)), 0 0 0 7px color-mix(in srgb, var(--ma-accent) 10%, transparent), inset 0 1px 0 rgba(255,255,255,.16);
-        }
-        .empty-voice-btn.pressed,
-        .empty-voice-btn.busy {
-          transform:scale(.94);
-        }
-        .empty-voice-btn.busy {
-          cursor:progress;
-        }
-        .empty-voice-btn.listening::after {
-          content:"";
-          position:absolute;
-          inset:-8px;
-          border-radius:inherit;
-          border:1px solid color-mix(in srgb, var(--ma-accent) 44%, transparent);
-          animation:voiceAssistantListenPulse 1.1s ease-out infinite;
-        }
-        .empty-voice-btn.busy:not(.listening)::after {
-          content:"";
-          position:absolute;
-          inset:-6px;
-          border-radius:inherit;
-          border:1px solid color-mix(in srgb, var(--ma-accent) 38%, transparent);
-          animation:voiceAssistantListenPulse 1s ease-out infinite;
-          pointer-events:none;
-        }
-        .card.layout-tablet .empty-voice-btn {
-          width:50px;
-          height:50px;
-          inset-inline-end:-10px;
-          inset-block-end:-10px;
         }
         .surprise-me-card.magic-empty:active,
         .surprise-me-card.magic-empty.pressed,

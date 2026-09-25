@@ -7,6 +7,7 @@ import { isScheduleFormEditing, loadScheduledStartPlaylists, syncScheduledStartS
 import { studioAnnouncePanelHtml } from "./media/announcements.js";
 import { markScreensaverPageEntry, startScreensaverVisibilityTracking, stopScreensaverVisibilityTracking, syncScreensaverDynamicArtwork, syncScreensaverUi } from "./media/screensaver.js";
 import { lyricsSessionActive, syncLyricsForCurrentTrack } from "./media/lyrics.js";
+import { stopVoiceAssistantRecognition, syncVoiceAssistantDialog } from "./media/voice.js";
 import { bindProgressSeek } from "./media/progress-seek.js";
 import { contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
@@ -544,7 +545,7 @@ export function createMaverickBaseMusicCard({
       this._renderPlayerSummary();
       this._syncBrandPlayingState();
       this._syncNowPlayingUI();
-      if (this._state?.voiceAssistantDialogOpen) this._syncVoiceAssistantDialog();
+      if (this._state?.voiceAssistantDialogOpen) syncVoiceAssistantDialog(this);
     }
 
     getCardSize() {
@@ -759,18 +760,6 @@ export function createMaverickBaseMusicCard({
       return this._clampedConfigNumber("music_assistant_timeout_ms", 12000, { min: 3000, max: 60000 });
     }
 
-    _flowAssistantResponseTimeoutMs() {
-      return this._clampedConfigNumber("flow_assistant_response_timeout_ms", 18000, { min: 5000, max: 60000 });
-    }
-
-    _flowAssistantListenTimeoutMs() {
-      return this._clampedConfigNumber("flow_assistant_listen_timeout_ms", 12000, { min: 5000, max: 30000 });
-    }
-
-    _flowAssistantAutoCloseMs(status = "success") {
-      const fallback = String(status || "").toLowerCase() === "error" ? 7000 : 4200;
-      return this._clampedConfigNumber("flow_assistant_auto_close_ms", fallback, { min: 0, max: 30000 });
-    }
 
     _timeoutMessage(label = "Request") {
       return this._m(
@@ -3087,9 +3076,6 @@ export function createMaverickBaseMusicCard({
       this._launchMusicAssistant();
     }
 
-    _flowAssistantLabel() {
-      return this._i18n("ui.flow_assistant", {}, "FLOW ASSISTANT") || "FLOW ASSISTANT";
-    }
 
     _cleanAllLabel() {
       return this._m("Disconnect");
@@ -4569,44 +4555,6 @@ export function createMaverickBaseMusicCard({
       this._syncControlRoomUi();
     }
 
-    async _startControlRoomLibraryVoice() {
-      const SpeechRecognition = this._speechRecognitionCtor();
-      if (!SpeechRecognition) {
-        this._toastError(this._i18n("ui.voice_input_is_not_supported_on_this_device"));
-        return;
-      }
-      try { this._voiceRecognition?.abort?.(); } catch {}
-      const recognition = new SpeechRecognition();
-      this._voiceRecognition = recognition;
-      recognition.lang = "en-US";
-      recognition.interimResults = true;
-      recognition.continuous = false;
-      recognition.maxAlternatives = 1;
-      this._toast(this._i18n("ui.listening"));
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results || [])
-          .map((result) => result?.[0]?.transcript || "")
-          .join(" ")
-          .trim();
-        if (!transcript) return;
-        this._state.controlRoomLibraryQuery = transcript;
-        this._state.controlRoomPanel = "library";
-        this._syncControlRoomUi();
-        const input = this.$("controlRoomLibraryInput");
-        if (input) {
-          input.value = transcript;
-          input.focus({ preventScroll: true });
-          input.setSelectionRange(transcript.length, transcript.length);
-        }
-        clearTimeout(this._searchTimer);
-        this._searchTimer = setTimeout(() => this._searchControlRoomLibrary(transcript), 120);
-      };
-      recognition.onerror = () => this._toastError(this._i18n("ui.voice_input_failed"));
-      recognition.onend = () => {
-        if (this._voiceRecognition === recognition) this._voiceRecognition = null;
-      };
-      try { recognition.start(); } catch (_) { this._toastError(this._i18n("ui.voice_input_failed")); }
-    }
 
     async _playControlRoomLibraryEntry(entry, mode = "play") {
       const action = String(mode || "play");
@@ -11932,7 +11880,7 @@ export function createMaverickBaseMusicCard({
       this._screensaverClockTimer = null;
       this._state.screensaverOpen = false;
       this.classList.remove("compact-popup-open", "compact-window-popup-open", "compact-inline-popup-open", "compact-tile-open", "mobile-edge-to-edge-open", "screensaver-page-open", "volume-preset-open");
-      this._stopVoiceAssistantRecognition();
+      stopVoiceAssistantRecognition(this);
       this._state.voiceAssistantDialogOpen = false;
       this._state.voiceAssistantKeepScreensaver = false;
       this._clearManualFrontPlayer({ sync: false });
