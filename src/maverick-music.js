@@ -3239,7 +3239,18 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
   }
 
-  async _refreshMaverickEngineContext({ force = false } = {}) {
+  _refreshMaverickEngineContext(options = {}) {
+    // Share one in-flight refresh, even with force, so concurrent callers do
+    // not race each other's engineStatus and engineContext writes.
+    if (this._engineContextInflight) return this._engineContextInflight;
+    const request = this._refreshMaverickEngineContextNow(options).finally(() => {
+      if (this._engineContextInflight === request) this._engineContextInflight = null;
+    });
+    this._engineContextInflight = request;
+    return request;
+  }
+
+  async _refreshMaverickEngineContextNow({ force = false } = {}) {
     const mode = this._maverickEngineMode();
     if (!MaverickEngineFoundation.maverickEngineModeAllowsCalls(mode)) {
       this._state.engineStatus = "off";
