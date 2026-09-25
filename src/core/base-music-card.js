@@ -8,6 +8,7 @@ import { studioAnnouncePanelHtml } from "./media/announcements.js";
 import { markScreensaverPageEntry, startScreensaverVisibilityTracking, stopScreensaverVisibilityTracking, syncScreensaverDynamicArtwork, syncScreensaverUi } from "./media/screensaver.js";
 import { lyricsSessionActive, syncLyricsForCurrentTrack } from "./media/lyrics.js";
 import { stopVoiceAssistantRecognition, syncVoiceAssistantDialog } from "./media/voice.js";
+import { syncNightModeUi } from "./media/night-mode.js";
 import { bindProgressSeek } from "./media/progress-seek.js";
 import { contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
@@ -10937,7 +10938,7 @@ export function createMaverickBaseMusicCard({
     _tickProgress() {
       syncSleepTimerState(this);
       syncScheduledStartState(this);
-      this._syncNightModeUi();
+      syncNightModeUi(this);
       syncSleepTimerChip(this);
       if (lyricsSessionActive(this)) syncLyricsForCurrentTrack(this);
       if (this._state.screensaverOpen) {

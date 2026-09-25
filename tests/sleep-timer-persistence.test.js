@@ -7,7 +7,7 @@ import {
   syncSleepTimerChip,
 } from "../src/core/media/timers.js";
 
-const state = () => ({ mobileSleepTimerEndsAt: Date.now() + 600000, mobileSleepTimerPlayer: "media_player.computer", mobileSleepTimerOrigin: "night" });
+const state = () => ({ mobileSleepTimerEndsAt: Date.now() + 600000, mobileSleepTimerPlayer: "media_player.computer", mobileSleepTimerOrigin: "night", mobileNightMode: "off", mobileNightRenderedActive: false, mobileNightRenderedMode: "off" });
 const confirming = (target) => ({ timers: [{ id: "sleep_media_player_computer", player: "media_player.computer", ends_at: new Date(target).toISOString() }] });
 function context() {
   return {
@@ -16,7 +16,7 @@ function context() {
     _maverickEngineTimeoutMs: () => 5000, _getSelectedPlayer: () => null, _mobileQuickActions: () => [],
     _maverickEngineSetTimer: vi.fn(async () => ({ ok: true })), _maverickEngineGetTimers: vi.fn(async () => ({ timers: [] })),
     _maverickEngineDeleteTimer: vi.fn(async () => ({ ok: true })),
-    _syncNightModeUi: vi.fn(), _persistMobileAppearance: vi.fn(),
+    _rebuildMobileUi: vi.fn(), _syncTabletAutoFitUi: vi.fn(), _persistMobileAppearance: vi.fn(),
     _toastError: vi.fn(), _toast: vi.fn(), _m: (text) => text,
   };
 }

@@ -1,7 +1,7 @@
 import { syncScreenDock } from "./core/media/screen-dock.js";
 import { playerVolumeControlsHtml, openVolumeWheel, closeVolumeWheel } from "./core/media/player-volume.js";
 import { bindQueueDrag } from "./core/media/queue-drag.js";
-import { renderListeningTools, refreshArtworkLighting, setArtworkLighting, applyInterfacePreferences, saveNightPreferences } from "./core/media/listening-tools.js";
+import { renderListeningTools, refreshArtworkLighting, setArtworkLighting, applyInterfacePreferences } from "./core/media/listening-tools.js";
 import { renderAiRadio } from "./core/media/ai-radio.js";
 import { playerChoiceHtml, bindPlayerGrouping } from "./core/media/player-choice.js";
 import { renderSavedPlaylists } from "./core/media/playlist-actions.js";
@@ -13,7 +13,7 @@ import { loadQueueSettings, saveQueueSettings, updateQueueSettingVisibility } fr
 import {
   bindSleepTimerCorner, cycleSleepTimer, handleTimersFormChange, handleTimersMenuClick, isScheduleFormControl, isScheduleFormEditing,
   markScheduleFormControlActive, normalizeScheduledStartSchedule, renderTimersPage, scheduledStartDays,
-  scheduledStartSchedules, sleepTimerFabHtml, sleepTimerId, sleepTimerRemainingLabel, sleepTimerRemainingMs, syncSleepTimerChip, syncSleepTimerState,
+  scheduledStartSchedules, sleepTimerFabHtml, sleepTimerId, sleepTimerRemainingMs, syncSleepTimerChip, syncSleepTimerState,
 } from "./core/media/timers.js";
 import {
   announcementsPageHtml, announcementsSettingsSectionHtml, announcementVolumePct, announcementLanguageSetting, defaultAnnouncementPresets,
@@ -47,6 +47,8 @@ import {
   voiceAssistantSpeakFeedbackEnabled,
 } from "./core/media/voice.js";
 import { handleSimpleWizardChange, handleSimpleWizardClick, resetSimpleWizardState, simpleWizardHtml } from "./core/media/simple-wizard.js";
+import { bindNightQuickRow, handleNightFormChange, handleNightSettingsClick, isNightModeActive, mobileNightMode, nightModeDays, nightModeWindow, nightQuickRowHtml, syncNightModeUi } from "./core/media/night-mode.js";
+import { normalizeClockTime, normalizeNightModeDays } from "./core/state/night-mode.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -585,17 +587,17 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { this._state.mobileNightMode = localStorage.getItem(this._lsKey("maverick_music_mobile_night_mode")) || "off"; } catch (_) {}
     try { this._state.mobileNightModeStart = localStorage.getItem(this._lsKey("maverick_music_mobile_night_start")) || "22:00"; } catch (_) {}
     try { this._state.mobileNightModeEnd = localStorage.getItem(this._lsKey("maverick_music_mobile_night_end")) || "06:00"; } catch (_) {}
-    try { this._state.mobileNightModeDays = this._normalizeNightModeDays(localStorage.getItem(this._lsKey("maverick_music_mobile_night_days"))); } catch (_) {}
+    try { this._state.mobileNightModeDays = normalizeNightModeDays(localStorage.getItem(this._lsKey("maverick_music_mobile_night_days"))); } catch (_) {}
     try { this._state.mobileSleepTimerEndsAt = Number(localStorage.getItem(this._lsKey("maverick_music_mobile_sleep_timer_at")) || 0) || 0; } catch (_) {}
     try { this._state.mobileSleepTimerPlayer = localStorage.getItem(this._lsKey("maverick_music_mobile_sleep_timer_player")) || ""; } catch (_) {}
     try { this._state.mobileSleepTimerOrigin = localStorage.getItem(this._lsKey("maverick_music_mobile_sleep_timer_origin")) || ""; } catch (_) {}
     try { this._state.mobileStartTimerEnabled = JSON.parse(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_enabled")) ?? "false"); } catch (_) {}
-    try { this._state.mobileStartTimerTime = this._normalizeClockTime(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_time")) || "07:00", "07:00"); } catch (_) {}
+    try { this._state.mobileStartTimerTime = normalizeClockTime(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_time")) || "07:00", "07:00"); } catch (_) {}
     try { this._state.mobileStartTimerPlayer = localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_player")) || ""; } catch (_) {}
     try { this._state.mobileStartTimerPlaylist = localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_playlist")) || ""; } catch (_) {}
     try { this._state.mobileStartTimerPlaylistName = localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_playlist_name")) || ""; } catch (_) {}
     try { this._state.mobileStartTimerVolume = Math.max(0, Math.min(100, Number(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_volume")) || 35) || 35)); } catch (_) {}
-    try { this._state.mobileStartTimerDays = this._normalizeNightModeDays(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_days"))); } catch (_) {}
+    try { this._state.mobileStartTimerDays = normalizeNightModeDays(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_days"))); } catch (_) {}
     try { this._state.mobileStartTimerLastRunKey = localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_last_run")) || ""; } catch (_) {}
     try { this._state.mobileSchedulesTab = localStorage.getItem(this._lsKey("maverick_music_mobile_schedules_tab")) || "timers"; } catch (_) {}
     try {
@@ -1124,8 +1126,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const previousLibraryManual = this._state.mobileMediaLayoutManual === true;
       const previousEdgeReturnAvailable = this._state.mobileEdgeReturnAvailable === true;
       Object.assign(this._state, MaverickMobileSettingsFoundation.normalizeVisualMobileState(visualCfg, {
-        normalizeClockTime: (value, fallback) => this._normalizeClockTime(value, fallback),
-        normalizeNightModeDays: (value) => this._normalizeNightModeDays(value),
+        normalizeClockTime,
+        normalizeNightModeDays,
         defaultLibraryTabs: this._defaultMobileLibraryTabs(),
         defaultMainBarItems: this._defaultMobileMainBarItems(),
         defaultQuickActions: this._defaultMobileQuickActions(),
@@ -1185,14 +1187,14 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _effectiveTheme() {
-    if (this._isNightModeActive()) return "dark";
+    if (isNightModeActive(this)) return "dark";
     if (this._state.cardTheme === "dark" || this._state.cardTheme === "light") return this._state.cardTheme;
     if (this._state.cardTheme === "custom") return this._customIsDark() ? "dark" : "light";
     return super._effectiveTheme();
   }
 
   _visualTheme() {
-    if (this._isNightModeActive()) return "dark";
+    if (isNightModeActive(this)) return "dark";
     if (this._state.cardTheme === "custom") return "custom";
     return this._effectiveTheme();
   }
@@ -1657,65 +1659,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (this._state.controlRoomOpen) this._syncControlRoomUi();
   }
 
-  _mobileNightMode() {
-    return MaverickNightFoundation.normalizeNightMode(this._state.mobileNightMode);
-  }
-
-  _normalizeClockTime(value, fallback = "22:00") {
-    return MaverickNightFoundation.normalizeClockTime(value, fallback);
-  }
-
-  _clockMinutesOfDay(value, fallback = "22:00") {
-    return MaverickNightFoundation.clockMinutesOfDay(value, fallback);
-  }
-
-  _defaultNightModeDays() {
-    return MaverickNightFoundation.defaultNightModeDays();
-  }
-
-  _normalizeNightModeDays(value) {
-    return MaverickNightFoundation.normalizeNightModeDays(value, this._defaultNightModeDays());
-  }
-
-  _nightModeDays() {
-    return this._normalizeNightModeDays(this._state.mobileNightModeDays);
-  }
-
-  _nightModeDayOptions() {
-    return [
-      [0, this._i18n("ui.sun")],
-      [1, this._i18n("ui.mon")],
-      [2, this._i18n("ui.tue")],
-      [3, this._i18n("ui.wed")],
-      [4, this._i18n("ui.thu")],
-      [5, this._i18n("ui.fri")],
-      [6, this._i18n("ui.sat")],
-    ];
-  }
-
-  _nightModeWindow() {
-    return MaverickNightFoundation.resolveNightModeWindow(
-      this._state.mobileNightModeStart || "22:00",
-      this._state.mobileNightModeEnd || "06:00",
-      { start: "22:00", end: "06:00" },
-    );
-  }
-
-  _isMinutesInsideWindow(minutes, startMinutes, endMinutes) {
-    return MaverickNightFoundation.isMinutesInsideWindow(minutes, startMinutes, endMinutes);
-  }
-
-  _isNightModeActive(date = new Date()) {
-    const windowRange = this._nightModeWindow();
-    return MaverickNightFoundation.isNightModeActive({
-      mode: this._mobileNightMode(),
-      start: windowRange.start,
-      end: windowRange.end,
-      days: this._nightModeDays(),
-      date,
-    });
-  }
-
   async _maverickEngineReadyForPersistence() {
     if (!this._maverickEngineEnabled()) return false;
     const context = await this._refreshMaverickEngineContext({ force: true }).catch(() => null);
@@ -1726,7 +1669,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return MaverickResponsiveFoundation.tabletAutoFitEnabled(this._layoutModeConfig());
   }
 
-  _tabletAutoFitDense(showNightRow = this._mobileNightMode() !== "off", showUpNext = false) {
+  _tabletAutoFitDense(showNightRow = mobileNightMode(this) !== "off", showUpNext = false) {
     return MaverickResponsiveFoundation.tabletAutoFitDense(this._layoutModeConfig(), {
       showNightRow,
       showUpNext,
@@ -1740,7 +1683,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const height = Number(profile?.height || this._lastCardHeight || 0);
     const showNightRow = typeof options.showNightRow === "boolean"
       ? options.showNightRow
-      : this._mobileNightMode() !== "off";
+      : mobileNightMode(this) !== "off";
     const showUpNextInline = typeof options.showUpNextInline === "boolean"
       ? options.showUpNextInline
       : (this._mobileShowUpNextEnabled() && !!this._mobileUpNextItem());
@@ -1754,7 +1697,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _syncTabletAutoFitUi(hasUpNext = null) {
     const card = this.shadowRoot?.querySelector(".card");
     if (!card) return;
-    const showNightRow = this._mobileNightMode() !== "off";
+    const showNightRow = mobileNightMode(this) !== "off";
     const upNextVisible = typeof hasUpNext === "boolean"
       ? hasUpNext
       : (this._mobileShowUpNextEnabled() && !!this._mobileUpNextItem());
@@ -1772,54 +1715,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       showNightRow,
       showUpNextInline: upNextVisible,
     }));
-  }
-
-  _cycleNightMode() {
-    const order = ["auto", "on", "off"];
-    const current = this._mobileNightMode();
-    const next = order[(order.indexOf(current) + 1) % order.length];
-    this._state.mobileNightMode = next;
-    this._persistMobileAppearance();
-    this._rebuildMobileUi({ reopenPage: this._state.menuOpen ? (this._state.menuPage || "settings") : "", reopenStudio: this._state.controlRoomOpen });
-  }
-
-  async _playNightMix() {
-    try {
-      const [allPlaylists, likedPlaylists] = await Promise.allSettled([
-        this._fetchLibrary("playlist", "sort_name", 500, false),
-        this._fetchLibrary("playlist", "sort_name", 220, true),
-      ]);
-      const playlists = [
-        ...(Array.isArray(allPlaylists.value) ? allPlaylists.value : []),
-        ...(Array.isArray(likedPlaylists.value) ? likedPlaylists.value : []),
-      ]
-        .filter((item) => item?.uri)
-        .filter((item, index, list) => list.findIndex((candidate) => candidate?.uri === item?.uri) === index);
-      if (!playlists.length) {
-        await this._playRandomFromPlaylists();
-        return;
-      }
-      const keywords = ["sleep", "night", "chill", "calm", "relax", "ambient", "meditation", "dream", "lofi", "lo-fi", "soft"];
-      const matches = playlists.filter((item) => {
-        const haystack = [
-          item?.name,
-          item?.metadata?.description,
-          item?.description,
-        ].filter(Boolean).join(" ").toLowerCase();
-        return keywords.some((keyword) => haystack.includes(keyword));
-      });
-      const pool = matches.length ? matches : playlists;
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      const ok = await this._playMedia(pick.uri, pick.media_type || "playlist", "play", {
-        label: pick.name || this._i18n("ui.chill_mix"),
-        silent: true,
-      });
-      if (ok) {
-        this._toastSuccess(this._i18n("ui.starting_a_chill_mix"));
-      }
-    } catch (error) {
-      this._toastError(error?.message || this._i18n("ui.could_not_start_chill_mix"));
-    }
   }
 
   async _resolveQuickMixEntry() {
@@ -1968,64 +1863,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.quickMixPendingUntil = 0;
       this._state.quickMixPendingEntry = null;
       this._toastError(error?.message || this._i18n("ui.could_not_start_quick_mix"));
-    }
-  }
-
-  _syncNightModeUi() {
-    const card = this.shadowRoot?.querySelector(".card");
-    const active = this._isNightModeActive();
-    const mode = this._mobileNightMode();
-    const sleepActive = sleepTimerRemainingMs(this) > 0;
-    if (this._state.mobileNightRenderedActive !== active || this._state.mobileNightRenderedMode !== mode) {
-      this._state.mobileNightRenderedActive = active;
-      this._state.mobileNightRenderedMode = mode;
-      if (isScheduleFormEditing(this)) {
-        if (card) {
-          card.classList.toggle("night-mode", active);
-          card.classList.toggle("night-mode-enabled", mode !== "off");
-        }
-        return;
-      }
-      const reopenMenu = this._state.menuOpen ? (this._state.menuPage || "settings") : "";
-      this._rebuildMobileUi({ reopenPage: reopenMenu, reopenStudio: this._state.controlRoomOpen });
-      return;
-    }
-    if (card) {
-      card.classList.toggle("night-mode", active);
-      card.classList.toggle("night-mode-enabled", mode !== "off");
-    }
-    this._syncTabletAutoFitUi();
-    const row = this.$("nightQuickRow");
-    if (row) {
-      row.hidden = mode === "off";
-      row.classList.toggle("auto-mode", mode === "auto");
-      row.classList.toggle("on-mode", mode === "on");
-    }
-    const modeBtn = this.$("nightModeQuickBtn");
-    if (modeBtn) {
-      modeBtn.hidden = mode === "off";
-      modeBtn.classList.toggle("active", active || mode === "on");
-      modeBtn.classList.toggle("soft", mode === "auto" && !active);
-      modeBtn.title = mode === "auto"
-        ? this._i18n("ui.night_mode_auto_window", {
-          start: this._nightModeWindow().start,
-          end: this._nightModeWindow().end,
-        })
-        : mode === "on"
-          ? this._i18n("ui.night_mode_is_always_on")
-          : this._i18n("ui.night_mode_is_off");
-    }
-    const sleepBtn = this.$("nightSleepBtn");
-    if (sleepBtn) {
-      sleepBtn.hidden = mode !== "on";
-      sleepBtn.classList.toggle("active", sleepActive);
-      sleepBtn.title = sleepActive
-        ? this._i18n("ui.sleep_timer_active_remaining", { remaining: sleepTimerRemainingLabel(this) })
-        : this._i18n("ui.tap_to_start_a_sleep_timer");
-    }
-    const chillBtn = this.$("nightChillBtn");
-    if (chillBtn) {
-      chillBtn.hidden = mode !== "on";
     }
   }
 
@@ -2864,7 +2701,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _systemMobileStatePayload() {
     const schedules = scheduledStartSchedules(this);
-    const nightWindow = this._nightModeWindow();
+    const nightWindow = nightModeWindow(this);
     const sleepTimerEndsAt = Number(this._state.mobileSleepTimerEndsAt || 0) || 0;
     const payload = {
       version: 1,
@@ -2874,10 +2711,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       startSchedules: schedules,
       startTimerEnabled: schedules.some((schedule) => schedule.enabled !== false),
       startTimerLastRunKey: this._state.mobileStartTimerLastRunKey || "",
-      nightMode: this._mobileNightMode(),
+      nightMode: mobileNightMode(this),
       nightModeStart: nightWindow.start,
       nightModeEnd: nightWindow.end,
-      nightModeDays: this._nightModeDays(),
+      nightModeDays: nightModeDays(this),
     };
     if (sleepTimerEndsAt > Date.now()) {
       payload.sleepTimerEndsAt = sleepTimerEndsAt;
@@ -2929,10 +2766,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       }
     }
     if (hasNightPayload) {
-      this._state.mobileNightMode = ["off", "auto", "on"].includes(rawNightMode) ? rawNightMode : this._mobileNightMode();
-      this._state.mobileNightModeStart = this._normalizeClockTime(payload.nightModeStart || payload.mobileNightModeStart || this._state.mobileNightModeStart || "22:00", "22:00");
-      this._state.mobileNightModeEnd = this._normalizeClockTime(payload.nightModeEnd || payload.mobileNightModeEnd || this._state.mobileNightModeEnd || "06:00", "06:00");
-      this._state.mobileNightModeDays = this._normalizeNightModeDays(payload.nightModeDays || payload.mobileNightModeDays || this._state.mobileNightModeDays);
+      this._state.mobileNightMode = ["off", "auto", "on"].includes(rawNightMode) ? rawNightMode : mobileNightMode(this);
+      this._state.mobileNightModeStart = normalizeClockTime(payload.nightModeStart || payload.mobileNightModeStart || this._state.mobileNightModeStart || "22:00", "22:00");
+      this._state.mobileNightModeEnd = normalizeClockTime(payload.nightModeEnd || payload.mobileNightModeEnd || this._state.mobileNightModeEnd || "06:00", "06:00");
+      this._state.mobileNightModeDays = normalizeNightModeDays(payload.nightModeDays || payload.mobileNightModeDays || this._state.mobileNightModeDays);
     }
     if (hasSleepTimerPayload) {
       const sleepTimerEndsAt = Number(payload.sleepTimerEndsAt ?? payload.mobileSleepTimerEndsAt ?? 0) || 0;
@@ -2975,7 +2812,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _writeSchedulesToLocalStorage() {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_enabled"), JSON.stringify(!!this._state.mobileStartTimerEnabled)); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_time"), this._normalizeClockTime(this._state.mobileStartTimerTime || "07:00", "07:00")); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_time"), normalizeClockTime(this._state.mobileStartTimerTime || "07:00", "07:00")); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_player"), this._state.mobileStartTimerPlayer || ""); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_playlist"), this._state.mobileStartTimerPlaylist || ""); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_playlist_name"), this._state.mobileStartTimerPlaylistName || ""); } catch (_) {}
@@ -2984,10 +2821,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_last_run"), this._state.mobileStartTimerLastRunKey || ""); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_schedules"), JSON.stringify(scheduledStartSchedules(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_schedules_tab"), this._state.mobileSchedulesTab || "timers"); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_mode"), this._mobileNightMode()); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_start"), this._normalizeClockTime(this._state.mobileNightModeStart || "22:00", "22:00")); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_end"), this._normalizeClockTime(this._state.mobileNightModeEnd || "06:00", "06:00")); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_days"), JSON.stringify(this._nightModeDays())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_mode"), mobileNightMode(this)); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_start"), normalizeClockTime(this._state.mobileNightModeStart || "22:00", "22:00")); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_end"), normalizeClockTime(this._state.mobileNightModeEnd || "06:00", "06:00")); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_days"), JSON.stringify(nightModeDays(this))); } catch (_) {}
   }
 
   _writeSleepTimerToLocalStorage() {
@@ -5954,8 +5791,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.classList.remove("compact-inline-popup-open");
     this.classList.toggle("compact-tile-open", compactMode && compactTileMode);
     this.classList.toggle("compact-menu-open", this._compactMenuOverlayOpen());
-    const nightMode = this._mobileNightMode();
-    const nightActive = this._isNightModeActive();
+    const nightMode = mobileNightMode(this);
+    const nightActive = isNightModeActive(this);
     const sleepTimerActive = sleepTimerRemainingMs(this) > 0;
     const showUpNext = this._mobileShowUpNextEnabled();
     const hasUpNextItem = !!this._mobileUpNextItem();
@@ -5986,18 +5823,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._lastCardHeight = Math.max(0, Math.round(height || this._lastCardHeight || 0));
     this._state.mobileNightRenderedActive = nightActive;
     this._state.mobileNightRenderedMode = nightMode;
-    const nightQuickRowHtml = showNightRow ? `
-      <div class="night-quick-row ${nightMode === "auto" ? "auto-mode" : "on-mode"}" id="nightQuickRow" ${showNightRow ? "" : "hidden"}>
-        <button class="night-quick-btn icon-only ${nightActive || nightMode === "on" ? "active" : "soft"}" id="nightModeQuickBtn" title="${this._esc(this._i18n("ui.night_mode"))}">
-          ${this._iconSvg("moon")}
-        </button>
-        <button class="night-quick-btn icon-only ${sleepTimerActive ? "active" : ""}" id="nightSleepBtn" title="${this._esc(this._i18n("ui.sleep_timer"))}" ${nightMode === "on" ? "" : "hidden"}>
-          ${this._iconSvg("timer")}
-        </button>
-        <button class="night-quick-btn icon-only soft" id="nightChillBtn" title="${this._esc(this._i18n("ui.chill_mix"))}" ${nightMode === "on" ? "" : "hidden"}>
-          ${this._iconSvg("wand")}
-        </button>
-      </div>` : ``;
+    const nightRowHtml = nightQuickRowHtml(this);
     const playerFocusCoreHtml = `
         <button class="player-focus" id="activePlayerChip" title="${this._i18n("ui.choose_player")}">
           ${immersiveDesign ? `<span class="immersive-player-symbol" aria-hidden="true">${this._iconSvg("speaker")}</span>` : ""}
@@ -6147,7 +5973,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
                     <span class="up-next-title"></span>
                   </span>
                 </button>
-                ${nightQuickRowHtml}
+                ${nightRowHtml}
               </div>
             </div>
           </div>
@@ -6197,7 +6023,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
                 ${mobileQuickActionsHtml}
               </div>
             </div>
-            ${nightQuickRowHtml}
+            ${nightRowHtml}
           </div>
         </div>
       </div>`;
@@ -6371,17 +6197,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (!this._pressUiButton(e.currentTarget)) return;
       await this._playMobileUpNext();
     }));
-    this.$("nightModeQuickBtn")?.addEventListener("click", (e) => {
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._cycleNightMode();
-    });
+    bindNightQuickRow(this);
     this.$("nightSleepBtn")?.addEventListener("click", async (e) => {
       if (!this._pressUiButton(e.currentTarget)) return;
       await cycleSleepTimer(this, "night");
-    });
-    this.$("nightChillBtn")?.addEventListener("click", async (e) => {
-      if (!this._pressUiButton(e.currentTarget)) return;
-      await this._playNightMix();
     });
     this.$("homeShortcutFab")?.addEventListener("click", (e) => {
       e.preventDefault();
@@ -7157,8 +6976,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (tags) {
       const groupCount = this._playerGroupCount(player);
       const pinned = this._resolvedPinnedPlayerEntities().includes(player?.entity_id) || this._frontPinnedPlayerEntity() === player?.entity_id;
-      const nightMode = this._mobileNightMode();
-      const nightActive = this._isNightModeActive();
+      const nightMode = mobileNightMode(this);
+      const nightActive = isNightModeActive(this);
       tags.innerHTML = [
         pinned
           ? `<span class="player-focus-pill pinned"><span>${this._esc(this._i18n("ui.pinned"))}</span></span>`
@@ -7862,7 +7681,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.shadowRoot?.querySelector(".volume-wheel-popover")?._refreshVolumeState?.();
     if (this.$("immersiveActionsToggle")) queueMicrotask(() => syncImmersivePlayer(this));
     syncSleepTimerState(this);
-    this._syncNightModeUi();
+    syncNightModeUi(this);
     const player = this._getSelectedPlayer();
     const currentQueueItem = this._state.maQueueState?.current_item || null;
     if (lyricsSessionActive(this)) syncLyricsForCurrentTrack(this);
@@ -13748,40 +13567,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._refreshAfterSettingsChange({});
       return;
     }
-    const nightModeBtn = eventTarget.closest("[data-setting-night-mode]");
-    if (nightModeBtn?.dataset.settingNightMode) {
-      const previousNight = {night_mode:this._mobileNightMode(),night_start:this._state.mobileNightModeStart,night_end:this._state.mobileNightModeEnd,night_days:[...this._nightModeDays()]};
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(nightModeBtn);
-      this._state.mobileNightMode = ["off", "auto", "on"].includes(nightModeBtn.dataset.settingNightMode)
-        ? nightModeBtn.dataset.settingNightMode
-        : "auto";
-      if (!(await saveNightPreferences(this, previousNight))) return;
-      this._persistMobileAppearance();
-      this._rebuildMobileUi({ reopenPage: this._state.menuOpen ? (this._state.menuPage || "sleep_timer") : "sleep_timer", reopenStudio: this._state.controlRoomOpen });
-      return;
-    }
-    const nightWindowSaveBtn = eventTarget.closest("[data-setting-night-window-save]");
-    if (nightWindowSaveBtn) {
-      const previousNight = {night_mode:this._mobileNightMode(),night_start:this._state.mobileNightModeStart,night_end:this._state.mobileNightModeEnd,night_days:[...this._nightModeDays()]};
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(nightWindowSaveBtn);
-      const startInput = this.$("mobileNightStartInput");
-      const endInput = this.$("mobileNightEndInput");
-      const checkedDays = Array.from(this.shadowRoot?.querySelectorAll("input[data-setting-night-day]:checked") || [])
-        .map((input) => Number(input.dataset.settingNightDay))
-        .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6);
-      this._state.mobileNightModeStart = this._normalizeClockTime(startInput?.value || "22:00", "22:00");
-      this._state.mobileNightModeEnd = this._normalizeClockTime(endInput?.value || "06:00", "06:00");
-      this._state.mobileNightModeDays = this._normalizeNightModeDays(checkedDays);
-      if (!(await saveNightPreferences(this, previousNight))) return;
-      this._persistMobileAppearance();
-      this._toastSuccess(this._i18n("ui.night_schedule_updated"));
-      this._build();
-      this._init();
-      this._openMobileMenu(this._state.menuPage || "sleep_timer");
-      return;
-    }
+    if (await handleNightSettingsClick(this, eventTarget)) return;
     const compactModeBtn = eventTarget.closest("[data-setting-compact-mode]");
     if (compactModeBtn?.dataset.settingCompactMode) {
       this._flashInteraction(compactModeBtn);
@@ -14333,15 +14119,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._rememberMobileMenuScroll();
     if (await handleSimpleWizardChange(this, e)) return;
     if (handleTimersFormChange(this, e)) return;
-    const nightDayCheckbox = e.target?.closest?.("input[data-setting-night-day]");
-    if (nightDayCheckbox) {
-      this._state.mobileNightModeDays = this._normalizeNightModeDays(
-        Array.from(this.shadowRoot?.querySelectorAll("input[data-setting-night-day]:checked") || [])
-          .map((input) => Number(input.dataset.settingNightDay))
-          .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6)
-      );
-      return;
-    }
+    if (handleNightFormChange(this, e)) return;
     if (handleAnnouncementFormChange(this, e)) return;
     if (e.target?.id === "mobileLanguageSelect") {
       this._state.lang = e.target.value || "en";
@@ -14520,16 +14298,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.mobileVolumeStepPercent = MaverickMobileSettingsFoundation.clampMobileVolumeStepPercent(e.target.value || 5);
       this._persistMobileAppearance();
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
-      return;
-    }
-    if (e.target?.id === "mobileNightStartInput" || e.target?.id === "mobileNightEndInput") {
-      if (e.target.value) {
-        if (e.target.id === "mobileNightStartInput") {
-          this._state.mobileNightModeStart = this._normalizeClockTime(e.target.value, this._state.mobileNightModeStart || "22:00");
-        } else {
-          this._state.mobileNightModeEnd = this._normalizeClockTime(e.target.value, this._state.mobileNightModeEnd || "06:00");
-        }
-      }
       return;
     }
     if (e.target?.dataset?.playerVolume) {

@@ -7,9 +7,13 @@ import {
   sleepTimerFooterLabel as footerLabelFor,
   sleepTimerRemainingLabel as remainingLabelFor,
   sleepTimerRemainingMs as remainingMsFor,
+  normalizeClockTime,
+  normalizeNightModeDays,
 } from "../state/night-mode.js";
 import { isMusicAssistantPlayer, isPlayerAvailable } from "../state/players.js";
 import { immersivePlayerEnabled } from "./immersive-player.js";
+import { nightModeDayOptions, nightTabHtml, syncNightModeUi } from "./night-mode.js";
+export { isScheduleFormControl, isScheduleFormEditing, markScheduleFormControlActive } from "./schedule-form.js";
 
 // Sleep timers and wake schedules. Both are confirmed by the Engine before the
 // card shows them as active; the card keeps a local copy for offline display.
@@ -20,16 +24,6 @@ const MORNING_KEYWORDS = [
   "morning", "sunrise", "coffee", "breakfast", "wake", "wakeup", "wake up",
   "calm", "soft", "easy", "acoustic", "chill", "lofi", "lo-fi", "pleasant",
 ];
-const SCHEDULE_FORM_IDS = [
-  "scheduledStartTimeInput",
-  "scheduledStartPlayerSelect",
-  "scheduledStartPlaylistSelect",
-  "scheduledStartAfterRunSelect",
-  "scheduledStartVolumeInput",
-  "mobileNightStartInput",
-  "mobileNightEndInput",
-];
-
 // ---------------------------------------------------------------------------
 // Sleep timer: derived state
 
@@ -215,7 +209,7 @@ export async function saveSleepTimerState(card, nextState, minutes, source) {
     return false;
   } finally {
     card._sleepTimerSavePending = false;
-    card._syncNightModeUi();
+    syncNightModeUi(card);
     syncSleepTimerChip(card);
   }
 }
@@ -251,7 +245,7 @@ export async function clearSleepTimer(card, showToast = false) {
   card._state.mobileSleepTimerOrigin = "";
   card._state.mobileSleepTimerMenuOpen = false;
   card._persistMobileAppearance();
-  card._syncNightModeUi();
+  syncNightModeUi(card);
   syncSleepTimerChip(card);
   if (showToast) {
     card._toast(card._i18n("ui.sleep_timer_cleared"));
@@ -350,7 +344,7 @@ export function syncSleepTimerState(card) {
   card._state.mobileSleepTimerMenuOpen = false;
   card._persistMobileAppearance();
   syncSleepTimerChip(card);
-  card._syncNightModeUi();
+  syncNightModeUi(card);
   if (entityId) {
     card._callMaverickEnginePlayerCommand(entityId, "pause").catch(() => {});
   }
@@ -414,7 +408,7 @@ export function syncSleepTimerChip(card) {
 // Wake schedules: model
 
 export function scheduledStartDays(card) {
-  return card._normalizeNightModeDays(card._state.mobileStartTimerDays);
+  return normalizeNightModeDays(card._state.mobileStartTimerDays);
 }
 
 function newScheduledStartId() {
@@ -430,12 +424,12 @@ export function normalizeScheduledStartSchedule(card, schedule = {}, index = 0) 
   return {
     id,
     enabled: schedule?.enabled !== false,
-    time: card._normalizeClockTime(schedule?.time || "07:00", "07:00"),
+    time: normalizeClockTime(schedule?.time || "07:00", "07:00"),
     player: String(schedule?.player || "").trim(),
     playlist: String(schedule?.playlist || "").trim(),
     playlistName: String(schedule?.playlistName || "").trim(),
     volume,
-    days: card._normalizeNightModeDays(schedule?.days),
+    days: normalizeNightModeDays(schedule?.days),
     lastRunKey: String(schedule?.lastRunKey || "").trim(),
     afterRun,
   };
@@ -489,7 +483,7 @@ export function scheduledStartEnginePayload(card, schedule = {}) {
     selection_mode: mediaMode,
     enqueue: "play",
     time: normalized.time,
-    days: card._normalizeNightModeDays(normalized.days),
+    days: normalizeNightModeDays(normalized.days),
     volume: Math.max(0, Math.min(100, Number(normalized.volume || 35) || 35)),
     enabled: normalized.enabled !== false,
     after_run: normalized.afterRun || "keep",
@@ -694,11 +688,11 @@ function scheduledStartStatusLabel(card) {
   const schedule = activeSchedules[0];
   const player = card._playerByEntityId(scheduledStartPlayerId(card, schedule));
   const playerName = player?.attributes?.friendly_name || card._i18n("ui.selected_player_3");
-  const dayLabels = card._nightModeDayOptions()
-    .filter(([value]) => card._normalizeNightModeDays(schedule.days).includes(value))
+  const dayLabels = nightModeDayOptions(card)
+    .filter(([value]) => normalizeNightModeDays(schedule.days).includes(value))
     .map(([, label]) => label)
     .join(" ");
-  const time = card._normalizeClockTime(schedule.time || "07:00", "07:00");
+  const time = normalizeClockTime(schedule.time || "07:00", "07:00");
   const volume = Math.max(0, Math.min(100, Number(schedule.volume || 35) || 35));
   const playlist = scheduledStartPlaylistLabel(card, schedule);
   return `${time} · ${playerName} · ${playlist} · ${volume}% · ${dayLabels}`;
@@ -725,14 +719,14 @@ export async function setScheduledStartFromMenu(card) {
   const schedule = normalizeScheduledStartSchedule(card, {
     id: editId && editId !== "__new__" ? editId : newScheduledStartId(),
     enabled: true,
-    time: card._normalizeClockTime(timeInput?.value || "07:00", "07:00"),
+    time: normalizeClockTime(timeInput?.value || "07:00", "07:00"),
     player: playerId,
     playlist: String(playlistSelect?.value || "").trim(),
     playlistName: String(playlistSelect?.value || "").trim()
       ? String(playlistSelect?.selectedOptions?.[0]?.textContent || "").trim()
       : "",
     volume: Math.max(0, Math.min(100, Number(volumeInput?.value || 35) || 35)),
-    days: card._normalizeNightModeDays(checkedDays),
+    days: normalizeNightModeDays(checkedDays),
     lastRunKey: "",
     afterRun: String(afterRunSelect?.value || "keep") === "disable" ? "disable" : "keep",
   });
@@ -861,10 +855,10 @@ export function syncScheduledStartState(card, date = new Date()) {
   if (card._maverickEngineEnabled() && card._state.engineAvailable) return;
   let changed = false;
   schedules.forEach((schedule) => {
-    const time = card._normalizeClockTime(schedule.time || "07:00", "07:00");
+    const time = normalizeClockTime(schedule.time || "07:00", "07:00");
     const [hours, minutes] = time.split(":").map((part) => Number(part) || 0);
     if (date.getHours() !== hours || date.getMinutes() !== minutes) return;
-    const enabledDays = new Set(card._normalizeNightModeDays(schedule.days));
+    const enabledDays = new Set(normalizeNightModeDays(schedule.days));
     if (!enabledDays.has(Number(date.getDay()))) return;
     const runKey = `${schedule.id}-${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${time}`;
     if (schedule.lastRunKey === runKey) return;
@@ -884,30 +878,6 @@ export function syncScheduledStartState(card, date = new Date()) {
     card._state.mobileStartTimerEnabled = card._state.mobileStartSchedules.some((schedule) => schedule.enabled !== false);
     card._persistMobileAppearance();
   }
-}
-
-// ---------------------------------------------------------------------------
-// Form-editing guard: keeps periodic rebuilds from wiping a half-edited schedule.
-
-export function isScheduleFormControl(target) {
-  const el = target?.closest?.("input, select, textarea");
-  if (!el) return false;
-  const id = el.id || "";
-  if (SCHEDULE_FORM_IDS.includes(id)) return true;
-  return el.dataset?.startTimerDay !== undefined || el.dataset?.settingNightDay !== undefined;
-}
-
-export function markScheduleFormControlActive(card, target = null) {
-  if (!isScheduleFormControl(target)) return false;
-  card._state.mobileScheduleControlActiveUntil = Date.now() + 2500;
-  return true;
-}
-
-export function isScheduleFormEditing(card) {
-  if (!card._state.menuOpen || card._state.menuPage !== "sleep_timer") return false;
-  const active = card.shadowRoot?.activeElement;
-  return isScheduleFormControl(active)
-    || Date.now() < Number(card._state.mobileScheduleControlActiveUntil || 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -933,14 +903,11 @@ export function timersPageHtml(card) {
     days: card._state.mobileStartTimerDays || editSchedule?.days,
     afterRun: card._state.mobileStartTimerAfterRun || editSchedule?.afterRun || "keep",
   } : editSchedule;
-  const scheduledTime = card._normalizeClockTime(wakeDraftSchedule?.time || "07:00", "07:00");
+  const scheduledTime = normalizeClockTime(wakeDraftSchedule?.time || "07:00", "07:00");
   const scheduledPlayer = scheduledStartPlayerId(card, wakeDraftSchedule);
   const scheduledVolume = Math.max(0, Math.min(100, Number(wakeDraftSchedule?.volume ?? 35) || 35));
-  const scheduledDays = new Set(card._normalizeNightModeDays(wakeDraftSchedule?.days || card._state.mobileStartTimerDays));
+  const scheduledDays = new Set(normalizeNightModeDays(wakeDraftSchedule?.days || card._state.mobileStartTimerDays));
   const scheduledAfterRun = String(wakeDraftSchedule?.afterRun || "keep") === "disable" ? "disable" : "keep";
-  const nightMode = card._mobileNightMode();
-  const nightWindow = card._nightModeWindow();
-  const nightDays = new Set(card._nightModeDays());
   const activeTab = SCHEDULE_TABS.includes(card._state.mobileSchedulesTab) ? card._state.mobileSchedulesTab : "timers";
   const schedulePlayers = strictSchedulePlayers(card);
   const playerOptions = schedulePlayers.map((player) => {
@@ -955,8 +922,8 @@ export function timersPageHtml(card) {
           const afterRunLabel = schedule.afterRun === "disable"
             ? card._i18n("ui.turns_off_after_run")
             : card._i18n("ui.stays_active");
-          const days = card._nightModeDayOptions()
-            .filter(([value]) => card._normalizeNightModeDays(schedule.days).includes(value))
+          const days = nightModeDayOptions(card)
+            .filter(([value]) => normalizeNightModeDays(schedule.days).includes(value))
             .map(([, label]) => label)
             .join(" ");
           return `
@@ -1033,7 +1000,7 @@ export function timersPageHtml(card) {
           </div>
           <div class="settings-label">${card._esc(card._i18n("ui.active_days"))}</div>
           <div class="settings-check-grid">
-            ${card._nightModeDayOptions().map(([value, label]) => `
+            ${nightModeDayOptions(card).map(([value, label]) => `
               <label class="settings-check-pill">
                 <input type="checkbox" data-schedule-form-control data-start-timer-day="${card._esc(String(value))}" ${scheduledDays.has(value) ? "checked" : ""}>
                 <span>${card._esc(label)}</span>
@@ -1046,44 +1013,7 @@ export function timersPageHtml(card) {
         </div>` : ``}
       </div>
     `;
-  const nightScheduleControlsHtml = nightMode === "auto"
-    ? `
-        <div class="scheduled-start-grid two-col">
-          <label class="night-time-card" for="mobileNightStartInput">
-            <span class="night-time-label">${card._esc(card._i18n("ui.start_time_2"))}</span>
-            <input class="night-time-input" id="mobileNightStartInput" data-schedule-form-control type="time" value="${card._esc(nightWindow.start)}" step="60" aria-label="${card._esc(card._i18n("ui.start_time_2"))}">
-          </label>
-          <label class="night-time-card" for="mobileNightEndInput">
-            <span class="night-time-label">${card._esc(card._i18n("ui.end_time"))}</span>
-            <input class="night-time-input" id="mobileNightEndInput" data-schedule-form-control type="time" value="${card._esc(nightWindow.end)}" step="60" aria-label="${card._esc(card._i18n("ui.end_time"))}">
-          </label>
-        </div>
-        <div class="settings-label">${card._esc(card._i18n("ui.active_days"))}</div>
-        <div class="settings-check-grid">
-          ${card._nightModeDayOptions().map(([value, label]) => `
-            <label class="settings-check-pill">
-              <input type="checkbox" data-schedule-form-control data-setting-night-day="${card._esc(String(value))}" ${nightDays.has(value) ? "checked" : ""}>
-              <span>${card._esc(label)}</span>
-            </label>`).join("")}
-        </div>
-        <div class="settings-actions">
-          <button class="settings-pill active" data-setting-night-window-save>${card._esc(card._i18n("ui.apply_schedule"))}</button>
-        </div>
-      `
-    : `<div class="notice open">${card._esc(nightMode === "on"
-        ? card._i18n("ui.night_mode_stays_on_until_you_choose_another_mode")
-        : card._i18n("ui.night_mode_is_off_until_you_choose_another_mode"))}</div>`;
-  const nightHtml = `
-      <div class="settings-group scheduled-start-card schedule-panel-card schedule-night-card">
-        <div class="settings-label">${card._esc(card._i18n("ui.night_mode"))}</div>
-        <div class="settings-pills">
-          ${card._settingsPill(card._i18n("ui.off"), "off", nightMode, "data-setting-night-mode")}
-          ${card._settingsPill("Auto", "auto", nightMode, "data-setting-night-mode")}
-          ${card._settingsPill(card._i18n("ui.on"), "on", nightMode, "data-setting-night-mode")}
-        </div>
-        ${nightScheduleControlsHtml}
-      </div>
-    `;
+  const nightHtml = nightTabHtml(card);
   return `
       <div class="settings-shell">
         <div class="schedule-tabs" role="tablist" aria-label="${card._esc(card._i18n("ui.schedules"))}">
@@ -1211,7 +1141,7 @@ export async function handleTimersMenuClick(card, e, eventTarget) {
 export function handleTimersFormChange(card, e) {
   const target = e.target;
   if (target?.id === "scheduledStartTimeInput") {
-    if (target.value) card._state.mobileStartTimerTime = card._normalizeClockTime(target.value, card._state.mobileStartTimerTime || "07:00");
+    if (target.value) card._state.mobileStartTimerTime = normalizeClockTime(target.value, card._state.mobileStartTimerTime || "07:00");
     return true;
   }
   if (target?.id === "scheduledStartPlayerSelect") {
@@ -1239,7 +1169,7 @@ export function handleTimersFormChange(card, e) {
   }
   const startDayCheckbox = target?.closest?.("input[data-start-timer-day]");
   if (startDayCheckbox) {
-    card._state.mobileStartTimerDays = card._normalizeNightModeDays(
+    card._state.mobileStartTimerDays = normalizeNightModeDays(
       Array.from(card.shadowRoot?.querySelectorAll("input[data-start-timer-day]:checked") || [])
         .map((input) => Number(input.dataset.startTimerDay))
         .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6)

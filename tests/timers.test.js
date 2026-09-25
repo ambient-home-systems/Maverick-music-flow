@@ -41,7 +41,7 @@ function stubCard(state = {}) {
     _state: {
       mobileSleepTimerEndsAt: 0, mobileSleepTimerPlayer: "", mobileSleepTimerOrigin: "", mobileSleepTimerMenuOpen: false,
       mobileStartSchedules: [], mobileStartScheduleEditId: "", mobileStartTimerEnabled: false, mobileStartTimerDays: [0, 1, 2, 3, 4, 5, 6],
-      mobileStartTimerPlaylists: [], mobileSchedulesTab: "timers", selectedPlayer: "media_player.kitchen", players, menuOpen: true, menuPage: "sleep_timer",
+      mobileStartTimerPlaylists: [], mobileSchedulesTab: "timers", mobileNightMode: "off", selectedPlayer: "media_player.kitchen", players, menuOpen: true, menuPage: "sleep_timer",
       ...state,
     },
     _m: (text) => text,
@@ -49,12 +49,6 @@ function stubCard(state = {}) {
     _esc: (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;"),
     _iconSvg: (name) => `<svg data-icon="${name}"></svg>`,
     _settingsPill: (label, value, current, attr) => `<button ${attr}="${value}" class="settings-pill ${value === current ? "active" : ""}">${label}</button>`,
-    _normalizeClockTime: (value, fallback) => (/^\d\d:\d\d$/.test(String(value || "")) ? value : fallback),
-    _normalizeNightModeDays: (days) => (Array.isArray(days) && days.length ? days.map(Number) : [0, 1, 2, 3, 4, 5, 6]),
-    _nightModeDayOptions: () => [[0, "Sun"], [1, "Mon"], [2, "Tue"], [3, "Wed"], [4, "Thu"], [5, "Fri"], [6, "Sat"]],
-    _mobileNightMode: () => "off",
-    _nightModeWindow: () => ({ start: "22:00", end: "06:00" }),
-    _nightModeDays: () => [0, 1, 2, 3, 4, 5, 6],
     _mobileQuickActions: () => ["timer"],
     _loadPlayers: vi.fn(),
     _playerByEntityId: (id) => players.find((player) => player.entity_id === id) || null,
@@ -70,7 +64,7 @@ function stubCard(state = {}) {
     _fetchLibrary: vi.fn(async () => [{ uri: "library://playlist/1", name: "Morning Mix", media_type: "playlist" }]),
     _persistMobileAppearance: vi.fn(),
     _writeSchedulesToLocalStorage: vi.fn(),
-    _syncNightModeUi: vi.fn(),
+    _syncTabletAutoFitUi: vi.fn(),
     _rebuildMobileUi: vi.fn(),
     _renderMobileMenu: vi.fn(async () => {}),
     _flashInteraction: vi.fn(),
@@ -115,7 +109,7 @@ describe("timers page render", () => {
   it("renders the night tab from the card's night mode", () => {
     const { card } = stubCard({ mobileSchedulesTab: "night" });
     expect(timersPageHtml(card)).toContain("ui.night_mode_is_off_until_you_choose_another_mode");
-    card._mobileNightMode = () => "auto";
+    card._state.mobileNightMode = "auto";
     const html = timersPageHtml(card);
     expect(html).toContain('id="mobileNightStartInput"');
     expect(html).toContain("data-setting-night-window-save");

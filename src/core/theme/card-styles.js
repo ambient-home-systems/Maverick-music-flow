@@ -1,5 +1,6 @@
 import sheet0 from "./sheets/foundation.js";
 import sheet1 from "./sheets/compact.js";
+import nightModeSheet from "./sheets/night-mode.js";
 import sheet2 from "./sheets/player.js";
 import sheet3 from "./sheets/voice.js";
 import voiceAssistantSheet from "./sheets/voice-assistant.js";
@@ -26,6 +27,7 @@ export function buildCardStyles(options) {
   return [
     sheet0(options),
     sheet1(options),
+    nightModeSheet(options),
     sheet2(options),
     sheet3(options),
     voiceAssistantSheet(options),
