@@ -15775,10 +15775,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return this._normalizeAnnouncementLanguage(this._state.mobileAnnouncementTtsLanguage || this._config?.announcement_tts_language || "auto");
   }
 
-  _announcementLanguageCode(text = "") {
+  _announcementLanguageCode() {
     const configured = this._announcementLanguageSetting();
     if (configured !== "auto") return configured;
-    return /[\u0590-\u05FF]/.test(String(text || "")) ? "he-IL" : "";
+    return "";
   }
 
   _announcementRecognitionLanguageCode() {
@@ -15920,7 +15920,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ? this._i18n("ui.all_players_2")
       : (targets[0]?.attributes?.friendly_name || targets[0]?.entity_id || this._selectedPlayerName());
     const preview = message.length > 72 ? `${message.slice(0, 69)}...` : message;
-    const language = this._announcementLanguageCode(message);
+    const language = this._announcementLanguageCode();
     this._toast(this._i18n("ui.announcement_to_player_preview", {
       player: playerName,
       preview,

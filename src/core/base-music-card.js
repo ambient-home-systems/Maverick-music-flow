@@ -8826,7 +8826,7 @@ export function createMaverickBaseMusicCard({
         ...(Array.isArray(preset?.queries) ? preset.queries : []),
       ].join(" ").toLowerCase();
       return source
-        .replace(/[^a-z0-9\u0590-\u05ff ]+/g, " ")
+        .replace(/[^a-z0-9 ]+/g, " ")
         .split(/\s+/)
         .map((token) => token.trim())
         .filter((token) => token.length >= 3);
