@@ -32,7 +32,7 @@ Optional features such as local-device Sendspin playback, synchronized lyrics an
 **This is a breaking upgrade. Do not update the card alone.** Back up HA and your dashboard, install/configure the matching Engine first, then install the beta card. Keep native MA available while testing. Stable users can stay on 5.9.3.
 
 - Card: https://github.com/ambient-home-systems/maverick-music-flow
-- Required Engine: https://github.com/r11a/homeii-flow-engine
+- Required Engine: https://github.com/ambient-home-systems/maverick-music-flow-engine
 - Install and rollback: https://github.com/ambient-home-systems/maverick-music-flow/blob/v6.0.0-beta.1/docs/BETA_GUIDE.md
 - What to test: https://github.com/ambient-home-systems/maverick-music-flow/blob/v6.0.0-beta.1/docs/BETA_TESTING.md
 - Report a bug: https://github.com/ambient-home-systems/maverick-music-flow/issues/new?template=beta_bug.yml

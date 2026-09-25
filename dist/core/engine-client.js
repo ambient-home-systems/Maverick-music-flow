@@ -1,4 +1,12 @@
-export const MAVERICK_ENGINE_COMMAND_PREFIX = "homeii_flow";
+// Runtime contract shared with the Engine integration. Changing ENGINE_DOMAIN
+// requires releasing the card and the Engine together.
+export const ENGINE_DOMAIN = "maverick_music_flow";
+export const ENGINE_COMMAND_PREFIX = ENGINE_DOMAIN;
+export const ENGINE_REST_COMMAND_PATH = `${ENGINE_DOMAIN}/command/`;
+export const ENGINE_EVENT_TYPE = `${ENGINE_DOMAIN}_music_assistant_event`;
+export const ENGINE_ARTWORK_PATH = `/api/${ENGINE_DOMAIN}/artwork/`;
+export const ENGINE_SENDSPIN_PATH = `/api/${ENGINE_DOMAIN}/sendspin/`;
+export const ENGINE_SCREENSAVER_PATH = `/${ENGINE_DOMAIN}/maverick-music-flow-system-screensaver.js`;
 export const MAVERICK_ENGINE_MODES = Object.freeze(["required"]);
 
 // Documented config key -> legacy HOMEii config key. Both are accepted; the
@@ -67,7 +75,7 @@ export function maverickEngineCommandType(command = "get_context") {
     .replace(/^\/+|\/+$/g, "")
     .replace(/[^a-zA-Z0-9_/-]+/g, "_")
     || "get_context";
-  return `${MAVERICK_ENGINE_COMMAND_PREFIX}/${clean}`;
+  return `${ENGINE_COMMAND_PREFIX}/${clean}`;
 }
 
 export function normalizeMaverickEngineCapabilities(payload = null) {

@@ -38,11 +38,11 @@ A Spotify API key, an HA access token and an MA access token are different crede
 
 ## 4. Download the matching Engine
 
-1. Open [Engine releases](https://github.com/r11a/homeii-flow-engine/releases).
+1. Open [Engine releases](https://github.com/ambient-home-systems/maverick-music-flow-engine/releases).
 2. Select exactly **1.0.0**.
-3. Under Assets, download `homeii-flow-engine-1.0.0.zip`.
-4. Extract it on your computer. Inside it, locate `custom_components/homeii_flow`.
-5. Copy the complete `homeii_flow` directory into HA's `/config/custom_components/`.
+3. Under Assets, download the zip asset attached to the latest Maverick Music Engine release.
+4. Extract it on your computer. Inside it, locate `custom_components/maverick_music_flow`.
+5. Copy the complete `maverick_music_flow` directory into HA's `/config/custom_components/`.
 6. Create `custom_components` if it does not exist. If updating an existing Engine, replace the component files as one matching set; do not combine individual Python files from different versions.
 
 The result must look like this:
@@ -51,14 +51,14 @@ The result must look like this:
 /config/
   configuration.yaml
   custom_components/
-    homeii_flow/
+    maverick_music_flow/
       manifest.json
       __init__.py
       config_flow.py
       ...other files and subfolders...
 ```
 
-**Wrong:** `/config/custom_components/homeii_flow/custom_components/homeii_flow/manifest.json` — this is an extra nested directory.
+**Wrong:** `/config/custom_components/maverick_music_flow/custom_components/maverick_music_flow/manifest.json` — this is an extra nested directory.
 
 7. Restart Home Assistant, not just the browser. Wait for HA to return.
 8. Existing Engine users: retain the integration entry and verify it loads with the new version. New users continue below.

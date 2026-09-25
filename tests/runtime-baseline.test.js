@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { extractCardVersion } from "../src/core/version-utils.js";
+import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } from "../src/core/engine-client.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -440,7 +441,7 @@ describe("runtime baseline", () => {
     }];
 
     expect(card._maverickEngineMessage("timers/set", { player: "media_player.kitchen" })).toEqual(expect.objectContaining({
-      type: "homeii_flow/timers/set",
+      type: `${ENGINE_COMMAND_PREFIX}/timers/set`,
       instance_id: "main",
       profile_id: "kitchen",
       player: "media_player.kitchen",
@@ -468,7 +469,7 @@ describe("runtime baseline", () => {
       player: "media_player.kitchen",
     })).not.toHaveProperty("id");
     expect(card._maverickEngineMessage("players/get", { include_all: false })).toEqual(expect.objectContaining({
-      type: "homeii_flow/players/get",
+      type: `${ENGINE_COMMAND_PREFIX}/players/get`,
       instance_id: "main",
       profile_id: "kitchen",
       include_all: false,
@@ -508,9 +509,9 @@ describe("runtime baseline", () => {
     expect(card._hass.callWS).toHaveBeenCalled();
     expect(card._hass.callApi).toHaveBeenCalledWith(
       "POST",
-      "homeii_flow/command/bootstrap/get",
+      `${ENGINE_REST_COMMAND_PATH}bootstrap/get`,
       expect.objectContaining({
-        type: "homeii_flow/bootstrap/get",
+        type: `${ENGINE_COMMAND_PREFIX}/bootstrap/get`,
         selected_player: "media_player.main",
       }),
     );
@@ -1815,7 +1816,7 @@ describe("runtime baseline", () => {
       entity_id: "media_player.main",
       attributes: { active_queue: "queue-main" },
     };
-    const artwork = "/api/homeii_flow/artwork/item/queue-token";
+    const artwork = `${ENGINE_ARTWORK_PATH}item/queue-token`;
     card._state.engineAvailable = true;
     card._state.engineCapabilities = { item_artwork_proxy: true };
     card._maverickEngineGetQueue = vi.fn(async () => ({
@@ -1860,7 +1861,7 @@ describe("runtime baseline", () => {
       entity_id: "media_player.main",
       attributes: { active_queue: "queue-main" },
     };
-    const artwork = "/api/homeii_flow/artwork/item/queue-token";
+    const artwork = `${ENGINE_ARTWORK_PATH}item/queue-token`;
     card._state.selectedPlayer = player.entity_id;
     card._state.players = [player];
     card._state.engineAvailable = true;
@@ -2447,7 +2448,7 @@ describe("runtime baseline", () => {
 
     const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
-    const artwork = "/api/homeii_flow/artwork/item/library-token";
+    const artwork = `${ENGINE_ARTWORK_PATH}item/library-token`;
     card._state.engineAvailable = true;
     card._state.engineCapabilities = { item_artwork_proxy: true };
     card._maverickEngineGetLibrary = vi.fn(async () => ({

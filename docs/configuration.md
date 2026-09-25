@@ -79,6 +79,22 @@ The pre-rename keys `homeii_engine_mode`, `homeii_engine_instance_id`, `homeii_e
 
 Users who want to keep the previous frontend/Home Assistant/Music Assistant behavior should stay on Maverick Music 5.9.x.
 
+## Engine contract
+
+Every Home Assistant path, command type and event name the card shares with the [Engine](https://github.com/ambient-home-systems/maverick-music-flow-engine) is derived from one constant in `src/core/engine-client.js`:
+
+| Constant | Value |
+| --- | --- |
+| `ENGINE_DOMAIN` | `maverick_music_flow` |
+| `ENGINE_COMMAND_PREFIX` | `maverick_music_flow` (WebSocket command types, e.g. `maverick_music_flow/get_context`) |
+| `ENGINE_REST_COMMAND_PATH` | `maverick_music_flow/command/` (HTTP fallback) |
+| `ENGINE_EVENT_TYPE` | `maverick_music_flow_music_assistant_event` |
+| `ENGINE_ARTWORK_PATH` | `/api/maverick_music_flow/artwork/` |
+| `ENGINE_SENDSPIN_PATH` | `/api/maverick_music_flow/sendspin/` |
+| `ENGINE_SCREENSAVER_PATH` | `/maverick_music_flow/maverick-music-flow-system-screensaver.js` |
+
+`ENGINE_DOMAIN` must match the Engine's Home Assistant integration domain. If it ever changes, the card and the Engine must be released together; a card built for one domain cannot talk to an Engine registered under another.
+
 ## Sendspin / This Device
 
 The browser-based **This device** player is disabled in 6.0.0 Engine-only mode. Direct Sendspin authentication requires exposing an MA credential to the browser, which conflicts with the single secure Engine-owned connection model. Existing Music Assistant players continue to work normally.

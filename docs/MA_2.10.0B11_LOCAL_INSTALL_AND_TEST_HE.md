@@ -11,8 +11,8 @@
 
 ## התקנה
 
-1. העתק את `custom_components/homeii_flow` ממאגר HOMEii FLOW ENGINE אל:
-   `/config/custom_components/homeii_flow`
+1. העתק את `custom_components/maverick_music_flow` ממאגר HOMEii FLOW ENGINE אל:
+   `/config/custom_components/maverick_music_flow`
 2. הפעל מחדש את Home Assistant.
 3. ודא שאינטגרציית Music Assistant הרשמית מותקנת, Loaded, ושיש לפחות `media_player` אחד של MA.
 4. עבור אל Settings → Devices & services → HOMEii Flow Engine → Configure → General settings.

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { ENGINE_ARTWORK_PATH } from "../src/core/engine-client.js";
+
 import {
   artUrl,
   artistName,
@@ -158,18 +160,18 @@ describe("media presentation foundation", () => {
       "https://ma.local/imageproxy?path=queue%2Fpath.png&provider=library&size=512",
     );
     expect(artUrl({
-      homeii_artwork_url: "/api/homeii_flow/artwork/item/opaque-token",
+      homeii_artwork_url: `${ENGINE_ARTWORK_PATH}item/opaque-token`,
       image: "https://ma.local/imageproxy?path=legacy.jpg",
     }, "https://ma.local")).toBe(
-      "/api/homeii_flow/artwork/item/opaque-token",
+      `${ENGINE_ARTWORK_PATH}item/opaque-token`,
     );
     expect(artUrl({
       media_item: {
-        homeii_artwork_url: "/api/homeii_flow/artwork/item/nested-token",
+        homeii_artwork_url: `${ENGINE_ARTWORK_PATH}item/nested-token`,
         image: "https://ma.local/imageproxy/old",
       },
     }, "https://ma.local")).toBe(
-      "/api/homeii_flow/artwork/item/nested-token",
+      `${ENGINE_ARTWORK_PATH}item/nested-token`,
     );
     expect(artUrl({
       thumbnail: { path: "thumb/path.png", provider: "library" },

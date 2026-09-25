@@ -15,7 +15,7 @@
 6. Update **HOMEii Music Flow to 6.0.0** and keep exactly one registered card resource.
 7. Fully reload every browser and Companion App, then confirm Card 6.0.0 and Engine 1.0.0 in Diagnostics.
 
-[Beginner installation, upgrade and rollback guide](https://github.com/ambient-home-systems/maverick-music-flow/blob/v6.0.0/docs/INSTALL_STEP_BY_STEP.md) · [Required Engine](https://github.com/r11a/homeii-flow-engine)
+[Beginner installation, upgrade and rollback guide](https://github.com/ambient-home-systems/maverick-music-flow/blob/v6.0.0/docs/INSTALL_STEP_BY_STEP.md) · [Required Engine](https://github.com/ambient-home-systems/maverick-music-flow-engine)
 
 ## A completely new HOMEii Flow
 
