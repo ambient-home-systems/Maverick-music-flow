@@ -34,7 +34,7 @@ async function wr(n, e, t = null) {
     } catch (U) {
       k.textContent = n._mediaControlFailureMessage(U);
     } finally {
-      C = !1, q.forEach((U, Y) => U.disabled = G[Y]);
+      C = !1, q.forEach((U, J) => U.disabled = G[J]);
     }
   };
   e.querySelector("form").onsubmit = (z) => {
@@ -336,7 +336,7 @@ function Jd(n, e, t, r, c, p = () => {
   const v = document.createElement("section");
   v.className = "screen-all-actions fan-catalogue", v.setAttribute("role", "dialog"), v.setAttribute("aria-label", n._m("All actions", "כל האפשרויות"));
   let k = !1, C = null, Q = null, z = "", q = "device", G = !1;
-  const U = (ne) => n._esc(ne), Y = (ne, ge) => U(n._m(ne, ge)), j = () => {
+  const U = (ne) => n._esc(ne), J = (ne, ge) => U(n._m(ne, ge)), j = () => {
     v.remove(), _ && n._setCompactExpanded(!1);
   }, V = () => {
     const ne = C || jo(n, t), ge = hr(r(), ne), o = k ? ge : Object.keys(En).flatMap((B) => ge.filter((E) => Bn(E) === B));
@@ -344,12 +344,12 @@ function Jd(n, e, t, r, c, p = () => {
     const g = (B) => {
       if (k) return "";
       const E = Bn(B);
-      return m === E ? "" : (m = E, `<h3 class="fan-catalogue-category">${Y(...En[E])}</h3>`);
-    }, y = v.querySelector("[data-catalogue-action]:focus")?.closest("[data-catalogue-id]")?.dataset.catalogueId, S = `<header><button data-catalogue-back aria-label="${Y("Back", "חזרה")}">${Lt(n, "back")}</button><h2>${Y("All actions", "כל האפשרויות")}</h2><button data-catalogue-edit>${k ? Y("Save", "אישור") : Y("Edit wheel", "עריכת המניפה")}</button></header>${k ? `<p>${Y("Choose wheel shortcuts. Drag the handle to reorder, or use the arrow buttons.", "בחר מה יופיע במניפה. גרור את הידית לסידור, או השתמש בכפתורי החצים.")}</p>` : ""}<div class="fan-catalogue-list">${o.map((B) => `${g(B)}<article data-catalogue-id="${U(B.id)}">${k ? `<input type="checkbox" data-catalogue-check aria-label="${U(B.label)}" ${ne.hidden?.includes(B.id) ? "" : "checked"}>` : ""}<button data-catalogue-action ${k ? "disabled" : ""}>${il(n, B)}<span>${U(B.label)}</span></button>${k ? `<button draggable="true" data-catalogue-drag aria-label="${Y("Drag", "גרירה")}: ${U(B.label)}">⠿</button><button data-catalogue-move="-1" aria-label="${Y("Move up", "העבר למעלה")}">↑</button><button data-catalogue-move="1" aria-label="${Y("Move down", "העבר למטה")}">↓</button>` : ""}</article>`).join("")}</div>`;
+      return m === E ? "" : (m = E, `<h3 class="fan-catalogue-category">${J(...En[E])}</h3>`);
+    }, y = v.querySelector("[data-catalogue-action]:focus")?.closest("[data-catalogue-id]")?.dataset.catalogueId, S = `<header><button data-catalogue-back aria-label="${J("Back", "חזרה")}">${Lt(n, "back")}</button><h2>${J("All actions", "כל האפשרויות")}</h2><button data-catalogue-edit>${k ? J("Save", "אישור") : J("Edit wheel", "עריכת המניפה")}</button></header>${k ? `<p>${J("Choose wheel shortcuts. Drag the handle to reorder, or use the arrow buttons.", "בחר מה יופיע במניפה. גרור את הידית לסידור, או השתמש בכפתורי החצים.")}</p>` : ""}<div class="fan-catalogue-list">${o.map((B) => `${g(B)}<article data-catalogue-id="${U(B.id)}">${k ? `<input type="checkbox" data-catalogue-check aria-label="${U(B.label)}" ${ne.hidden?.includes(B.id) ? "" : "checked"}>` : ""}<button data-catalogue-action ${k ? "disabled" : ""}>${il(n, B)}<span>${U(B.label)}</span></button>${k ? `<button draggable="true" data-catalogue-drag aria-label="${J("Drag", "גרירה")}: ${U(B.label)}">⠿</button><button data-catalogue-move="-1" aria-label="${J("Move up", "העבר למעלה")}">↑</button><button data-catalogue-move="1" aria-label="${J("Move down", "העבר למטה")}">↓</button>` : ""}</article>`).join("")}</div>`;
     if (S !== z) {
       if (v.innerHTML = S, z = S, k && n._state?.engineCapabilities?.wheel_preferences) {
         const B = document.createElement("label");
-        B.className = "fan-preference-scope", B.innerHTML = `${Y("Save for", "שמירה עבור")} <select data-catalogue-scope><option value="device">${Y("This device", "מכשיר זה")}</option><option value="user">${Y("My user on all devices", "המשתמש שלי בכל המכשירים")}</option>${n._hass?.user?.is_admin ? `<option value="global">${Y("Everyone (default)", "כולם (ברירת מחדל)")}</option>` : ""}</select>`, v.querySelector("header").after(B), B.querySelector("select").value = q;
+        B.className = "fan-preference-scope", B.innerHTML = `${J("Save for", "שמירה עבור")} <select data-catalogue-scope><option value="device">${J("This device", "מכשיר זה")}</option><option value="user">${J("My user on all devices", "המשתמש שלי בכל המכשירים")}</option>${n._hass?.user?.is_admin ? `<option value="global">${J("Everyone (default)", "כולם (ברירת מחדל)")}</option>` : ""}</select>`, v.querySelector("header").after(B), B.querySelector("select").value = q;
       }
       y && ([...v.querySelectorAll("[data-catalogue-id]")].find((E) => E.dataset.catalogueId === y)?.querySelector("[data-catalogue-action]") || v.querySelector("[data-catalogue-back]"))?.focus({ preventScroll: !0 });
     }
@@ -616,13 +616,13 @@ function aA({
   pendingIndexValue: v = "",
   browseOffset: k = 0
 } = {}, C = Hi) {
-  const Q = sl(n), z = ol(e), q = String(t?.attributes?.media_content_id || "").trim(), G = r?.media_item?.name || r?.media_title || r?.name || "", U = r?.media_artist || (r?.media_item?.artists || []).map((g) => g?.name).filter(Boolean).join(", ") || "", Y = Ni(
+  const Q = sl(n), z = ol(e), q = String(t?.attributes?.media_content_id || "").trim(), G = r?.media_item?.name || r?.media_title || r?.name || "", U = r?.media_artist || (r?.media_item?.artists || []).map((g) => g?.name).filter(Boolean).join(", ") || "", J = Ni(
     c ? G || t?.attributes?.media_title || "" : t?.attributes?.media_title || G || ""
   ), j = Ni(
     c ? U || t?.attributes?.media_artist || "" : t?.attributes?.media_artist || U || ""
   );
   let V = -1;
-  const X = (g) => ns(g, Y, j);
+  const X = (g) => ns(g, J, j);
   let K = !1;
   if (c) {
     const g = _r(Q, {
@@ -637,9 +637,9 @@ function aA({
       queueItemId: g,
       uri: y
     }, C);
-    S >= 0 && (c || !Y || X(Q[S])) && (V = S);
+    S >= 0 && (c || !J || X(Q[S])) && (V = S);
   }
-  V < 0 && q && (V = _r(Q, { uri: q }, C)), V < 0 && !q && Y && (V = Q.findIndex((g) => X(g))), V < 0 && Number.isFinite(z) && (V = Q.findIndex((g) => Number(g?.sort_index) === z)), V < 0 && Number.isFinite(z) && z >= 0 && z < Q.length && (V = z), V < 0 && (V = 0);
+  V < 0 && q && (V = _r(Q, { uri: q }, C)), V < 0 && !q && J && (V = Q.findIndex((g) => X(g))), V < 0 && Number.isFinite(z) && (V = Q.findIndex((g) => Number(g?.sort_index) === z)), V < 0 && Number.isFinite(z) && z >= 0 && z < Q.length && (V = z), V < 0 && (V = 0);
   const ne = Q.length ? -V : 0, ge = Q.length ? Q.length - 1 - V : 0, o = Math.max(ne, Math.min(ge, Number(k || 0))), m = Math.max(0, Math.min(Q.length - 1, V + o));
   return {
     queueItems: Q,
@@ -703,8 +703,8 @@ function nl(n, e, t) {
       const q = n._state?.maQueueState?.current_item?.media_item, G = q?.uri === r ? q.provider_mappings || [] : [], U = [
         { item_id: c.item_id, provider_instance_id_or_domain: c.provider },
         ...G.filter((V) => V.available !== !1 && V.item_id && (V.provider_instance || V.provider_domain)).map((V) => ({ item_id: V.item_id, provider_instance_id_or_domain: V.provider_instance || V.provider_domain }))
-      ], Y = U.filter((V, X) => U.findIndex((K) => K.item_id === V.item_id && K.provider_instance_id_or_domain === V.provider_instance_id_or_domain) === X).slice(0, 3), j = Promise.resolve().then(async () => {
-        for (const V of Y)
+      ], J = U.filter((V, X) => U.findIndex((K) => K.item_id === V.item_id && K.provider_instance_id_or_domain === V.provider_instance_id_or_domain) === X).slice(0, 3), j = Promise.resolve().then(async () => {
+        for (const V of J)
           try {
             const X = oA(await n._callEngineMaCommand("audio_analysis/wave_form", V));
             if (X) return X;
@@ -849,10 +849,10 @@ function pA(n = [], {
   isPlayerActiveFn: z = (G) => G?.state === "playing",
   isExternalBrowserPlayerFn: q = Ma
 } = {}) {
-  const G = Array.isArray(n) ? n : [], U = new Map(G.map((E) => [E?.entity_id, E]).filter(([E]) => !!E)), Y = new Map(G.map((E, I) => [E?.entity_id, I]).filter(([E]) => !!E)), j = new Map((Array.isArray(v) ? v : []).map((E, I) => [String(E || "").trim(), I]).filter(([E]) => !!E)), V = (E) => !!E?.entity_id && ra(E) && !q(E), X = (E) => {
+  const G = Array.isArray(n) ? n : [], U = new Map(G.map((E) => [E?.entity_id, E]).filter(([E]) => !!E)), J = new Map(G.map((E, I) => [E?.entity_id, I]).filter(([E]) => !!E)), j = new Map((Array.isArray(v) ? v : []).map((E, I) => [String(E || "").trim(), I]).filter(([E]) => !!E)), V = (E) => !!E?.entity_id && ra(E) && !q(E), X = (E) => {
     const I = U.get(String(E || "").trim());
     return V(I) ? I : null;
-  }, K = (E) => j.has(E?.entity_id) ? j.get(E.entity_id) : 1e5 + (Y.get(E?.entity_id) ?? 1e5), ne = (E = []) => E.filter(V).sort((I, F) => K(I) - K(F))[0] || null, ge = X(r), o = ge && (Number(c || 0) > Number(p || 0) || !Q && ge.state === "playing") ? ge : null;
+  }, K = (E) => j.has(E?.entity_id) ? j.get(E.entity_id) : 1e5 + (J.get(E?.entity_id) ?? 1e5), ne = (E = []) => E.filter(V).sort((I, F) => K(I) - K(F))[0] || null, ge = X(r), o = ge && (Number(c || 0) > Number(p || 0) || !Q && ge.state === "playing") ? ge : null;
   if (o) return o.entity_id;
   const m = X(k);
   if (Q) {
@@ -1065,7 +1065,7 @@ function dl(n) {
   _ && (_.hidden = c !== "radio" || r > 0);
 }
 function EA(n) {
-  const e = n._getSelectedPlayer(), t = ra(e), c = (n._state.maQueueState?.current_item?.media_item || {}).media_type || e?.attributes?.media_content_type, p = n._getCurrentMediaUri?.(), _ = t && (Number(n._state.maQueueState?.items || 0) > 0 || !!p), v = n._isHotelMode?.(), k = (U, Y, j, V) => ({ id: U, icon: Y, label: n._m(j, V) }), C = [
+  const e = n._getSelectedPlayer(), t = ra(e), c = (n._state.maQueueState?.current_item?.media_item || {}).media_type || e?.attributes?.media_content_type, p = n._getCurrentMediaUri?.(), _ = t && (Number(n._state.maQueueState?.items || 0) > 0 || !!p), v = n._isHotelMode?.(), k = (U, J, j, V) => ({ id: U, icon: J, label: n._m(j, V) }), C = [
     _ && k("queue", "queue", "Queue", "תור"),
     t && c === "track" && k("lyrics", "lyrics", "Lyrics", "מילים"),
     t && p && c === "track" && !v && n._supportsMusicAssistantRadioMode?.(c) && k("track_radio", "radio", "Track radio", "רדיו לפי השיר"),
@@ -1184,7 +1184,7 @@ function cs(n, e = {}) {
       const B = ((S - o + g / 2) % g + g) % g - g / 2, E = B * Math.PI / 5, I = n._isCompactTileMode?.() === !0, F = Math.abs(B) < (I ? 1.65 : 2.65);
       y.style.setProperty("--fan-x", `${50 + 43 * Math.sin(E)}%`), y.style.setProperty("--fan-y", `${I ? 58 - 48 * Math.cos(E) : 112 - 100 * Math.cos(E)}px`), y.style.opacity = F ? String(Math.min(1, (2.65 - Math.abs(B)) * 3)) : "0", y.style.visibility = F ? "visible" : "hidden", y.tabIndex = F ? 0 : -1;
     });
-  }, Y = (o) => {
+  }, J = (o) => {
     const m = k.flat().length;
     if (!m || !Number.isFinite(o)) return;
     const g = Math.round(z);
@@ -1199,7 +1199,7 @@ function cs(n, e = {}) {
       m.disabled = k.flat().length < 2;
     }), o && r.querySelector(".immersive-fan-actions button")?.focus({ preventScroll: !0 });
   }, V = (o, m = !1) => {
-    if (Y(o), m) {
+    if (J(o), m) {
       const g = [...r.querySelectorAll(".immersive-fan-actions button")], y = (Math.round(z) % g.length + g.length) % g.length;
       g[y]?.focus({ preventScroll: !0 });
     }
@@ -1208,7 +1208,7 @@ function cs(n, e = {}) {
   };
   r._refreshAvailableActions = () => {
     if (r.hidden || q) return;
-    const o = _(), m = (E) => JSON.stringify(E.flat().map(({ id: I, label: F, icon: J, image: Z, selected: $, value: ce }) => [I, F, J, Z, $, ce]));
+    const o = _(), m = (E) => JSON.stringify(E.flat().map(({ id: I, label: F, icon: O, image: Z, selected: $, value: ce }) => [I, F, O, Z, $, ce]));
     if (m(o) === m(k)) return;
     const g = k.flat(), y = g[(Math.round(z) % g.length + g.length) % g.length]?.id, S = r.querySelector(".immersive-fan-actions button:focus")?.dataset.immersiveAction;
     if (k = o, C = 0, !k.flat().length) {
@@ -1217,7 +1217,7 @@ function cs(n, e = {}) {
     }
     j();
     const B = k.flat().findIndex((E) => E.id === y);
-    B >= 0 && (z = B, Y(0)), S && ([...r.querySelectorAll(".immersive-fan-actions button")].find((I) => I.dataset.immersiveAction === S) || t).focus({ preventScroll: !0 });
+    B >= 0 && (z = B, J(0)), S && ([...r.querySelectorAll(".immersive-fan-actions button")].find((I) => I.dataset.immersiveAction === S) || t).focus({ preventScroll: !0 });
   }, t.addEventListener("click", (o) => {
     r.hidden && r.parentElement?.querySelectorAll(".immersive-fan").forEach((m) => {
       m !== r && (m.hidden = !0);
@@ -1230,7 +1230,7 @@ function cs(n, e = {}) {
     if (r.hidden || o.ctrlKey) return;
     o.preventDefault(), o.stopPropagation();
     const m = (Math.abs(o.deltaX) > Math.abs(o.deltaY) ? o.deltaX : o.deltaY) * (o.deltaMode === 1 ? 16 : 1);
-    Y(m / 90), Q = Date.now() + 300;
+    J(m / 90), Q = Date.now() + 300;
   }, { passive: !1 });
   const K = () => {
     q = null, r.classList.remove("rotating"), z = Math.round(z), U(z), r._refreshAvailableActions();
@@ -1247,7 +1247,7 @@ function cs(n, e = {}) {
           r.setPointerCapture(o.pointerId);
         } catch {
         }
-      q.moved = !0, r.classList.add("rotating"), Y((q.lastX - o.clientX) / 65), q.lastX = o.clientX, Q = Date.now() + 400;
+      q.moved = !0, r.classList.add("rotating"), J((q.lastX - o.clientX) / 65), q.lastX = o.clientX, Q = Date.now() + 400;
     }
   };
   r.addEventListener("pointermove", ne), r.addEventListener("pointercancel", K), r.addEventListener("lostpointercapture", (o) => {
@@ -1472,10 +1472,10 @@ function Ki(n, e, t, r) {
     }, c.querySelector("[data-screen-player]").onclick = () => {
       const z = c.dataset.page;
       if (["players", "players_active"].includes(z)) return;
-      const q = n._state.mobileQueueActionEntry, G = n._state.controlRoomPanel, U = !!c._closeScreen, Y = [...n._state.menuStack || []];
+      const q = n._state.mobileQueueActionEntry, G = n._state.controlRoomPanel, U = !!c._closeScreen, J = [...n._state.menuStack || []];
       c._closeScreen?.(), n._openMobileMenu("players"), n._screenPlayerReturn = async () => {
         if (!U)
-          return n._state.menuPage = z, n._state.menuStack = Y, n._renderMobileMenu();
+          return n._state.menuPage = z, n._state.menuStack = J, n._renderMobileMenu();
         if (n._closeMobileMenu(), z === "history") return n._setHistoryDrawerOpen(!0);
         if (z === "lyrics") return n._openLyricsModal();
         if (z === "studio") {
@@ -1587,10 +1587,10 @@ function Dn(n, { entityId: e = null, group: t = !1 } = {}) {
       return;
     }
     const ne = t ? n._isGroupMuted(K) : n._isMuted(K);
-    G.innerHTML = n._iconSvg(ne ? "volume_mute" : n._volumeIconName(K)), G.setAttribute("aria-pressed", String(ne)), G.setAttribute("aria-label", n._m(ne ? "Unmute" : "Mute", ne ? "בטל השתקה" : "השתק")), G.classList.toggle("active", ne), C === null && (k = v(K), Y()), j();
+    G.innerHTML = n._iconSvg(ne ? "volume_mute" : n._volumeIconName(K)), G.setAttribute("aria-pressed", String(ne)), G.setAttribute("aria-label", n._m(ne ? "Unmute" : "Mute", ne ? "בטל השתקה" : "השתק")), G.classList.toggle("active", ne), C === null && (k = v(K), J()), j();
   };
   z._refreshVolumeState = U;
-  const Y = () => {
+  const J = () => {
     q.setAttribute("aria-valuenow", String(k)), q.querySelector("output").textContent = `${k}%`, q.style.setProperty("--dial-value", `${k}%`);
   }, j = () => {
     const K = r.clientHeight;
@@ -1604,7 +1604,7 @@ function Dn(n, { entityId: e = null, group: t = !1 } = {}) {
       z.remove();
       return;
     }
-    k = Math.max(0, Math.min(100, k + K)), Y(), t ? n._setGroupVolumeFor(_, k / 100) : e ? n._setPlayerVolumeFor(_, k / 100) : n._setVolume(k / 100);
+    k = Math.max(0, Math.min(100, k + K)), J(), t ? n._setGroupVolumeFor(_, k / 100) : e ? n._setPlayerVolumeFor(_, k / 100) : n._setVolume(k / 100);
   };
   z.querySelector("[data-volume-close]").onclick = () => z.remove(), G.onclick = async () => {
     if (c()?.entity_id !== _) {
@@ -1636,7 +1636,7 @@ function Dn(n, { entityId: e = null, group: t = !1 } = {}) {
     K.key === "Escape" && z.remove();
   };
   const X = document.createElement("div");
-  X.className = "volume-wheel-title", X.textContent = t ? n._m("Group volume", "ווליום קבוצה") : p.attributes?.friendly_name || n._m("Volume", "עוצמה"), z.insertBefore(X, q), r.append(z), Y(), U(), q.focus({ preventScroll: !0 });
+  X.className = "volume-wheel-title", X.textContent = t ? n._m("Group volume", "ווליום קבוצה") : p.attributes?.friendly_name || n._m("Volume", "עוצמה"), z.insertBefore(X, q), r.append(z), J(), U(), q.focus({ preventScroll: !0 });
 }
 function QA(n, e, t = {}) {
   const r = String(n || "").trim();
@@ -1870,7 +1870,7 @@ async function LA(n, e, t) {
         const q = Q.querySelector('[type="submit"]');
         q.disabled = !0;
         try {
-          const G = [...Q.querySelectorAll('[name="light"]:checked')].map((Y) => Y.value), U = await n._homeiiEngineCommand("lighting/set", { player: v, lights: G, enabled: !!p?.enabled && G.length > 0, brightness: Number(Q.elements.brightness.value), transition: Number(Q.elements.transition.value), cooldown: p?.cooldown || 8 });
+          const G = [...Q.querySelectorAll('[name="light"]:checked')].map((J) => J.value), U = await n._homeiiEngineCommand("lighting/set", { player: v, lights: G, enabled: !!p?.enabled && G.length > 0, brightness: Number(Q.elements.brightness.value), transition: Number(Q.elements.transition.value), cooldown: p?.cooldown || 8 });
           n._state.artworkLighting = U, n._lightingReadAt = Date.now(), Q.querySelector('[role="status"]').textContent = n._m("Mapping saved in the Engine", "השיוך נשמר במנוע");
         } catch (G) {
           Q.querySelector('[role="status"]').textContent = n._mediaControlFailureMessage(G);
@@ -1968,23 +1968,23 @@ function zA(n, e) {
   let t = "", r = null, c = null, p = !1, _ = null, v = 0, k = null;
   const C = (U) => {
     if (!_) return;
-    const Y = e.getBoundingClientRect();
-    _.style.left = `${U.clientX - Y.left + e.scrollLeft}px`, _.style.top = `${U.clientY - Y.top + e.scrollTop - 42}px`;
-  }, Q = (U, Y) => {
+    const J = e.getBoundingClientRect();
+    _.style.left = `${U.clientX - J.left + e.scrollLeft}px`, _.style.top = `${U.clientY - J.top + e.scrollTop - 42}px`;
+  }, Q = (U, J) => {
     _?.remove(), _ = document.createElement("div"), _.className = "player-group-preview", _.setAttribute("aria-hidden", "true");
     const j = U.querySelector(".player-choice-symbol,.player-premium-art")?.cloneNode(!0);
     j && _.append(j);
     const V = document.createElement("span");
-    V.textContent = U.querySelector(".player-choice-name,.player-premium-name")?.textContent || "", _.append(V), e.append(_), C(Y);
+    V.textContent = U.querySelector(".player-choice-name,.player-premium-name")?.textContent || "", _.append(V), e.append(_), C(J);
   }, z = () => {
     r !== null && e.hasPointerCapture?.(r) && e.releasePointerCapture(r), e.querySelectorAll(".group-drop-target,.group-drag-source").forEach((U) => U.classList.remove("group-drop-target", "group-drag-source")), _?.remove(), _ = null, t = "", r = null, c = null, k = null;
   }, q = (U) => {
     c !== U && (c?.classList.remove("group-drop-target"), c = U?.dataset.groupPlayer !== t ? U : null, c?.classList.add("group-drop-target"));
   }, G = async () => {
-    const U = t, Y = c?.dataset.groupPlayer, j = c;
+    const U = t, J = c?.dataset.groupPlayer, j = c;
     z();
     const V = n._getAvailableGroupPlayers().map((K) => K.entity_id);
-    if (p || !Y || Y === U || !V.includes(U) || !V.includes(Y)) return;
+    if (p || !J || J === U || !V.includes(U) || !V.includes(J)) return;
     if (n._currentSpeakerGroupMemberIds(U).length > 1) {
       n._toastError(n._m("Disconnect this player from its group first.", "יש לנתק תחילה את הנגן מהקבוצה שלו."));
       return;
@@ -1993,9 +1993,9 @@ function zA(n, e) {
     const X = document.createElement("div");
     X.className = "player-group-status", X.setAttribute("role", "status"), X.textContent = n._m("Connecting players…", "מחבר נגנים…"), j?.append(X);
     try {
-      const K = [.../* @__PURE__ */ new Set([...n._currentSpeakerGroupMemberIds(Y), U])];
-      n._state && (n._state.pendingGroupOwnerRemoval = !1), await n._applySpeakerGroupFor(Y, K) && (j?.classList.add("group-connected"), n._toastSuccess(n._m("Players connected", "הנגנים חוברו")), setTimeout(() => j?.classList.remove("group-connected"), 700), setTimeout(() => {
-        ["players", "players_active", "group"].includes(n._state?.menuPage) && (n._selectPlayer?.(n._currentSpeakerGroupOwnerId?.(Y) || Y, !0), n._openMobileMenu?.("group"));
+      const K = [.../* @__PURE__ */ new Set([...n._currentSpeakerGroupMemberIds(J), U])];
+      n._state && (n._state.pendingGroupOwnerRemoval = !1), await n._applySpeakerGroupFor(J, K) && (j?.classList.add("group-connected"), n._toastSuccess(n._m("Players connected", "הנגנים חוברו")), setTimeout(() => j?.classList.remove("group-connected"), 700), setTimeout(() => {
+        ["players", "players_active", "group"].includes(n._state?.menuPage) && (n._selectPlayer?.(n._currentSpeakerGroupOwnerId?.(J) || J, !0), n._openMobileMenu?.("group"));
       }, 350));
     } catch (K) {
       n._toastError(n._mediaControlFailureMessage(K));
@@ -2009,8 +2009,8 @@ function zA(n, e) {
       return;
     }
     if (p || !U.target.closest("[data-group-drag],[data-group-drag-art]")) return;
-    const Y = U.target.closest("[data-group-player]");
-    t = Y.dataset.groupPlayer, U.dataTransfer.setData("text/plain", t), Q(Y, U), U.dataTransfer.setDragImage?.(_, 110, 32);
+    const J = U.target.closest("[data-group-player]");
+    t = J.dataset.groupPlayer, U.dataTransfer.setData("text/plain", t), Q(J, U), U.dataTransfer.setDragImage?.(_, 110, 32);
     const j = _;
     setTimeout(() => {
       j && (j.hidden = !0);
@@ -2023,16 +2023,16 @@ function zA(n, e) {
     v = Date.now() + 400, z();
   }), e.addEventListener("pointerdown", (U) => {
     if (p || r !== null || U.button != null && U.button !== 0 || !U.target.closest("[data-group-drag],[data-group-drag-art]")) return;
-    const Y = U.target.closest("[data-group-player]");
-    t = Y.dataset.groupPlayer, k = { x: U.clientX, y: U.clientY, row: Y }, r = U.pointerId, e.setPointerCapture?.(r), U.preventDefault();
+    const J = U.target.closest("[data-group-player]");
+    t = J.dataset.groupPlayer, k = { x: U.clientX, y: U.clientY, row: J }, r = U.pointerId, e.setPointerCapture?.(r), U.preventDefault();
   }), e.addEventListener("pointermove", (U) => {
     if (r === U.pointerId) {
       if (!_) {
         if (Math.hypot(U.clientX - k.x, U.clientY - k.y) < 6) return;
         Q(k.row, U), k.row.classList.add("group-drag-source");
       }
-      v = Date.now() + 400, C(U), q([...e.querySelectorAll("[data-group-player]")].find((Y) => {
-        const j = Y.getBoundingClientRect();
+      v = Date.now() + 400, C(U), q([...e.querySelectorAll("[data-group-player]")].find((J) => {
+        const j = J.getBoundingClientRect();
         return U.clientX >= j.left && U.clientX <= j.right && U.clientY >= j.top && U.clientY <= j.bottom;
       }));
     }
@@ -2049,22 +2049,22 @@ function zA(n, e) {
       U.preventDefault(), U.stopPropagation();
       return;
     }
-    const Y = U.target.closest("[data-group-quick]");
-    if (Y) {
+    const J = U.target.closest("[data-group-quick]");
+    if (J) {
       if (U.preventDefault(), U.stopPropagation(), p) return;
-      const j = Y.dataset.groupQuick, V = n._state.selectedPlayer, X = n._currentSpeakerGroupOwnerId(V) || V, K = n._currentSpeakerGroupMemberIds(X);
+      const j = J.dataset.groupQuick, V = n._state.selectedPlayer, X = n._currentSpeakerGroupOwnerId(V) || V, K = n._currentSpeakerGroupMemberIds(X);
       if (!X || j === X) return;
       if (!K.includes(j) && n._currentSpeakerGroupMemberIds(j).length > 1) {
         n._toastError(n._m("Disconnect this player from its group first.", "יש לנתק תחילה את הנגן מהקבוצה שלו."));
         return;
       }
-      p = !0, Y.disabled = !0, Y.setAttribute("aria-busy", "true");
+      p = !0, J.disabled = !0, J.setAttribute("aria-busy", "true");
       try {
         n._state.pendingGroupOwnerRemoval = !1, await n._applySpeakerGroupFor(X, K.includes(j) ? K.filter((ne) => ne !== j) : [...K, j]), ["group", "group_volume"].includes(n._state.menuPage) && n._renderMobileMenu();
       } catch (ne) {
         n._toastError(n._mediaControlFailureMessage(ne));
       } finally {
-        p = !1, Y.disabled = !1, Y.removeAttribute("aria-busy");
+        p = !1, J.disabled = !1, J.removeAttribute("aria-busy");
       }
       return;
     }
@@ -2072,12 +2072,12 @@ function zA(n, e) {
   }, !0);
 }
 function FA(n, e = null, t = !1) {
-  const r = [], c = (U, Y, j, V = "") => r.push({ status: U, title: n._m(Y, j), detail: V }), p = (U) => U === !0 ? "ok" : U === !1 ? "fail" : "info";
+  const r = [], c = (U, J, j, V = "") => r.push({ status: U, title: n._m(J, j), detail: V }), p = (U) => U === !0 ? "ok" : U === !1 ? "fail" : "info";
   c(p(n._hass?.connection?.connected), "Home Assistant", "Home Assistant"), c(t ? p(e?.available === !0) : "info", "Flow Engine", "מנוע Flow", e?.version || "");
   const _ = e?.raw?.required_connections || e?.raw?.connections || n._state.engineRequiredConnections || {};
-  for (const [U, Y, j] of [["music_assistant", "Music Assistant", "Music Assistant"], ["queue_provider", "Queue service", "שירות התור"], ["library_provider", "Music library", "ספריית המוזיקה"], ["search_provider", "Music search", "חיפוש מוזיקה"]]) {
+  for (const [U, J, j] of [["music_assistant", "Music Assistant", "Music Assistant"], ["queue_provider", "Queue service", "שירות התור"], ["library_provider", "Music library", "ספריית המוזיקה"], ["search_provider", "Music search", "חיפוש מוזיקה"]]) {
     const V = _[U] || _.connections?.[U];
-    c(t && e?.available ? p(V?.ok) : "info", Y, j, n._redactDiagnosticText?.(V?.message || "") || "");
+    c(t && e?.available ? p(V?.ok) : "info", J, j, n._redactDiagnosticText?.(V?.message || "") || "");
   }
   const v = n._getSelectedPlayer?.();
   c(v ? ra(v) ? "ok" : "fail" : "warn", "Selected player", "הנגן הנבחר", v ? n._playerDisplayName?.(v) || "" : n._m("Choose a player", "יש לבחור נגן"));
@@ -2142,11 +2142,11 @@ async function ml(n, e) {
       return;
     }
     const U = k.player.value;
-    z = !0, v.querySelectorAll("button").forEach((Y) => Y.disabled = !0);
+    z = !0, v.querySelectorAll("button").forEach((J) => J.disabled = !0);
     try {
-      G ? await n._homeiiEngineCommand("volume_rules/delete", { player: U }) : await n._homeiiEngineCommand("volume_rules/set", { player: U, max_volume: Number(k.volume.value), start_time: k.start.value, end_time: k.end.value, enabled: k.enabled.checked, days: [...v.querySelectorAll('[name="day"]:checked')].map((Y) => Number(Y.value)) }), e.isConnected && n._state.menuPage === r && await ml(n, e);
-    } catch (Y) {
-      C.textContent = n._mediaControlFailureMessage(Y), v.querySelectorAll("button").forEach((j) => j.disabled = !1);
+      G ? await n._homeiiEngineCommand("volume_rules/delete", { player: U }) : await n._homeiiEngineCommand("volume_rules/set", { player: U, max_volume: Number(k.volume.value), start_time: k.start.value, end_time: k.end.value, enabled: k.enabled.checked, days: [...v.querySelectorAll('[name="day"]:checked')].map((J) => Number(J.value)) }), e.isConnected && n._state.menuPage === r && await ml(n, e);
+    } catch (J) {
+      C.textContent = n._mediaControlFailureMessage(J), v.querySelectorAll("button").forEach((j) => j.disabled = !1);
     } finally {
       z = !1;
     }
@@ -2326,10 +2326,10 @@ async function ZA() {
   const n = this._discoveryCategoryOptions(), e = this._discoveryCategory(), t = this._discoveryPopularGenreProfiles().find((U) => U.key === e.key), r = t?.query || e.key.replaceAll("-", " "), c = this._state.discoveryProviderPath || "all", p = `discovery:results:${e.key}:${c}`, _ = this._cache.library.get(p);
   if (_ && Date.now() - _.ts < 6e4) return _.items;
   if (this._discoveryLoads || (this._discoveryLoads = /* @__PURE__ */ new Map()), this._discoveryLoads.has(p)) return this._discoveryLoads.get(p);
-  const v = (U) => this._discoveryUniqueItems(Array.isArray(U) ? U : [], "playlist"), k = async (U, Y, j) => {
+  const v = (U) => this._discoveryUniqueItems(Array.isArray(U) ? U : [], "playlist"), k = async (U, J, j) => {
     const V = this._cache.library.get(U);
     if (V && Date.now() - V.ts < 6e4) return V.items;
-    const X = await this._callEngineMaCommand(Y, j);
+    const X = await this._callEngineMaCommand(J, j);
     if (!Array.isArray(X)) throw new Error("Invalid discovery catalogue response");
     return this._cache.library.set(U, { ts: Date.now(), items: X }), X;
   };
@@ -2337,9 +2337,9 @@ async function ZA() {
   const q = [
     (async () => {
       C = (await k("discovery:sources", "music/browse", { path: "root" })).filter((ne) => ne.media_type === "folder" && ne.path?.includes("://") && !/^(builtin|radiobrowser|podcastfeed|ambient_sounds)/.test(ne.path));
-      const Y = c === "all" ? C : C.filter((ne) => ne.path === c);
-      if (!Y.length) return [];
-      const j = new Set([r, e.label, ...t?.aliases || []].map((ne) => this._discoveryGenreKey(ne))), V = await Promise.all(Y.map(async (ne) => {
+      const J = c === "all" ? C : C.filter((ne) => ne.path === c);
+      if (!J.length) return [];
+      const j = new Set([r, e.label, ...t?.aliases || []].map((ne) => this._discoveryGenreKey(ne))), V = await Promise.all(J.map(async (ne) => {
         if (!ne.path.startsWith("spotify")) return { search: ne };
         try {
           const o = (await k(`discovery:folders:${ne.path}`, "music/browse", { path: ne.path })).find((S) => S.media_type === "folder" && (S.translation_key === "genres_and_moods" || S.path?.split("://")[1] === "categories"));
@@ -2363,15 +2363,15 @@ async function ZA() {
       return v([...V.flatMap((ne) => ne.items || []), ...K]);
     })(),
     (async () => {
-      const U = await k("discovery:library-genres", "music/genres/library_items", { limit: 1e3 }), Y = (K) => this._discoveryGenreKey(K), j = new Set([r, e.label, ...t?.aliases || []].map(Y)), V = U.filter((K) => [K.name, ...Array.isArray(K.aliases) ? K.aliases : []].some((ne) => typeof ne == "string" && j.has(Y(ne)))).map((K) => Number(K.item_id)).filter(Number.isFinite);
+      const U = await k("discovery:library-genres", "music/genres/library_items", { limit: 1e3 }), J = (K) => this._discoveryGenreKey(K), j = new Set([r, e.label, ...t?.aliases || []].map(J)), V = U.filter((K) => [K.name, ...Array.isArray(K.aliases) ? K.aliases : []].some((ne) => typeof ne == "string" && j.has(J(ne)))).map((K) => Number(K.item_id)).filter(Number.isFinite);
       if (!V.length) return [];
       const X = await Promise.all(["playlists", "albums", "tracks", "radios"].map((K) => this._callEngineMaCommand(`music/${K}/library_items`, { genre: V, limit: 12 })));
       return v(X.flat());
     })(),
     this._fetchRadioBrowserStations("", 16, { tag: r })
   ], G = Promise.allSettled(q).then((U) => {
-    const Y = [this._m("From music providers", "מספקי המוזיקה"), this._m("From your MA library", "מספריית MA שלך"), this._m("Radio for this genre", "רדיו לז׳אנר הזה")], j = U.map((X, K) => ({
-      name: Y[K],
+    const J = [this._m("From music providers", "מספקי המוזיקה"), this._m("From your MA library", "מספריית MA שלך"), this._m("Radio for this genre", "רדיו לז׳אנר הזה")], j = U.map((X, K) => ({
+      name: J[K],
       type: K === 2 ? "radio" : "playlist",
       description: K === 0 && z ? this._m("Some providers could not be searched. Available genre collections are shown.", "לא ניתן היה לחפש בחלק מהספקים. מוצגות קטגוריות הז׳אנר הזמינות.") : K === 0 && Q ? this._m("Provider genre collections, with playlist search where a genre collection is unavailable.", "קטגוריות ז׳אנר מהספקים, ובמקורות ללא קטגוריה זמינה — חיפוש פלייליסטים.") : "",
       items: X.status === "fulfilled" ? v(X.value) : [],
@@ -10943,7 +10943,7 @@ function yl(n, e, t = {}, r = e) {
   function U(ue, de) {
     return de.MouseEvent !== void 0 && ue instanceof de.MouseEvent;
   }
-  function Y() {
+  function J() {
     let ue = [];
     const de = { add: function(me, he, ve, xe = { passive: !0 }) {
       let ke;
@@ -10959,7 +10959,7 @@ function yl(n, e, t = {}, r = e) {
     return de;
   }
   function j(ue, de, me, he) {
-    const ve = Y(), xe = 1e3 / 60;
+    const ve = J(), xe = 1e3 / 60;
     let ke = null, Me = 0, Be = 0;
     function Ee(Oe) {
       if (!Be) return;
@@ -11018,7 +11018,7 @@ function yl(n, e, t = {}, r = e) {
     return Ee;
   }
   function K(ue, de, me, he, ve, xe, ke, Me, Be, Ee, De, Oe, Ke, tt, Ve, Xe, Te, Je, Ze) {
-    const { cross: st, direction: ct } = ue, ut = ["INPUT", "SELECT", "TEXTAREA"], pt = { passive: !1 }, St = Y(), xt = Y(), ri = V(50, 225).constrain(tt.measure(20)), Yt = { mouse: 300, touch: 400 }, ui = { mouse: 500, touch: 600 }, Xt = Ve ? 43 : 25;
+    const { cross: st, direction: ct } = ue, ut = ["INPUT", "SELECT", "TEXTAREA"], pt = { passive: !1 }, St = J(), xt = J(), ri = V(50, 225).constrain(tt.measure(20)), Yt = { mouse: 300, touch: 400 }, ui = { mouse: 500, touch: 600 }, Xt = Ve ? 43 : 25;
     let oi = !1, Kt = 0, lt = 0, kt = !1, vt = !1, Mt = !1, At = !1;
     function Gt(Pt) {
       if (!U(Pt, he) && Pt.touches.length >= 2) return Zt(Pt);
@@ -11282,7 +11282,7 @@ function yl(n, e, t = {}, r = e) {
       return Ee && (ke = De), Ee || (Me = De), De;
     } };
   }
-  function J(ue, de, me, he, ve, xe, ke, Me, Be) {
+  function O(ue, de, me, he, ve, xe, ke, Me, Be) {
     const { startEdge: Ee, endEdge: De, direction: Oe } = ue, Ke = n(me);
     return { groupSlides: function(tt) {
       return Ke ? (function(Ve, Xe) {
@@ -11340,7 +11340,7 @@ function yl(n, e, t = {}, r = e) {
         return si ? ft[Qt] + D : oa ? ft[Qt] + x : gi[Qt + 1][je] - Ht[je];
       })).map(c);
       return { slideSizes: ft, slideSizesWithGaps: $e, startGap: D, endGap: x };
-    })(Yt, xt, ri, me, lt, ve), Gt = J(Yt, ui, Te, Oe, xt, ri, Mt, At, 2), { snaps: Zt, snapsAligned: Li } = (function(at, it, W, N, i) {
+    })(Yt, xt, ri, me, lt, ve), Gt = O(Yt, ui, Te, Oe, xt, ri, Mt, At, 2), { snaps: Zt, snapsAligned: Li } = (function(at, it, W, N, i) {
       const { startEdge: le, endEdge: Ie } = at, { groupSlides: je } = i, L = je(N).map(((x) => k(x)[Ie] - x[0][le])).map(c).map(it.measure), we = N.map(((x) => W[le] - x[le])).map(((x) => -c(x))), D = je(we).map(((x) => x[0])).map(((x, ft) => x + L[ft]));
       return { snaps: we, snapsAligned: D };
     })(Yt, oi, xt, ri, Gt), Pt = -k(Zt) + k(vt), { snapsContained: Ce, scrollContainLimit: Pe } = (function(at, it, W, N, i) {
@@ -11412,7 +11412,7 @@ function yl(n, e, t = {}, r = e) {
       return { get: function(N) {
         return W ? (N - it) / -W : 0;
       } };
-    })(ot), ti = Y(), Nt = F(de, me, ke, Xe), { slideRegistry: Rt } = (function(at, it, W, N, i, le) {
+    })(ot), ti = J(), Nt = F(de, me, ke, Xe), { slideRegistry: Rt } = (function(at, it, W, N, i, le) {
       const { groupSlides: Ie } = i, { min: je, max: L } = N;
       return { slideRegistry: (function() {
         const we = Ie(le), D = !at || it === "keepSnaps";
@@ -11444,7 +11444,7 @@ function yl(n, e, t = {}, r = e) {
       }, destroy: function() {
         kt = kt.filter(((vt) => vt.destroy()));
       } };
-    })(xe), Me = Y(), Be = /* @__PURE__ */ (function() {
+    })(xe), Me = J(), Be = /* @__PURE__ */ (function() {
       let lt, kt = {};
       function vt(At) {
         return kt[At] || [];
@@ -32686,14 +32686,14 @@ function Gm(n = {}) {
   } = n;
   return class extends HTMLElement {
     constructor() {
-      super(), vl(), this._config = e.getStubConfig(), this._hass = null, this._editorRoot = null, this._editorForm = null, this._editorUsePathBtn = null, this._editorPathHint = null, this._editorSponsorLink = null, this._editorDiagnosticsBtn = null, this._editorDiagnosticsCloseBtn = null, this._editorDiagnosticsPanel = null, this._editorDiagnosticsSummaryNode = null, this._editorDiagnosticsList = null, this._editorDiagnosticsItems = [], this._editorDiagnosticsReport = "", this._editorDiagnosticsRunning = !1, this._editorAmbientLightDraft = { player: "", lights: [] }, this._editorBound = !1, this._editorLastConfigKey = "", this._editorLastSchemaKey = "", this._editorSection = "general_section";
+      super(), vl(), this._config = e.getStubConfig(), this._hass = null, this._editorRoot = null, this._editorForm = null, this._editorUsePathBtn = null, this._editorPathHint = null, this._editorDiagnosticsBtn = null, this._editorDiagnosticsCloseBtn = null, this._editorDiagnosticsPanel = null, this._editorDiagnosticsSummaryNode = null, this._editorDiagnosticsList = null, this._editorDiagnosticsItems = [], this._editorDiagnosticsReport = "", this._editorDiagnosticsRunning = !1, this._editorAmbientLightDraft = { player: "", lights: [] }, this._editorBound = !1, this._editorLastConfigKey = "", this._editorLastSchemaKey = "", this._editorSection = "general_section";
     }
     connectedCallback() {
       this.style.display = "block", t(), this._ensureEditorShell(), this._render();
     }
-    set hass(Y) {
+    set hass(J) {
       const j = String(this._hass?.locale?.language || this._hass?.language || ""), V = this._editorPinnedPlayerOptionsKey();
-      this._hass = Y, this._ensureEditorShell();
+      this._hass = J, this._ensureEditorShell();
       const X = String(this._hass?.locale?.language || this._hass?.language || ""), K = this._editorPinnedPlayerOptionsKey();
       if (j !== X || V !== K || !this._editorRoot || !this._editorForm) {
         this._render();
@@ -32701,10 +32701,10 @@ function Gm(n = {}) {
       }
       this._syncEditorLiveContext();
     }
-    setConfig(Y) {
+    setConfig(J) {
       const j = {
         ...this._getCardCtor().getStubConfig(),
-        ...Y
+        ...J
       }, V = this._getConfigValidator?.();
       typeof V == "function" && V(j), this._config = j, this._ensureEditorShell(), this._render();
     }
@@ -32717,8 +32717,8 @@ function Gm(n = {}) {
         hass: this._hass
       }));
     }
-    _esc(Y) {
-      return String(Y ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    _esc(J) {
+      return String(J ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     }
     _getConfigValidator() {
       return p.validateBaseCardEditorConfig;
@@ -32732,25 +32732,14 @@ function Gm(n = {}) {
     }
     _currentUiPath() {
       try {
-        const Y = window.location?.pathname || "/", j = window.location?.search || "", V = window.location?.hash || "";
-        return `${Y}${j}${V}` || "/";
+        const J = window.location?.pathname || "/", j = window.location?.search || "", V = window.location?.hash || "";
+        return `${J}${j}${V}` || "/";
       } catch {
         return "/";
       }
     }
-    _editorSponsorTitle() {
-      return this._isHebrew() ? "תמיכה ב-homeii-music-flow" : "Sponsor homeii-music-flow";
-    }
-    _editorSponsorConfirmMessage() {
-      return this._isHebrew() ? "לפתוח את עמוד התמיכה ב-GitHub Sponsors?" : "Open the GitHub Sponsors page?";
-    }
-    _syncEditorSponsorLabels() {
-      if (!this._editorSponsorLink) return;
-      const Y = this._editorSponsorTitle();
-      this._editorSponsorLink.setAttribute("title", Y), this._editorSponsorLink.setAttribute("aria-label", Y);
-    }
-    _editorSanitizeDiagnosticUrl(Y = "") {
-      const j = String(Y || "").trim();
+    _editorSanitizeDiagnosticUrl(J = "") {
+      const j = String(J || "").trim();
       if (!j) return "";
       if (/(https?|wss?):\/\/<[^>]+>/i.test(j))
         return j.replace(/(token|access_token|auth)=([^&\s]+)/gi, "$1=<redacted>");
@@ -32761,22 +32750,22 @@ function Gm(n = {}) {
         return j.replace(/(https?|wss?):\/\/[^\s]+/gi, (X) => this._editorSanitizeDiagnosticUrl(X)).replace(/(token|access_token|auth)=([^&\s]+)/gi, "$1=<redacted>");
       }
     }
-    _editorDiagnosticHostPrivacyLabel(Y = "") {
-      const j = String(Y || "").trim().toLowerCase().replace(/^\[|\]$/g, "");
+    _editorDiagnosticHostPrivacyLabel(J = "") {
+      const j = String(J || "").trim().toLowerCase().replace(/^\[|\]$/g, "");
       if (!j) return "<host-redacted>";
       if (j === "localhost") return "<localhost>";
       if (j.endsWith(".ui.nabu.casa")) return "<redacted-nabu-casa>";
       const V = typeof window < "u" ? String(window.location?.hostname || "").toLowerCase() : "";
       return V && j === V ? "<home-assistant-host>" : this._editorIsPrivateNetworkHost(j) ? "<private-host>" : "<external-host>";
     }
-    _editorDiagnosticPathPrivacyLabel(Y = "") {
-      const j = String(Y || "").trim();
+    _editorDiagnosticPathPrivacyLabel(J = "") {
+      const j = String(J || "").trim();
       if (!j || j === "/") return "";
       const V = j.toLowerCase();
       return V.includes("_music_assistant") ? "/<ha-ingress-music-assistant>" : V === "/sendspin" ? "/sendspin" : V.endsWith("/sendspin") ? "/<path-redacted>/sendspin" : V.includes("/api/media_player_proxy/") ? "/api/media_player_proxy/<entity>" : V.includes("/imageproxy") ? "/imageproxy" : V === "/api" ? "/api" : V.endsWith("/api") ? "/<path-redacted>/api" : "/<path-redacted>";
     }
-    _editorDiagnosticUrlDescription(Y = "") {
-      const j = String(Y || "").trim();
+    _editorDiagnosticUrlDescription(J = "") {
+      const j = String(J || "").trim();
       if (!j) return "(empty)";
       try {
         const V = new URL(j, typeof window < "u" ? window.location.href : "http://homeii.local"), X = V.protocol.replace(/:$/, "") || "unknown", ne = this._editorDiagnosticHostPrivacyLabel(V.hostname).replace(/[<>]/g, "").replace("redacted-", ""), ge = this._editorDiagnosticPathPrivacyLabel(V.pathname) || "/";
@@ -32785,8 +32774,8 @@ function Gm(n = {}) {
         return "invalid or unparseable URL";
       }
     }
-    _editorRedactDiagnosticText(Y = "") {
-      let j = String(Y || "").replace(/Bearer\s+[A-Za-z0-9._-]+/g, "Bearer <redacted>");
+    _editorRedactDiagnosticText(J = "") {
+      let j = String(J || "").replace(/Bearer\s+[A-Za-z0-9._-]+/g, "Bearer <redacted>");
       return [
         this._editorCurrentOrigin()
       ].filter(Boolean).forEach((V) => {
@@ -32801,7 +32790,7 @@ function Gm(n = {}) {
       }
     }
     _editorBrowserSummary() {
-      const Y = typeof navigator < "u" ? navigator : typeof window < "u" ? window.navigator : {}, j = String(Y?.userAgent || ""), X = [
+      const J = typeof navigator < "u" ? navigator : typeof window < "u" ? window.navigator : {}, j = String(J?.userAgent || ""), X = [
         ["Edge", /Edg\/([\d.]+)/i],
         ["Chrome iOS", /CriOS\/([\d.]+)/i],
         ["Firefox iOS", /FxiOS\/([\d.]+)/i],
@@ -32814,32 +32803,32 @@ function Gm(n = {}) {
         return m ? `${ge} ${m[1]}` : "";
       }).find(Boolean) || (j ? "Unknown browser" : "Browser unavailable"), K = [];
       /Home Assistant|HomeAssistant|io\.homeassistant|HA Companion/i.test(j) && K.push("HA Companion"), /\bwv\b|Android.*Version\/[\d.]+.*Chrome/i.test(j) && K.push("Android WebView"), /iPhone|iPad|iPod/i.test(j) && /Safari/i.test(j) && !/CriOS|FxiOS|EdgiOS/i.test(j) && K.push("iOS WebKit");
-      const ne = String(Y?.platform || Y?.userAgentData?.platform || "").trim();
+      const ne = String(J?.platform || J?.userAgentData?.platform || "").trim();
       return [X, ne, ...K].filter(Boolean).join(" / ");
     }
     _editorViewportSummary() {
-      const Y = typeof window < "u" ? window : {}, j = typeof navigator < "u" ? navigator : Y.navigator, V = Number(Y.innerWidth || this.getBoundingClientRect?.().width || this.offsetWidth || 0), X = Number(Y.innerHeight || this.getBoundingClientRect?.().height || this.offsetHeight || 0), K = Number(Y.devicePixelRatio || 1), ne = Number(j?.maxTouchPoints || 0), ge = String(j?.language || this._hass?.locale?.language || this._hass?.language || "").trim();
+      const J = typeof window < "u" ? window : {}, j = typeof navigator < "u" ? navigator : J.navigator, V = Number(J.innerWidth || this.getBoundingClientRect?.().width || this.offsetWidth || 0), X = Number(J.innerHeight || this.getBoundingClientRect?.().height || this.offsetHeight || 0), K = Number(J.devicePixelRatio || 1), ne = Number(j?.maxTouchPoints || 0), ge = String(j?.language || this._hass?.locale?.language || this._hass?.language || "").trim();
       return `${Math.round(V)}x${Math.round(X)}, DPR ${Number.isFinite(K) ? K.toFixed(2).replace(/\.00$/, "") : "?"}, touch ${ne}${ge ? `, lang ${ge}` : ""}`;
     }
-    _editorIsPrivateNetworkHost(Y = "") {
-      const j = String(Y || "").trim().toLowerCase().replace(/^\[|\]$/g, "");
+    _editorIsPrivateNetworkHost(J = "") {
+      const j = String(J || "").trim().toLowerCase().replace(/^\[|\]$/g, "");
       if (!j) return !1;
       if (j === "localhost" || j.endsWith(".local") || j.endsWith(".lan") || j === "::1" || j.startsWith("fe80:") || j.startsWith("fc") || j.startsWith("fd") || /^127\./.test(j) || /^10\./.test(j) || /^192\.168\./.test(j) || /^169\.254\./.test(j)) return !0;
       const V = j.match(/^172\.(\d{1,2})\./);
       return !!(V && Number(V[1]) >= 16 && Number(V[1]) <= 31);
     }
-    _editorDiagnosticItem(Y, j, V = "", X = "") {
+    _editorDiagnosticItem(J, j, V = "", X = "") {
       return {
-        status: ["ok", "fail", "warn", "info"].includes(String(Y || "").toLowerCase()) ? String(Y).toLowerCase() : "info",
+        status: ["ok", "fail", "warn", "info"].includes(String(J || "").toLowerCase()) ? String(J).toLowerCase() : "info",
         title: String(j || "").trim(),
         detail: String(V || "").trim(),
         value: String(X || "").trim()
       };
     }
-    _editorWithTimeout(Y, j = 8e3, V = "Request timed out") {
+    _editorWithTimeout(J, j = 8e3, V = "Request timed out") {
       return new Promise((X, K) => {
         const ne = setTimeout(() => K(new Error(V)), Math.max(1e3, Number(j) || 8e3));
-        Promise.resolve(Y).then((ge) => {
+        Promise.resolve(J).then((ge) => {
           clearTimeout(ne), X(ge);
         }).catch((ge) => {
           clearTimeout(ne), K(ge);
@@ -32852,10 +32841,10 @@ function Gm(n = {}) {
     _editorHomeiiEngineTimeoutMs() {
       return Pl(this._config?.homeii_engine_timeout_ms, 3500);
     }
-    _editorHomeiiEngineMessage(Y = "get_context", j = {}) {
+    _editorHomeiiEngineMessage(J = "get_context", j = {}) {
       const V = {
         ...j && typeof j == "object" && !Array.isArray(j) ? j : { payload: j },
-        type: Ql(Y),
+        type: Ql(J),
         card_id: String(this._config?.card_id || "").trim(),
         instance_id: Wa(this._config?.homeii_engine_instance_id),
         profile_id: Wa(this._config?.homeii_engine_profile_id)
@@ -32864,19 +32853,19 @@ function Gm(n = {}) {
         V[X] === "" && delete V[X];
       }), V;
     }
-    async _editorCallHomeiiEngine(Y = "get_context", j = {}) {
+    async _editorCallHomeiiEngine(J = "get_context", j = {}) {
       if (!Wo(this._editorHomeiiEngineMode())) return null;
-      const V = this._editorHomeiiEngineMessage(Y, j);
+      const V = this._editorHomeiiEngineMessage(J, j);
       if (typeof this._hass?.callWS == "function")
         return this._editorWithTimeout(this._hass.callWS(V), this._editorHomeiiEngineTimeoutMs(), "HOMEii Flow Engine timed out.");
       if (typeof this._hass?.connection?.sendMessagePromise == "function")
         return this._editorWithTimeout(this._hass.connection.sendMessagePromise(V), this._editorHomeiiEngineTimeoutMs(), "HOMEii Flow Engine timed out.");
       throw new Error("Home Assistant WebSocket API is unavailable in the visual editor.");
     }
-    async _editorDiagnosticEngineRow(Y) {
+    async _editorDiagnosticEngineRow(J) {
       const j = this._editorHomeiiEngineMode();
       if (!Wo(j)) {
-        Y("fail", "HOMEii Flow Engine", "HOMEii Flow 6 requires the HOMEii Flow Engine integration. There is no frontend-only compatibility path.", j);
+        J("fail", "HOMEii Flow Engine", "HOMEii Flow 6 requires the HOMEii Flow Engine integration. There is no frontend-only compatibility path.", j);
         return;
       }
       try {
@@ -32886,21 +32875,21 @@ function Gm(n = {}) {
         });
         if (!V) throw new Error("HOMEii Flow Engine returned an empty response.");
         const X = Ll(V);
-        Y("ok", "HOMEii Flow Engine", `Connected to HOMEii Flow Engine ${X.version || "unknown version"}. Capabilities: ${Tl(X.capabilities)}.`, j);
+        J("ok", "HOMEii Flow Engine", `Connected to HOMEii Flow Engine ${X.version || "unknown version"}. Capabilities: ${Tl(X.capabilities)}.`, j);
         const [K, ne] = await Promise.allSettled([
           this._editorCallHomeiiEngine("players/get", { source: "visual_editor" }),
           this._editorCallHomeiiEngine("stats/get", { source: "visual_editor" })
         ]), ge = Number(K.value?.music_assistant_count ?? ne.value?.music_assistant_players ?? 0);
         if (K.status === "fulfilled" || ne.status === "fulfilled") {
           const o = Number(ne.value?.players_playing ?? 0), m = Number(ne.value?.players_grouped ?? 0);
-          Y(ge ? "ok" : "warn", "Engine player state", `${ge} Music Assistant player(s), ${o} playing, ${m} grouped.`);
+          J(ge ? "ok" : "warn", "Engine player state", `${ge} Music Assistant player(s), ${o} playing, ${m} grouped.`);
         }
       } catch (V) {
         const X = "Engine mode is Required, but the Home Assistant integration did not answer. HOMEii Flow 6 will not run until the integration is installed, loaded, and refreshed.", K = V?.message ? ` Last error: ${V.message}` : "";
-        Y("fail", "HOMEii Flow Engine", `${X}${K}`, j);
+        J("fail", "HOMEii Flow Engine", `${X}${K}`, j);
       }
     }
-    _editorDiagnosticsReportText(Y = []) {
+    _editorDiagnosticsReportText(J = []) {
       const j = [
         "HOMEii Music Flow Editor Diagnostics",
         "Diagnostics: v7",
@@ -32919,38 +32908,38 @@ function Gm(n = {}) {
         `homeii_engine_profile_id configured: ${this._config?.homeii_engine_profile_id ? "yes" : "no"}`,
         "",
         "Checks:",
-        ...Y.map((V) => `- [${String(V.status || "info").toUpperCase()}] ${V.title}${V.value ? `: ${V.value}` : ""}${V.detail ? ` - ${V.detail}` : ""}`)
+        ...J.map((V) => `- [${String(V.status || "info").toUpperCase()}] ${V.title}${V.value ? `: ${V.value}` : ""}${V.detail ? ` - ${V.detail}` : ""}`)
       ];
       return this._editorRedactDiagnosticText(j.join(`
 `));
     }
-    _editorDiagnosticsSummary(Y = this._editorDiagnosticsItems || []) {
-      const j = Array.isArray(Y) ? Y : [], V = j.filter((K) => K.status === "fail").length, X = j.filter((K) => K.status === "warn").length;
+    _editorDiagnosticsSummary(J = this._editorDiagnosticsItems || []) {
+      const j = Array.isArray(J) ? J : [], V = j.filter((K) => K.status === "fail").length, X = j.filter((K) => K.status === "warn").length;
       return j.length ? V ? `${V} check${V === 1 ? "" : "s"} need attention.` : X ? `${X} check${X === 1 ? "" : "s"} need review.` : "All visible setup checks passed." : "Run diagnostics to check the current browser, Home Assistant integration, and HOMEii Flow Engine readiness.";
     }
-    _editorDiagnosticStatusLabel(Y = "info") {
-      const j = String(Y || "info").toLowerCase();
+    _editorDiagnosticStatusLabel(J = "info") {
+      const j = String(J || "info").toLowerCase();
       return j === "ok" ? "V" : j === "fail" ? "X" : j === "warn" ? "!" : "i";
     }
-    _editorDiagnosticRowHtml(Y = {}) {
-      const j = ["ok", "fail", "warn", "info"].includes(String(Y.status || "").toLowerCase()) ? String(Y.status || "info").toLowerCase() : "info";
+    _editorDiagnosticRowHtml(J = {}) {
+      const j = ["ok", "fail", "warn", "info"].includes(String(J.status || "").toLowerCase()) ? String(J.status || "info").toLowerCase() : "info";
       return `
       <div class="editor-diagnostic-row status-${this._esc(j)}">
         <div class="editor-diagnostic-status" aria-label="${this._esc(j)}">${this._esc(this._editorDiagnosticStatusLabel(j))}</div>
         <div class="editor-diagnostic-copy">
-          <div class="editor-diagnostic-title">${this._esc(Y.title || "")}</div>
-          ${Y.value ? `<div class="editor-diagnostic-value">${this._esc(Y.value)}</div>` : ""}
-          ${Y.detail ? `<div class="editor-diagnostic-detail">${this._esc(Y.detail)}</div>` : ""}
+          <div class="editor-diagnostic-title">${this._esc(J.title || "")}</div>
+          ${J.value ? `<div class="editor-diagnostic-value">${this._esc(J.value)}</div>` : ""}
+          ${J.detail ? `<div class="editor-diagnostic-detail">${this._esc(J.detail)}</div>` : ""}
         </div>
       </div>`;
     }
     _renderEditorDiagnosticsResults() {
       if (!this._editorDiagnosticsPanel || !this._editorDiagnosticsSummaryNode || !this._editorDiagnosticsList) return;
-      const Y = Array.isArray(this._editorDiagnosticsItems) ? this._editorDiagnosticsItems : [];
-      this._editorDiagnosticsPanel.hidden = !Y.length, this._editorDiagnosticsSummaryNode.textContent = this._editorDiagnosticsSummary(Y), this._editorDiagnosticsList.innerHTML = Y.map((j) => this._editorDiagnosticRowHtml(j)).join("");
+      const J = Array.isArray(this._editorDiagnosticsItems) ? this._editorDiagnosticsItems : [];
+      this._editorDiagnosticsPanel.hidden = !J.length, this._editorDiagnosticsSummaryNode.textContent = this._editorDiagnosticsSummary(J), this._editorDiagnosticsList.innerHTML = J.map((j) => this._editorDiagnosticRowHtml(j)).join("");
     }
     async _runEditorDiagnostics() {
-      const Y = [], j = (g, y, S = "", B = "") => Y.push(this._editorDiagnosticItem(g, y, S, B)), V = Object.keys(this._hass?.services?.music_assistant || {}), X = this._hass?.states || {}, K = this._hass?.entities || {}, ne = Object.values(X).filter((g) => _.isMusicAssistantPlayer(g, K?.[g.entity_id])), ge = Object.values(X).filter((g) => g?.entity_id?.startsWith?.("media_player.")), o = v.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities), m = v.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities);
+      const J = [], j = (g, y, S = "", B = "") => J.push(this._editorDiagnosticItem(g, y, S, B)), V = Object.keys(this._hass?.services?.music_assistant || {}), X = this._hass?.states || {}, K = this._hass?.entities || {}, ne = Object.values(X).filter((g) => _.isMusicAssistantPlayer(g, K?.[g.entity_id])), ge = Object.values(X).filter((g) => g?.entity_id?.startsWith?.("media_player.")), o = v.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities), m = v.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities);
       if (j("ok", "Editor version", "Visual editor runtime is loaded.", z), j("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7"), j("info", "Browser", this._editorBrowserSummary()), j("info", "Viewport", this._editorViewportSummary()), j("info", "Diagnostic privacy", "External/private hostnames are redacted in visible and copied diagnostic output."), j(this._hass ? "ok" : "fail", "Home Assistant frontend", this._hass ? "Editor has a Home Assistant frontend object." : "Editor does not have a Home Assistant frontend object."), j(V.length ? "ok" : "fail", "Music Assistant services", V.length ? `${V.length} service(s) are exposed by Home Assistant.` : "No music_assistant services are exposed by Home Assistant."), j(V.length ? "ok" : "warn", "Engine backend mode", V.length ? "HOMEii Flow 6 uses HOMEii Flow Engine as the required backend. Browser-direct Music Assistant access is not used for core card routing." : "Home Assistant does not expose music_assistant services for HOMEii Flow Engine."), await this._editorDiagnosticEngineRow(j), j(V.length ? "ok" : "fail", "Integration signal", `services ${V.length ? "yes" : "no"}, authenticated transport HOMEii Flow Engine`), j(ne.length ? "ok" : V.length && ge.length ? "warn" : "fail", "Music Assistant players", ne.length ? `${ne.length} strict MA player(s), ${ge.length} generic HA media_player(s).` : `${ge.length} generic HA media_player(s), but no strict Music Assistant player markers were detected.`), j("info", "Player filters", `${o.length} pinned, ${m.length} excluded.`), this._hass?.connection?.sendMessagePromise)
         try {
           const g = await this._editorWithTimeout(this._hass.connection.sendMessagePromise({
@@ -32963,13 +32952,13 @@ function Gm(n = {}) {
         }
       else
         j("warn", "Music Assistant config entry", "Home Assistant connection API is not available in this editor context.");
-      return j("ok", "Music Assistant transport", "URL selection, authentication, event streaming, caching, and artwork proxying are owned by HOMEii Flow Engine. No MA token or server URL is stored in the card."), this._editorDiagnosticsItems = Y, this._editorDiagnosticsReport = this._editorDiagnosticsReportText(Y), this._renderEditorDiagnosticsResults(), this._editorDiagnosticsReport;
+      return j("ok", "Music Assistant transport", "URL selection, authentication, event streaming, caching, and artwork proxying are owned by HOMEii Flow Engine. No MA token or server URL is stored in the card."), this._editorDiagnosticsItems = J, this._editorDiagnosticsReport = this._editorDiagnosticsReportText(J), this._renderEditorDiagnosticsResults(), this._editorDiagnosticsReport;
     }
     async _copyEditorDiagnosticsReport() {
       if (this._editorDiagnosticsRunning) return;
       this._editorDiagnosticsRunning = !0;
-      const Y = this._editorDiagnosticsBtn, j = Y?.textContent || "Diagnostics";
-      Y && (Y.disabled = !0, Y.textContent = "Running...");
+      const J = this._editorDiagnosticsBtn, j = J?.textContent || "Diagnostics";
+      J && (J.disabled = !0, J.textContent = "Running...");
       try {
         const V = await this._runEditorDiagnostics();
         let X = !1, K = "";
@@ -32986,19 +32975,19 @@ function Gm(n = {}) {
         (K || !X) && (this._editorDiagnosticsItems = [
           ...Array.isArray(this._editorDiagnosticsItems) ? this._editorDiagnosticsItems : [],
           this._editorDiagnosticItem("warn", "Copy diagnostics", K || "Automatic copy was not available. The report is still visible here.")
-        ], this._editorDiagnosticsReport = this._editorDiagnosticsReportText(this._editorDiagnosticsItems), this._renderEditorDiagnosticsResults()), Y && (Y.textContent = X ? "Copied" : "Ready");
+        ], this._editorDiagnosticsReport = this._editorDiagnosticsReportText(this._editorDiagnosticsItems), this._renderEditorDiagnosticsResults()), J && (J.textContent = X ? "Copied" : "Ready");
       } catch (V) {
-        this._editorDiagnosticsReport = V?.message || "Editor diagnostics failed.", this._editorDiagnosticsItems = [this._editorDiagnosticItem("fail", "Editor diagnostics", this._editorDiagnosticsReport)], this._renderEditorDiagnosticsResults(), Y && (Y.textContent = "Failed");
+        this._editorDiagnosticsReport = V?.message || "Editor diagnostics failed.", this._editorDiagnosticsItems = [this._editorDiagnosticItem("fail", "Editor diagnostics", this._editorDiagnosticsReport)], this._renderEditorDiagnosticsResults(), J && (J.textContent = "Failed");
       } finally {
-        this._editorDiagnosticsRunning = !1, Y && (Y.disabled = !1, setTimeout(() => {
+        this._editorDiagnosticsRunning = !1, J && (J.disabled = !1, setTimeout(() => {
           !this._editorDiagnosticsRunning && this._editorDiagnosticsBtn && (this._editorDiagnosticsBtn.textContent = j);
         }, 1600));
       }
     }
     _ensureEditorShell() {
       if (this._editorRoot) return;
-      const Y = this.attachShadow({ mode: "open" });
-      if (Y.innerHTML = `
+      const J = this.attachShadow({ mode: "open" });
+      if (J.innerHTML = `
       <style>
         ${ms}
         :host {
@@ -33038,33 +33027,6 @@ function Gm(n = {}) {
           display:flex;
           align-items:center;
           gap:8px;
-        }
-        .editor-sponsor {
-          width:30px;
-          height:30px;
-          display:inline-grid;
-          place-items:center;
-          border-radius:999px;
-          color:var(--secondary-text-color, rgba(31,38,51,.62));
-          background:rgba(146,161,183,.08);
-          border:1px solid rgba(146,161,183,.14);
-          text-decoration:none;
-          transition:background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
-        }
-        .editor-sponsor:hover {
-          color:#d14d72;
-          background:rgba(209,77,114,.09);
-          border-color:rgba(209,77,114,.22);
-          transform:translateY(-1px);
-        }
-        .editor-sponsor:focus-visible {
-          outline:2px solid color-mix(in srgb, var(--primary-color, #d14d72) 56%, transparent);
-          outline-offset:2px;
-        }
-        .editor-sponsor svg {
-          width:16px;
-          height:16px;
-          display:block;
         }
         .editor-diagnostics {
           flex:0 0 auto;
@@ -33227,25 +33189,6 @@ function Gm(n = {}) {
         <div class="editor-header">
           <div class="editor-title">homeii-music-flow</div>
           <div class="editor-actions">
-            <a
-              class="editor-sponsor"
-              href="https://github.com/sponsors/r11a"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="${this._esc(this._editorSponsorTitle())}"
-              aria-label="${this._esc(this._editorSponsorTitle())}"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path
-                  d="M20.8 4.6c-1.8-1.7-4.7-1.6-6.4.2L12 7.3 9.6 4.8C7.9 3 5 2.9 3.2 4.6 1.2 6.5 1.1 9.6 3 11.6l8.2 8.5c.4.4 1.1.4 1.5 0l8.2-8.5c2-2 1.9-5.1-.1-7Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.8"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>
-              </svg>
-            </a>
             <button class="editor-diagnostics" type="button" title="Run and copy diagnostics report" aria-label="Run and copy diagnostics report">Diagnostics</button>
             <div class="editor-version">v${z}</div>
           </div>
@@ -33261,15 +33204,8 @@ function Gm(n = {}) {
         <div class="editor-section-nav"><label for="editorSection"></label><select id="editorSection"></select></div>
         <ha-form id="editorForm"></ha-form>
       </div>
-    `, this._editorRoot = Y, this._editorForm = Y.querySelector("#editorForm"), this._editorUsePathBtn = Y.querySelector("#editorUseCurrentPath"), this._editorPathHint = Y.querySelector("#editorPathHint"), this._editorSponsorLink = Y.querySelector(".editor-sponsor"), this._editorDiagnosticsBtn = Y.querySelector(".editor-diagnostics"), this._editorDiagnosticsCloseBtn = Y.querySelector("#editorDiagnosticsClose"), this._editorDiagnosticsPanel = Y.querySelector("#editorDiagnosticsPanel"), this._editorDiagnosticsSummaryNode = Y.querySelector("#editorDiagnosticsSummary"), this._editorDiagnosticsList = Y.querySelector("#editorDiagnosticsList"), this._syncEditorSponsorLabels(), this._refreshEditorShellClasses(), !this._editorBound) {
-        this._editorBound = !0, this._editorSponsorLink?.addEventListener("click", (V) => {
-          let X = !0;
-          try {
-            typeof window.confirm == "function" && (X = window.confirm(this._editorSponsorConfirmMessage()));
-          } catch {
-          }
-          X || V.preventDefault?.();
-        }), this._editorDiagnosticsBtn?.addEventListener("click", () => {
+    `, this._editorRoot = J, this._editorForm = J.querySelector("#editorForm"), this._editorUsePathBtn = J.querySelector("#editorUseCurrentPath"), this._editorPathHint = J.querySelector("#editorPathHint"), this._editorDiagnosticsBtn = J.querySelector(".editor-diagnostics"), this._editorDiagnosticsCloseBtn = J.querySelector("#editorDiagnosticsClose"), this._editorDiagnosticsPanel = J.querySelector("#editorDiagnosticsPanel"), this._editorDiagnosticsSummaryNode = J.querySelector("#editorDiagnosticsSummary"), this._editorDiagnosticsList = J.querySelector("#editorDiagnosticsList"), this._refreshEditorShellClasses(), !this._editorBound) {
+        this._editorBound = !0, this._editorDiagnosticsBtn?.addEventListener("click", () => {
           this._copyEditorDiagnosticsReport();
         }), this._editorDiagnosticsCloseBtn?.addEventListener("click", () => {
           this._editorDiagnosticsPanel && (this._editorDiagnosticsPanel.hidden = !0);
@@ -33280,7 +33216,7 @@ function Gm(n = {}) {
             ...this._config,
             mobile_home_shortcut_path: V
           }, this._render(), this._dispatchConfig();
-        }), Y.querySelector("#editorSection")?.addEventListener("change", (V) => {
+        }), J.querySelector("#editorSection")?.addEventListener("change", (V) => {
           this._editorSection = V.target.value, this._editorLastSchemaKey = "", this._render();
         });
         const j = (V) => {
@@ -33295,34 +33231,34 @@ function Gm(n = {}) {
           const ge = JSON.stringify(this._withDynamicEditorSchema(this._currentBaseEditorSchema()));
           ne !== ge && queueMicrotask(() => this._render());
         };
-        this._editorForm?.addEventListener("value-changed", j), Y.querySelector("#editorBasics")?.addEventListener("value-changed", j);
+        this._editorForm?.addEventListener("value-changed", j), J.querySelector("#editorBasics")?.addEventListener("value-changed", j);
       }
     }
     _isTabletStabilityMode() {
       try {
-        const Y = String(window.navigator?.userAgent || ""), j = Math.max(
+        const J = String(window.navigator?.userAgent || ""), j = Math.max(
           Number(window.innerWidth || 0),
           Number(this.getBoundingClientRect?.().width || 0),
           Number(this.offsetWidth || 0)
         ), V = Number(window.navigator?.maxTouchPoints || 0);
-        return /Android/i.test(Y) && j >= 980 && V > 0;
+        return /Android/i.test(J) && j >= 980 && V > 0;
       } catch {
         return !1;
       }
     }
     _refreshEditorShellClasses() {
-      const Y = this._editorRoot?.querySelector(".editor-shell");
-      Y && Y.classList.toggle("tablet-stable", this._isTabletStabilityMode());
+      const J = this._editorRoot?.querySelector(".editor-shell");
+      J && J.classList.toggle("tablet-stable", this._isTabletStabilityMode());
     }
     _syncEditorLiveContext() {
-      this._ensureEditorShell(), this.style.direction = this._isHebrew() ? "rtl" : "ltr", this._refreshEditorShellClasses(), this._syncEditorSponsorLabels(), this._editorUsePathBtn && (this._editorUsePathBtn.textContent = k("ui.use_current_view_for_home_button")), this._editorPathHint && (this._editorPathHint.textContent = `${k("ui.current_path")}: ${this._currentUiPath()}`), this._editorForm && (this._editorForm.hass = this._hass);
+      this._ensureEditorShell(), this.style.direction = this._isHebrew() ? "rtl" : "ltr", this._refreshEditorShellClasses(), this._editorUsePathBtn && (this._editorUsePathBtn.textContent = k("ui.use_current_view_for_home_button")), this._editorPathHint && (this._editorPathHint.textContent = `${k("ui.current_path")}: ${this._currentUiPath()}`), this._editorForm && (this._editorForm.hass = this._hass);
     }
-    _editorPlayerOptionLabel(Y = null, j = []) {
-      const V = String(Y?.entity_id || "").trim(), X = _.playerDisplayName(Y, { players: j }) || V;
+    _editorPlayerOptionLabel(J = null, j = []) {
+      const V = String(J?.entity_id || "").trim(), X = _.playerDisplayName(J, { players: j }) || V;
       return !X || !V || X === V || String(X).includes(V) ? X || V : `${X} (${V})`;
     }
     _editorPinnedPlayerOptions() {
-      const Y = this._hass?.states || {}, j = this._hass?.entities || {}, V = Object.values(Y).filter((m) => m?.entity_id?.startsWith("media_player.")), X = /* @__PURE__ */ new Set([
+      const J = this._hass?.states || {}, j = this._hass?.entities || {}, V = Object.values(J).filter((m) => m?.entity_id?.startsWith("media_player.")), X = /* @__PURE__ */ new Set([
         ...v.normalizePinnedPlayerEntityList(this._config?.pinned_player_entities),
         ...v.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities),
         ...v.normalizePlayerOrderEntities(this._config || {})
@@ -33351,38 +33287,38 @@ function Gm(n = {}) {
       });
     }
     _editorPlayerOrderOptions() {
-      const Y = new Set(v.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities));
-      return this._editorPinnedPlayerOptions().filter((j) => !Y.has(j.value));
+      const J = new Set(v.normalizePinnedPlayerEntityList(this._config?.excluded_player_entities));
+      return this._editorPinnedPlayerOptions().filter((j) => !J.has(j.value));
     }
-    _playerOrderEntitySelector({ entities: Y = [] } = {}) {
+    _playerOrderEntitySelector({ entities: J = [] } = {}) {
       const j = {
         entity: {
           multiple: !1,
           filter: [{ integration: "music_assistant", domain: "media_player" }]
         }
       };
-      return Y.length && (j.entity.include_entities = Y.map((V) => V.value)), j;
+      return J.length && (j.entity.include_entities = J.map((V) => V.value)), j;
     }
     _editorColorLightOptions() {
-      const Y = this._hass?.states || {};
-      return Object.values(Y).filter((j) => j?.entity_id?.startsWith("light.")).filter((j) => v.isColorCapableLightEntity(j)).map((j) => ({
+      const J = this._hass?.states || {};
+      return Object.values(J).filter((j) => j?.entity_id?.startsWith("light.")).filter((j) => v.isColorCapableLightEntity(j)).map((j) => ({
         value: j.entity_id,
         label: j.attributes?.friendly_name || j.entity_id
       })).sort((j, V) => String(j.label).localeCompare(String(V.label), void 0, { sensitivity: "base" }));
     }
-    _ambientLightPairPlayerKey(Y) {
-      return `${q}${Y}`;
+    _ambientLightPairPlayerKey(J) {
+      return `${q}${J}`;
     }
-    _ambientLightPairLightsKey(Y) {
-      return `${G}${Y}`;
+    _ambientLightPairLightsKey(J) {
+      return `${G}${J}`;
     }
-    _ambientLightPairDisplayKey(Y = "player", j = 0) {
-      const V = Math.max(0, Number(j) || 0), X = Y === "lights" ? this._ambientLightPairLightsKey(V) : this._ambientLightPairPlayerKey(V), K = this._editorDynamicLabel({ name: X });
+    _ambientLightPairDisplayKey(J = "player", j = 0) {
+      const V = Math.max(0, Number(j) || 0), X = J === "lights" ? this._ambientLightPairLightsKey(V) : this._ambientLightPairPlayerKey(V), K = this._editorDynamicLabel({ name: X });
       if (K) return K;
       const ne = V + 1;
-      return Y === "lights" ? `Color lights ${ne}` : `Music Assistant player ${ne}`;
+      return J === "lights" ? `Color lights ${ne}` : `Music Assistant player ${ne}`;
     }
-    _ambientLightPairFieldInfo(Y = "") {
+    _ambientLightPairFieldInfo(J = "") {
       const j = [], V = (K) => {
         if (K != null) {
           if (Array.isArray(K)) {
@@ -33396,7 +33332,7 @@ function Gm(n = {}) {
           j.push(String(K));
         }
       };
-      V(Y);
+      V(J);
       const X = (K, ne, ge) => {
         const o = String(K || "").indexOf(ne);
         if (o < 0) return null;
@@ -33423,28 +33359,28 @@ function Gm(n = {}) {
       }
       return null;
     }
-    _editorSchemaItem(Y = {}) {
-      return typeof Y == "string" ? { name: Y } : Array.isArray(Y) ? { name: Y[Y.length - 1] || Y.join(".") } : Y && typeof Y == "object" ? Y : {};
+    _editorSchemaItem(J = {}) {
+      return typeof J == "string" ? { name: J } : Array.isArray(J) ? { name: J[J.length - 1] || J.join(".") } : J && typeof J == "object" ? J : {};
     }
-    _ambientLightPlayerMapConfigFromGroups(Y = []) {
-      return Y.map((j) => v.formatAmbientLightPlayerMapEntry(j.player, j.lights)).filter(Boolean);
+    _ambientLightPlayerMapConfigFromGroups(J = []) {
+      return J.map((j) => v.formatAmbientLightPlayerMapEntry(j.player, j.lights)).filter(Boolean);
     }
-    _ambientLightPairSelectorData(Y = this._config) {
-      const j = {}, V = v.parseAmbientLightPlayerMap(Y?.ambient_light_player_map);
+    _ambientLightPairSelectorData(J = this._config) {
+      const j = {}, V = v.parseAmbientLightPlayerMap(J?.ambient_light_player_map);
       V.forEach((K, ne) => {
         j[this._ambientLightPairDisplayKey("player", ne)] = K.player, j[this._ambientLightPairDisplayKey("lights", ne)] = K.lights;
       });
       const X = V.length;
       return j[this._ambientLightPairDisplayKey("player", X)] = this._editorAmbientLightDraft?.player || "", j[this._ambientLightPairDisplayKey("lights", X)] = this._editorAmbientLightDraft?.lights || [], j;
     }
-    _editorFormData(Y = this._config) {
+    _editorFormData(J = this._config) {
       return {
-        ...Y,
-        ...this._ambientLightPairSelectorData(Y)
+        ...J,
+        ...this._ambientLightPairSelectorData(J)
       };
     }
-    _normalizeEditorFormValue(Y = {}) {
-      const j = { ...Y };
+    _normalizeEditorFormValue(J = {}) {
+      const j = { ...J };
       this._normalizeEditorQuickActionsValue(j), this._normalizeEditorPlayerOrderValue(j);
       const V = /* @__PURE__ */ new Set();
       if (Object.keys(j).forEach((ge) => {
@@ -33458,45 +33394,45 @@ function Gm(n = {}) {
         delete j[g], delete j[y], delete j[o], delete j[m], S && B.length ? K.push({ player: S, lights: B }) : ge >= X && (S || B.length) && (ne = { player: S, lights: B });
       }), this._editorAmbientLightDraft = ne, j.ambient_light_player_map = this._ambientLightPlayerMapConfigFromGroups(K), j;
     }
-    _normalizeEditorQuickActionsValue(Y = {}) {
-      if (!Object.prototype.hasOwnProperty.call(Y, "mobile_quick_actions")) return Y;
-      const j = v.normalizeMobileQuickActions(Y.mobile_quick_actions, []);
-      Y.mobile_quick_actions = j;
+    _normalizeEditorQuickActionsValue(J = {}) {
+      if (!Object.prototype.hasOwnProperty.call(J, "mobile_quick_actions")) return J;
+      const j = v.normalizeMobileQuickActions(J.mobile_quick_actions, []);
+      J.mobile_quick_actions = j;
       const V = new Set(j);
       for (let X = 1; X <= 10; X += 1) {
         const K = `mobile_quick_action_${X}`;
-        if (!Object.prototype.hasOwnProperty.call(Y, K)) continue;
-        const ne = String(Y[K] || "").trim();
-        ne && !V.has(ne) && (Y[K] = "");
+        if (!Object.prototype.hasOwnProperty.call(J, K)) continue;
+        const ne = String(J[K] || "").trim();
+        ne && !V.has(ne) && (J[K] = "");
       }
-      return Y;
+      return J;
     }
-    _normalizeEditorPlayerOrderValue(Y = {}) {
-      if (!Object.keys(Y).some((K) => /^player_order_entity_\d+$/.test(K))) return Y;
+    _normalizeEditorPlayerOrderValue(J = {}) {
+      if (!Object.keys(J).some((K) => /^player_order_entity_\d+$/.test(K))) return J;
       const V = this._playerOrderSchema()?.schema?.length || 0, X = [];
-      return Object.keys(Y).forEach((K) => {
+      return Object.keys(J).forEach((K) => {
         const ne = /^player_order_entity_(\d+)$/.exec(K);
         if (!ne) return;
         const ge = Number(ne[1]) || 0;
         if (!V || ge > V) {
-          delete Y[K];
+          delete J[K];
           return;
         }
-        const o = String(Y[K] || "").trim();
+        const o = String(J[K] || "").trim();
         o && !X.includes(o) && X.push(o);
-      }), Y.player_order_entities = X, Y;
+      }), J.player_order_entities = X, J;
     }
-    _ambientLightEntitySelector({ multiple: Y = !1, entities: j = [], fallbackFilter: V = [] } = {}) {
+    _ambientLightEntitySelector({ multiple: J = !1, entities: j = [], fallbackFilter: V = [] } = {}) {
       const X = {
         entity: {
-          multiple: Y,
+          multiple: J,
           filter: V
         }
       };
       return X.entity.include_entities = j.map((K) => K.value), X;
     }
     _playerOrderSchema() {
-      const Y = this._editorPlayerOrderOptions(), j = v.normalizePlayerOrderEntities(this._config || {}), V = Math.max(Y.length, Math.min(j.length, Y.length || j.length));
+      const J = this._editorPlayerOrderOptions(), j = v.normalizePlayerOrderEntities(this._config || {}), V = Math.max(J.length, Math.min(j.length, J.length || j.length));
       return V ? {
         type: "grid",
         name: "player_order_grid",
@@ -33504,12 +33440,12 @@ function Gm(n = {}) {
         column_min_width: "220px",
         schema: Array.from({ length: V }, (X, K) => ({
           name: `player_order_entity_${K + 1}`,
-          selector: this._playerOrderEntitySelector({ entities: Y })
+          selector: this._playerOrderEntitySelector({ entities: J })
         }))
       } : null;
     }
     _ambientLightPlayerPairSchema() {
-      const Y = v.parseAmbientLightPlayerMap(this._config?.ambient_light_player_map), j = Math.max(1, Y.length + 1), V = this._editorPinnedPlayerOptions(), X = this._editorColorLightOptions(), K = [];
+      const J = v.parseAmbientLightPlayerMap(this._config?.ambient_light_player_map), j = Math.max(1, J.length + 1), V = this._editorPinnedPlayerOptions(), X = this._editorColorLightOptions(), K = [];
       for (let ne = 0; ne < j; ne += 1) {
         const ge = this._ambientLightPairDisplayKey("player", ne), o = this._ambientLightPairDisplayKey("lights", ne);
         K.push({
@@ -33540,29 +33476,29 @@ function Gm(n = {}) {
         schema: K
       };
     }
-    _editorDynamicLabel(Y = {}) {
-      const j = this._ambientLightPairFieldInfo(Y);
+    _editorDynamicLabel(J = {}) {
+      const j = this._ambientLightPairFieldInfo(J);
       if (!j) {
-        const X = this._editorSchemaItem(Y)?.name || "", K = /^player_order_entity_(\d+)$/.exec(String(X || ""));
+        const X = this._editorSchemaItem(J)?.name || "", K = /^player_order_entity_(\d+)$/.exec(String(X || ""));
         return K ? `${k("ui.player_order")} ${K[1]}` : "";
       }
       const V = j.type === "player" ? "ui.player_light_pair_player" : "ui.player_light_pair_lights";
       return k(V, { number: j.index + 1 });
     }
-    _editorDynamicHelper(Y = {}) {
-      const j = this._ambientLightPairFieldInfo(Y);
+    _editorDynamicHelper(J = {}) {
+      const j = this._ambientLightPairFieldInfo(J);
       if (!j) {
-        const X = this._editorSchemaItem(Y)?.name || "";
+        const X = this._editorSchemaItem(J)?.name || "";
         return /^player_order_entity_\d+$/.test(String(X || "")) ? k("ui.set_custom_player_order") : "";
       }
       const V = j.type === "player" ? "ui.player_light_pair_player_helper" : "ui.player_light_pair_lights_helper";
       return k(V);
     }
     _currentBaseEditorSchema() {
-      const Y = this._getCardCtor().getConfigForm?.() || {};
-      return Array.isArray(Y) ? Y : Array.isArray(Y.schema) ? Y.schema : [];
+      const J = this._getCardCtor().getConfigForm?.() || {};
+      return Array.isArray(J) ? J : Array.isArray(J.schema) ? J.schema : [];
     }
-    _withDynamicEditorSchema(Y = []) {
+    _withDynamicEditorSchema(J = []) {
       const j = this._editorPinnedPlayerOptions(), V = this._editorColorLightOptions(), X = (this._config?.player_design || "immersive") === "immersive", K = /* @__PURE__ */ new Set(["mobile_footer_mode", "mobile_main_bar_items", "mobile_quick_actions", "mobile_cover_flow", "mobile_show_up_next", "mobile_volume_mode"]), ne = /* @__PURE__ */ new Set(["volume_wheel", "fan_theme"]), ge = (S) => {
         if (X && (K.has(S?.name) || /^mobile_quick_action_\d+$/.test(S?.name || "")) || !X && ne.has(S?.name)) return null;
         if (!S || typeof S != "object") return S;
@@ -33586,7 +33522,7 @@ function Gm(n = {}) {
           entities: V,
           fallbackFilter: [{ domain: "light" }]
         })), B;
-      }, o = (Array.isArray(Y) ? Y : []).map(ge).filter(Boolean), m = o.find((S) => S.name === "connection_section");
+      }, o = (Array.isArray(J) ? J : []).map(ge).filter(Boolean), m = o.find((S) => S.name === "connection_section");
       m && (m.title = this._isHebrew() ? "מנוע והגדרות מתקדמות" : "Engine & advanced");
       const g = o.find((S) => S.name === "general_section"), y = g?.schema?.find((S) => S.name === "general_grid");
       if (y) {
@@ -33599,10 +33535,10 @@ function Gm(n = {}) {
     }
     _render() {
       this._ensureEditorShell();
-      const Y = this._getCardCtor(), j = {
-        ...Y.getStubConfig(),
+      const J = this._getCardCtor(), j = {
+        ...J.getStubConfig(),
         ...this._config
-      }, V = Y.getConfigForm?.() || {}, X = this._currentBaseEditorSchema(), K = this._withDynamicEditorSchema(X), ne = this._editorFormData(j), ge = V.labels || {}, o = V.helpers || {}, m = typeof V.computeLabel == "function" ? V.computeLabel : (y) => ge?.[y?.name], g = typeof V.computeHelper == "function" ? V.computeHelper : (y) => o?.[y?.name];
+      }, V = J.getConfigForm?.() || {}, X = this._currentBaseEditorSchema(), K = this._withDynamicEditorSchema(X), ne = this._editorFormData(j), ge = V.labels || {}, o = V.helpers || {}, m = typeof V.computeLabel == "function" ? V.computeLabel : (y) => ge?.[y?.name], g = typeof V.computeHelper == "function" ? V.computeHelper : (y) => o?.[y?.name];
       if (this._syncEditorLiveContext(), this._editorForm) {
         const y = ($) => {
           const ce = this._editorSchemaItem($);
@@ -33614,12 +33550,12 @@ function Gm(n = {}) {
         this._editorForm.computeLabel = y, this._editorForm.computeHelper = S;
         const B = JSON.stringify(K), E = K.filter(($) => $.type === "expandable"), I = E.find(($) => $.name === this._editorSection) || E[0];
         this._editorSection = I?.name || "";
-        const F = this._editorRoot.querySelector("#editorSection"), J = this._editorRoot.querySelector("#editorBasics");
+        const F = this._editorRoot.querySelector("#editorSection"), O = this._editorRoot.querySelector("#editorBasics");
         if (F) {
           const $ = E.map((ce) => `<option value="${this._esc(ce.name)}">${this._esc(ce.title || y(ce))}</option>`).join("");
           F.innerHTML !== $ && (F.innerHTML = $), F.value = this._editorSection, this._editorRoot.querySelector(".editor-section-nav label").textContent = this._isHebrew() ? "מה תרצה להתאים?" : "What would you like to adjust?";
         }
-        J && (J.hass = this._hass, J.computeLabel = y, J.computeHelper = S, this._editorLastSchemaKey !== B && (J.schema = K.filter(($) => $.type !== "expandable")), J.data = ne), this._editorLastSchemaKey !== B && (this._editorForm.schema = I?.schema || [], this._editorLastSchemaKey = B);
+        O && (O.hass = this._hass, O.computeLabel = y, O.computeHelper = S, this._editorLastSchemaKey !== B && (O.schema = K.filter(($) => $.type !== "expandable")), O.data = ne), this._editorLastSchemaKey !== B && (this._editorForm.schema = I?.schema || [], this._editorLastSchemaKey = B);
         const Z = JSON.stringify(ne);
         this._editorLastConfigKey !== Z && (this._editorForm.data = ne, this._editorLastConfigKey = Z);
       }
@@ -35956,7 +35892,7 @@ function Km(n, e = "info", t = {}) {
   q.className = `toast ${p}${Q ? " centered" : ""}${z ? " top" : ""}`, q.setAttribute("role", p === "error" ? "alert" : "status"), q.setAttribute("aria-atomic", "true");
   const G = p === "success" ? "✓" : p === "error" ? "×" : "i";
   q.innerHTML = `<span class="toast-icon" aria-hidden="true">${G}</span><span class="toast-text">${this._esc(c)}</span>`;
-  const U = String(t?.issueAckKey || "").trim(), Y = String(t?.issueAckText || c).trim();
+  const U = String(t?.issueAckKey || "").trim(), J = String(t?.issueAckText || c).trim();
   let j = !1;
   const V = () => {
     j || (j = !0, q.remove(), Q && !r.querySelector(".toast.centered") && r.classList.remove("center-toast"), z && !r.querySelector(".toast.top") && r.classList.remove("top-toast"));
@@ -35964,7 +35900,7 @@ function Km(n, e = "info", t = {}) {
   if (U) {
     const X = document.createElement("button");
     X.type = "button", X.className = "toast-ack", X.textContent = this._i18n("ui.confirm", {}, "OK") || "OK", X.addEventListener("click", (K) => {
-      K?.stopPropagation?.(), this._acknowledgeCardIssue(U, Y), V();
+      K?.stopPropagation?.(), this._acknowledgeCardIssue(U, J), V();
     }), q.appendChild(X);
   }
   r.appendChild(q), setTimeout(V, Number(t?.duration || 3300));
@@ -36335,8 +36271,8 @@ class zl {
           z = c.getInt16(Q, !0) / 32768;
         else if (t.bit_depth === 24) {
           const q = c.getUint8(Q), G = c.getUint8(Q + 1);
-          let Y = c.getUint8(Q + 2) << 16 | G << 8 | q;
-          Y & 8388608 && (Y |= 4278190080), z = Y / 8388608;
+          let J = c.getUint8(Q + 2) << 16 | G << 8 | q;
+          J & 8388608 && (J |= 4278190080), z = J / 8388608;
         } else t.bit_depth === 32 && (z = c.getInt32(Q, !0) / 2147483648);
         k[C] = z;
       }
@@ -37152,10 +37088,10 @@ class Fl {
     let Q = this._drift_covariance + C, q = this._offset_drift_covariance + this._drift_covariance * c + 0;
     const G = c * this._offset_process_variance;
     let U = this._offset_covariance + 2 * this._offset_drift_covariance * c + this._drift_covariance * k + G;
-    const Y = e - v, j = t * Pp;
-    this._count < 100 ? this._count += 1 : Math.abs(Y) > j && (Q *= this._forget_variance_factor, q *= this._forget_variance_factor, U *= this._forget_variance_factor);
+    const J = e - v, j = t * Pp;
+    this._count < 100 ? this._count += 1 : Math.abs(J) > j && (Q *= this._forget_variance_factor, q *= this._forget_variance_factor, U *= this._forget_variance_factor);
     const V = 1 / (U + _), X = U * V, K = q * V;
-    this._offset = v + X * Y, this._drift += K * Y, this._drift_covariance = Q - K * q, this._offset_drift_covariance = q - K * U, this._offset_covariance = U - X * U;
+    this._offset = v + X * J, this._drift += K * J, this._drift_covariance = Q - K * q, this._offset_drift_covariance = q - K * U, this._offset_covariance = U - X * U;
     const ne = this._drift * this._drift;
     this._use_drift = ne > this._drift_significance_threshold_squared * this._drift_covariance, this._current_time_element = {
       last_update: this._last_update,
@@ -37526,9 +37462,9 @@ class jp {
         if (Math.abs(Q - G) > Rp)
           return this.rejectSample(`timestamp/raw divergence drift ${Math.abs((Q - G) * 1e3).toFixed(1)}ms`), null;
         if (q >= Lp) {
-          const U = q / 1e3, Y = (c.contextTime - z.contextTimeSec) / U, j = (k - z.predictedAudioTimeSec) / U;
-          if (Y < Nn || Y > Hn)
-            return this.rejectSample(`context slope ${Y.toFixed(3)} out of range`), null;
+          const U = q / 1e3, J = (c.contextTime - z.contextTimeSec) / U, j = (k - z.predictedAudioTimeSec) / U;
+          if (J < Nn || J > Hn)
+            return this.rejectSample(`context slope ${J.toFixed(3)} out of range`), null;
           if (j < Nn || j > Hn)
             return this.rejectSample(`predicted slope ${j.toFixed(3)} out of range`), null;
         }
@@ -38028,15 +37964,15 @@ class Hl {
         break;
       const Q = this.audioBufferQueue.shift();
       let z, q, G;
-      const U = this.computeTargetPlaybackTime(Q.serverTime, t, p, _), Y = this.clockSource.active === "timestamp";
+      const U = this.computeTargetPlaybackTime(Q.serverTime, t, p, _), J = this.clockSource.active === "timestamp";
       if (this.nextPlaybackTime === 0 || this.lastScheduledServerTime === 0) {
-        this.recorrectionMonitor.armStartupGrace(c, Y), z = U, q = z - v;
+        this.recorrectionMonitor.armStartupGrace(c, J), z = U, q = z - v;
         const ge = this.recorrectionMonitor.minScheduleTimeSec;
         ge !== null && (q = Math.max(q, ge), z = q + v), this.recorrectionMonitor.clearMinScheduleTime(), G = 1, Q.buffer = this.copyBuffer(Q.buffer);
       } else {
         const o = (Q.serverTime - this.lastScheduledServerTime) / 1e6;
         if (Math.abs(o) < 0.1) {
-          const g = (this.nextPlaybackTime - U) * 1e3, y = this.applySyncErrorEma(g), S = this.correctionThresholds[this._correctionMode], B = this.recorrectionMonitor.canUseHardResync(c, Y);
+          const g = (this.nextPlaybackTime - U) * 1e3, y = this.applySyncErrorEma(g), S = this.correctionThresholds[this._correctionMode], B = this.recorrectionMonitor.canUseHardResync(c, J);
           if (Math.abs(y) > S.resyncAboveMs && B)
             this.recorrectionMonitor.noteHardResync(c), this.resyncCount++, this._intervalResyncCount++, this.resetSyncErrorEma(), this.cutScheduledSources(U - v), z = U, q = z - v, G = 1, this.currentCorrectionMethod = "resync", this.lastSamplesAdjusted = 0, Q.buffer = this.copyBuffer(Q.buffer);
           else if (Math.abs(y) > S.resyncAboveMs)
@@ -38053,7 +37989,7 @@ class Hl {
             y > 0 ? G = E >= S.rate2AboveMs ? 1.02 : E >= S.rate1AboveMs ? 1.01 : 1 : G = E >= S.rate2AboveMs ? 0.98 : E >= S.rate1AboveMs ? 0.99 : 1, this.currentCorrectionMethod = G === 1 ? "none" : "rate", this.lastSamplesAdjusted = 0, Q.buffer = this.copyBuffer(Q.buffer);
           }
         } else
-          this.recorrectionMonitor.canUseHardResync(c, Y) && (this.recorrectionMonitor.noteHardResync(c), this.resyncCount++, this._intervalResyncCount++, this.cutScheduledSources(U - v)), z = U, q = z - v, G = 1, this.currentCorrectionMethod = "resync", this.lastSamplesAdjusted = 0, Q.buffer = this.copyBuffer(Q.buffer);
+          this.recorrectionMonitor.canUseHardResync(c, J) && (this.recorrectionMonitor.noteHardResync(c), this.resyncCount++, this._intervalResyncCount++, this.cutScheduledSources(U - v)), z = U, q = z - v, G = 1, this.currentCorrectionMethod = "resync", this.lastSamplesAdjusted = 0, Q.buffer = this.copyBuffer(Q.buffer);
       }
       if (this.currentPlaybackRate = G, z < r) {
         this.nextPlaybackTime = 0, this.nextScheduleTime = 0, this.lastScheduledServerTime = 0;
@@ -38324,7 +38260,7 @@ function vh({
   HomeiiRevisionedSnapshotsFoundation: q,
   getBaseCardConfigForm: G,
   getRadioBrowserCountrySelectorOptions: U,
-  homeiiRadioBrowserCountryLabel: Y,
+  homeiiRadioBrowserCountryLabel: J,
   homeiiCountryFlagEmoji: j,
   homeiiDetectLanguage: V,
   homeiiIsRtlLanguage: X,
@@ -38427,7 +38363,7 @@ function vh({
         viewportHeight: S,
         hostTop: E,
         parentHeights: I
-      }) === !0, J = !F && E > 0 && E <= 160 ? E : 0, Z = F ? 0 : S >= 900 ? 28 : S >= 700 ? 20 : 12, $ = S > 0 ? Math.max(0, S - J - Math.max(0, -E) - Z) : 0, ce = $ > 240 ? $ : S, be = I.filter((de) => !ce || de <= ce + 4), ue = be.length ? Math.max(...be) : 0;
+      }) === !0, O = !F && E > 0 && E <= 160 ? E : 0, Z = F ? 0 : S >= 900 ? 28 : S >= 700 ? 20 : 12, $ = S > 0 ? Math.max(0, S - O - Math.max(0, -E) - Z) : 0, ce = $ > 240 ? $ : S, be = I.filter((de) => !ce || de <= ce + 4), ue = be.length ? Math.max(...be) : 0;
       if (ce > 0) {
         if (y > 0)
           return Math.round(Math.max(Math.min(280, ce), Math.min(y, ce)));
@@ -38461,10 +38397,10 @@ function vh({
       typeof requestAnimationFrame == "function" ? this._layoutRecoveryFrame = requestAnimationFrame(() => m(0)) : this._layoutRecoveryTimer = setTimeout(() => m(0), 0);
     }
     _recoverLayoutAfterHostChange(o = "layout", m = 0) {
-      const g = typeof window < "u" ? Number(window.innerWidth || 0) : 0, y = this._getViewportHeight(760), S = !!(this._state?.mobileCompactExpanded && this._mobileCompactModeEnabled?.()), B = S && this._mobileCompactEdgeToEdgeEnabled?.() && this._compactEdgeToEdgeAllowed?.(), E = S && !B, I = g > 0 && g < 760 ? 156 : 112, F = E ? Math.max(320, Math.min(720, Number(g || 0) - 32)) : this._getCardWidth(g), J = B ? y : E ? Math.max(340, Math.min(860, Number(y || 0) - I || y)) : this._getAllocatedCardHeight(y);
-      if (F <= 0 || J <= 0) return;
-      const Z = this._layoutModeConfig({ width: F, compactPopup: S }), $ = this._layoutProfileConfig(Z, { width: F, height: J, compactPopup: S }), ce = this.shadowRoot?.querySelector?.(".card"), be = this._renderedLayoutMode || (ce?.classList?.contains("layout-tablet") ? "tablet" : ce?.classList?.contains("layout-mobile") ? "mobile" : ""), ue = [`layout-${Z}`, ...Array.isArray($?.classes) ? $.classes : []], de = !!ce && ue.some((Ee) => !ce.classList.contains(Ee)), me = Math.abs(F - Number(this._lastCardWidth || 0)), he = Math.abs(J - Number(this._lastCardHeight || 0)), ve = !!be && be !== Z, xe = !!this._state?.screensaverOpen || !!this.shadowRoot?.querySelector?.("#screensaverBackdrop.open"), ke = m === 0 || ve || de || me > 80 || he > 80 || xe;
-      if (this._lastCardWidth = Math.round(F), this._lastCardHeight = Math.round(J), this._lastViewportWidth = g, this._lastViewportHeight = y, this._renderedLayoutMode = Z, !ke) return;
+      const g = typeof window < "u" ? Number(window.innerWidth || 0) : 0, y = this._getViewportHeight(760), S = !!(this._state?.mobileCompactExpanded && this._mobileCompactModeEnabled?.()), B = S && this._mobileCompactEdgeToEdgeEnabled?.() && this._compactEdgeToEdgeAllowed?.(), E = S && !B, I = g > 0 && g < 760 ? 156 : 112, F = E ? Math.max(320, Math.min(720, Number(g || 0) - 32)) : this._getCardWidth(g), O = B ? y : E ? Math.max(340, Math.min(860, Number(y || 0) - I || y)) : this._getAllocatedCardHeight(y);
+      if (F <= 0 || O <= 0) return;
+      const Z = this._layoutModeConfig({ width: F, compactPopup: S }), $ = this._layoutProfileConfig(Z, { width: F, height: O, compactPopup: S }), ce = this.shadowRoot?.querySelector?.(".card"), be = this._renderedLayoutMode || (ce?.classList?.contains("layout-tablet") ? "tablet" : ce?.classList?.contains("layout-mobile") ? "mobile" : ""), ue = [`layout-${Z}`, ...Array.isArray($?.classes) ? $.classes : []], de = !!ce && ue.some((Ee) => !ce.classList.contains(Ee)), me = Math.abs(F - Number(this._lastCardWidth || 0)), he = Math.abs(O - Number(this._lastCardHeight || 0)), ve = !!be && be !== Z, xe = !!this._state?.screensaverOpen || !!this.shadowRoot?.querySelector?.("#screensaverBackdrop.open"), ke = m === 0 || ve || de || me > 80 || he > 80 || xe;
+      if (this._lastCardWidth = Math.round(F), this._lastCardHeight = Math.round(O), this._lastViewportWidth = g, this._lastViewportHeight = y, this._renderedLayoutMode = Z, !ke) return;
       this._closeTransientEditorLayoutState();
       const Me = this._state?.menuOpen ? this._state.menuPage || "settings" : "", Be = !!this._state?.controlRoomOpen;
       if (typeof this._rebuildMobileUi == "function") {
@@ -38533,14 +38469,14 @@ function vh({
       return Math.max(4, Math.ceil(g / 50));
     }
     getGridOptions() {
-      const o = this._configuredCardHeightFallback(this._getViewportHeight(760) || 760), m = this._preferFullMobileGridRows?.() === !0, g = !m && this._isCompactTileMode(), y = this._getCardWidth(this._lastCardWidth || (typeof window < "u" ? Number(window.innerWidth || 0) : 0) || 390), S = g && this._compactMiniWidgetMode({ width: y }), B = Number(this._fullMobileInlineTargetHeight?.() || 0), E = g ? this._compactTileReservedHeight() : m && B > 0 ? Math.max(B, this._getAllocatedCardHeight(o) || o) : this._getAllocatedCardHeight(o) || o, I = 5, F = m ? Math.max(6, this._sectionGridRowsForHeight(B || 760)) : 0, J = {
+      const o = this._configuredCardHeightFallback(this._getViewportHeight(760) || 760), m = this._preferFullMobileGridRows?.() === !0, g = !m && this._isCompactTileMode(), y = this._getCardWidth(this._lastCardWidth || (typeof window < "u" ? Number(window.innerWidth || 0) : 0) || 390), S = g && this._compactMiniWidgetMode({ width: y }), B = Number(this._fullMobileInlineTargetHeight?.() || 0), E = g ? this._compactTileReservedHeight() : m && B > 0 ? Math.max(B, this._getAllocatedCardHeight(o) || o) : this._getAllocatedCardHeight(o) || o, I = 5, F = m ? Math.max(6, this._sectionGridRowsForHeight(B || 760)) : 0, O = {
         columns: g ? S ? 6 : 8 : 12,
         rows: Math.max(S ? I : 6, F, this._sectionGridRowsForHeight(E)),
         min_columns: g && S ? 3 : 4,
         min_rows: S ? I : m ? F : 4,
         max_columns: 12
       };
-      return S && (J.max_rows = I), J;
+      return S && (O.max_rows = I), O;
     }
     _sectionGridRowsForHeight(o) {
       const m = Math.max(56, Number(o) || 56);
@@ -38905,14 +38841,14 @@ function vh({
       for (const B of y) {
         const E = !!(this._maToken && this._isDirectMaImageProxyUrl(B));
         for (let I = 0; I < (E ? 2 : 1); I += 1) {
-          const F = I === 1, J = { Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8" };
-          F && (J.Authorization = `Bearer ${this._maToken}`);
+          const F = I === 1, O = { Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8" };
+          F && (O.Authorization = `Bearer ${this._maToken}`);
           const Z = typeof AbortController < "u" ? new AbortController() : null, $ = Z ? setTimeout(() => Z.abort(), Number(m.timeoutMs || 6500)) : null;
           try {
             const ce = await fetch(B, {
               cache: m.cache || "force-cache",
               credentials: m.crossOrigin === !0 || F ? "omit" : "same-origin",
-              headers: J,
+              headers: O,
               signal: Z?.signal
             });
             if (!ce.ok) {
@@ -39009,7 +38945,7 @@ function vh({
         B?.image,
         B?.album?.image_url,
         B?.album?.image
-      ], J = !m || typeof this._queueItemMatchesPlayer != "function" || this._queueItemMatchesPlayer(m, o), Z = y?.preferPlayerArtwork === !1, $ = y?.preferPlayerArtwork === !0 || !Z && !J && I.some(Boolean);
+      ], O = !m || typeof this._queueItemMatchesPlayer != "function" || this._queueItemMatchesPlayer(m, o), Z = y?.preferPlayerArtwork === !1, $ = y?.preferPlayerArtwork === !0 || !Z && !O && I.some(Boolean);
       return this._bestArtworkUrl($ ? [...I, ...F] : [...F, ...I], { size: g, cacheKey: E });
     }
     _artPlaceholderHtml(o = "album") {
@@ -39236,9 +39172,9 @@ function vh({
     }
     _build() {
       this._imgObserver && (this._imgObserver.disconnect(), this._imgObserver = null, this._imgObserverRoot = null), this._cache.library.clear(), this._clearImageBlobCache();
-      const o = this._isHebrew(), m = this._effectiveTheme(), g = m, y = Math.max(420, this._configuredCardHeightFallback(760)), S = this._getViewportHeight(y), B = this._getAllocatedCardHeight(y), E = this._layoutProfileConfig("browser", { height: B }), I = this._layoutProfileClassNames(E), F = this._layoutProfileStyleVars(E), J = Math.max(360, Math.min(B || y, S - 24)), Z = Math.max(0.72, Math.min(1.02, J / 820)), $ = Math.max(0.3, Math.min(0.98, Number(this._config.main_opacity ?? 0.66))), ce = Math.max(0.4, Math.min(0.98, Number(this._config.popup_opacity ?? 0.92))), be = Math.max(0.34, Math.min(0.9, $ * 0.92)), ue = Math.max(0.4, Math.min(0.95, $ * 0.98)), de = Math.max(0.42, Math.min(0.97, $ + 0.02)), me = Math.max(0.46, Math.min(0.96, $)), he = Math.max(0.56, Math.min(0.98, $ + 0.06)), ve = m === "dark" ? Math.max(0.32, Math.min(0.7, ce * 0.62)) : Math.max(0.18, Math.min(0.42, ce * 0.28));
+      const o = this._isHebrew(), m = this._effectiveTheme(), g = m, y = Math.max(420, this._configuredCardHeightFallback(760)), S = this._getViewportHeight(y), B = this._getAllocatedCardHeight(y), E = this._layoutProfileConfig("browser", { height: B }), I = this._layoutProfileClassNames(E), F = this._layoutProfileStyleVars(E), O = Math.max(360, Math.min(B || y, S - 24)), Z = Math.max(0.72, Math.min(1.02, O / 820)), $ = Math.max(0.3, Math.min(0.98, Number(this._config.main_opacity ?? 0.66))), ce = Math.max(0.4, Math.min(0.98, Number(this._config.popup_opacity ?? 0.92))), be = Math.max(0.34, Math.min(0.9, $ * 0.92)), ue = Math.max(0.4, Math.min(0.95, $ * 0.98)), de = Math.max(0.42, Math.min(0.97, $ + 0.02)), me = Math.max(0.46, Math.min(0.96, $)), he = Math.max(0.56, Math.min(0.98, $ + 0.06)), ve = m === "dark" ? Math.max(0.32, Math.min(0.7, ce * 0.62)) : Math.max(0.18, Math.min(0.42, ce * 0.28));
       this.shadowRoot.innerHTML = `
-        <style>${Wm({ allocatedHeight: B, effectiveHeight: J, uiScale: Z, mainOpacity: $, popupOpacity: ce, darkBgAlpha: be, darkSidebarAlpha: ue, darkPanelAlpha: de, lightBgAlpha: me, lightPanelAlpha: he, modalOverlayAlpha: ve })}
+        <style>${Wm({ allocatedHeight: B, effectiveHeight: O, uiScale: Z, mainOpacity: $, popupOpacity: ce, darkBgAlpha: be, darkSidebarAlpha: ue, darkPanelAlpha: de, lightBgAlpha: me, lightPanelAlpha: he, modalOverlayAlpha: ve })}
   ${ms}
   </style>
 
@@ -39620,11 +39556,11 @@ function vh({
         g = this._localSendspinWsUrl();
       return new Promise((y, S) => {
         let B = !1, E = null, I = null;
-        const F = window.__homeiiSendspinInterceptorV1?.original || window.WebSocket, J = () => {
+        const F = window.__homeiiSendspinInterceptorV1?.original || window.WebSocket, O = () => {
           I && clearTimeout(I), E && (E.onopen = null, E.onmessage = null, E.onerror = null, E.onclose = null);
         }, Z = ($) => {
           if (!B) {
-            B = !0, J();
+            B = !0, O();
             try {
               E?.close?.();
             } catch {
@@ -39661,7 +39597,7 @@ function vh({
               }
             else
               return;
-            B = !0, J(), y(E);
+            B = !0, O(), y(E);
           }
         }, E.onerror = () => Z(new Error(this._localText("Could not open the Sendspin WebSocket.", "לא הצלחתי לפתוח חיבור WebSocket ל-Sendspin."))), E.onclose = () => Z(new Error(this._localText("Sendspin closed the connection before the player was ready.", "Sendspin סגר את החיבור לפני שהנגן היה מוכן.")));
       });
@@ -39669,8 +39605,8 @@ function vh({
     _createLocalSendspinBridge(o) {
       const m = { open: /* @__PURE__ */ new Set(), message: /* @__PURE__ */ new Set(), error: /* @__PURE__ */ new Set(), close: /* @__PURE__ */ new Set() }, g = { open: null, message: null, error: null, close: null }, y = (E, I) => {
         const F = g[E];
-        typeof F == "function" && F.call(B, I), m[E]?.forEach((J) => {
-          typeof J == "function" ? J.call(B, I) : J && typeof J.handleEvent == "function" && J.handleEvent(I);
+        typeof F == "function" && F.call(B, I), m[E]?.forEach((O) => {
+          typeof O == "function" ? O.call(B, I) : O && typeof O.handleEvent == "function" && O.handleEvent(I);
         });
       }, S = (E) => {
         E && B._isOpen && setTimeout(() => E.call(B, new Event("open")), 0);
@@ -39835,7 +39771,7 @@ function vh({
         this._resetLocalSendspinMediaSession();
         return;
       }
-      const y = m?.media_item || {}, S = y?.name || m?.name || o.attributes?.media_title || this._i18n("ui.nothing_playing"), B = Array.isArray(y?.artists) ? y.artists.map((J) => J?.name).filter(Boolean).join(", ") : m?.media_artist || o.attributes?.media_artist || "", E = y?.album?.name || m?.album || o.attributes?.media_album_name || "", I = this._currentArtworkUrl(o, m, 512) || "";
+      const y = m?.media_item || {}, S = y?.name || m?.name || o.attributes?.media_title || this._i18n("ui.nothing_playing"), B = Array.isArray(y?.artists) ? y.artists.map((O) => O?.name).filter(Boolean).join(", ") : m?.media_artist || o.attributes?.media_artist || "", E = y?.album?.name || m?.album || o.attributes?.media_album_name || "", I = this._currentArtworkUrl(o, m, 512) || "";
       try {
         typeof window.MediaMetadata == "function" && (g.metadata = new window.MediaMetadata({
           title: S,
@@ -39854,9 +39790,9 @@ function vh({
         g.playbackState = o.state === "playing" ? "playing" : o.state === "paused" ? "paused" : "none";
       } catch {
       }
-      const F = (J, Z) => {
+      const F = (O, Z) => {
         try {
-          g.setActionHandler(J, Z);
+          g.setActionHandler(O, Z);
         } catch {
         }
       };
@@ -39991,10 +39927,10 @@ function vh({
           F = Number(localStorage.getItem(this._localSendspinSyncDelayStorageKey()) || 0) || 0;
         } catch {
         }
-        const J = `homeii_local_sendspin_volume_${y}`;
+        const O = `homeii_local_sendspin_volume_${y}`;
         let Z = null;
         try {
-          const $ = localStorage.getItem(J);
+          const $ = localStorage.getItem(O);
           $ !== null && Number.isFinite(Number($)) && (Z = Math.max(0, Math.min(100, Number($))));
         } catch {
         }
@@ -40010,7 +39946,7 @@ function vh({
             if (this._localSendspinState = $, this._localSendspinConnected && !this._localSendspinSuppressClose && Number.isFinite($?.volume) && $.volume !== Z) {
               Z = $.volume;
               try {
-                localStorage.setItem(J, String(Z));
+                localStorage.setItem(O, String(Z));
               } catch {
               }
             }
@@ -40057,7 +39993,7 @@ function vh({
         m.player_id,
         m.player_id_short,
         m.id
-      ].filter(Boolean).map((J) => String(J || "").trim().toLowerCase()), E = [
+      ].filter(Boolean).map((O) => String(O || "").trim().toLowerCase()), E = [
         m.friendly_name,
         m.name,
         m.display_name,
@@ -40066,7 +40002,7 @@ function vh({
         g.display_name,
         g.friendly_name
       ].filter(Boolean).join(" ").toLowerCase(), I = E.includes("homeii sendspin") || E.includes("homeii") && E.includes("sendspin"), F = E.includes("homeii flow") || E.includes("homeii") && E.includes("flow");
-      return B.some((J) => J === S || J.endsWith(`_${S}`) || J.endsWith(`.${S}`)) && (I || F);
+      return B.some((O) => O === S || O.endsWith(`_${S}`) || O.endsWith(`.${S}`)) && (I || F);
     }
     _isAvailableThisDevicePlayer(o = null) {
       if (!o || this._isLocalSendspinPlayer(o) && (this._adoptLocalSendspinGlobalSession(), !this._isLocalSendspinDesired() && !this._localSendspinConnected && !this._localSendspinConnecting))
@@ -40119,7 +40055,7 @@ function vh({
       if (!m || typeof m != "object") return null;
       const g = String(m.player_id || m.id || m.playerId || "").trim();
       if (!g) return null;
-      const y = m.current_media || m.media || {}, S = m.device_info || {}, B = Number(m.volume_level ?? m.group_volume), E = Number.isFinite(B) ? B > 1 ? B / 100 : B : 0, I = v.playbackPositionPair(m), F = I.updatedAt > 0 ? new Date(I.updatedAt).toISOString() : void 0, J = String(m.active_queue || m.queue_id || y.source_id || g).trim(), Z = m.name || m.display_name || m.friendly_name || y.title || g, $ = {
+      const y = m.current_media || m.media || {}, S = m.device_info || {}, B = Number(m.volume_level ?? m.group_volume), E = Number.isFinite(B) ? B > 1 ? B / 100 : B : 0, I = v.playbackPositionPair(m), F = I.updatedAt > 0 ? new Date(I.updatedAt).toISOString() : void 0, O = String(m.active_queue || m.queue_id || y.source_id || g).trim(), Z = m.name || m.display_name || m.friendly_name || y.title || g, $ = {
         ...m.extra_attributes || {},
         friendly_name: Z,
         app_id: "music_assistant",
@@ -40128,8 +40064,8 @@ function vh({
         provider_name: m.provider || "",
         mass_player_id: g,
         player_id: g,
-        active_queue: J,
-        queue_id: J,
+        active_queue: O,
+        queue_id: O,
         mass_player_type: m.type || "",
         player_type: m.type || "",
         model: S.model || "",
@@ -40310,12 +40246,12 @@ function vh({
             </div>
             <div class="player-list">
               ${E.map((I) => {
-        const F = I.entity_id === this._state.selectedPlayer, J = I.state === "playing" ? "playing" : I.state === "paused" ? "paused" : "idle", Z = this._playerDisplayName(I, m), $ = I.attributes?.media_title || "", ce = this._bestArtworkUrl([I.attributes?.entity_picture_local, I.attributes?.entity_picture], {
+        const F = I.entity_id === this._state.selectedPlayer, O = I.state === "playing" ? "playing" : I.state === "paused" ? "paused" : "idle", Z = this._playerDisplayName(I, m), $ = I.attributes?.media_title || "", ce = this._bestArtworkUrl([I.attributes?.entity_picture_local, I.attributes?.entity_picture], {
           size: 120,
           cacheKey: this._currentArtworkCacheKey(I)
         });
         return `
-                  <button class="player-card ${J} ${F ? "active" : ""}" data-modal-player="${this._esc(I.entity_id)}">
+                  <button class="player-card ${O} ${F ? "active" : ""}" data-modal-player="${this._esc(I.entity_id)}">
                     <span class="player-card-dot"></span>
                     <span class="player-card-art">${ce ? this._imgHtml(ce, "", { fallbackIcon: "speaker" }) : this._artPlaceholderHtml("speaker")}</span>
                     <span class="player-card-meta">
@@ -40502,16 +40438,16 @@ function vh({
       }
     }
     _historyRecommendationItems(o = 10) {
-      const m = this._state.maQueueState?.current_index ?? -1, g = /* @__PURE__ */ new Set(), y = (I = [], F = []) => ((Array.isArray(I) ? I : []).forEach((J) => {
-        const Z = String(J?.uri || "").trim();
-        !Z || g.has(Z) || F.length >= o || (g.add(Z), F.push(J));
+      const m = this._state.maQueueState?.current_index ?? -1, g = /* @__PURE__ */ new Set(), y = (I = [], F = []) => ((Array.isArray(I) ? I : []).forEach((O) => {
+        const Z = String(O?.uri || "").trim();
+        !Z || g.has(Z) || F.length >= o || (g.add(Z), F.push(O));
       }), F), S = this._getNowPlayingQueueItems().filter((I) => (I?.sort_index ?? -1) !== m).map((I) => {
         const F = I.media_item || {};
         return {
           uri: String(F.uri || "").trim(),
           media_type: F.media_type || I.media_type || "track",
           title: F.name || I.name || this._i18n("ui.recommended_track"),
-          artist: F.artists?.map((J) => J.name).join(", ") || F.album?.name || "",
+          artist: F.artists?.map((O) => O.name).join(", ") || F.album?.name || "",
           album: F.album?.name || "",
           image: this._queueItemImageUrl(I, 120) || this._artUrl(F) || ""
         };
@@ -40547,14 +40483,14 @@ function vh({
       g?.removeAttribute("hidden"), y?.removeAttribute("hidden");
       const S = this._state.mobileHistoryDrawerTab === "recommendations" ? "recommendations" : "recent";
       this.shadowRoot?.querySelectorAll("[data-history-tab]")?.forEach((F) => {
-        const J = F.dataset.historyTab === S;
-        F.classList.toggle("active", J), F.setAttribute("aria-selected", J ? "true" : "false");
+        const O = F.dataset.historyTab === S;
+        F.classList.toggle("active", O), F.setAttribute("aria-selected", O ? "true" : "false");
       }), S === "recommendations" && this._loadHistoryRecommendationPlaylists().catch(() => {
       });
       const B = S === "recommendations" ? this._historyRecommendationItems() : this._visibleRecentHistoryItems();
       if (!B.length) {
-        const F = S === "recommendations" ? this._i18n("ui.recommendations_will_appear_once_homeii_flow_sees_your_queue_or_recent_l") : this._i18n("ui.play_a_few_tracks_and_they_will_appear_here"), J = `<div class="history-empty">${this._esc(F)}</div>`;
-        (o || this._state.mobileHistoryRenderedHtml !== J) && (m.innerHTML = J, this._state.mobileHistoryRenderedHtml = J), this._state.mobileHistoryDrawerOpen && Ki(this, g, "history", () => this._setHistoryDrawerOpen(!1));
+        const F = S === "recommendations" ? this._i18n("ui.recommendations_will_appear_once_homeii_flow_sees_your_queue_or_recent_l") : this._i18n("ui.play_a_few_tracks_and_they_will_appear_here"), O = `<div class="history-empty">${this._esc(F)}</div>`;
+        (o || this._state.mobileHistoryRenderedHtml !== O) && (m.innerHTML = O, this._state.mobileHistoryRenderedHtml = O), this._state.mobileHistoryDrawerOpen && Ki(this, g, "history", () => this._setHistoryDrawerOpen(!1));
         return;
       }
       const E = `
@@ -40564,8 +40500,8 @@ function vh({
             <span>${this._esc(this._i18n("ui.play_all"))}</span>
           </button>
         </div>
-        ${B.map((F, J) => `
-          <button class="history-chip" data-history-index="${this._esc(String(J))}" data-history-key="${this._esc(`${S}:${F.uri}`)}" title="${this._esc(F.title || "")}">
+        ${B.map((F, O) => `
+          <button class="history-chip" data-history-index="${this._esc(String(O))}" data-history-key="${this._esc(`${S}:${F.uri}`)}" title="${this._esc(F.title || "")}">
             <span class="history-chip-art">${F.image ? this._imgHtml(F.image, "", { fallbackIcon: "album" }) : this._iconSvg("album")}</span>
             <span class="history-chip-copy">
               <span class="history-chip-title">${this._esc(F.title || this._i18n("ui.recent_track"))}</span>
@@ -40574,8 +40510,8 @@ function vh({
           </button>
         `).join("")}
       `, I = o || this._state.mobileHistoryRenderedHtml !== E;
-      I && (m.innerHTML = E, this._state.mobileHistoryRenderedHtml = E), I && m.querySelectorAll("[data-history-index]").forEach((F) => F.addEventListener("click", async (J) => {
-        const Z = J.currentTarget, $ = Number(Z.dataset.historyIndex), be = ((this._state.mobileHistoryDrawerTab === "recommendations" ? "recommendations" : "recent") === "recommendations" ? this._historyRecommendationItems() : this._visibleRecentHistoryItems())[$];
+      I && (m.innerHTML = E, this._state.mobileHistoryRenderedHtml = E), I && m.querySelectorAll("[data-history-index]").forEach((F) => F.addEventListener("click", async (O) => {
+        const Z = O.currentTarget, $ = Number(Z.dataset.historyIndex), be = ((this._state.mobileHistoryDrawerTab === "recommendations" ? "recommendations" : "recent") === "recommendations" ? this._historyRecommendationItems() : this._visibleRecentHistoryItems())[$];
         be?.uri && (this._pressUiButton(Z), await this._playMedia(be.uri, be.media_type || "track", "play", {
           label: be.title || "",
           sourceEl: Z
@@ -40746,14 +40682,14 @@ function vh({
         if (!S.count) return;
         const B = [...S.ids].sort(), E = B.join("|");
         if (!E || g.has(E)) return;
-        const I = B.map((Z) => this._controlRoomPlayerName(Z)).filter(Boolean), F = B[0] || y.entity_id, J = this._playerByEntityId(F) || y;
+        const I = B.map((Z) => this._controlRoomPlayerName(Z)).filter(Boolean), F = B[0] || y.entity_id, O = this._playerByEntityId(F) || y;
         g.set(E, {
           ids: B,
           count: B.length,
           label: I.join(" · "),
-          art: this._bestArtworkUrl([J?.attributes?.entity_picture_local, J?.attributes?.entity_picture], {
+          art: this._bestArtworkUrl([O?.attributes?.entity_picture_local, O?.attributes?.entity_picture], {
             size: 120,
-            cacheKey: this._currentArtworkCacheKey(J)
+            cacheKey: this._currentArtworkCacheKey(O)
           })
         });
       }), [...g.values()];
@@ -41044,15 +40980,15 @@ function vh({
       }), this._state.controlRoomQueueSnapshots = g, this._state.controlRoomQueueLoading = !1, this._syncControlRoomUi({ force: !0 });
     }
     _controlRoomQueuePreviewHtml(o = "") {
-      const m = this._playerByEntityId(o), g = this._controlRoomQueueCache(o), y = _.sortQueueItems(g?.items || []), S = Number(g?.state?.current_index), B = Number.isFinite(S) && y.find((J) => Number(J?.sort_index) === S) || y[0], E = this._controlRoomQueueCount(m, g), I = (B ? [B, ...y.filter((J) => J !== B)] : y).slice(0, 4), F = m?.attributes?.friendly_name || o || this._i18n("ui.player_2");
+      const m = this._playerByEntityId(o), g = this._controlRoomQueueCache(o), y = _.sortQueueItems(g?.items || []), S = Number(g?.state?.current_index), B = Number.isFinite(S) && y.find((O) => Number(O?.sort_index) === S) || y[0], E = this._controlRoomQueueCount(m, g), I = (B ? [B, ...y.filter((O) => O !== B)] : y).slice(0, 4), F = m?.attributes?.friendly_name || o || this._i18n("ui.player_2");
       return `
         <div class="control-room-queue-preview" data-control-room-scroll="queue-${this._esc(o)}">
           <div class="control-room-queue-preview-head">
             <span class="control-room-queue-player">${this._esc(F)}</span>
             <span class="control-room-queue-count">${this._esc(E ? `${E}` : this._i18n("ui.no_queue"))}</span>
           </div>
-          ${I.length ? I.map((J, Z) => {
-        const $ = J.media_item || {}, ce = this._queueItemImageUrl(J, 96) || this._artUrl($) || "", be = $.name || J.name || J.media_title || this._i18n("ui.queue_item"), ue = J.media_artist || ($.artists || []).map((de) => de?.name).filter(Boolean).join(", ") || $.album?.name || "";
+          ${I.length ? I.map((O, Z) => {
+        const $ = O.media_item || {}, ce = this._queueItemImageUrl(O, 96) || this._artUrl($) || "", be = $.name || O.name || O.media_title || this._i18n("ui.queue_item"), ue = O.media_artist || ($.artists || []).map((de) => de?.name).filter(Boolean).join(", ") || $.album?.name || "";
         return `
               <div class="control-room-queue-row ${Z === 0 ? "current" : ""}">
                 <span class="control-room-queue-art">${ce ? this._imgHtml(ce, "", { fallbackIcon: "album" }) : this._iconSvg("album")}</span>
@@ -41086,7 +41022,7 @@ function vh({
         const I = await this._nativeMixEntriesForPreset(o, y, 12), F = await this._fetchLibrary("track", "random", 24, !1);
         return this._controlRoomUniqueEntries([
           ...I,
-          ...F.map((J) => this._controlRoomNormalizeMediaEntry(J, "track")).filter((J) => J.uri)
+          ...F.map((O) => this._controlRoomNormalizeMediaEntry(O, "track")).filter((O) => O.uri)
         ]).slice(0, 24);
       }
       const S = await this._nativeMixEntriesForPreset(o, y, 12);
@@ -41234,7 +41170,7 @@ function vh({
         if (B.length === 1)
           await this._sendMobileAnnouncement();
         else {
-          const J = new Map(this._announcementEligiblePlayers().map(($) => [$.entity_id, $])), Z = this._prepareAnnouncementVolumes(B.map(($) => J.get($)).filter(Boolean));
+          const O = new Map(this._announcementEligiblePlayers().map(($) => [$.entity_id, $])), Z = this._prepareAnnouncementVolumes(B.map(($) => O.get($)).filter(Boolean));
           for (const $ of B)
             this._state.mobileAnnouncementTarget = $, await this._sendMobileAnnouncement();
           this._scheduleAnnouncementVolumeRestore(Z, this._announcementRestoreDelayMs(y));
@@ -41249,8 +41185,8 @@ function vh({
     }
     _normalizeControlRoomScene(o = {}, m = 0) {
       const g = String(o?.id || `custom:${Date.now()}_${m}`).trim(), y = g.startsWith("custom:") ? g : `custom:${g}`, S = Array.isArray(o?.playerIds) ? o.playerIds.map((F) => String(F || "").trim()).filter(Boolean) : [], B = Array.isArray(o?.visibleIds) ? o.visibleIds.map((F) => String(F || "").trim()).filter(Boolean) : [], E = {};
-      o?.volumes && typeof o.volumes == "object" && Object.entries(o.volumes).forEach(([F, J]) => {
-        const Z = Math.max(0, Math.min(1, Number(J)));
+      o?.volumes && typeof o.volumes == "object" && Object.entries(o.volumes).forEach(([F, O]) => {
+        const Z = Math.max(0, Math.min(1, Number(O)));
         F && Number.isFinite(Z) && (E[String(F)] = Z);
       });
       const I = o?.media && typeof o.media == "object" ? {
@@ -41291,9 +41227,9 @@ function vh({
       const m = this._controlRoomSelectedPlayerIds(), g = this._controlRoomPrimaryPlayerId(), y = m.length ? m : [g].filter(Boolean);
       if (!y.length) return null;
       const B = this._playerByEntityId(g || y[0])?.attributes || {}, E = {};
-      y.forEach((J) => {
-        const Z = this._playerByEntityId(J), $ = Number(Z?.attributes?.volume_level);
-        Number.isFinite($) && (E[J] = Math.max(0, Math.min(1, $)));
+      y.forEach((O) => {
+        const Z = this._playerByEntityId(O), $ = Number(Z?.attributes?.volume_level);
+        Number.isFinite($) && (E[O] = Math.max(0, Math.min(1, $)));
       });
       const I = String(B.media_content_id || B.media_uri || B.uri || "").trim(), F = String(B.media_content_type || B.media_type || "track").trim() || "track";
       return this._normalizeControlRoomScene({
@@ -41325,17 +41261,17 @@ function vh({
     async _applySavedControlRoomScene(o = null, m = null) {
       const g = o ? this._normalizeControlRoomScene(o) : null;
       if (!g) return !1;
-      const y = this._controlRoomAllPlayers(), S = new Set(y.map((J) => J.entity_id)), B = g.playerIds.filter((J) => S.has(J));
+      const y = this._controlRoomAllPlayers(), S = new Set(y.map((O) => O.entity_id)), B = g.playerIds.filter((O) => S.has(O));
       if (!B.length)
         return this._toastError(this._i18n("ui.scene_players_are_not_available")), !1;
-      const E = B.includes(g.primaryId) ? g.primaryId : B[0], I = [E, ...B.filter((J) => J !== E)], F = [.../* @__PURE__ */ new Set([
+      const E = B.includes(g.primaryId) ? g.primaryId : B[0], I = [E, ...B.filter((O) => O !== E)], F = [.../* @__PURE__ */ new Set([
         ...this._controlRoomVisiblePlayerIds(),
         ...I,
-        ...g.visibleIds.filter((J) => S.has(J))
+        ...g.visibleIds.filter((O) => S.has(O))
       ])];
-      return this._state.controlRoomVisiblePlayers = F, this._state.controlRoomSelectedPlayers = I, this._syncControlRoomTransferDefaults(), m && this._pressUiButton(m), I.length > 1 && g.group && await this._applySpeakerGroupFor(E, I.slice(1)), await Promise.allSettled(I.map((J) => {
-        const Z = g.volumes?.[J];
-        return Number.isFinite(Z) ? this._setPlayerVolumeFor(J, Z) : Promise.resolve();
+      return this._state.controlRoomVisiblePlayers = F, this._state.controlRoomSelectedPlayers = I, this._syncControlRoomTransferDefaults(), m && this._pressUiButton(m), I.length > 1 && g.group && await this._applySpeakerGroupFor(E, I.slice(1)), await Promise.allSettled(I.map((O) => {
+        const Z = g.volumes?.[O];
+        return Number.isFinite(Z) ? this._setPlayerVolumeFor(O, Z) : Promise.resolve();
       })), g.media?.uri && await this._playMediaOnPlayer(E, g.media.uri, g.media.media_type || "track", "play", {
         label: g.media.name || g.name,
         silent: !0
@@ -41345,7 +41281,7 @@ function vh({
       m && this._pressUiButton(m);
       const g = String(o || "home");
       if (g.startsWith("custom:")) {
-        const F = this._controlRoomCustomScenes().find((J) => J.id === g);
+        const F = this._controlRoomCustomScenes().find((O) => O.id === g);
         return F ? this._applySavedControlRoomScene(F, m) : (this._toastError(this._i18n("ui.studio_scene_was_not_found")), !1);
       }
       const y = this._controlRoomSelectedPlayerIds(), S = y[0] || this._controlRoomPrimaryPlayerId();
@@ -41444,7 +41380,7 @@ function vh({
       });
     }
     _controlRoomPlayerTileHtml(o) {
-      const m = this._controlRoomSelectedPlayerIds(), g = this._controlRoomPrimaryPlayerId(), y = m.includes(o.entity_id), S = g === o.entity_id, B = o.state === "playing", E = this._playerArtworkUrl(o, 320), I = o.attributes?.friendly_name || o.entity_id, F = o.attributes?.media_title || this._i18n("ui.idle_2"), J = Math.round((o.attributes?.volume_level || 0) * 100), Z = this._controlRoomGroupInfo(o), $ = Z.count, ce = this._playerStateLabel(o), be = this._controlRoomQueueCache(o.entity_id), ue = this._controlRoomQueueCount(o, be), de = this._controlRoomProtocolLabel(o), me = this._isMuted(o), he = E ? `style="--control-room-tile-art:url('${this._esc(E)}')"` : "";
+      const m = this._controlRoomSelectedPlayerIds(), g = this._controlRoomPrimaryPlayerId(), y = m.includes(o.entity_id), S = g === o.entity_id, B = o.state === "playing", E = this._playerArtworkUrl(o, 320), I = o.attributes?.friendly_name || o.entity_id, F = o.attributes?.media_title || this._i18n("ui.idle_2"), O = Math.round((o.attributes?.volume_level || 0) * 100), Z = this._controlRoomGroupInfo(o), $ = Z.count, ce = this._playerStateLabel(o), be = this._controlRoomQueueCache(o.entity_id), ue = this._controlRoomQueueCount(o, be), de = this._controlRoomProtocolLabel(o), me = this._isMuted(o), he = E ? `style="--control-room-tile-art:url('${this._esc(E)}')"` : "";
       return `
         <article class="control-room-tile ${E ? "has-art" : "no-art"} ${y ? "selected" : ""} ${S ? "primary" : ""} ${B ? "is-playing" : ""} ${$ ? "grouped" : ""}" data-room-tile="${this._esc(o.entity_id)}" ${he}>
           <div class="control-room-tile-bg"></div>
@@ -41473,8 +41409,8 @@ function vh({
             <button type="button" class="${me ? "active" : ""}" data-room-mute="${this._esc(o.entity_id)}" title="${this._esc(this._i18n("ui.mute"))}">${this._iconSvg(me ? "volume_mute" : this._volumeIconName(o))}</button>
           </div>
           <label class="control-room-volume-row">
-            <input class="control-room-volume" data-room-volume="${this._esc(o.entity_id)}" type="range" min="0" max="100" value="${J}" style="--vol-pct:${J}%">
-            <span class="control-room-volume-value" data-room-volume-value="${this._esc(o.entity_id)}">${this._esc(String(J))}%</span>
+            <input class="control-room-volume" data-room-volume="${this._esc(o.entity_id)}" type="range" min="0" max="100" value="${O}" style="--vol-pct:${O}%">
+            <span class="control-room-volume-value" data-room-volume-value="${this._esc(o.entity_id)}">${this._esc(String(O))}%</span>
           </label>
         </article>
       `;
@@ -41542,7 +41478,7 @@ function vh({
           </div>
         `;
       if (m === "actions") {
-        const S = this._controlRoomActionTargetIds().length, B = this._controlRoomFocusTarget(), E = B.art || "", I = this._controlRoomPrimaryPlayer(), F = I?.state === "playing", J = I ? this._isMuted(I) : !1;
+        const S = this._controlRoomActionTargetIds().length, B = this._controlRoomFocusTarget(), E = B.art || "", I = this._controlRoomPrimaryPlayer(), F = I?.state === "playing", O = I ? this._isMuted(I) : !1;
         return `
           <div class="control-room-tray open wide control-room-hub-panel">
             <div class="control-room-tray-head">
@@ -41561,7 +41497,7 @@ function vh({
               <div class="control-room-media-controls">
                 <button class="control-room-media-control primary" data-room-selection-action="playpause" ${S ? "" : "disabled"}>${this._iconSvg(F ? "pause" : "play")}<span>${this._esc(F ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span></button>
                 <button class="control-room-media-control" data-room-selection-action="next" ${S ? "" : "disabled"}>${this._iconSvg("next")}<span>${this._esc(this._i18n("ui.next"))}</span></button>
-                <button class="control-room-media-control ${J ? "active" : ""}" data-room-selection-action="mute" ${S ? "" : "disabled"}>${this._iconSvg(J ? "volume_mute" : I ? this._volumeIconName(I) : "speaker")}<span>${this._esc(this._i18n("ui.mute"))}</span></button>
+                <button class="control-room-media-control ${O ? "active" : ""}" data-room-selection-action="mute" ${S ? "" : "disabled"}>${this._iconSvg(O ? "volume_mute" : I ? this._volumeIconName(I) : "speaker")}<span>${this._esc(this._i18n("ui.mute"))}</span></button>
                 <button class="control-room-media-control danger" data-room-selection-action="clear" ${S ? "" : "disabled"}>${this._iconSvg("trash")}<span>${this._esc(this._i18n("ui.clear_queue"))}</span></button>
               </div>
             </div>
@@ -41580,7 +41516,7 @@ function vh({
         `;
       }
       if (m === "transfer") {
-        const y = this._state.controlRoomTransferSource || "", S = this._state.controlRoomTransferTarget || "", B = this._playerByEntityId(y), E = this._playerByEntityId(S), I = B?.attributes?.friendly_name || y || this._i18n("ui.choose_source"), F = E?.attributes?.friendly_name || S || this._i18n("ui.choose_target"), J = o.filter(($) => $.entity_id !== y), Z = ($, ce, be) => `
+        const y = this._state.controlRoomTransferSource || "", S = this._state.controlRoomTransferTarget || "", B = this._playerByEntityId(y), E = this._playerByEntityId(S), I = B?.attributes?.friendly_name || y || this._i18n("ui.choose_source"), F = E?.attributes?.friendly_name || S || this._i18n("ui.choose_target"), O = o.filter(($) => $.entity_id !== y), Z = ($, ce, be) => `
           <div class="control-room-transfer-list" data-control-room-scroll="transfer-${this._esc($)}">
             ${ce.length ? ce.map((ue) => {
           const de = this._playerArtworkUrl(ue, 120), me = ue.entity_id === be;
@@ -41619,7 +41555,7 @@ function vh({
                     <span>${this._esc(this._i18n("ui.to"))}</span>
                     <strong>${this._esc(F)}</strong>
                   </div>
-                  ${Z("target", J, S)}
+                  ${Z("target", O, S)}
                   <div class="control-room-transfer-label">${this._esc(this._i18n("ui.target_queue"))}</div>
                   ${S ? this._controlRoomQueuePreviewHtml(S) : `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.choose_a_target_player"))}</div>`}
                 </section>
@@ -41805,7 +41741,7 @@ function vh({
       };
     }
     _controlRoomGridStyle(o = 0) {
-      const m = Math.max(1, Number(o) || 0), { width: g, height: y } = this._controlRoomViewportSize(), S = g <= 1280, B = g <= 980, E = y <= 640, I = B ? 10 : S ? 12 : 16, F = B ? 78 : S ? 86 : 96, J = g >= 1560 ? 6 : g >= 1060 || g >= 720 ? 5 : 3, Z = E ? 82 : B ? 92 : S ? 104 : 116, $ = E ? 54 : B ? 64 : 74, ce = Z + $ + (E ? 10 : 18), be = Math.max(220, g - (B ? 20 : S ? 34 : 56)), ue = Math.max(180, y - ce), de = Math.max(1, Math.floor((be + I) / (F + I))), me = Math.max(1, Math.min(m, Math.max(J, de)));
+      const m = Math.max(1, Number(o) || 0), { width: g, height: y } = this._controlRoomViewportSize(), S = g <= 1280, B = g <= 980, E = y <= 640, I = B ? 10 : S ? 12 : 16, F = B ? 78 : S ? 86 : 96, O = g >= 1560 ? 6 : g >= 1060 || g >= 720 ? 5 : 3, Z = E ? 82 : B ? 92 : S ? 104 : 116, $ = E ? 54 : B ? 64 : 74, ce = Z + $ + (E ? 10 : 18), be = Math.max(220, g - (B ? 20 : S ? 34 : 56)), ue = Math.max(180, y - ce), de = Math.max(1, Math.floor((be + I) / (F + I))), me = Math.max(1, Math.min(m, Math.max(O, de)));
       let he = { cols: 1, tileWidth: Math.min(be, ue * 16 / 9), rows: m, score: 0 };
       for (let Me = 1; Me <= me; Me += 1) {
         const Be = Math.ceil(m / Me), Ee = (be - I * (Me - 1)) / Me, De = (ue - I * (Be - 1)) / Be * 16 / 9, Oe = Math.max(F, Math.min(Ee, De)), Ke = Oe * Oe * Me - Be * 22 + Me * 6;
@@ -41875,7 +41811,7 @@ function vh({
     }
     _controlRoomHtml() {
       if (!this._controlRoomEnabled()) return "";
-      const o = this._controlRoomPlayers(), m = this._controlRoomPrimaryPlayer(), g = this._playerArtworkUrl(m, 320), y = this._controlRoomGridStyle(o.length), S = `style="${g ? `--control-room-scene-art:url('${this._esc(g)}');` : ""}${y}"`, B = this._controlRoomFocusTarget(), E = B.art || g, I = this._controlRoomActionTargetIds(), F = m?.state === "playing", J = m ? this._isMuted(m) : !1, Z = !!this._state.controlRoomPanel, $ = ["music", "mix", "library", "recent", "favorites", "scenes"].includes(this._state.controlRoomPanel), ce = ["actions", "selection", "visible", "announce", "pro"].includes(this._state.controlRoomPanel);
+      const o = this._controlRoomPlayers(), m = this._controlRoomPrimaryPlayer(), g = this._playerArtworkUrl(m, 320), y = this._controlRoomGridStyle(o.length), S = `style="${g ? `--control-room-scene-art:url('${this._esc(g)}');` : ""}${y}"`, B = this._controlRoomFocusTarget(), E = B.art || g, I = this._controlRoomActionTargetIds(), F = m?.state === "playing", O = m ? this._isMuted(m) : !1, Z = !!this._state.controlRoomPanel, $ = ["music", "mix", "library", "recent", "favorites", "scenes"].includes(this._state.controlRoomPanel), ce = ["actions", "selection", "visible", "announce", "pro"].includes(this._state.controlRoomPanel);
       return `
         <div class="control-room-scene ${g ? "has-art" : ""} ${Z ? "panel-open" : ""}" ${S}>
           <div class="control-room-scene-bg"></div>
@@ -41907,7 +41843,7 @@ function vh({
                     ${this._iconSvg("next")}
                     <span class="control-room-dock-label">${this._esc(this._i18n("ui.next"))}</span>
                   </button>
-                  <button class="control-room-dock-btn ${J ? "active" : ""}" data-room-selection-action="player_mute" title="${this._esc(this._i18n("ui.mute"))}">
+                  <button class="control-room-dock-btn ${O ? "active" : ""}" data-room-selection-action="player_mute" title="${this._esc(this._i18n("ui.mute"))}">
                     ${this._iconSvg(m ? this._volumeIconName(m) : "speaker")}
                     <span class="control-room-dock-label">${this._esc(this._i18n("ui.mute"))}</span>
                   </button>
@@ -41973,9 +41909,9 @@ function vh({
         const ct = he.querySelector(".control-room-volume");
         ct && this.shadowRoot.activeElement !== ct && String(ct.value) !== String(De) && (ct.value = String(De), ct.style.setProperty("--vol-pct", `${De}%`)), E(he.querySelector("[data-room-volume-value]"), `${De}%`);
       });
-      const J = this._playerArtworkUrl(B, 320), Z = o.querySelector(".control-room-scene");
-      Z && (Z.classList.toggle("has-art", !!J), J ? Z.style.setProperty("--control-room-scene-art", F(J)) : Z.style.removeProperty("--control-room-scene-art"));
-      const $ = this._controlRoomFocusTarget(), ce = $.art || J;
+      const O = this._playerArtworkUrl(B, 320), Z = o.querySelector(".control-room-scene");
+      Z && (Z.classList.toggle("has-art", !!O), O ? Z.style.setProperty("--control-room-scene-art", F(O)) : Z.style.removeProperty("--control-room-scene-art"));
+      const $ = this._controlRoomFocusTarget(), ce = $.art || O;
       I(o.querySelector(".control-room-now-art"), ce ? this._imgHtml(ce, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")), E(o.querySelector(".control-room-now-kicker"), $.kicker), E(o.querySelector(".control-room-now-name"), $.name), E(o.querySelector(".control-room-now-track"), $.track);
       const be = o.querySelector('[data-room-selection-action="player_playpause"]');
       if (be) {
@@ -42115,14 +42051,14 @@ function vh({
         if (F) throw F;
         return { text: "", rawText: "", lrc: [], source: "disabled" };
       }
-      const J = new URLSearchParams();
-      J.set("track_name", m.title), m.artist && J.set("artist_name", m.artist), m.album && J.set("album_name", m.album), m.duration && J.set("duration", String(Math.round(m.duration)));
+      const O = new URLSearchParams();
+      O.set("track_name", m.title), m.artist && O.set("artist_name", m.artist), m.album && O.set("album_name", m.album), m.duration && O.set("duration", String(Math.round(m.duration)));
       const Z = async (be) => {
         const ue = await fetch(be, { headers: { Accept: "application/json" } });
         if (!ue.ok) return "";
         const de = await ue.json();
         return Array.isArray(de) ? de.map((me) => this._coerceLyricsRawText(me)).find(Boolean) || "" : this._coerceLyricsRawText(de);
-      }, $ = await Z(`https://lrclib.net/api/get?${J.toString()}`) || await Z(`https://lrclib.net/api/search?${J.toString()}`), ce = {
+      }, $ = await Z(`https://lrclib.net/api/get?${O.toString()}`) || await Z(`https://lrclib.net/api/search?${O.toString()}`), ce = {
         text: $ ? this._stripLyricsTimestamps($) : "",
         rawText: $ || "",
         lrc: this._parseLrcLyrics($),
@@ -42229,7 +42165,7 @@ function vh({
       });
       const B = g.querySelector(`.lyrics-line[data-lyrics-index="${y}"]`), E = g.closest(".lyrics-body");
       if (B && E) {
-        const I = E.getBoundingClientRect(), F = B.getBoundingClientRect(), J = E.scrollTop + F.top - I.top - E.clientHeight / 2 + F.height / 2, Z = Math.max(0, E.scrollHeight - E.clientHeight), $ = Math.max(0, Math.min(Z, J));
+        const I = E.getBoundingClientRect(), F = B.getBoundingClientRect(), O = E.scrollTop + F.top - I.top - E.clientHeight / 2 + F.height / 2, Z = Math.max(0, E.scrollHeight - E.clientHeight), $ = Math.max(0, Math.min(Z, O));
         try {
           E.scrollTo({ top: $, behavior: o ? "auto" : "smooth" });
         } catch {
@@ -42545,7 +42481,7 @@ function vh({
         (I) => I.startsWith("button.") && /(favorite|אהב|אהבתי)/i.test(I)
       ).find((I) => {
         const F = I.toLowerCase();
-        return S.some((J) => J && F.includes(J));
+        return S.some((O) => O && F.includes(O));
       });
       return E || (this._hass.states[m] ? m : "");
     }
@@ -42589,7 +42525,7 @@ function vh({
     async _toggleMaLikeEntry(o = {}, m = null) {
       const g = this._entryTargetsCurrentMedia(o), y = g ? this._currentMediaFavoriteState() : this._isEntryLiked(o);
       if (g) {
-        const F = this._getSelectedPlayer(), J = String(F?.entity_id || this._state.selectedPlayer || "").trim(), Z = this._favoriteButtonEntityForPlayer(F), $ = String(o?.uri || this._getCurrentMediaUri() || "").trim(), ce = o.media_type || o.type || this._parseMediaReference($, o.media_type || o.type || "track").media_type || "track", be = !y;
+        const F = this._getSelectedPlayer(), O = String(F?.entity_id || this._state.selectedPlayer || "").trim(), Z = this._favoriteButtonEntityForPlayer(F), $ = String(o?.uri || this._getCurrentMediaUri() || "").trim(), ce = o.media_type || o.type || this._parseMediaReference($, o.media_type || o.type || "track").media_type || "track", be = !y;
         this._setCurrentMediaFavoriteOverride(be, o), this._applyMaFavoriteOptimisticState(o, be), m && this._flashInteraction(m), o.favorite = be, o.media_item && (o.media_item.favorite = be);
         try {
           let ue = !1;
@@ -42611,7 +42547,7 @@ function vh({
                 ue = await this._toggleLikeViaMassQueue();
               } catch {
               }
-            if (!ue && Z && !this._homeiiEngineRequired?.() && (ue = await this._pressFavoriteButtonEntity(Z)), !ue && J && !this._isDirectMaPlayer(J) && !this._homeiiEngineRequired?.() && (ue = await this._pressFavoriteButtonEntity(J)), !ue) throw new Error("Music Assistant favorite action was not available");
+            if (!ue && Z && !this._homeiiEngineRequired?.() && (ue = await this._pressFavoriteButtonEntity(Z)), !ue && O && !this._isDirectMaPlayer(O) && !this._homeiiEngineRequired?.() && (ue = await this._pressFavoriteButtonEntity(O)), !ue) throw new Error("Music Assistant favorite action was not available");
             this._toast(this._i18n("ui.added_to_music_assistant_liked"));
           }
           return this._scheduleFavoriteReconcile?.(700), !0;
@@ -42658,13 +42594,13 @@ function vh({
         }))?.ok ? (this._favoriteMutationConfirmedAt = Date.now(), !0) : !1;
       }
       if (!m) {
-        const F = (this._entryTargetsCurrentMedia(o) ? String(this._getSelectedPlayer()?.attributes?.media_content_id || "").trim() : "") || y, J = this._parseMediaReference(F, g);
+        const F = (this._entryTargetsCurrentMedia(o) ? String(this._getSelectedPlayer()?.attributes?.media_content_id || "").trim() : "") || y, O = this._parseMediaReference(F, g);
         let Z = null;
         const $ = [
           { item: F },
-          { item: J.item_id || F },
-          { item: { uri: F, media_type: J.media_type || g, item_id: J.item_id || "", provider: J.provider || "" } },
-          { uri: F, media_type: J.media_type || g, item_id: J.item_id || "", provider: J.provider || "" }
+          { item: O.item_id || F },
+          { item: { uri: F, media_type: O.media_type || g, item_id: O.item_id || "", provider: O.provider || "" } },
+          { uri: F, media_type: O.media_type || g, item_id: O.item_id || "", provider: O.provider || "" }
         ];
         for (const ce of $)
           try {
@@ -42718,7 +42654,7 @@ function vh({
       for (const F of I)
         if (this._hasService("music_assistant", F.service))
           try {
-            return await this._callService(F.service, Object.fromEntries(Object.entries(F.data).filter(([, J]) => J !== "" && J !== void 0 && J !== null))), !0;
+            return await this._callService(F.service, Object.fromEntries(Object.entries(F.data).filter(([, O]) => O !== "" && O !== void 0 && O !== null))), !0;
           } catch {
           }
       return !1;
@@ -42766,7 +42702,7 @@ function vh({
         parseMediaReferenceFn: (I, F) => this._parseMediaReference(I, F),
         favoriteRemoveArgsFromItemFn: (I, F) => this._favoriteRemoveArgsFromItem(I, F),
         findFavoriteEntryMatchFn: (I, F) => this._findMaLikedEntryMatch(I, F),
-        matchFavoriteLibraryItemFn: (I, F, J) => this._matchFavoriteLibraryItem(I, F, J)
+        matchFavoriteLibraryItemFn: (I, F, O) => this._matchFavoriteLibraryItem(I, F, O)
       });
       if (E) return E;
       try {
@@ -42856,17 +42792,17 @@ function vh({
       })), I.addEventListener("change", async (ue) => {
         await this._handleQueueMoveAutoChange(ue) && this._dismissCtx();
       }), y.appendChild(I), this._ctxMenu = I, this._ctxMenuOpenedAt = Date.now();
-      const F = y.getBoundingClientRect(), J = g.anchorRect || null, Z = Number.isFinite(o) && o > 0 ? o : null, $ = Number.isFinite(m) && m > 0 ? m : null;
-      let ce = (Z ?? J?.left ?? F.left + 20) - F.left, be = ($ ?? J?.bottom ?? F.top + 20) - F.top;
+      const F = y.getBoundingClientRect(), O = g.anchorRect || null, Z = Number.isFinite(o) && o > 0 ? o : null, $ = Number.isFinite(m) && m > 0 ? m : null;
+      let ce = (Z ?? O?.left ?? F.left + 20) - F.left, be = ($ ?? O?.bottom ?? F.top + 20) - F.top;
       I.style.left = `${ce}px`, I.style.top = `${be}px`, requestAnimationFrame(() => {
         const ue = I.getBoundingClientRect(), de = y.getBoundingClientRect();
-        ue.right > de.right && (ce = Math.max(12, ce - (ue.right - de.right) - 12)), ue.bottom > de.bottom && (be = Math.max(12, be - ue.height - (J?.height || 0) - 8)), I.style.left = `${Math.max(12, Math.min(ce, de.width - ue.width - 12))}px`, I.style.top = `${Math.max(12, Math.min(be, de.height - ue.height - 12))}px`;
+        ue.right > de.right && (ce = Math.max(12, ce - (ue.right - de.right) - 12)), ue.bottom > de.bottom && (be = Math.max(12, be - ue.height - (O?.height || 0) - 8)), I.style.left = `${Math.max(12, Math.min(ce, de.width - ue.width - 12))}px`, I.style.top = `${Math.max(12, Math.min(be, de.height - ue.height - 12))}px`;
       });
     }
     _renderImmersiveNowPlaying() {
       const o = this.$("immersiveNowPlaying"), m = this._getSelectedPlayer();
       if (!o || !m) return;
-      const g = m.attributes.media_title || this._i18n("ui.no_active_media"), y = m.attributes.media_artist || this._i18n("ui.unknown"), S = m.attributes.media_album_name || "", B = m.attributes.friendly_name || m.entity_id, E = this._currentArtworkUrl(m, this._state.maQueueState?.current_item || null, 180), I = this._getCurrentDuration(), F = this._getCurrentPosition(), J = I ? Math.min(100, F / I * 100) : 0, Z = Math.round((m.attributes.volume_level || 0) * 100), $ = !!m.attributes.shuffle, ce = m.attributes.repeat || "off", be = this._isHebrew();
+      const g = m.attributes.media_title || this._i18n("ui.no_active_media"), y = m.attributes.media_artist || this._i18n("ui.unknown"), S = m.attributes.media_album_name || "", B = m.attributes.friendly_name || m.entity_id, E = this._currentArtworkUrl(m, this._state.maQueueState?.current_item || null, 180), I = this._getCurrentDuration(), F = this._getCurrentPosition(), O = I ? Math.min(100, F / I * 100) : 0, Z = Math.round((m.attributes.volume_level || 0) * 100), $ = !!m.attributes.shuffle, ce = m.attributes.repeat || "off", be = this._isHebrew();
       o.innerHTML = `
         <div class="immersive-shell ${be ? "rtl" : ""}">
           <div class="immersive-bg" ${E ? `style="background-image:url('${this._esc(E)}')"` : ""}></div>
@@ -42888,7 +42824,7 @@ function vh({
             </div>
             <div class="immersive-panel">
               <div class="immersive-time-row"><span id="immersiveCurTime">${this._esc(this._fmtDur(F))}</span><span id="immersiveTotalTime">${this._esc(this._fmtDur(I))}</span></div>
-              <div class="immersive-progress" id="immersiveProgressBar"><div class="immersive-progress-fill" id="immersiveProgressFill" style="width:${J}%"></div></div>
+              <div class="immersive-progress" id="immersiveProgressBar"><div class="immersive-progress-fill" id="immersiveProgressFill" style="width:${O}%"></div></div>
               <div class="immersive-controls">
                 <button class="immersive-btn ${$ ? "active" : ""}" id="immersiveShuffleBtn">${this._iconSvg("shuffle")}</button>
                 <button class="immersive-btn" id="immersivePrevBtn">${this._iconSvg("previous")}</button>
@@ -42920,8 +42856,8 @@ function vh({
       if (!this._state.immersiveNowPlayingOpen) return;
       const o = this._getSelectedPlayer(), m = this.$("immersiveNowPlaying");
       if (!o || !m?.classList.contains("open")) return;
-      const g = this._getCurrentDuration(), y = this._getCurrentPosition(), S = g ? Math.min(100, y / g * 100) : 0, B = Math.round((o.attributes.volume_level || 0) * 100), E = this._currentArtworkUrl(o, this._state.maQueueState?.current_item || null, 180), I = o.attributes.repeat || "off", F = o.attributes.media_title || this._i18n("ui.no_active_media"), J = o.attributes.media_artist || this._i18n("ui.unknown"), Z = o.attributes.media_album_name || "", $ = o.attributes.friendly_name || o.entity_id;
-      m.querySelector(".immersive-title")?.replaceChildren(document.createTextNode(F)), m.querySelector(".immersive-subtitle")?.replaceChildren(document.createTextNode([J, Z].filter(Boolean).join(" · "))), m.querySelector("#immersivePlayerName")?.replaceChildren(document.createTextNode(`${this._i18n("ui.playing_on")}: ${$}`));
+      const g = this._getCurrentDuration(), y = this._getCurrentPosition(), S = g ? Math.min(100, y / g * 100) : 0, B = Math.round((o.attributes.volume_level || 0) * 100), E = this._currentArtworkUrl(o, this._state.maQueueState?.current_item || null, 180), I = o.attributes.repeat || "off", F = o.attributes.media_title || this._i18n("ui.no_active_media"), O = o.attributes.media_artist || this._i18n("ui.unknown"), Z = o.attributes.media_album_name || "", $ = o.attributes.friendly_name || o.entity_id;
+      m.querySelector(".immersive-title")?.replaceChildren(document.createTextNode(F)), m.querySelector(".immersive-subtitle")?.replaceChildren(document.createTextNode([O, Z].filter(Boolean).join(" · "))), m.querySelector("#immersivePlayerName")?.replaceChildren(document.createTextNode(`${this._i18n("ui.playing_on")}: ${$}`));
       const ce = m.querySelector("#immersivePlayBtn");
       this._setButtonIcon(ce, this._playPauseIconName(o));
       const be = m.querySelector("#immersiveShuffleBtn");
@@ -42948,7 +42884,7 @@ function vh({
     _handleWindowResize() {
       clearTimeout(this._resizeTimer), this._resizeTimer = setTimeout(() => {
         if (!this.isConnected || !this._built || Date.now() < Number(this._layoutResizeHoldUntil || 0)) return;
-        const o = this._state.immersiveNowPlayingOpen, m = typeof window < "u" ? Number(window.innerWidth || 0) : 0, g = typeof window < "u" ? Number(window.innerHeight || 0) : 0, y = this._getCardWidth(m), S = this._getAllocatedCardHeight(g), B = this._lastCardWidth || this._lastViewportWidth || 0, E = this._lastCardHeight || this._lastViewportHeight || 0, I = this._layoutModeConfig({ width: y }), F = this.shadowRoot?.querySelector(".card") || null, J = this._renderedLayoutMode || (F?.classList.contains("layout-tablet") ? "tablet" : F?.classList.contains("layout-mobile") ? "mobile" : ""), Z = !!(J && I && J !== I), $ = this.shadowRoot?.activeElement || document.activeElement, ce = $?.tagName?.toLowerCase?.() || "", be = $ && (ce === "input" || ce === "textarea" || $?.isContentEditable), ue = this._tabletStabilityModeEnabled(), de = p.resolveResizeStrategy({
+        const o = this._state.immersiveNowPlayingOpen, m = typeof window < "u" ? Number(window.innerWidth || 0) : 0, g = typeof window < "u" ? Number(window.innerHeight || 0) : 0, y = this._getCardWidth(m), S = this._getAllocatedCardHeight(g), B = this._lastCardWidth || this._lastViewportWidth || 0, E = this._lastCardHeight || this._lastViewportHeight || 0, I = this._layoutModeConfig({ width: y }), F = this.shadowRoot?.querySelector(".card") || null, O = this._renderedLayoutMode || (F?.classList.contains("layout-tablet") ? "tablet" : F?.classList.contains("layout-mobile") ? "mobile" : ""), Z = !!(O && I && O !== I), $ = this.shadowRoot?.activeElement || document.activeElement, ce = $?.tagName?.toLowerCase?.() || "", be = $ && (ce === "input" || ce === "textarea" || $?.isContentEditable), ue = this._tabletStabilityModeEnabled(), de = p.resolveResizeStrategy({
           previousWidth: B,
           currentWidth: y,
           previousHeight: E,
@@ -43038,10 +42974,10 @@ function vh({
           this._fetchLibrary("album", "random", 18, !1)
         ]);
         if (!this._isValidRender(o)) return;
-        const [g, y, S, B] = m.map((J) => J.value ?? []);
+        const [g, y, S, B] = m.map((O) => O.value ?? []);
         let E = "";
         g.length && (E += this._sectionHtml(this._i18n("ui.favorite_radio"), g, "radio", !0)), y.length && (E += this._sectionHtml(this._i18n("ui.recently_played"), y, "album", !0)), S.length && (E += this._sectionHtml(this._i18n("ui.recently_added"), S, "album", !0)), B.length && (E += this._sectionHtml(this._i18n("ui.discover"), B, "album", !0));
-        const I = m.find((J) => J.status === "rejected" && this._isMusicAssistantAvailabilityError(J.reason)), F = this._state.musicAssistantIssueMessage || (I ? this._handleMusicAssistantIssue(I.reason) : "");
+        const I = m.find((O) => O.status === "rejected" && this._isMusicAssistantAvailabilityError(O.reason)), F = this._state.musicAssistantIssueMessage || (I ? this._handleMusicAssistantIssue(I.reason) : "");
         this.$("content").classList.remove("now-playing-mode"), this.$("content").innerHTML = E || `<div class="state-box">${this._esc(F || this._i18n("ui.no_content_found"))}</div>`, this._hydrateImages(), this._highlightNowPlaying();
       } catch (m) {
         if (!this._isValidRender(o)) return;
@@ -43115,8 +43051,8 @@ function vh({
         const g = await this._search(o);
         if (!this._isValidRender(m)) return;
         const { radio: y = [], podcasts: S = [], albums: B = [], artists: E = [], tracks: I = [], playlists: F = [] } = g;
-        let J = `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.search"))}: ${this._esc(o)}</div></div></div>`;
-        y.length && (J += this._sectionHtml(this._i18n("ui.radio"), y, "radio", !1)), S.length && (J += this._sectionHtml(this._i18n("ui.podcasts"), S, "podcast", !1)), B.length && (J += this._sectionHtml(this._i18n("ui.albums"), B, "album", !1)), E.length && (J += this._sectionHtml(this._i18n("ui.artists"), E, "artist", !1)), I.length && (J += `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.tracks"))}</div><div class="section-badge">${I.length}</div><div class="section-actions">${this._sectionActionButtons(I)}</div></div><div class="track-list">${I.map((Z, $) => this._trackRowHtml(Z, $ + 1)).join("")}</div></div>`), F.length && (J += this._sectionHtml(this._i18n("ui.playlists"), F, "playlist", !1)), !y.length && !S.length && !B.length && !E.length && !I.length && !F.length && (J = `<div class="state-box">${this._esc(this._i18n("ui.no_results"))}: "${this._esc(o)}"</div>`), this.$("content").classList.remove("now-playing-mode"), this.$("content").innerHTML = J, this._hydrateImages(), this._highlightNowPlaying();
+        let O = `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.search"))}: ${this._esc(o)}</div></div></div>`;
+        y.length && (O += this._sectionHtml(this._i18n("ui.radio"), y, "radio", !1)), S.length && (O += this._sectionHtml(this._i18n("ui.podcasts"), S, "podcast", !1)), B.length && (O += this._sectionHtml(this._i18n("ui.albums"), B, "album", !1)), E.length && (O += this._sectionHtml(this._i18n("ui.artists"), E, "artist", !1)), I.length && (O += `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.tracks"))}</div><div class="section-badge">${I.length}</div><div class="section-actions">${this._sectionActionButtons(I)}</div></div><div class="track-list">${I.map((Z, $) => this._trackRowHtml(Z, $ + 1)).join("")}</div></div>`), F.length && (O += this._sectionHtml(this._i18n("ui.playlists"), F, "playlist", !1)), !y.length && !S.length && !B.length && !E.length && !I.length && !F.length && (O = `<div class="state-box">${this._esc(this._i18n("ui.no_results"))}: "${this._esc(o)}"</div>`), this.$("content").classList.remove("now-playing-mode"), this.$("content").innerHTML = O, this._hydrateImages(), this._highlightNowPlaying();
       } catch (g) {
         if (!this._isValidRender(m)) return;
         this._renderError(g, () => this._renderGlobalSearch(o));
@@ -43129,7 +43065,7 @@ function vh({
         if (await this._ensureQueueSnapshot(), this._refreshGroupingState(), !this._isValidRender(o)) return;
         const m = this._getSelectedPlayer();
         if (!m) return this._renderEmpty(this._i18n("ui.no_active_media"));
-        const g = m.attributes.media_title || this._i18n("ui.no_active_media"), y = m.attributes.media_artist || this._i18n("ui.unknown"), S = m.attributes.media_album_name || "", B = m.state || "idle", E = this._state.maQueueState?.current_item || null, I = this._currentArtworkUrl(m, E, 520), F = this._getCurrentDuration(), J = this._getCurrentPosition(), Z = F ? Math.min(100, J / F * 100) : 0, $ = Math.round((m.attributes.volume_level || 0) * 100), ce = !!m.attributes.shuffle, be = m.attributes.repeat || "off", ue = this._getNowPlayingQueueItems(), de = this._state.nowPlayingQuery || "";
+        const g = m.attributes.media_title || this._i18n("ui.no_active_media"), y = m.attributes.media_artist || this._i18n("ui.unknown"), S = m.attributes.media_album_name || "", B = m.state || "idle", E = this._state.maQueueState?.current_item || null, I = this._currentArtworkUrl(m, E, 520), F = this._getCurrentDuration(), O = this._getCurrentPosition(), Z = F ? Math.min(100, O / F * 100) : 0, $ = Math.round((m.attributes.volume_level || 0) * 100), ce = !!m.attributes.shuffle, be = m.attributes.repeat || "off", ue = this._getNowPlayingQueueItems(), de = this._state.nowPlayingQuery || "";
         this.$("content").classList.add("now-playing-mode"), this.$("content").innerHTML = `
           <div class="now-layout">
             <div class="now-left">
@@ -43142,7 +43078,7 @@ function vh({
               </div>
 
               <div class="now-card now-controls-card">
-                <div class="now-time-row"><span id="bigCurTime">${this._esc(this._fmtDur(J))}</span><span id="bigTotalTime">${this._esc(this._fmtDur(F))}</span></div>
+                <div class="now-time-row"><span id="bigCurTime">${this._esc(this._fmtDur(O))}</span><span id="bigTotalTime">${this._esc(this._fmtDur(F))}</span></div>
                 <div class="now-progress" id="bigProgressBar"><div class="now-progress-fill" id="bigProgressFill" style="width:${Z}%"></div></div>
                 <div class="now-controls-main">
                   <button class="big-round-btn ${ce ? "active" : ""}" id="bigShuffleBtn">${this._iconSvg("shuffle")}</button>
@@ -43202,13 +43138,13 @@ function vh({
       const { radio: g = [], podcasts: y = [], albums: S = [], artists: B = [], tracks: E = [], playlists: I = [] } = m || {};
       if (!(g.length + y.length + S.length + B.length + E.length + I.length))
         return `<div class="now-side-scroll"><div class="state-box">${this._esc(this._i18n("ui.no_results"))}: "${this._esc(o)}"</div></div>`;
-      let J = `
+      let O = `
         <div class="now-side-scroll">
           <div class="side-search-summary">
             <div class="side-search-summary-text">${this._esc(this._i18n("ui.queue_results"))}: "${this._esc(o)}"</div>
             <button class="chip-btn" id="backToQueueBtn">${this._esc(this._i18n("ui.back_to_queue"))}</button>
           </div>`;
-      return g.length && (J += this._sectionHtml(this._i18n("ui.radio"), g, "radio", !1)), y.length && (J += this._sectionHtml(this._i18n("ui.podcasts"), y, "podcast", !1)), S.length && (J += this._sectionHtml(this._i18n("ui.albums"), S, "album", !1)), B.length && (J += this._sectionHtml(this._i18n("ui.artists"), B, "artist", !1)), E.length && (J += `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.tracks"))}</div><div class="section-badge">${E.length}</div></div><div class="track-list">${E.map((Z, $) => this._trackRowHtml(Z, $ + 1)).join("")}</div></div>`), I.length && (J += this._sectionHtml(this._i18n("ui.playlists"), I, "playlist", !1)), J += "</div>", J;
+      return g.length && (O += this._sectionHtml(this._i18n("ui.radio"), g, "radio", !1)), y.length && (O += this._sectionHtml(this._i18n("ui.podcasts"), y, "podcast", !1)), S.length && (O += this._sectionHtml(this._i18n("ui.albums"), S, "album", !1)), B.length && (O += this._sectionHtml(this._i18n("ui.artists"), B, "artist", !1)), E.length && (O += `<div class="section"><div class="section-header"><div class="section-title">${this._esc(this._i18n("ui.tracks"))}</div><div class="section-badge">${E.length}</div></div><div class="track-list">${E.map((Z, $) => this._trackRowHtml(Z, $ + 1)).join("")}</div></div>`), I.length && (O += this._sectionHtml(this._i18n("ui.playlists"), I, "playlist", !1)), O += "</div>", O;
     }
     async _updateNowPlayingSidePanel() {
       if (this._state.view !== "now_playing") return;
@@ -43226,7 +43162,7 @@ function vh({
       try {
         const E = await this._search(S);
         if (B !== this._state.sidePanelToken || !o.isConnected) return;
-        const I = Object.values(E || {}).reduce((F, J) => F + (Array.isArray(J) ? J.length : 0), 0);
+        const I = Object.values(E || {}).reduce((F, O) => F + (Array.isArray(O) ? O.length : 0), 0);
         g.textContent = String(I), o.innerHTML = this._nowPlayingSearchResultsHtml(S, E), this.$("backToQueueBtn")?.addEventListener("click", () => {
           const F = this.$("nowQueueSearchInput");
           F && (F.value = ""), this._state.nowPlayingQuery = "", this._updateNowPlayingSidePanel();
@@ -43324,14 +43260,14 @@ function vh({
       if (!g.length) return -1;
       const y = this._queueVisibleItemsForMove(g), S = Math.max(0, Math.min(y.length - 1, Math.round(Number(m)) - 1 || 0)), B = y[S] || null;
       if (!B) return -1;
-      const E = this._getQueueItemKey(B), I = this._getQueueItemStableId(B), F = this._getQueueItemUri(B), J = _.normalizeFiniteNumber(B?.sort_index), Z = g.findIndex(
-        ($) => $ === B || E && this._getQueueItemKey($) === E || I && this._getQueueItemStableId($) === I || F && this._mediaRefsEquivalent(this._getQueueItemUri($), F, $?.media_item?.media_type || $?.media_type || "track") || Number.isFinite(J) && Number($?.sort_index) === J
+      const E = this._getQueueItemKey(B), I = this._getQueueItemStableId(B), F = this._getQueueItemUri(B), O = _.normalizeFiniteNumber(B?.sort_index), Z = g.findIndex(
+        ($) => $ === B || E && this._getQueueItemKey($) === E || I && this._getQueueItemStableId($) === I || F && this._mediaRefsEquivalent(this._getQueueItemUri($), F, $?.media_item?.media_type || $?.media_type || "track") || Number.isFinite(O) && Number($?.sort_index) === O
       );
       return Z < 0 ? -1 : Math.max(this._queueFirstMovableIndex(g), Z);
     }
     _queueDisplayPositionForEntry(o = {}, m = 1) {
       const g = this._getNowPlayingQueueItems(), y = this._getQueueItemKey(o) || String(o?.queue_item_id || o?.queueItemId || o?.key || "").trim(), S = this._getQueueItemStableId(o), B = this._getQueueItemUri(o) || String(o?.uri || o?.media_item?.uri || "").trim(), E = _.normalizeFiniteNumber(o?.sort_index), I = g.findIndex(
-        (J) => y && this._getQueueItemKey(J) === y || S && this._getQueueItemStableId(J) === S || B && this._mediaRefsEquivalent(this._getQueueItemUri(J), B, J?.media_item?.media_type || J?.media_type || "track") || Number.isFinite(E) && Number(J?.sort_index) === E
+        (O) => y && this._getQueueItemKey(O) === y || S && this._getQueueItemStableId(O) === S || B && this._mediaRefsEquivalent(this._getQueueItemUri(O), B, O?.media_item?.media_type || O?.media_type || "track") || Number.isFinite(E) && Number(O?.sort_index) === E
       );
       if (I >= 0) return I + 1;
       const F = Math.round(Number(m || o?.position));
@@ -43380,8 +43316,8 @@ function vh({
         }
         const I = this._queueItemPrimaryTitle(o) || this._i18n("ui.up_next_2"), F = this._queueItemImageUrl(o, 72);
         if (y.hidden = !1, y.dataset.queueItemId = this._getQueueItemKey(o), y.dataset.uri = this._getQueueItemUri(o), y.dataset.type = o?.media_item?.media_type || o?.media_type || "track", y.dataset.sortIndex = Number.isFinite(Number(o?.sort_index)) ? String(o.sort_index) : "", y.title = this._i18n("ui.up_next_title", { title: I }), S) {
-          const J = F || "";
-          S.dataset.artSrc !== J && (S.dataset.artSrc = J, S.innerHTML = F ? this._imgHtml(F, "", { loading: "eager", fetchpriority: "high" }) : `<span class="up-next-art-fallback">${this._iconSvg("tracks")}</span>`);
+          const O = F || "";
+          S.dataset.artSrc !== O && (S.dataset.artSrc = O, S.innerHTML = F ? this._imgHtml(F, "", { loading: "eager", fetchpriority: "high" }) : `<span class="up-next-art-fallback">${this._iconSvg("tracks")}</span>`);
         }
         B && (B.textContent = this._i18n("ui.up_next_2")), E && (E.textContent = I);
       });
@@ -43504,7 +43440,7 @@ function vh({
         ["shuffle", "shuffle", "ui.shuffle_play"],
         ["next", "queue_next", "ui.play_next"],
         ["add", "queue_add", "ui.add_to_queue"]
-      ].map(([J, Z, $]) => Ba(this, "data-enqueue", J, Z, this._i18n($), "ctx-item")).join(""), B.querySelectorAll(".ctx-item").forEach((J) => J.addEventListener("click", async (Z) => {
+      ].map(([O, Z, $]) => Ba(this, "data-enqueue", O, Z, this._i18n($), "ctx-item")).join(""), B.querySelectorAll(".ctx-item").forEach((O) => O.addEventListener("click", async (Z) => {
         if (Z.stopPropagation(), B.dataset.pending) return;
         B.dataset.pending = "true";
         const $ = [...B.querySelectorAll("button")];
@@ -43512,7 +43448,7 @@ function vh({
           ce.disabled = !0;
         });
         try {
-          await this._playMedia(g, y, J.dataset.enqueue) !== !1 && this._dismissCtx();
+          await this._playMedia(g, y, O.dataset.enqueue) !== !1 && this._dismissCtx();
         } finally {
           delete B.dataset.pending, $.forEach((ce) => {
             ce.disabled = !1;
@@ -43522,8 +43458,8 @@ function vh({
       const E = S.getBoundingClientRect();
       let I = o - E.left, F = m - E.top;
       B.style.left = `${I}px`, B.style.top = `${F}px`, requestAnimationFrame(() => {
-        const J = B.getBoundingClientRect(), Z = S.getBoundingClientRect();
-        J.right > Z.right && (I -= J.width), J.bottom > Z.bottom && (F -= J.height), B.style.left = `${Math.max(8, I)}px`, B.style.top = `${Math.max(8, F)}px`;
+        const O = B.getBoundingClientRect(), Z = S.getBoundingClientRect();
+        O.right > Z.right && (I -= O.width), O.bottom > Z.bottom && (F -= O.height), B.style.left = `${Math.max(8, I)}px`, B.style.top = `${Math.max(8, F)}px`;
       });
     }
     _dismissCtx() {
@@ -43634,7 +43570,7 @@ function vh({
     }
     _applyQueueSnapshot(o, m = [], g = !1) {
       if (!o) return;
-      const y = { ...o }, S = C.pendingQueuePlayState(this._state, Date.now()), { hasPendingPlay: B, pendingKey: E, pendingUri: I, pendingIndex: F } = S, J = g || !this._state.queueItems.length || this._isQueueUiVisible(), Z = this._queueItemsWithSequentialSortIndexes(Array.isArray(m) ? m : []);
+      const y = { ...o }, S = C.pendingQueuePlayState(this._state, Date.now()), { hasPendingPlay: B, pendingKey: E, pendingUri: I, pendingIndex: F } = S, O = g || !this._state.queueItems.length || this._isQueueUiVisible(), Z = this._queueItemsWithSequentialSortIndexes(Array.isArray(m) ? m : []);
       let $ = !1;
       if (Z.length) {
         const ve = Number(y.current_index), xe = this._getQueueItemKey(y.current_item), ke = this._getQueueItemUri(y.current_item), Me = Z.find(
@@ -43669,7 +43605,7 @@ function vh({
         this._state.queueItems = [];
         return;
       }
-      if (Z.length && this._writeQueueSnapshotCache(this._getSelectedPlayer(), y, Z), !J || !Z.length || $) return;
+      if (Z.length && this._writeQueueSnapshotCache(this._getSelectedPlayer(), y, Z), !O || !Z.length || $) return;
       const ce = Array.isArray(this._state.queueItems) ? this._state.queueItems : [], be = Number(this._state.queueMutationPendingUntil || 0), ue = String(this._state.queueMutationExpectedSignature || "");
       if (be > Date.now() && ue) {
         if (this._queueOrderSignature(Z) !== ue) return;
@@ -43754,7 +43690,7 @@ function vh({
         if (!I || F === null || !this._hasMusicAssistantCommandBridge())
           throw new Error(this._i18n("ui.queue_item_id_is_not_ready_yet_refresh_the_queue_and_try_again"));
         if (E && Number.isFinite(B)) {
-          const J = Date.now() + 8500;
+          const O = Date.now() + 8500;
           this._markMobileQueuePlayPending(E, B), this._state.maQueueState = {
             ...this._state.maQueueState || {},
             current_index: B,
@@ -43762,7 +43698,7 @@ function vh({
             next_item: (this._state.queueItems || []).find((Z) => Number(Z?.sort_index) === B + 1) || null,
             elapsed_time: 0,
             elapsed_time_last_updated: (/* @__PURE__ */ new Date()).toISOString()
-          }, this._state.mobileArtBrowseOffset = 0, typeof this._preloadPendingMobileQueueItemArtwork == "function" && this._preloadPendingMobileQueueItemArtwork(E), S?.entity_id ? this._setPlayerPlaybackOptimistic(S.entity_id, { state: "playing", until: J }) : this._syncNowPlayingUI();
+          }, this._state.mobileArtBrowseOffset = 0, typeof this._preloadPendingMobileQueueItemArtwork == "function" && this._preloadPendingMobileQueueItemArtwork(E), S?.entity_id ? this._setPlayerPlaybackOptimistic(S.entity_id, { state: "playing", until: O }) : this._syncNowPlayingUI();
         }
         return this._debugLog("info", "[Homeii Queue] play item", {
           queueId: I,
@@ -43832,7 +43768,7 @@ function vh({
     }
     _normalizeQueueItem(o, m = 0) {
       if (!o || typeof o != "object") return null;
-      const g = o.media_item || o.media || o.item || o, y = String(o.media_artist || o.artist || "").trim(), S = Array.isArray(g?.artists) ? g.artists : Array.isArray(o.artists) ? o.artists : y ? y.split(",").map((he) => ({ name: String(he).trim() })).filter((he) => he.name) : [], B = String(o.media_album_name || o.album_name || "").trim(), E = g?.album || o.album || (B ? { name: B } : null), I = o.media_image || o.media_image_url || o.image_url || o.image || o.thumbnail || o.thumb || o.local_image_url || o.local_image || o.local_image_encoded || "", F = this._artUrl(o, { size: 420 }) || this._artUrl(g, { size: 420 }) || this._artUrl(E, { size: 420 }) || this._imageUrl(I, 420) || "", J = Number(o.sort_index), Z = Number(o.position), $ = g?.uri || o.uri || o.media_content_id || o.media_id || "", ce = String(o.queue_item_id || o.queueItemId || o.queue_item?.queue_item_id || o.queueItem?.queue_item_id || "").trim(), be = String(o.item_id || o.id || "").trim(), ue = _.parseMediaReference($, g?.media_type || o.media_type || "track"), de = !!(be && (be === $ || be === ue.item_id || $.endsWith(`/${be}`) || $.endsWith(`:${be}`))), me = ce || (be && !de ? be : "");
+      const g = o.media_item || o.media || o.item || o, y = String(o.media_artist || o.artist || "").trim(), S = Array.isArray(g?.artists) ? g.artists : Array.isArray(o.artists) ? o.artists : y ? y.split(",").map((he) => ({ name: String(he).trim() })).filter((he) => he.name) : [], B = String(o.media_album_name || o.album_name || "").trim(), E = g?.album || o.album || (B ? { name: B } : null), I = o.media_image || o.media_image_url || o.image_url || o.image || o.thumbnail || o.thumb || o.local_image_url || o.local_image || o.local_image_encoded || "", F = this._artUrl(o, { size: 420 }) || this._artUrl(g, { size: 420 }) || this._artUrl(E, { size: 420 }) || this._imageUrl(I, 420) || "", O = Number(o.sort_index), Z = Number(o.position), $ = g?.uri || o.uri || o.media_content_id || o.media_id || "", ce = String(o.queue_item_id || o.queueItemId || o.queue_item?.queue_item_id || o.queueItem?.queue_item_id || "").trim(), be = String(o.item_id || o.id || "").trim(), ue = _.parseMediaReference($, g?.media_type || o.media_type || "track"), de = !!(be && (be === $ || be === ue.item_id || $.endsWith(`/${be}`) || $.endsWith(`:${be}`))), me = ce || (be && !de ? be : "");
       return {
         ...o,
         media_item: {
@@ -43844,7 +43780,7 @@ function vh({
         },
         image: F || o.image || I || g?.image || E?.image || null,
         image_url: F || o.image_url || I || g?.image_url || g?.image || E?.image_url || E?.image || null,
-        sort_index: Number.isFinite(J) ? J : Number.isFinite(Z) ? Z : m,
+        sort_index: Number.isFinite(O) ? O : Number.isFinite(Z) ? Z : m,
         queue_item_id: me || be || $ || String(m),
         queue_item_id_trusted: !!me,
         queue_service_id: me
@@ -43889,9 +43825,9 @@ function vh({
         de && (y = de);
       }
       if (!y || typeof y != "object") return null;
-      const S = y.queue_state || y.queue || y, B = Array.isArray(y.previous_items) ? y.previous_items : Array.isArray(S?.previous_items) ? S.previous_items : [], E = y.current_item || S?.current_item || null, I = y.next_item || S?.next_item || null, J = [...Array.isArray(y.next_items) ? y.next_items : Array.isArray(S?.next_items) ? S.next_items : [], ...I ? [I] : []];
+      const S = y.queue_state || y.queue || y, B = Array.isArray(y.previous_items) ? y.previous_items : Array.isArray(S?.previous_items) ? S.previous_items : [], E = y.current_item || S?.current_item || null, I = y.next_item || S?.next_item || null, O = [...Array.isArray(y.next_items) ? y.next_items : Array.isArray(S?.next_items) ? S.next_items : [], ...I ? [I] : []];
       let Z = [];
-      Array.isArray(y.items) ? Z = y.items : Array.isArray(S?.items) ? Z = S.items : Array.isArray(y.queue_items) ? Z = y.queue_items : Z = [...B, ...E ? [E] : [], ...J];
+      Array.isArray(y.items) ? Z = y.items : Array.isArray(S?.items) ? Z = S.items : Array.isArray(y.queue_items) ? Z = y.queue_items : Z = [...B, ...E ? [E] : [], ...O];
       const $ = Number.isFinite(S?.current_index) ? S.current_index : Number.isFinite(y.current_index) ? y.current_index : B.length, ce = Math.max(0, $ - B.length), be = Z.map((de, me) => this._normalizeQueueItem(de, ce + me)).filter(Boolean).map((de, me) => ({
         ...de,
         sort_index: Number.isFinite(de.sort_index) ? de.sort_index : ce + me
@@ -43974,13 +43910,13 @@ function vh({
     }
     async _fetchLibrary(o, m = "sort_name", g = 500, y = !1, S = "", B = {}) {
       if (g > 500 && this._state.engineCapabilities?.library_pagination) {
-        const F = [], J = /* @__PURE__ */ new Set(), Z = {};
+        const F = [], O = /* @__PURE__ */ new Set(), Z = {};
         for (let $ = 0; $ < g; $ += 500) {
           const ce = Math.min(500, g - $), be = await this._fetchLibrary(o, m, ce, y, S, { offset: $, strict: !0, snapshot: Z });
           for (const ue of be) {
             const de = ue.uri || `${ue.provider || ""}:${ue.item_id || ""}`;
-            if (de !== ":" && J.has(de)) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
-            J.add(de), F.push(ue);
+            if (de !== ":" && O.has(de)) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
+            O.add(de), F.push(ue);
           }
           if (be.length < ce) break;
         }
@@ -43998,7 +43934,7 @@ function vh({
           favorite: !!y,
           compact: !0,
           ...this._state.engineCapabilities?.library_pagination ? { offset: B.offset || 0 } : {}
-        }), J = `${o}:${m}:${y ? "favorites" : "all"}:${S || ""}:${B.offset || 0}:${g}`;
+        }), O = `${o}:${m}:${y ? "favorites" : "all"}:${S || ""}:${B.offset || 0}:${g}`;
         if (B.snapshot) {
           const ce = q.engineSnapshotMeta(F);
           if (ce) {
@@ -44011,11 +43947,11 @@ function vh({
           this._engineSnapshotRevisions,
           "library",
           F,
-          J
+          O
         )) {
           if (B.strict) throw new Error(this._m("Library changed while loading. Try again.", "הספרייה השתנתה בזמן הטעינה. נסה שוב."));
           this._debugLog?.("debug", "[HOMEii Flow] Ignored stale Engine library snapshot", {
-            libraryIdentity: J,
+            libraryIdentity: O,
             snapshot: q.engineSnapshotMeta(F)
           });
           const ce = `${o}:${m}:`, be = `:${y}`, ue = [...this._cache.library.entries()].filter(([de, me]) => de.startsWith(ce) && de.endsWith(be) && Array.isArray(me?.items)).map(([, de]) => de.items).sort((de, me) => me.length - de.length)[0];
@@ -44032,7 +43968,7 @@ function vh({
       return o ? Array.isArray(o) ? o : Array.isArray(o?.items) ? o.items : Array.isArray(o?.recommendations) ? o.recommendations : Array.isArray(o?.folders) ? o.folders : [] : [];
     }
     _normalizeRecommendationEntry(o = {}, m = "track", g = null) {
-      const y = this._normalizeSearchItem(o?.media_item || o, m), S = String(y?.media_type || m || "track").toLowerCase(), B = Array.isArray(y?.artists) ? y.artists.map((J) => J?.name).filter(Boolean).join(", ") : "", E = String(y?.uri || o?.uri || o?.media_item?.uri || "").trim();
+      const y = this._normalizeSearchItem(o?.media_item || o, m), S = String(y?.media_type || m || "track").toLowerCase(), B = Array.isArray(y?.artists) ? y.artists.map((O) => O?.name).filter(Boolean).join(", ") : "", E = String(y?.uri || o?.uri || o?.media_item?.uri || "").trim();
       if (!E) return null;
       const I = String(g?.name || g?.title || g?.item_id || "").trim(), F = String(y?.provider_label || o?.provider_label || g?.provider || y?.provider || "").trim();
       return {
@@ -44051,7 +43987,7 @@ function vh({
     }
     _flattenNativeRecommendations(o = {}, m = 48) {
       const g = o?.response ?? o?.result ?? o, y = this._recommendationFolderItems(g), S = [], B = /* @__PURE__ */ new Set(), E = (I, F = null) => {
-        const J = String(I?.media_type || I?.type || I?.media_item?.media_type || "track").toLowerCase(), Z = this._normalizeRecommendationEntry(I, J, F), $ = String(Z?.uri || Z?.name || "").trim().toLowerCase();
+        const O = String(I?.media_type || I?.type || I?.media_item?.media_type || "track").toLowerCase(), Z = this._normalizeRecommendationEntry(I, O, F), $ = String(Z?.uri || Z?.name || "").trim().toLowerCase();
         !$ || B.has($) || (B.add($), S.push(Z));
       };
       return y.some((I) => Array.isArray(I?.items)) ? y.forEach((I) => this._recommendationFolderItems(I).forEach((F) => E(F, I))) : y.forEach((I) => E(I, null)), S.slice(0, Math.max(1, Math.min(100, Number(m) || 48)));
@@ -44167,11 +44103,11 @@ function vh({
         }
         return (!Array.isArray(Z) || !Z.length) && I.length && this._state.engineStatus === "degraded" ? I : ((Array.isArray(Z) && Z.length || !this._state.musicAssistantIssueMessage) && this._cache.library.set(S, { ts: Date.now(), items: Z }), Z);
       };
-      let J = this._libraryLoadPromises.get(S);
-      return J || (J = F().finally(() => {
-        this._libraryLoadPromises.get(S) === J && this._libraryLoadPromises.delete(S);
-      }), this._libraryLoadPromises.set(S, J)), I.length ? (J.catch(() => {
-      }), I) : J;
+      let O = this._libraryLoadPromises.get(S);
+      return O || (O = F().finally(() => {
+        this._libraryLoadPromises.get(S) === O && this._libraryLoadPromises.delete(S);
+      }), this._libraryLoadPromises.set(S, O)), I.length ? (O.catch(() => {
+      }), I) : O;
     }
     _mediaTypeCanOpenDetails(o = "") {
       return ["album", "artist", "playlist", "podcast"].includes(String(o || "").toLowerCase());
@@ -44242,15 +44178,15 @@ function vh({
       return this._libraryMediaDetailCommandArgsList(o, m)[0] || null;
     }
     _libraryMediaDetailCommandArgsList(o = {}, m = "album") {
-      const g = String(m || o?.media_type || o?.type || "album").toLowerCase(), y = o?.media_item || {}, S = this._searchItemProviderMapping(o), B = String(o?.uri || y?.uri || "").trim(), E = this._parseMediaReference(B, g), I = [].concat(Array.isArray(o?.provider_mappings) ? o.provider_mappings : []).concat(Array.isArray(y?.provider_mappings) ? y.provider_mappings : []).concat(S && typeof S == "object" ? [S] : []), F = [], J = (Z, $) => {
+      const g = String(m || o?.media_type || o?.type || "album").toLowerCase(), y = o?.media_item || {}, S = this._searchItemProviderMapping(o), B = String(o?.uri || y?.uri || "").trim(), E = this._parseMediaReference(B, g), I = [].concat(Array.isArray(o?.provider_mappings) ? o.provider_mappings : []).concat(Array.isArray(y?.provider_mappings) ? y.provider_mappings : []).concat(S && typeof S == "object" ? [S] : []), F = [], O = (Z, $) => {
         const ce = String(Z || "").trim(), be = String($ || "").trim();
         if (!ce || !be) return;
         const ue = `${be}::${ce}`.toLowerCase();
         F.some((de) => de.key === ue) || F.push({ key: ue, item_id: ce, provider: be });
       };
-      return J(E?.item_id, E?.provider), J(o?.item_id || o?.id || y?.item_id || y?.id, o?.provider_instance || y?.provider_instance || o?.provider_domain || y?.provider_domain || o?.provider || y?.provider), J(S?.item_id || S?.provider_item_id, S?.provider_instance || S?.provider_domain || S?.provider || S?.provider_id), I.forEach((Z) => {
+      return O(E?.item_id, E?.provider), O(o?.item_id || o?.id || y?.item_id || y?.id, o?.provider_instance || y?.provider_instance || o?.provider_domain || y?.provider_domain || o?.provider || y?.provider), O(S?.item_id || S?.provider_item_id, S?.provider_instance || S?.provider_domain || S?.provider || S?.provider_id), I.forEach((Z) => {
         const $ = Z?.item_id || Z?.provider_item_id || Z?.media_item?.item_id || "", ce = this._parseMediaReference(Z?.uri || Z?.media_item?.uri || "", g);
-        J($, Z?.provider_instance), J($, Z?.provider_domain), J($, Z?.provider), J($, Z?.provider_id), J(ce?.item_id, ce?.provider), J(ce?.item_id, Z?.provider_instance || Z?.provider_domain || Z?.provider || Z?.provider_id);
+        O($, Z?.provider_instance), O($, Z?.provider_domain), O($, Z?.provider), O($, Z?.provider_id), O(ce?.item_id, ce?.provider), O(ce?.item_id, Z?.provider_instance || Z?.provider_domain || Z?.provider || Z?.provider_id);
       }), F.map(({ item_id: Z, provider: $ }) => ({ item_id: Z, provider: $ }));
     }
     _normalizeLibraryDetailTrack(o = {}, m = !1) {
@@ -44263,14 +44199,14 @@ function vh({
       if (y && !["track", "song", "music", "album_track", "albumtrack", "podcast_episode"].includes(y) || !m && !y && !g.uri && !g.media_content_id && !g.item_id) return null;
       const S = y === "podcast_episode" ? "podcast_episode" : "track", B = this._normalizeSearchItem(g, S), E = String(B?.uri || g.uri || g.media_content_id || o.uri || o.media_content_id || "").trim(), I = B?.name || g.name || g.title || o.name || o.title || o.media_title || "";
       if (!E && !I) return null;
-      const F = Array.isArray(B?.artists) ? B.artists : Array.isArray(g.artists) ? g.artists : Array.isArray(o.artists) ? o.artists : [], J = B?.artist_str || g.artist_str || g.artist || o.artist_str || o.artist || o.media_artist || F.map((be) => be?.name || be).filter(Boolean).join(", "), Z = B?.album || g.album || o.album || {}, $ = typeof Z == "string" ? { name: Z } : Z, ce = this._artUrl(B) || this._artUrl(g) || this._artUrl(o) || "";
+      const F = Array.isArray(B?.artists) ? B.artists : Array.isArray(g.artists) ? g.artists : Array.isArray(o.artists) ? o.artists : [], O = B?.artist_str || g.artist_str || g.artist || o.artist_str || o.artist || o.media_artist || F.map((be) => be?.name || be).filter(Boolean).join(", "), Z = B?.album || g.album || o.album || {}, $ = typeof Z == "string" ? { name: Z } : Z, ce = this._artUrl(B) || this._artUrl(g) || this._artUrl(o) || "";
       return {
         ...B,
         media_type: S,
         uri: E,
         name: I,
         artists: F,
-        artist_str: J,
+        artist_str: O,
         album: $,
         image: B?.image || B?.image_url || g.image || g.image_url || g.thumbnail || o.image || o.image_url || o.thumbnail || ce,
         image_url: B?.image_url || B?.image || g.image_url || g.image || g.thumbnail || o.image_url || o.image || o.thumbnail || ce
@@ -44280,18 +44216,18 @@ function vh({
       const g = [], y = /* @__PURE__ */ new Set(), S = (E, I = !1) => {
         const F = this._normalizeLibraryDetailTrack(E, I);
         if (!F) return !1;
-        const J = String(F.uri || `${F.name}:${F.artist_str || ""}`).trim().toLowerCase();
-        return !J || y.has(J) || (y.add(J), g.push(F)), !0;
+        const O = String(F.uri || `${F.name}:${F.artist_str || ""}`).trim().toLowerCase();
+        return !O || y.has(O) || (y.add(O), g.push(F)), !0;
       }, B = (E, I = !1, F = 0) => {
         if (!(E == null || F > 5)) {
           if (Array.isArray(E)) {
-            E.forEach((J) => {
-              S(J, I) || B(J, I, F + 1);
+            E.forEach((O) => {
+              S(O, I) || B(O, I, F + 1);
             });
             return;
           }
-          typeof E == "object" && (S(E, I) || ["tracks", "playlist_tracks", "album_tracks", "items", "media_items", "children", "contents", "result", "response"].forEach((J) => {
-            J in E && B(E[J], I || J.includes("track"), F + 1);
+          typeof E == "object" && (S(E, I) || ["tracks", "playlist_tracks", "album_tracks", "items", "media_items", "children", "contents", "result", "response"].forEach((O) => {
+            O in E && B(E[O], I || O.includes("track"), F + 1);
           }));
         }
       };
@@ -44344,10 +44280,10 @@ function vh({
         if (!I || typeof I != "object") return !1;
         const F = I.media_item || I.item || I;
         if (!F || typeof F != "object") return !1;
-        const J = String(
+        const O = String(
           F.media_type || F.type || F.media_content_type || F.media_class || I.media_type || I.type || I.media_content_type || I.media_class || ""
         ).toLowerCase();
-        if (J && J !== g) return !1;
+        if (O && O !== g) return !1;
         const Z = this._normalizeSearchItem(F, g);
         if (String(Z?.media_type || g).toLowerCase() !== g) return !1;
         const ce = String(Z?.uri || F.uri || F.media_content_id || I.uri || I.media_content_id || "").trim(), be = String(Z?.name || Z?.title || F.name || F.title || I.name || I.title || "").trim();
@@ -44361,17 +44297,17 @@ function vh({
           image: Z?.image || Z?.image_url || F.image || F.image_url || I.image || I.image_url || "",
           image_url: Z?.image_url || Z?.image || F.image_url || F.image || I.image_url || I.image || ""
         })), !0;
-      }, E = (I, F = !1, J = 0) => {
-        if (I == null || J > 5) return;
+      }, E = (I, F = !1, O = 0) => {
+        if (I == null || O > 5) return;
         if (Array.isArray(I)) {
           I.forEach(($) => {
-            B($) || E($, F, J + 1);
+            B($) || E($, F, O + 1);
           });
           return;
         }
         if (typeof I != "object" || F && B(I)) return;
         (g === "album" ? ["albums", "album", "items", "media_items", "children", "contents", "result", "response"] : ["playlists", "playlist", "items", "media_items", "children", "contents", "result", "response"]).forEach(($) => {
-          $ in I && E(I[$], ["albums", "album", "playlists", "playlist", "items", "media_items"].includes($), J + 1);
+          $ in I && E(I[$], ["albums", "album", "playlists", "playlist", "items", "media_items"].includes($), O + 1);
         });
       };
       return E(o?.result ?? o?.response ?? o, !1, 0), y;
@@ -44503,28 +44439,28 @@ function vh({
       const m = /* @__PURE__ */ new Set(), g = /* @__PURE__ */ new Map(), y = (I = {}) => {
         const F = _.normalizeComparableText(I?.name || I?.title || I?.media_item?.name || "");
         if (!F) return "";
-        const J = this._mediaYearValue(I) || "";
-        return J ? `${F}::${J}` : F;
+        const O = this._mediaYearValue(I) || "";
+        return O ? `${F}::${O}` : F;
       }, S = (I = {}) => {
-        const J = y(I).split("::")[0] || "";
-        if (!J) return "";
+        const O = y(I).split("::")[0] || "";
+        if (!O) return "";
         const Z = this._mediaYearValue(I) || "", $ = _.normalizeComparableText(this._artistName(I) || I?.artist_str || I?.artist || "");
-        return [J, Z, $].filter((ce) => ce !== "").join("::");
+        return [O, Z, $].filter((ce) => ce !== "").join("::");
       }, B = (I = {}) => {
         let F = 0;
         return I.uri && (F += 4), this._mediaYearValue(I) && (F += 2), (this._artUrl(I) || I.image || I.image_url) && (F += 2), (I.provider_instance === "library" || I.provider === "library") && (F += 3), Array.isArray(I.provider_mappings) && I.provider_mappings.length && (F += I.provider_mappings.length), F;
       }, E = [];
       return (Array.isArray(o) ? o : []).forEach((I) => {
-        const F = String(I?.uri || I?.media_item?.uri || "").trim().toLowerCase(), J = S(I), Z = y(I);
+        const F = String(I?.uri || I?.media_item?.uri || "").trim().toLowerCase(), O = S(I), Z = y(I);
         if (F && m.has(F)) return;
-        const $ = J && g.has(J) ? g.get(J) : Z && g.has(`title:${Z}`) ? g.get(`title:${Z}`) : -1;
+        const $ = O && g.has(O) ? g.get(O) : Z && g.has(`title:${Z}`) ? g.get(`title:${Z}`) : -1;
         if ($ >= 0) {
           B(I) > B(E[$]) && (E[$] = I, F && m.add(F));
           return;
         }
-        if (!F && !J && !Z) return;
+        if (!F && !O && !Z) return;
         const ce = E.length;
-        F && m.add(F), J && g.set(J, ce), Z && g.set(`title:${Z}`, ce), E.push(I);
+        F && m.add(F), O && g.set(O, ce), Z && g.set(`title:${Z}`, ce), E.push(I);
       }), E;
     }
     _artistAlbumsFromTracksPayload(o, m = "") {
@@ -44538,12 +44474,12 @@ function vh({
       const m = String(o || "").trim();
       if (!m) return [];
       const g = _.normalizeComparableText(m), y = /* @__PURE__ */ new Set(), S = [], B = (E = {}) => {
-        const I = this._normalizeSearchItem(E, "playlist"), F = String(I?.uri || "").trim(), J = String(I?.name || I?.title || "").trim();
-        if (!F && !J) return;
-        const Z = String(F || J).toLowerCase();
+        const I = this._normalizeSearchItem(E, "playlist"), F = String(I?.uri || "").trim(), O = String(I?.name || I?.title || "").trim();
+        if (!F && !O) return;
+        const Z = String(F || O).toLowerCase();
         if (y.has(Z)) return;
         const $ = _.normalizeComparableText([
-          J,
+          O,
           I?.description,
           I?.metadata?.description,
           I?.provider_label,
@@ -44609,31 +44545,31 @@ function vh({
           forceTrackItems: !0
         });
       })), g && E.push({ command: "music/item_by_uri", args: { uri: g }, forceTrackItems: !1 });
-      let F = null, J = [];
+      let F = null, O = [];
       for (const Z of E)
         try {
           const $ = await this._callEngineMaCommand(Z.command, Z.args), ce = this._libraryMediaDetailTracksFromPayload($, { forceTrackItems: Z.forceTrackItems }), be = m === "playlist" ? ce : this._sortLibraryDetailTracks(ce);
           if (Z.forceTrackItems)
             return this._cache.library.set(y, { ts: Date.now(), items: be }), be;
-          if (be.length > J.length && (J = be), be.length > 1 && Z.command.includes("album_tracks") || be.length && m === "playlist") break;
+          if (be.length > O.length && (O = be), be.length > 1 && Z.command.includes("album_tracks") || be.length && m === "playlist") break;
         } catch ($) {
           F = $;
         }
-      if (J.length > 1 || J.length && m !== "album")
-        return this._cache.library.set(y, { ts: Date.now(), items: J }), J;
+      if (O.length > 1 || O.length && m !== "album")
+        return this._cache.library.set(y, { ts: Date.now(), items: O }), O;
       try {
         const Z = await this._loadLibraryMediaDetailTracksViaHaBrowse(o), $ = m === "playlist" ? Z : this._sortLibraryDetailTracks(Z);
-        $.length > J.length && (J = $);
+        $.length > O.length && (O = $);
       } catch {
       }
       if (m === "album" && o?.name)
         try {
           const Z = await this._loadLibraryMediaDetailTracksViaLibrarySearch(o);
-          Z.length > J.length && (J = Z);
+          Z.length > O.length && (O = Z);
         } catch {
         }
-      if (J.length)
-        return this._cache.library.set(y, { ts: Date.now(), items: J }), J;
+      if (O.length)
+        return this._cache.library.set(y, { ts: Date.now(), items: O }), O;
       if (F) throw F;
       return [];
     }
@@ -44667,14 +44603,14 @@ function vh({
           });
         } catch {
         }
-      const F = String(E?.name || g || "").trim(), J = [], Z = (me) => {
+      const F = String(E?.name || g || "").trim(), O = [], Z = (me) => {
         if (!me?.item_id || !me?.provider) return;
         const he = `${me.provider}::${me.item_id}`.toLowerCase();
-        J.some((ve) => ve.key === he) || J.push({ key: he, item_id: me.item_id, provider: me.provider });
+        O.some((ve) => ve.key === he) || O.push({ key: he, item_id: me.item_id, provider: me.provider });
       };
       this._libraryMediaDetailCommandArgsList(E, "artist").forEach(Z), this._libraryMediaDetailCommandArgsList(o, "artist").forEach(Z);
       const $ = [];
-      J.forEach((me) => {
+      O.forEach((me) => {
         $.push({
           command: "music/artists/artist_albums",
           args: { item_id: me.item_id, provider_instance_id_or_domain: me.provider, in_library_only: !1 },
@@ -44739,7 +44675,7 @@ function vh({
       m && this._flashInteraction(m);
       const B = `${y}:${S}:${Date.now()}`, E = this._state.menuPage === "media_detail" ? this._state.mobileLibraryDetail : null, I = g?.replaceCurrentDetail === !0;
       !!(E && !I && E.token && String(E.uri || "") !== S) ? this._pushCurrentLibraryDetailStack() : E || this._clearLibraryDetailStack();
-      const J = g?.albumBrowseContext || (y === "album" ? this._albumBrowseContextFromDetail(E, o) : null), Z = this._state.menuPage === "discovery" || String(this._state.menuPage || "").startsWith("library_") ? this._state.menuPage : this._libraryDetailParentPageForType(y);
+      const O = g?.albumBrowseContext || (y === "album" ? this._albumBrowseContextFromDetail(E, o) : null), Z = this._state.menuPage === "discovery" || String(this._state.menuPage || "").startsWith("library_") ? this._state.menuPage : this._libraryDetailParentPageForType(y);
       return this._state.mobileLibraryDetailParentPage = Z, this._state.mobileLibraryDetail = {
         ...o,
         uri: S,
@@ -44754,7 +44690,7 @@ function vh({
         artistInfo: null,
         artistSearchQuery: "",
         artistDescriptionExpanded: !!o.artistDescriptionExpanded,
-        albumBrowseContext: J || null,
+        albumBrowseContext: O || null,
         loading: !0,
         error: "",
         token: B
@@ -44802,7 +44738,7 @@ function vh({
         (y, S = {}, B = "") => this._i18n(y, S, B),
         o
       ).map((y) => [y.value, y.label]), g = this._mobileRadioBrowserCountry();
-      return g !== "all" && !m.some(([y]) => y === g) && m.push([g, Y(g, (y) => this._i18n(y), o)]), m;
+      return g !== "all" && !m.some(([y]) => y === g) && m.push([g, J(g, (y) => this._i18n(y), o)]), m;
     }
     _mobileRadioBrowserCountry() {
       const o = String(this._state.mobileRadioBrowserCountry || "all").trim().toUpperCase();
@@ -44823,7 +44759,7 @@ function vh({
         code: String(F.iso_3166_1 || F.countrycode || "").trim().toUpperCase(),
         name: F.name || F.country || "",
         stationcount: Number(F.stationcount || 0) || 0
-      })).filter((F) => F.code && F.name && F.stationcount > 0).sort((F, J) => F.name.localeCompare(J.name)).slice(0, m);
+      })).filter((F) => F.code && F.name && F.stationcount > 0).sort((F, O) => F.name.localeCompare(O.name)).slice(0, m);
       return this._cache.library.set(g, { ts: Date.now(), items: I }), I;
     }
     async _fetchRadioBrowserStations(o = "", m = 40, g = {}) {
@@ -44838,14 +44774,14 @@ function vh({
         });
         S && $.set("name", S), E && ($.set("tag", E), $.set("tagExact", "true"), $.set("order", "votes"), $.set("reverse", "true")), I && $.set("countrycode", B), F = `https://de1.api.radio-browser.info/json/stations/search?${$.toString()}`;
       } else I ? F = `https://de1.api.radio-browser.info/json/stations/bycountrycodeexact/${encodeURIComponent(B)}?hidebroken=true&limit=${y}&order=votes&reverse=true` : F = `https://de1.api.radio-browser.info/json/stations/topvote/${y}`;
-      const J = await fetch(F, {
+      const O = await fetch(F, {
         signal: globalThis.AbortSignal?.timeout?.(12e3),
         headers: {
           Accept: "application/json"
         }
       });
-      if (!J.ok) throw new Error(`Radio Browser ${J.status}`);
-      const Z = await J.json();
+      if (!O.ok) throw new Error(`Radio Browser ${O.status}`);
+      const Z = await O.json();
       return (Array.isArray(Z) ? Z : []).map(($) => ({
         uri: $.url_resolved || $.url || "",
         media_type: "radio",
@@ -44913,7 +44849,7 @@ function vh({
       const S = m.uri.toLowerCase(), B = m.name.toLowerCase();
       let E = y.findIndex(($) => String($.uri || "").toLowerCase() === S);
       E < 0 && B && (E = y.findIndex(($) => String($.name || "").toLowerCase() === B));
-      const I = o === "next" ? -1 : 0, F = E >= 0 ? E : I, J = o === "next" ? (F + 1) % y.length : (F - 1 + y.length) % y.length, Z = y[J];
+      const I = o === "next" ? -1 : 0, F = E >= 0 ? E : I, O = o === "next" ? (F + 1) % y.length : (F - 1 + y.length) % y.length, Z = y[O];
       return Z?.uri ? (await this._playMedia(Z.uri, "radio", "play", { label: Z.name || "Radio", silent: !0 }), this._toastSuccess(this._i18n("ui.radio_station_changed")), !0) : !1;
     }
     _searchItemProviderMapping(o = {}) {
@@ -44948,20 +44884,20 @@ function vh({
       const m = { radio: [], podcasts: [], albums: [], artists: [], tracks: [], playlists: [], genres: [] };
       if (!o) return m;
       const g = (F) => Array.isArray(F) ? F : F?.items && Array.isArray(F.items) ? F.items : [], y = (F = {}) => {
-        const J = String(F?.media_type || F?.type || F?.item_type || F?.media_item?.media_type || "").toLowerCase();
-        return J === "radio" ? "radio" : J === "podcast" ? "podcasts" : J === "album" ? "albums" : J === "artist" ? "artists" : J === "track" ? "tracks" : J === "playlist" ? "playlists" : J === "genre" ? "genres" : "";
+        const O = String(F?.media_type || F?.type || F?.item_type || F?.media_item?.media_type || "").toLowerCase();
+        return O === "radio" ? "radio" : O === "podcast" ? "podcasts" : O === "album" ? "albums" : O === "artist" ? "artists" : O === "track" ? "tracks" : O === "playlist" ? "playlists" : O === "genre" ? "genres" : "";
       }, S = (F = []) => {
-        (Array.isArray(F) ? F : []).forEach((J) => {
-          const Z = y(J);
-          Z && m[Z].push(this._normalizeSearchItem(J, Z === "podcasts" ? "podcast" : Z.replace(/s$/, "")));
+        (Array.isArray(F) ? F : []).forEach((O) => {
+          const Z = y(O);
+          Z && m[Z].push(this._normalizeSearchItem(O, Z === "podcasts" ? "podcast" : Z.replace(/s$/, "")));
         });
       }, B = (F = {}) => {
-        m.radio.push(...g(F.radio || F.radios).map((J) => this._normalizeSearchItem(J, "radio"))), m.podcasts.push(...g(F.podcast || F.podcasts).map((J) => this._normalizeSearchItem(J, "podcast"))), m.albums.push(...g(F.album || F.albums).map((J) => this._normalizeSearchItem(J, "album"))), m.artists.push(...g(F.artist || F.artists).map((J) => this._normalizeSearchItem(J, "artist"))), m.tracks.push(...g(F.track || F.tracks).map((J) => this._normalizeSearchItem(J, "track"))), m.playlists.push(...g(F.playlist || F.playlists).map((J) => this._normalizeSearchItem(J, "playlist"))), m.genres.push(...g(F.genre || F.genres).map((J) => this._normalizeSearchItem(J, "genre")));
+        m.radio.push(...g(F.radio || F.radios).map((O) => this._normalizeSearchItem(O, "radio"))), m.podcasts.push(...g(F.podcast || F.podcasts).map((O) => this._normalizeSearchItem(O, "podcast"))), m.albums.push(...g(F.album || F.albums).map((O) => this._normalizeSearchItem(O, "album"))), m.artists.push(...g(F.artist || F.artists).map((O) => this._normalizeSearchItem(O, "artist"))), m.tracks.push(...g(F.track || F.tracks).map((O) => this._normalizeSearchItem(O, "track"))), m.playlists.push(...g(F.playlist || F.playlists).map((O) => this._normalizeSearchItem(O, "playlist"))), m.genres.push(...g(F.genre || F.genres).map((O) => this._normalizeSearchItem(O, "genre")));
       }, E = o.response ?? o.result ?? o, I = [E];
       return E?.response && I.push(E.response), E?.result && I.push(E.result), E?.data && I.push(E.data), E && typeof E == "object" && !Array.isArray(E) && Object.values(E).forEach((F) => {
         if (!F || typeof F != "object" || Array.isArray(F)) return;
-        const J = F.response ?? F.result ?? F;
-        J && typeof J == "object" && I.push(J);
+        const O = F.response ?? F.result ?? F;
+        O && typeof O == "object" && I.push(O);
       }), I.forEach((F) => {
         B(F), S(Array.isArray(F) ? F : []), S(F?.items), S(F?.media), S(F?.media_items), S(F?.library_items), S(F?.results);
       }), m;
@@ -44977,7 +44913,7 @@ function vh({
       return o.forEach((S) => {
         g.forEach((B) => {
           (Array.isArray(S?.[B]) ? S[B] : []).forEach((I) => {
-            const F = String(I?.uri || I?.media_item?.uri || "").trim(), J = String(I?.name || I?.title || I?.media_item?.name || "").trim().toLowerCase(), Z = String(I?.provider || I?.provider_id || I?.provider_domain || I?.media_item?.provider || "").trim().toLowerCase(), $ = `${B}:${F || `${Z}:${J}`}`;
+            const F = String(I?.uri || I?.media_item?.uri || "").trim(), O = String(I?.name || I?.title || I?.media_item?.name || "").trim().toLowerCase(), Z = String(I?.provider || I?.provider_id || I?.provider_domain || I?.media_item?.provider || "").trim().toLowerCase(), $ = `${B}:${F || `${Z}:${O}`}`;
             !$ || y.has($) || (y.add($), m[B].push(I));
           });
         });
@@ -44995,22 +44931,22 @@ function vh({
         playlist: "playlists",
         genre: "genres"
       }, B = /* @__PURE__ */ new Set(), E = (I, F) => {
-        const J = String(I?.name || I?.title || I?.media_item?.name || "").toLowerCase(), Z = String(this._artistName?.(I) || I?.artist || I?.artist_str || "").toLowerCase(), $ = String(I?.album?.name || I?.media_item?.album?.name || "").toLowerCase();
-        if (![J, Z, $, I?.metadata?.description, I?.description].filter(Boolean).join(" ").toLowerCase().includes(g)) return 0;
+        const O = String(I?.name || I?.title || I?.media_item?.name || "").toLowerCase(), Z = String(this._artistName?.(I) || I?.artist || I?.artist_str || "").toLowerCase(), $ = String(I?.album?.name || I?.media_item?.album?.name || "").toLowerCase();
+        if (![O, Z, $, I?.metadata?.description, I?.description].filter(Boolean).join(" ").toLowerCase().includes(g)) return 0;
         let be = 1;
-        return J.startsWith(g) && (be += 6), J === g && (be += 4), Z.startsWith(g) && (be += 3), F === "track" && (be += 1), be;
+        return O.startsWith(g) && (be += 6), O === g && (be += 4), Z.startsWith(g) && (be += 3), F === "track" && (be += 1), be;
       };
       for (const [I, F] of this._cache.library.entries()) {
-        const J = String(I || "").split(":")[0], Z = S[J];
+        const O = String(I || "").split(":")[0], Z = S[O];
         !Z || !Array.isArray(F?.items) || F.items.forEach(($) => {
           const ce = String($?.uri || $?.media_item?.uri || "").trim(), be = `${Z}:${ce || $?.item_id || $?.name || ""}`;
           if (!be || B.has(be)) return;
-          const ue = E($, J);
-          ue && (B.add(be), y[Z].push({ ...$, media_type: $?.media_type || J, _homeiiSearchScore: ue }));
+          const ue = E($, O);
+          ue && (B.add(be), y[Z].push({ ...$, media_type: $?.media_type || O, _homeiiSearchScore: ue }));
         });
       }
       return Object.keys(y).forEach((I) => {
-        y[I] = y[I].sort((F, J) => Number(J._homeiiSearchScore || 0) - Number(F._homeiiSearchScore || 0)).slice(0, m).map(({ _homeiiSearchScore: F, ...J }) => J);
+        y[I] = y[I].sort((F, O) => Number(O._homeiiSearchScore || 0) - Number(F._homeiiSearchScore || 0)).slice(0, m).map(({ _homeiiSearchScore: F, ...O }) => O);
       }), y;
     }
     async _searchPreviewResults(o = "", m = 8) {
@@ -45301,8 +45237,8 @@ function vh({
       if (B) return B;
       const E = this._playerOverrideSlug(y);
       return E && (Array.isArray(o) ? o : []).find((I) => {
-        const F = this._playerOverrideSlug(I?.entity_id || ""), J = this._playerOverrideSlug(I?.attributes?.friendly_name || "");
-        return F === E || J === E;
+        const F = this._playerOverrideSlug(I?.entity_id || ""), O = this._playerOverrideSlug(I?.attributes?.friendly_name || "");
+        return F === E || O === E;
       }) || null;
     }
     _normalizeEnginePlayerEntity(o = {}) {
@@ -45404,7 +45340,7 @@ function vh({
       }
       const I = this._playerByEntityId(this._state.selectedPlayer);
       this._state.awaitingThisDevicePlayer && this._isExternalBrowserPlayer(I) && (this._state.selectedPlayer = null, this._state.hasAutoSelectedPlayer = !1);
-      const F = this._resolvePlayerOverrideEntity(m), J = String(this._config?.entity || this.config?.entity || "").trim(), Z = J ? m.find((de) => de?.entity_id === J) : null, $ = C.pendingPlayerLockState(this._state, m, Date.now());
+      const F = this._resolvePlayerOverrideEntity(m), O = String(this._config?.entity || this.config?.entity || "").trim(), Z = O ? m.find((de) => de?.entity_id === O) : null, $ = C.pendingPlayerLockState(this._state, m, Date.now());
       $.lockedPlayerId && this._state.selectedPlayer !== $.lockedPlayerId && (this._state.selectedPlayer = $.lockedPlayerId);
       const ce = $.shouldHoldSelectedPlayer;
       F?.entity_id && this._state.selectedPlayer !== F.entity_id && (this._state.selectedPlayer = F.entity_id, this._state.hasAutoSelectedPlayer = !0);
@@ -45492,7 +45428,7 @@ function vh({
         const I = await this._ensureHomeiiEngineReadyForAction();
         if (!(typeof this._homeiiEnginePlayMedia == "function" && this._homeiiEngineRequired?.() && I))
           throw new Error(this._i18n?.("diagnostics.engine_required_missing") || "HOMEii Flow Engine is required.");
-        const J = await this._homeiiEnginePlayMedia({
+        const O = await this._homeiiEnginePlayMedia({
           player: o,
           media_id: m,
           media_type: g,
@@ -45500,8 +45436,8 @@ function vh({
           radio_mode: !!S.radioMode,
           verify_playback: S.verifyPlayback !== !1 && ["play", "replace", "shuffle"].includes(y)
         });
-        if (!J?.ok)
-          throw new Error(J?.error || "HOMEii Flow Engine did not confirm playback.");
+        if (!O?.ok)
+          throw new Error(O?.error || "HOMEii Flow Engine did not confirm playback.");
         if (!S.silent) {
           const Z = this._playerByEntityId(o);
           this._toastMediaQueued(B, Z?.attributes?.friendly_name || o);
@@ -45757,15 +45693,15 @@ function vh({
     }
     _getCurrentPosition() {
       if (this._progressSeekDragging && Number.isFinite(this._progressSeekPreview)) return this._progressSeekPreview;
-      const o = this._getSelectedPlayer(), m = this._getCurrentDuration(), g = (J = 0) => {
-        const Z = Number(J);
+      const o = this._getSelectedPlayer(), m = this._getCurrentDuration(), g = (O = 0) => {
+        const Z = Number(O);
         if (Number.isFinite(Z) && m > 0 && Z > m + 5) {
           const $ = Z / 1e3;
           if ($ <= m + 5) return Math.max(0, $);
         }
-        return v.coercePlaybackSeconds(J || 0);
-      }, y = o?.attributes?.media_position !== void 0 && o?.attributes?.media_position !== null && o?.attributes?.media_position !== "", S = this._state.maQueueState?.elapsed_time !== void 0 && this._state.maQueueState?.elapsed_time !== null && this._state.maQueueState?.elapsed_time !== "", B = (J = 0, Z = "") => {
-        let $ = g(J || 0);
+        return v.coercePlaybackSeconds(O || 0);
+      }, y = o?.attributes?.media_position !== void 0 && o?.attributes?.media_position !== null && o?.attributes?.media_position !== "", S = this._state.maQueueState?.elapsed_time !== void 0 && this._state.maQueueState?.elapsed_time !== null && this._state.maQueueState?.elapsed_time !== "", B = (O = 0, Z = "") => {
+        let $ = g(O || 0);
         if (o?.state === "playing" && Z) {
           const ce = v.parsePlaybackTimestampMs(Z);
           ce && ($ += Math.max(0, (Date.now() - ce) / 1e3));
@@ -45823,8 +45759,8 @@ function vh({
       I.className = "scrolling-text-inner";
       const F = document.createElement("span");
       if (F.className = "scrolling-text-item", F.textContent = y, I.appendChild(F), S) {
-        const J = document.createElement("span");
-        J.className = "scrolling-text-item", J.setAttribute("aria-hidden", "true"), J.textContent = y, I.appendChild(J);
+        const O = document.createElement("span");
+        O.className = "scrolling-text-item", O.setAttribute("aria-hidden", "true"), O.textContent = y, I.appendChild(O);
       }
       g.appendChild(I), S && this._queueNowPlayingSubtitleOverflowSync(g);
     }
@@ -45856,8 +45792,8 @@ function vh({
         o.attributes.entity_picture
       ], { size: 420, cacheKey: this._currentArtworkCacheKey(o, m) }), I = this.$("npArt");
       E && I?.querySelector("img")?.getAttribute("src") !== E ? I.innerHTML = this._imgHtml(E, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : E || (I.innerHTML = this._artPlaceholderHtml("album"));
-      const F = Math.round((o.attributes.volume_level || 0) * 100), J = this.$("volSlider");
-      J && (J.value = F, J.style.setProperty("--vol-pct", `${F}%`)), this._setButtonIcon(this.$("btnMute"), this._volumeIconName(o));
+      const F = Math.round((o.attributes.volume_level || 0) * 100), O = this.$("volSlider");
+      O && (O.value = F, O.style.setProperty("--vol-pct", `${F}%`)), this._setButtonIcon(this.$("btnMute"), this._volumeIconName(o));
       const Z = this._getCurrentDuration(), $ = this._getCurrentPosition();
       this.$("progressFill") && (this.$("progressFill").style.width = Z ? `${Math.min(100, $ / Z * 100)}%` : "0%");
       const ce = String(o.attributes.media_content_id || "").trim() || String(this._getQueueItemUri(m) || "").trim() || "";
@@ -45867,7 +45803,7 @@ function vh({
       if (this._state.view !== "now_playing") return;
       const o = this._getSelectedPlayer();
       if (!o) return;
-      const m = o.attributes.media_title || this._i18n("ui.no_active_media"), g = o.attributes.media_artist || this._i18n("ui.unknown"), y = o.attributes.media_album_name || "", S = this._getCurrentDuration(), B = this._getCurrentPosition(), E = S ? Math.min(100, B / S * 100) : 0, I = Math.round((o.attributes.volume_level || 0) * 100), F = this._state.maQueueState?.current_item || null, J = this._currentArtworkUrl(o, F, 620, { preferPlayerArtwork: !0 }), Z = o.attributes.repeat || "off", $ = this.$("bigPlayBtn");
+      const m = o.attributes.media_title || this._i18n("ui.no_active_media"), g = o.attributes.media_artist || this._i18n("ui.unknown"), y = o.attributes.media_album_name || "", S = this._getCurrentDuration(), B = this._getCurrentPosition(), E = S ? Math.min(100, B / S * 100) : 0, I = Math.round((o.attributes.volume_level || 0) * 100), F = this._state.maQueueState?.current_item || null, O = this._currentArtworkUrl(o, F, 620, { preferPlayerArtwork: !0 }), Z = o.attributes.repeat || "off", $ = this.$("bigPlayBtn");
       this._setButtonIcon($, this._playPauseIconName(o));
       const ce = this.$("bigShuffleBtn");
       ce && ce.classList.toggle("active", !!o.attributes.shuffle);
@@ -45880,7 +45816,7 @@ function vh({
       const me = this.$("bigProgressFill");
       me && (me.style.width = `${E}%`), this.$("bigCurTime") && (this.$("bigCurTime").textContent = this._fmtDur(B)), this.$("bigTotalTime") && (this.$("bigTotalTime").textContent = this._fmtDur(S));
       const he = this.$("nowHeroArt");
-      he && (he.innerHTML = J ? this._imgHtml(J, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album"));
+      he && (he.innerHTML = O ? this._imgHtml(O, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._artPlaceholderHtml("album"));
       const ve = this.shadowRoot.querySelector(".now-track-title");
       ve && (ve.textContent = m);
       const xe = this.shadowRoot.querySelector(".now-track-subtitle");
@@ -46072,11 +46008,11 @@ function vh({
           g.innerHTML = `<div class="state-box">${this._esc(this._i18n("ui.queue_is_empty"))}</div>`;
           return;
         }
-        g.innerHTML = I.map((F, J) => {
-          const Z = F.sort_index === B, $ = F.sort_index < B, ce = this._queueItemImageUrl(F, 120), be = F.media_item?.artists?.map((me) => me.name).join(", ") || "", ue = this._getQueueItemKey(F), de = Z || J < 24;
+        g.innerHTML = I.map((F, O) => {
+          const Z = F.sort_index === B, $ = F.sort_index < B, ce = this._queueItemImageUrl(F, 120), be = F.media_item?.artists?.map((me) => me.name).join(", ") || "", ue = this._getQueueItemKey(F), de = Z || O < 24;
           return `
             <div class="queue-item ${Z ? "active" : ""} ${$ ? "past" : ""}" data-uri="${this._esc(F.media_item?.uri || "")}" data-type="track" data-queue-item-id="${this._esc(ue)}" data-sort-index="${this._esc(F.sort_index ?? "")}">
-              <div class="queue-num">${Z ? "▶" : F.sort_index ?? J + 1}</div>
+              <div class="queue-num">${Z ? "▶" : F.sort_index ?? O + 1}</div>
               <div class="queue-thumb">${ce ? this._imgHtml(ce, "", { loading: de ? "eager" : "lazy", fetchpriority: de ? "high" : "low" }) : "♫"}</div>
               <div class="queue-item-meta">
                 <div class="queue-name">${this._esc(F.media_item?.name || F.name || "")}</div>
@@ -46094,7 +46030,7 @@ function vh({
     }
     _queueItemsAfterLocalAction(o, m, g = this._state.queueItems || [], y = null) {
       const S = [...Array.isArray(g) ? g : []], B = String(m || "").trim(), E = S.findIndex(
-        (J) => this._getQueueItemKey(J) === B || this._getQueueItemStableId(J) === B || this._getQueueItemUri(J) === B
+        (O) => this._getQueueItemKey(O) === B || this._getQueueItemStableId(O) === B || this._getQueueItemUri(O) === B
       );
       if (E === -1) return null;
       const I = [...S];
@@ -46106,25 +46042,25 @@ function vh({
       if (o === "down")
         return E >= F && E < I.length - 1 ? ([I[E + 1], I[E]] = [I[E], I[E + 1]], this._queueItemsWithSequentialSortIndexes(I)) : null;
       if (o === "next") {
-        const J = I[E], Z = Math.max(0, F);
-        return J && E > Z ? (I.splice(E, 1), I.splice(Z, 0, J), this._queueItemsWithSequentialSortIndexes(I)) : null;
+        const O = I[E], Z = Math.max(0, F);
+        return O && E > Z ? (I.splice(E, 1), I.splice(Z, 0, O), this._queueItemsWithSequentialSortIndexes(I)) : null;
       }
       if (o === "move_to") {
-        const J = I[E], Z = Math.round(Number(y));
-        if (!J || !Number.isFinite(Z)) return null;
+        const O = I[E], Z = Math.round(Number(y));
+        if (!O || !Number.isFinite(Z)) return null;
         const $ = this._queueMoveGlobalIndexForDisplayPosition(I, Z);
-        return $ < 0 ? null : E === $ ? I : (I.splice(E, 1), I.splice(Math.max(F, Math.min(I.length, $)), 0, J), this._queueItemsWithSequentialSortIndexes(I));
+        return $ < 0 ? null : E === $ ? I : (I.splice(E, 1), I.splice(Math.max(F, Math.min(I.length, $)), 0, O), this._queueItemsWithSequentialSortIndexes(I));
       }
       return null;
     }
     async _handleQueueAction(o, m, g = "", y = "", S = null) {
       const B = this._getSelectedPlayer();
       if (!B || !m || this._state.queueActionPending) return !1;
-      const E = [...this._state.queueItems || []], I = this._resolveQueueActionTarget(E, m, g, y), F = I ? this._getQueueItemKey(I) : String(m || "").trim(), J = I ? E.indexOf(I) : E.findIndex((Z) => this._getQueueItemKey(Z) === F);
-      if (J === -1) return !1;
+      const E = [...this._state.queueItems || []], I = this._resolveQueueActionTarget(E, m, g, y), F = I ? this._getQueueItemKey(I) : String(m || "").trim(), O = I ? E.indexOf(I) : E.findIndex((Z) => this._getQueueItemKey(Z) === F);
+      if (O === -1) return !1;
       try {
         this._setQueueBusy(!0);
-        const Z = Math.round(Number(S)), $ = o === "move_to" && Number.isFinite(Z) ? this._queueMoveGlobalIndexForDisplayPosition(E, Z) : null, ce = o === "next" ? this._queueFirstMovableIndex(E) : null, be = o === "move_to" && Number.isFinite($) && $ >= 0 ? $ - J : o === "next" && Number.isFinite(ce) ? ce - J : null, ue = this._queueItemsAfterLocalAction(o, F, E, Z), de = this._queueIdForPlayer(B), me = {
+        const Z = Math.round(Number(S)), $ = o === "move_to" && Number.isFinite(Z) ? this._queueMoveGlobalIndexForDisplayPosition(E, Z) : null, ce = o === "next" ? this._queueFirstMovableIndex(E) : null, be = o === "move_to" && Number.isFinite($) && $ >= 0 ? $ - O : o === "next" && Number.isFinite(ce) ? ce - O : null, ue = this._queueItemsAfterLocalAction(o, F, E, Z), de = this._queueIdForPlayer(B), me = {
           up: "move_queue_item_up",
           down: "move_queue_item_down",
           next: "move_queue_item_next",
@@ -46177,15 +46113,15 @@ function vh({
       o && await this._callHaMediaPlayerService(o, "media_stop");
     }
     async _rebuildQueue(o, m, g = 0) {
-      const y = this._state.maQueueState?.current_index ?? 0, S = m.find((J) => (J.sort_index ?? -1) === y) || m[0], B = m.indexOf(S), E = B >= 0 ? m.slice(B + 1) : m.filter((J) => Number(J?.sort_index ?? -1) > Number(y)), I = this._getQueueItemUri(S);
+      const y = this._state.maQueueState?.current_index ?? 0, S = m.find((O) => (O.sort_index ?? -1) === y) || m[0], B = m.indexOf(S), E = B >= 0 ? m.slice(B + 1) : m.filter((O) => Number(O?.sort_index ?? -1) > Number(y)), I = this._getQueueItemUri(S);
       if (!I) throw new Error(this._i18n("ui.no_queue_item_to_rebuild"));
-      const F = [I, ...E.map((J) => this._getQueueItemUri(J)).filter(Boolean)];
+      const F = [I, ...E.map((O) => this._getQueueItemUri(O)).filter(Boolean)];
       await this._clearQueueForPlayer(o);
-      for (const [J, Z] of F.entries()) {
+      for (const [O, Z] of F.entries()) {
         const $ = this._parseMediaReference(Z, "track");
-        await this._playMediaOnPlayer(o, Z, $.media_type || "track", J === 0 ? "play" : "add", {
+        await this._playMediaOnPlayer(o, Z, $.media_type || "track", O === 0 ? "play" : "add", {
           silent: !0,
-          verifyPlayback: J === 0
+          verifyPlayback: O === 0
         });
       }
       g > 0 && setTimeout(() => {
@@ -46263,9 +46199,9 @@ function vh({
         maUrl: S,
         seen: g,
         depth: y
-      }), E = this._normalizeArtworkUrl(B, { size: m }), I = v.rebaseImageProxyUrl(B, m, S), F = this._normalizeArtworkUrl(I, { size: m }), J = v.legacyImageProxyFallbackUrl(o, m, {
+      }), E = this._normalizeArtworkUrl(B, { size: m }), I = v.rebaseImageProxyUrl(B, m, S), F = this._normalizeArtworkUrl(I, { size: m }), O = v.legacyImageProxyFallbackUrl(o, m, {
         maUrl: S
-      }), Z = this._normalizeArtworkUrl(J, { size: m }), $ = E || F;
+      }), Z = this._normalizeArtworkUrl(O, { size: m }), $ = E || F;
       return this._rememberArtworkFallback($, [F, Z]);
     }
     _artUrl(o, m = {}) {
@@ -46299,9 +46235,9 @@ function vh({
         }
         return "";
       }
-      const S = this._maArtworkBaseUrl(), B = v.artUrl(o, S, g), E = this._normalizeArtworkUrl(B, { size: g, cacheKey: m?.cacheKey || "" }), I = v.rebaseImageProxyUrl(B, g, S), F = this._normalizeArtworkUrl(I, { size: g, cacheKey: m?.cacheKey || "" }), J = v.legacyImageProxyFallbackUrl(o, g, {
+      const S = this._maArtworkBaseUrl(), B = v.artUrl(o, S, g), E = this._normalizeArtworkUrl(B, { size: g, cacheKey: m?.cacheKey || "" }), I = v.rebaseImageProxyUrl(B, g, S), F = this._normalizeArtworkUrl(I, { size: g, cacheKey: m?.cacheKey || "" }), O = v.legacyImageProxyFallbackUrl(o, g, {
         maUrl: S
-      }), Z = this._normalizeArtworkUrl(J, { size: g, cacheKey: m?.cacheKey || "" }), $ = E || F;
+      }), Z = this._normalizeArtworkUrl(O, { size: g, cacheKey: m?.cacheKey || "" }), $ = E || F;
       return this._rememberArtworkFallback($, [F, Z]);
     }
     _artistName(o) {
@@ -46316,8 +46252,8 @@ function vh({
     _imgHtml(o = "", m = "", g = {}) {
       const y = String(o || "").trim();
       if (!y) return "";
-      const S = g.loading || "lazy", B = g.decoding || "async", E = g.className ? ` class="${this._esc(g.className)}"` : "", I = g.fetchpriority || g.fetchPriority || "low", F = ` fetchpriority="${this._esc(I)}"`, J = g.fallbackIcon || g.placeholder || "album";
-      return `<img${E} src="${this._esc(y)}" alt="${this._esc(m)}" loading="${this._esc(S)}" decoding="${this._esc(B)}"${F} data-homeii-inline-art="1" data-homeii-art-src="${this._esc(y)}" data-homeii-art-fallback-icon="${this._esc(J)}">`;
+      const S = g.loading || "lazy", B = g.decoding || "async", E = g.className ? ` class="${this._esc(g.className)}"` : "", I = g.fetchpriority || g.fetchPriority || "low", F = ` fetchpriority="${this._esc(I)}"`, O = g.fallbackIcon || g.placeholder || "album";
+      return `<img${E} src="${this._esc(y)}" alt="${this._esc(m)}" loading="${this._esc(S)}" decoding="${this._esc(B)}"${F} data-homeii-inline-art="1" data-homeii-art-src="${this._esc(y)}" data-homeii-art-fallback-icon="${this._esc(O)}">`;
     }
     _toast(o, m = "info", g = {}) {
       return Km.call(this, o, m, g);
@@ -47396,10 +47332,10 @@ function ys(n = {}, e = [], {
   if (!Array.isArray(e) || !e.length) return null;
   const r = String(n?.uri || "").trim(), c = String(n?.media_type || n?.type || "track").toLowerCase(), p = String(n?.library_item_id || "").trim(), _ = String(n?.item_id || n?.id || "").trim(), v = String(n?.provider || n?.provider_domain || n?.provider_instance || "").trim().toLowerCase(), k = Oa(as(n)), C = Oa(Qr(n));
   for (const Q of e) {
-    const z = String(Q?.library_item_id || "").trim(), q = String(Q?.item_id || Q?.id || "").trim(), G = String(Q?.provider || Q?.provider_domain || Q?.provider_instance || "").trim().toLowerCase(), U = String(Q?.uri || "").trim(), Y = String(Q?.media_type || Q?.type || "").toLowerCase();
+    const z = String(Q?.library_item_id || "").trim(), q = String(Q?.item_id || Q?.id || "").trim(), G = String(Q?.provider || Q?.provider_domain || Q?.provider_instance || "").trim().toLowerCase(), U = String(Q?.uri || "").trim(), J = String(Q?.media_type || Q?.type || "").toLowerCase();
     if (p && z && p === z || _ && q && v && G && _ === q && v === G || U && r && U === r)
       return Q;
-    const j = t(r, c || "track"), V = t(U, Y || c || "track");
+    const j = t(r, c || "track"), V = t(U, J || c || "track");
     if (j.provider && V.provider && j.provider === V.provider && j.item_id && j.item_id === V.item_id)
       return Q;
     const X = Oa(as(Q)), K = Oa(Qr(Q));
@@ -47703,7 +47639,7 @@ function eg({
     queueItems: r,
     accessors: v,
     compareMediaRefs: k
-  }) || e, U = G?.media_item || {}, Y = Array.isArray(U?.artists) ? U.artists.map((g) => g?.name).filter(Boolean).join(", ") : "", j = U?.name || G?.media_title || G?.name || "", V = G?.media_artist || G?.artist_str || Y || G?.artist || "", X = U?.album?.name || G?.media_album_name || G?.album || "", K = q || !n?.attributes?.media_title, ne = K ? j || n?.attributes?.media_title || _ : n?.attributes?.media_title || j || _, ge = K ? V || n?.attributes?.media_artist || "" : n?.attributes?.media_artist || V || "", o = K ? X || n?.attributes?.media_album_name || "" : n?.attributes?.media_album_name || X || "", m = String(
+  }) || e, U = G?.media_item || {}, J = Array.isArray(U?.artists) ? U.artists.map((g) => g?.name).filter(Boolean).join(", ") : "", j = U?.name || G?.media_title || G?.name || "", V = G?.media_artist || G?.artist_str || J || G?.artist || "", X = U?.album?.name || G?.media_album_name || G?.album || "", K = q || !n?.attributes?.media_title, ne = K ? j || n?.attributes?.media_title || _ : n?.attributes?.media_title || j || _, ge = K ? V || n?.attributes?.media_artist || "" : n?.attributes?.media_artist || V || "", o = K ? X || n?.attributes?.media_album_name || "" : n?.attributes?.media_album_name || X || "", m = String(
     K ? U?.media_type || G?.media_type || n?.attributes?.media_content_type || n?.attributes?.media_channel || "" : n?.attributes?.media_content_type || n?.attributes?.media_channel || U?.media_type || G?.media_type || ""
   ).toLowerCase();
   return {
@@ -47778,8 +47714,8 @@ function og(n = "") {
     if (!p.length) return;
     const _ = c.replace(/\[[^\]]+\]/g, "").trim(), v = /<(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?>([^<]*)/g, k = [..._.matchAll(v)].map((Q) => ({ time: Number(Q[1]) * 60 + Number(Q[2]) + Number((Q[3] || "0").padEnd(3, "0")) / 1e3, text: Q[4] })).filter((Q) => Q.text.length), C = _.replace(/<\d{1,3}:\d{2}(?:[.:]\d{1,3})?>/g, "");
     C && p.forEach((Q) => {
-      const z = Number(Q[1]), q = Number(Q[2]), G = String(Q[3] || "0"), U = Number(G.padEnd(3, "0").slice(0, 3)), Y = z * 60 + q + U / 1e3, j = p.length === 1 && k.length && k.map((V) => V.text).join("") === C && k.every((V, X) => V.time >= Y && (!X || V.time >= k[X - 1].time));
-      Number.isFinite(Y) && e.push({ time: Y, text: C, ...j ? { words: k } : {} });
+      const z = Number(Q[1]), q = Number(Q[2]), G = String(Q[3] || "0"), U = Number(G.padEnd(3, "0").slice(0, 3)), J = z * 60 + q + U / 1e3, j = p.length === 1 && k.length && k.map((V) => V.text).join("") === C && k.every((V, X) => V.time >= J && (!X || V.time >= k[X - 1].time));
+      Number.isFinite(J) && e.push({ time: J, text: C, ...j ? { words: k } : {} });
     });
   }), e.sort((c, p) => c.time - p.time).filter((c, p, _) => p === 0 || c.time !== _[p - 1].time || c.text !== _[p - 1].text);
 }
@@ -48122,13 +48058,13 @@ function pg({
   artUrlFn: c,
   buildCurrentSourceBadgeMetaFn: p = Fc
 } = {}) {
-  const _ = e || null, v = _?.media_item || _ || {}, k = String(t?.(_) || v?.uri || "").trim(), C = String(n?.attributes?.media_content_id || "").trim(), Q = !_ || k && k === C ? n?.attributes || {} : {}, z = v?.name || _?.name || Q.media_title || "", q = Array.isArray(v?.artists) ? v.artists.map((X) => X?.name).filter(Boolean).join(", ") : v?.artist_str || v?.publisher || Q.media_artist || "", G = v?.album?.name || v?.podcast?.name || _?.album || Q.media_album_name || "", U = k || C, Y = String(v?.media_type || _?.media_type || n?.attributes?.media_content_type || "track").toLowerCase(), j = [z, q, G].map((X) => String(X || "").trim().toLowerCase()).join("|");
-  if (!j || !U || Y === "radio") return null;
+  const _ = e || null, v = _?.media_item || _ || {}, k = String(t?.(_) || v?.uri || "").trim(), C = String(n?.attributes?.media_content_id || "").trim(), Q = !_ || k && k === C ? n?.attributes || {} : {}, z = v?.name || _?.name || Q.media_title || "", q = Array.isArray(v?.artists) ? v.artists.map((X) => X?.name).filter(Boolean).join(", ") : v?.artist_str || v?.publisher || Q.media_artist || "", G = v?.album?.name || v?.podcast?.name || _?.album || Q.media_album_name || "", U = k || C, J = String(v?.media_type || _?.media_type || n?.attributes?.media_content_type || "track").toLowerCase(), j = [z, q, G].map((X) => String(X || "").trim().toLowerCase()).join("|");
+  if (!j || !U || J === "radio") return null;
   const V = p({ player: n, queueItem: _ });
   return {
     key: j,
     uri: U,
-    media_type: Y || "track",
+    media_type: J || "track",
     title: z,
     artist: q,
     album: G,
@@ -48451,19 +48387,19 @@ function Cg(n = "") {
 function jc(n = {}, e = "", t = qr(e)) {
   const r = Cs(n?.media_type || "", ""), c = ei(n?.name || n?.title || ""), p = ei(n?.artist || ""), _ = ei(n?.album || ""), v = Nr(e), k = v.query, C = v.title, Q = v.artist, z = [c, p, _].filter(Boolean).join(" ");
   let q = 0;
-  r === t.type ? q += t.explicit ? 24 : 10 : !t.explicit && r === "track" ? q += 10 : !t.explicit && r === "album" ? q += 3 : !t.explicit && r === "artist" ? q += 2 : (!t.explicit && r === "playlist" || t.explicit) && (q -= 8), n?._homeiiVoiceFocused === !0 && (q += 8), k && c === k ? q += 28 : k && c.startsWith(k) ? q += 16 : k && c.includes(k) && (q += 10), C && c === C ? q += 34 : C && c.startsWith(C) ? q += 22 : C && c.includes(C) && (q += 15), Q && (p === Q ? q += 30 : p.includes(Q) || Q.includes(p) ? q += 18 : Q.split(" ").filter(Boolean).every((Y) => z.includes(Y)) && (q += 12));
+  r === t.type ? q += t.explicit ? 24 : 10 : !t.explicit && r === "track" ? q += 10 : !t.explicit && r === "album" ? q += 3 : !t.explicit && r === "artist" ? q += 2 : (!t.explicit && r === "playlist" || t.explicit) && (q -= 8), n?._homeiiVoiceFocused === !0 && (q += 8), k && c === k ? q += 28 : k && c.startsWith(k) ? q += 16 : k && c.includes(k) && (q += 10), C && c === C ? q += 34 : C && c.startsWith(C) ? q += 22 : C && c.includes(C) && (q += 15), Q && (p === Q ? q += 30 : p.includes(Q) || Q.includes(p) ? q += 18 : Q.split(" ").filter(Boolean).every((J) => z.includes(J)) && (q += 12));
   const G = Pa([v.title, v.artist].filter(Boolean).join(" ") || k), U = Va(G, z);
   return q += U * 6, G.length && U === G.length && (q += 12), G.length && !U && (q -= 30), !t.explicit && r === "playlist" && (c.includes("hits") || c.includes("top") || c.includes("radio")) && (q -= 4), q;
 }
 function Yc(n = {}, e = "", t = qr(e), r = 0) {
-  const c = Cs(n?.media_type || "", ""), p = ei(n?.name || n?.title || ""), _ = ei(n?.artist || ""), v = ei(n?.album || ""), k = Nr(e), C = Pa([k.title, k.artist].filter(Boolean).join(" ") || k.query), Q = Pa(k.title), z = Pa(k.artist), q = [p, _, v].filter(Boolean).join(" "), G = Va(C, q), U = Va(Q, p), Y = Va(z, [_, v, q].filter(Boolean).join(" ")), j = !!k.title && (p === k.title || p.startsWith(k.title) || p.includes(k.title)), V = !!k.query && (p === k.query || p.startsWith(k.query) || p.includes(k.query)), X = j || V || Q.length > 0 && U === Q.length, K = !!_, ne = z.length ? Math.min(z.length, Math.max(1, Math.ceil(z.length * 0.6))) : 0, ge = z.length > 0 && Y >= ne, o = jc(n, e, t);
+  const c = Cs(n?.media_type || "", ""), p = ei(n?.name || n?.title || ""), _ = ei(n?.artist || ""), v = ei(n?.album || ""), k = Nr(e), C = Pa([k.title, k.artist].filter(Boolean).join(" ") || k.query), Q = Pa(k.title), z = Pa(k.artist), q = [p, _, v].filter(Boolean).join(" "), G = Va(C, q), U = Va(Q, p), J = Va(z, [_, v, q].filter(Boolean).join(" ")), j = !!k.title && (p === k.title || p.startsWith(k.title) || p.includes(k.title)), V = !!k.query && (p === k.query || p.startsWith(k.query) || p.includes(k.query)), X = j || V || Q.length > 0 && U === Q.length, K = !!_, ne = z.length ? Math.min(z.length, Math.max(1, Math.ceil(z.length * 0.6))) : 0, ge = z.length > 0 && J >= ne, o = jc(n, e, t);
   let m = !1;
   if (z.length && !Q.length)
     m = ge;
   else if (z.length && Q.length)
     m = X && (ge || !K);
   else if (C.length === 1)
-    m = G === 1 && (j || V || U === 1 || Y === 1);
+    m = G === 1 && (j || V || U === 1 || J === 1);
   else if (C.length > 1) {
     const g = Math.min(C.length, Math.max(2, Math.ceil(C.length * 0.55)));
     m = X || G >= g;
@@ -49662,20 +49598,20 @@ class ta extends ss {
             }
             Q.drawImage(v, 0, 0, C, C);
             const { data: z } = Q.getImageData(0, 0, C, C);
-            let q = [0, 0, 0], G = 0, U = [0, 0, 0], Y = 0;
+            let q = [0, 0, 0], G = 0, U = [0, 0, 0], J = 0;
             for (let X = 0; X < z.length; X += 16) {
               const K = (z[X + 3] || 0) / 255;
               if (K < 0.08) continue;
               const ne = [z[X], z[X + 1], z[X + 2]], [ge, o, m] = this._rgbToHsl(ne), g = 1 - Math.abs(m - 0.52), y = K * (0.35 + o * 0.9 + g * 0.55);
               q = q.map((E, I) => E + ne[I] * y), G += y;
               const S = this._tunePaletteColor(ne, { minSaturation: 0.48, minLightness: 0.4, maxLightness: 0.58 }), B = K * (0.2 + o * 1.9 + g * 0.85 + ge * 0.05);
-              U = U.map((E, I) => E + S[I] * B), Y += B;
+              U = U.map((E, I) => E + S[I] * B), J += B;
             }
-            if (!G || !Y) {
+            if (!G || !J) {
               _(null);
               return;
             }
-            const j = q.map((X) => this._clampByte(X / G)), V = U.map((X) => this._clampByte(X / Y));
+            const j = q.map((X) => this._clampByte(X / G)), V = U.map((X) => this._clampByte(X / J));
             _(mi.buildDynamicThemePalette({
               baseTuple: j,
               vividTuple: V,
@@ -50304,10 +50240,10 @@ class ta extends ss {
       ...Array.isArray(G?.playlists) ? G.playlists.map((K) => ({ ...K, media_type: K?.media_type || "playlist" })) : []
     ].filter((K) => String(K?.uri || "").trim()).filter((K) => this._supportsMusicAssistantRadioMode(String(K?.media_type || "").toLowerCase()));
     if (!U.length) return null;
-    const Y = String(Q || "").trim().toLowerCase(), j = String(z || "").trim().toLowerCase(), V = (K) => {
+    const J = String(Q || "").trim().toLowerCase(), j = String(z || "").trim().toLowerCase(), V = (K) => {
       const ne = String(K?.name || K?.title || "").trim().toLowerCase(), ge = String(K?.artist || K?.artist_str || this._artistName(K) || "").trim().toLowerCase();
       let o = 0;
-      return Y && ne === Y ? o += 6 : Y && ne.includes(Y) && (o += 3), j && ge === j ? o += 4 : j && ge.includes(j) && (o += 2), String(K?.media_type || "").toLowerCase() === "track" && (o += 2), o;
+      return J && ne === J ? o += 6 : J && ne.includes(J) && (o += 3), j && ge === j ? o += 4 : j && ge.includes(j) && (o += 2), String(K?.media_type || "").toLowerCase() === "track" && (o += 2), o;
     }, X = [...U].sort((K, ne) => V(ne) - V(K))[0];
     return X ? {
       uri: String(X.uri || "").trim(),
@@ -51923,7 +51859,7 @@ class ta extends ss {
       const B = this._currentMediaFavoriteState();
       z.classList.toggle("active", B), this._setButtonIcon(z, B ? "heart_filled" : "heart_outline");
     }
-    const q = v || this._i18n("ui.nothing_playing"), G = this._mobileUpNextItem(), U = G ? this._queueItemPrimaryTitle(G) : "", Y = G ? this._queueItemPrimaryArtist(G) : "", j = G ? this._queueItemImageUrl(G, 96) : "", V = this._screensaverMessage();
+    const q = v || this._i18n("ui.nothing_playing"), G = this._mobileUpNextItem(), U = G ? this._queueItemPrimaryTitle(G) : "", J = G ? this._queueItemPrimaryArtist(G) : "", j = G ? this._queueItemImageUrl(G, 96) : "", V = this._screensaverMessage();
     e.classList.toggle("analog-mode", t === "analog"), e.classList.toggle("digital-mode", t !== "analog"), e.classList.toggle("empty-mode", !C), this._setScreensaverBackgroundArt(e, _), this._syncScreensaverLyricsUi(c);
     const X = this.$("screensaverLyricsBtn"), K = e.classList.contains("lyrics-mode");
     X && (X.classList.toggle("active", K), X.setAttribute("aria-pressed", K ? "true" : "false")), ["screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((B) => {
@@ -51943,7 +51879,7 @@ class ta extends ss {
     const o = this.$("screensaverMessage");
     o && (o.hidden = !V, o.textContent = V);
     const m = this.$("screensaverNext");
-    m && (m.hidden = !U, U && (this._setScreensaverImageHost(this.$("screensaverNextArt"), j, this._iconSvg("tracks")), this.$("screensaverNextLabel") && (this.$("screensaverNextLabel").textContent = this._i18n("ui.up_next_2")), this.$("screensaverNextTitle") && (this.$("screensaverNextTitle").textContent = U), this.$("screensaverNextArtist") && (this.$("screensaverNextArtist").textContent = Y)));
+    m && (m.hidden = !U, U && (this._setScreensaverImageHost(this.$("screensaverNextArt"), j, this._iconSvg("tracks")), this.$("screensaverNextLabel") && (this.$("screensaverNextLabel").textContent = this._i18n("ui.up_next_2")), this.$("screensaverNextTitle") && (this.$("screensaverNextTitle").textContent = U), this.$("screensaverNextArtist") && (this.$("screensaverNextArtist").textContent = J)));
     const g = r.getSeconds(), y = r.getMinutes() + g / 60, S = r.getHours() % 12 + y / 60;
     this.$("screensaverHour")?.style?.setProperty("--hand-rotation", `${S * 30}deg`), this.$("screensaverMinute")?.style?.setProperty("--hand-rotation", `${y * 6}deg`), this.$("screensaverSecond")?.style?.setProperty("--hand-rotation", `${g * 6}deg`);
   }
@@ -53490,8 +53426,8 @@ class ta extends ss {
       }), this._hapticTap([8]);
       return;
     }
-    const { queueItems: C, displayIndex: Q } = this._mobileArtStackContext(), z = c < 0 ? Q + 1 : Q - 1, q = C[z] || null, G = q ? this._getQueueItemKey(q) : "", U = q?.media_item?.uri || q?.uri || "", Y = q?.media_item?.media_type || q?.media_type || "track", j = Number.isFinite(Number(q?.sort_index)) ? Number(q.sort_index) : "";
-    this._commitArtSwipe(c < 0 ? "next" : "prev", () => q ? this._playQueueItem(G, U, Y, j).then((V) => {
+    const { queueItems: C, displayIndex: Q } = this._mobileArtStackContext(), z = c < 0 ? Q + 1 : Q - 1, q = C[z] || null, G = q ? this._getQueueItemKey(q) : "", U = q?.media_item?.uri || q?.uri || "", J = q?.media_item?.media_type || q?.media_type || "track", j = Number.isFinite(Number(q?.sort_index)) ? Number(q.sort_index) : "";
+    this._commitArtSwipe(c < 0 ? "next" : "prev", () => q ? this._playQueueItem(G, U, J, j).then((V) => {
       V || this._ensureQueueSnapshot(!0);
     }).catch(() => this._ensureQueueSnapshot(!0)) : this._playAdjacentRadioStation(c < 0 ? "next" : "previous").then((V) => {
       if (!V)
@@ -53512,8 +53448,8 @@ class ta extends ss {
     })), t && this._hydrateDecodedArtworkImages(t);
     const k = this._state.maQueueState?.current_item || null, C = this._mobileNowPlayingDisplaySource(p, k, _), Q = C.art || this._displayArtworkForQueueItem(p, C.queueItem || k, { pending: C.hasPendingPlay, size: 420 }), z = this._queueItemArtworkUrl(_.current, 420, p) || Q, q = this._mobileBrowsePreviewActive(_) || C.hasPendingPlay ? Q : z;
     if (this._setDecodedBackgroundImage(r, this._isHotelMode() ? "" : q), this._setDecodedBackgroundImage(c, this._isHotelMode() ? "" : q), this._mobileBrowsePreviewActive(_)) {
-      const G = _.current?.media_item?.name || _.current?.name || p?.attributes?.media_title || this._i18n("ui.nothing_playing"), U = _.current?.media_item?.artists?.map((j) => j.name).join(", ") || _.current?.artist_str || p?.attributes?.media_artist || "", Y = _.current?.media_item?.album?.name || p?.attributes?.media_album_name || "";
-      this.$("npTitle") && (this.$("npTitle").textContent = G), this._setNowPlayingSubtitle([U, Y].filter(Boolean).join(" · ") || "—");
+      const G = _.current?.media_item?.name || _.current?.name || p?.attributes?.media_title || this._i18n("ui.nothing_playing"), U = _.current?.media_item?.artists?.map((j) => j.name).join(", ") || _.current?.artist_str || p?.attributes?.media_artist || "", J = _.current?.media_item?.album?.name || p?.attributes?.media_album_name || "";
+      this.$("npTitle") && (this.$("npTitle").textContent = G), this._setNowPlayingSubtitle([U, J].filter(Boolean).join(" · ") || "—");
     } else
       this.$("npTitle") && (this.$("npTitle").textContent = C.title || this._i18n("ui.nothing_playing")), this._setNowPlayingSubtitle([C.artist, C.album].filter(Boolean).join(" · ") || "—"), clearTimeout(this._mobileArtBrowseResetTimer), this._mobileArtBrowseResetTimer = null;
   }
@@ -53523,8 +53459,8 @@ class ta extends ss {
     if (!t) return;
     const r = t.dataset.artPosition || "center";
     if (this._mobileCoverFlowEnabled()) {
-      const z = Number(t.dataset.coverFlowOffset || 0), q = this._mobileArtStackContext(), G = Math.max(0, Math.min((q.queueItems?.length || 1) - 1, Number(q.displayIndex || 0) + (Number.isFinite(z) ? z : 0))), U = q.queueItems?.[G] || null, Y = U ? this._getQueueItemStableId(U) || this._getQueueItemKey(U) : t.dataset.queueItemId || "", j = U ? this._getQueueItemUri(U) : t.dataset.uri || "", V = U?.media_item?.media_type || U?.media_type || t.dataset.type || "track", X = U && Number.isFinite(Number(U?.sort_index)) ? Number(U.sort_index) : t.dataset.sortIndex || "";
-      if (!Y && !j || !await this._playQueueItem(Y, j, V, X)) return;
+      const z = Number(t.dataset.coverFlowOffset || 0), q = this._mobileArtStackContext(), G = Math.max(0, Math.min((q.queueItems?.length || 1) - 1, Number(q.displayIndex || 0) + (Number.isFinite(z) ? z : 0))), U = q.queueItems?.[G] || null, J = U ? this._getQueueItemStableId(U) || this._getQueueItemKey(U) : t.dataset.queueItemId || "", j = U ? this._getQueueItemUri(U) : t.dataset.uri || "", V = U?.media_item?.media_type || U?.media_type || t.dataset.type || "track", X = U && Number.isFinite(Number(U?.sort_index)) ? Number(U.sort_index) : t.dataset.sortIndex || "";
+      if (!J && !j || !await this._playQueueItem(J, j, V, X)) return;
       this._state.mobileArtBrowseOffset = 0, clearTimeout(this._mobileArtBrowseResetTimer), this._mobileArtBrowseResetTimer = null, this._refreshMobileArtStack(!0);
       return;
     }
@@ -53561,13 +53497,13 @@ class ta extends ss {
     this.classList.toggle("action-labels", this._mobileFooterMode() !== "icon");
     const e = this._isHebrew(), t = this._visualTheme(), r = this._mobileLayoutMode(), c = this._mobileCompactModeEnabled(), p = this._isCompactTileMode(), _ = Di(this) && !p, v = this._mobileCoverFlowEnabled(), k = c && !p, C = k && this._compactEdgeToEdgeAllowed(), Q = k && !C, z = C || Q, q = this._getCardWidth(this._lastCardWidth || (typeof window < "u" ? Number(window.innerWidth || 0) : 0) || 390), G = p && this._compactMiniWidgetMode({ width: q }), U = this._compactTileReservedHeight();
     this.style?.setProperty("--homeii-compact-tile-height", `${U}px`);
-    const Y = typeof window < "u" ? Number(window.innerWidth || 0) : 0, j = this._configuredCardHeightFallback(760) || 760, V = this._getViewportHeight(j), X = Y > 0 && Y < 760 ? 156 : 112, K = Q ? Math.max(320, Math.min(720, Math.max(0, Y || q || 390) - 32)) : 0, ne = Q ? Math.max(340, Math.min(860, Math.max(0, V - X), j)) : 0;
+    const J = typeof window < "u" ? Number(window.innerWidth || 0) : 0, j = this._configuredCardHeightFallback(760) || 760, V = this._getViewportHeight(j), X = J > 0 && J < 760 ? 156 : 112, K = Q ? Math.max(320, Math.min(720, Math.max(0, J || q || 390) - 32)) : 0, ne = Q ? Math.max(340, Math.min(860, Math.max(0, V - X), j)) : 0;
     Q ? (this.style?.setProperty("--homeii-compact-window-width", `${Math.round(K)}px`), this.style?.setProperty("--homeii-compact-window-height", `${Math.round(ne)}px`)) : (this.style?.removeProperty("--homeii-compact-window-width"), this.style?.removeProperty("--homeii-compact-window-height"));
     const ge = this._layoutModeConfig({ compactPopup: z, width: Q ? K : 0 }), o = this._isVisualEditorContext(), m = !o && !z && !p && this._mobileEdgeToEdgeEnabled(), g = this._mobileIconScale(), y = C ? V : Q ? ne : m ? V : p ? U : this._getAllocatedCardHeight(j), S = this._layoutProfileConfig(ge, {
-      width: C || m ? this._getCardWidth(Y) : Q ? K : 0,
+      width: C || m ? this._getCardWidth(J) : Q ? K : 0,
       height: y,
       compactPopup: z
-    }), B = this._layoutProfileClassNames(S), E = this._layoutProfileStyleVars(S), I = this._performanceProfile(), F = this._performanceModeEnabled(), J = this._performanceUltraLiteEnabled();
+    }), B = this._layoutProfileClassNames(S), E = this._layoutProfileStyleVars(S), I = this._performanceProfile(), F = this._performanceModeEnabled(), O = this._performanceUltraLiteEnabled();
     this.classList.toggle("compact-popup-open", C), this.classList.toggle("compact-window-popup-open", Q), this.classList.toggle("mobile-edge-to-edge-open", m), this.classList.remove("compact-inline-popup-open"), this.classList.toggle("compact-tile-open", c && p), this.classList.toggle("compact-menu-open", this._compactMenuOverlayOpen());
     const Z = this._mobileNightMode(), $ = this._isNightModeActive(), ce = this._sleepTimerRemainingMs() > 0, be = this._mobileShowUpNextEnabled(), ue = !!this._mobileUpNextItem(), de = be && ue, me = Z !== "off", he = this._tabletAutoFitEnabled(), ve = this._tabletAutoFitDense(me, de) || ge === "tablet" && S.heightSize === "short", xe = this._mobileContentDense(ge, S, {
       showNightRow: me,
@@ -53721,7 +53657,7 @@ class ta extends ss {
       </div>`, Ti = `<aside class="tablet-rail">${ct}${dt}</aside>`, Bt = e ? `<div class="tablet-shell"><div class="tablet-main">${Nt}${Rt}</div>${Ti}</div>` : `<div class="tablet-shell">${Ti}<div class="tablet-main">${Nt}${Rt}</div></div>`;
     this.shadowRoot.innerHTML = `
       <style>${Pm({ hostMinWidth: Ee, height: Me, minCardHeight: Be, fontScale: this._state.mobileFontScale || 1, iconScale: g.toFixed(2), customRgb: this._customRgb(), customText: this._customTextColor(), customColor: this._state.mobileCustomColor || "#e0a11b", fullInlineTargetHeight: ke })}</style>
-      <div class="card ${e ? "rtl" : ""} theme-${t} layout-${ge}${B ? ` ${B}` : ""} mobile-layout-${r}${r === "full" ? " mobile-layout-forced-full" : ""}${r === "compact" ? " mobile-layout-forced-compact" : ""}${m ? " mobile-edge-to-edge" : ""} performance-profile-${I}${F ? " performance-lite" : ""}${J ? " performance-ultra-lite" : ""}${ut ? " hotel-mode" : ""}${p ? " compact-mode compact-collapsed" : c ? " compact-expanded" : ""}${G ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${Je}${$ ? " night-mode" : ""}${me ? " night-mode-enabled" : ""}${he ? " tablet-auto-fit" : ""}${ve ? " tablet-fit-dense" : ""}${me ? " tablet-fit-night" : ""}${de ? " tablet-fit-up-next" : ""}${xe ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!ut && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${E}--screensaver-clock-scale:${this._esc(De.toFixed(2))};--screensaver-clock-x:${this._esc(Oe.toFixed(1))}%;--screensaver-clock-y:${this._esc(Ke.toFixed(1))}%;">
+      <div class="card ${e ? "rtl" : ""} theme-${t} layout-${ge}${B ? ` ${B}` : ""} mobile-layout-${r}${r === "full" ? " mobile-layout-forced-full" : ""}${r === "compact" ? " mobile-layout-forced-compact" : ""}${m ? " mobile-edge-to-edge" : ""} performance-profile-${I}${F ? " performance-lite" : ""}${O ? " performance-ultra-lite" : ""}${ut ? " hotel-mode" : ""}${p ? " compact-mode compact-collapsed" : c ? " compact-expanded" : ""}${G ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${Je}${$ ? " night-mode" : ""}${me ? " night-mode-enabled" : ""}${he ? " tablet-auto-fit" : ""}${ve ? " tablet-fit-dense" : ""}${me ? " tablet-fit-night" : ""}${de ? " tablet-fit-up-next" : ""}${xe ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!ut && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${E}--screensaver-clock-scale:${this._esc(De.toFixed(2))};--screensaver-clock-x:${this._esc(Oe.toFixed(1))}%;--screensaver-clock-y:${this._esc(Ke.toFixed(1))}%;">
         <div class="bg" id="mobileBg"></div><div class="shade"></div><div class="glow"></div>
         ${Li}
         ${ot}
@@ -54678,10 +54614,10 @@ class ta extends ss {
       if (this._emptyQuickShelfToken !== c || !this.shadowRoot.querySelector(".card")?.classList.contains("empty-media")) return;
       const [_, v, k, C] = p.map(
         (K) => K.status === "fulfilled" && Array.isArray(K.value) ? K.value : []
-      ), Q = _.map((K) => this._normalizeMediaItem(K)), z = v.map((K) => this._normalizeMediaItem(K)), q = k.map((K) => this._normalizeMediaItem(K)), G = C.map((K) => this._normalizeMediaItem(K)), U = [], Y = /* @__PURE__ */ new Set(), j = (K = []) => {
+      ), Q = _.map((K) => this._normalizeMediaItem(K)), z = v.map((K) => this._normalizeMediaItem(K)), q = k.map((K) => this._normalizeMediaItem(K)), G = C.map((K) => this._normalizeMediaItem(K)), U = [], J = /* @__PURE__ */ new Set(), j = (K = []) => {
         (Array.isArray(K) ? K : []).forEach((ne) => {
           const ge = String(ne?.uri || "").trim();
-          !ge || Y.has(ge) || (Y.add(ge), U.push(ne));
+          !ge || J.has(ge) || (J.add(ge), U.push(ne));
         });
       }, V = this._layoutModeConfig() === "tablet" ? 10 : 7;
       t === "radio" ? (j(this._pickRandomItems(Q.filter((K) => (K?.media_type || "") === "radio"), Math.min(4, V))), j(this._pickRandomItems(z.filter((K) => (K?.media_type || "") === "radio"), Math.min(4, Math.max(1, V - U.length)))), j(this._pickRandomItems(q.filter((K) => (K?.media_type || "") === "radio"), Math.min(4, Math.max(1, V - U.length)))), j(this._pickRandomItems(G.filter((K) => (K?.media_type || "") === "radio"), Math.min(4, Math.max(1, V - U.length)))), U.length < V && j(this._pickRandomItems([...Q, ...z, ...q, ...G].filter((K) => (K?.media_type || "") === "radio"), V - U.length))) : (j(this._pickRandomItems(Q, Math.min(3, V))), j(this._pickRandomItems(z.filter((K) => (K?.media_type || "") === "playlist"), Math.min(3, Math.max(1, V - U.length)))), j(this._pickRandomItems(q, Math.min(2, Math.max(1, V - U.length)))), j(this._pickRandomItems(G, Math.min(2, Math.max(0, V - U.length)))), U.length < V && j(this._pickRandomItems([...z, ...q, ...G], V - U.length)));
@@ -54719,26 +54655,26 @@ class ta extends ss {
       cacheKey: t.artCacheKey || `empty:${k}:${e}`
     });
     (!p || this._state.emptyQuickShelfMode !== k) && (this._state.emptyQuickShelfMode = k, this._state.emptyQuickShelfItems = []);
-    const Q = this.$("mobileArtActions"), G = this._mobileEmptyVisibleQuickActions(this._mobileQuickActions()), U = this._mobileActionsWithAuxiliary(G).filter((Y) => this._layoutModeConfig() !== "tablet" || Y !== "history");
+    const Q = this.$("mobileArtActions"), G = this._mobileEmptyVisibleQuickActions(this._mobileQuickActions()), U = this._mobileActionsWithAuxiliary(G).filter((J) => this._layoutModeConfig() !== "tablet" || J !== "history");
     if (Q && U.length) {
-      const Y = `mobile-art-actions empty-quick-actions count-${Math.max(1, U.length)}${U.length === 1 && U[0] === "home" ? " empty-home-actions" : ""}`, j = [
+      const J = `mobile-art-actions empty-quick-actions count-${Math.max(1, U.length)}${U.length === 1 && U[0] === "home" ? " empty-home-actions" : ""}`, j = [
         this._layoutModeConfig(),
         U.join(","),
         this._enabledAuxiliaryButtons().map((V) => `${V.index}:${V.icon}:${V.name}`).join("|"),
         this._voiceAssistantEnabled() ? "voice-on" : "voice-off"
       ].join(";");
-      Q.className !== Y && (Q.className = Y), Q.dataset.homeiiEmptyActionSignature !== j && (Q.dataset.homeiiEmptyActionSignature = j, Q.innerHTML = this._mobileQuickActionButtonsHtml("", U), this._bindMobileQuickActionButtons()), Q.removeAttribute("hidden");
+      Q.className !== J && (Q.className = J), Q.dataset.homeiiEmptyActionSignature !== j && (Q.dataset.homeiiEmptyActionSignature = j, Q.innerHTML = this._mobileQuickActionButtonsHtml("", U), this._bindMobileQuickActionButtons()), Q.removeAttribute("hidden");
     } else Q && (Q.classList.remove("empty-quick-actions"), Q.classList.remove("empty-home-actions"), delete Q.dataset.homeiiEmptyActionSignature, Q.setAttribute("hidden", ""));
     if (this.$("npTitle") && (this.$("npTitle").textContent = e), this._setNowPlayingSubtitle(t.subtitle || this._i18n("ui.choose_something_from_the_quick_shelf_or_tap_the_wand_for_a_random_playl"), { scrollWhenOverflow: !0 }), this.$("bigCurTime") && (this.$("bigCurTime").textContent = "0:00"), this.$("bigTotalTime") && (this.$("bigTotalTime").textContent = "0:00"), this.$("progressFill") && (this.$("progressFill").style.width = "0%"), !p || !this.$("surpriseMeBtn") || C || _) {
-      const Y = !_ && this._voiceAssistantEnabled() ? `<button class="empty-voice-btn ${this._state.voiceAssistantListening ? "listening" : ""}" id="emptyVoiceAssistantBtn" title="${this._esc(this._flowAssistantLabel())}" aria-label="${this._esc(this._flowAssistantLabel())}">${this._iconSvg("mic")}</button>` : "", j = _ ? `<div class="surprise-me-card compact magic-empty disabled ${C ? "has-art" : ""}" id="surpriseMeBtn" aria-hidden="true">
+      const J = !_ && this._voiceAssistantEnabled() ? `<button class="empty-voice-btn ${this._state.voiceAssistantListening ? "listening" : ""}" id="emptyVoiceAssistantBtn" title="${this._esc(this._flowAssistantLabel())}" aria-label="${this._esc(this._flowAssistantLabel())}">${this._iconSvg("mic")}</button>` : "", j = _ ? `<div class="surprise-me-card compact magic-empty disabled ${C ? "has-art" : ""}" id="surpriseMeBtn" aria-hidden="true">
             ${C ? `${this._imgHtml(C, e, { loading: "eager", fetchpriority: "high", fallbackIcon: t.artIcon || "radio" })}<span class="surprise-me-wand art-overlay">${this._iconSvg(t.artIcon || "radio")}</span>` : `<span class="surprise-me-glow"></span><span class="surprise-me-wand">${this._iconSvg(t.artIcon || "speaker")}</span>`}
           </div>` : `<button class="surprise-me-card compact magic-empty ${C ? "has-art" : ""}" id="surpriseMeBtn" aria-label="${this._esc(t.artLabel || this._i18n("ui.surprise_me"))}">
             ${C ? `${this._imgHtml(C, e, { loading: "eager", fetchpriority: "high", fallbackIcon: t.artIcon || "radio" })}<span class="surprise-me-wand art-overlay">${this._iconSvg(t.artIcon || "radio")}</span>` : `<span class="surprise-me-glow"></span><span class="surprise-me-wand">${this._iconSvg(t.artIcon || "wand")}</span>`}
           </button>`;
       this.$("npArt") && (this.$("npArt").innerHTML = `
-        <div class="empty-magic-stack ${Y ? "has-voice" : ""}">
+        <div class="empty-magic-stack ${J ? "has-voice" : ""}">
           ${j}
-          ${Y}
+          ${J}
         </div>
       `), _ || this.$("surpriseMeBtn")?.addEventListener("click", async (V) => {
         V.preventDefault(), V.stopPropagation(), this._showEmptyMagicRipple(V.currentTarget), await this._runLockedUiAction(V.currentTarget, async () => {
@@ -54751,8 +54687,8 @@ class ta extends ss {
     if (Q?.classList.contains("empty-quick-actions") || this._setMobileRandomFabVisible(!1), this._setMobileRandomFabDisabled(!1), this._destroyMobileEmbla(), this._state.mobileArtRenderKey = "", C ? this._syncDynamicThemeArtwork(C).catch(() => {
     }) : (this._mobileDynamicThemeToken += 1, this._state.mobileDynamicThemeArtwork = "", this._state.mobileDynamicThemeArtworkUrl = "", this._state.mobileDynamicThemePalette = null, this._applyDynamicThemeStyles()), this._syncSourceBadgesUi(null, null), this._syncRecentHistoryUi(), this._setDecodedBackgroundImage(this.$("mobileArtAura"), this._isHotelMode() ? "" : C), this._setDecodedBackgroundImage(this.$("mobileHeroAura"), this._isHotelMode() ? "" : C), this._setDecodedBackgroundCrossfade(this.$("compactBackdropArt"), this._isHotelMode() ? "" : C), this._setDecodedBackgroundImage(this.$("compactCoverAura"), this._isHotelMode() ? "" : C), v) {
       this._state.emptyQuickShelfItems = [];
-      const Y = this.$("emptyQuickShelf");
-      Y && (Y.hidden = !0, Y.innerHTML = "");
+      const J = this.$("emptyQuickShelf");
+      J && (J.hidden = !0, J.innerHTML = "");
     } else (!p || !this.$("emptyQuickShelf")?.children?.length) && this._renderEmptyQuickShelf().catch(() => {
     });
     this._updateActivePlayersBubble();
@@ -54891,10 +54827,10 @@ class ta extends ss {
     Q && (Q.classList.toggle("active", k !== "off"), Q.dataset.repeatMode = k, Q.title = C, Q.setAttribute("aria-label", C));
     const z = this.$("tabletPopupVolSlider"), q = this.$("tabletPopupMuteBtn"), G = this.$("tabletPopupVolPct"), U = Math.max(0, Math.min(100, Math.round(this._effectivePlayerVolumeLevel(e) * 100)));
     z && (z.value = U, z.style.setProperty("--vol-pct", `${U}%`)), G && (G.textContent = `${U}%`), q && this._setButtonIcon(q, this._volumeIconName(e));
-    const Y = this._state.maQueueState?.current_item || null, j = this._getQueueItemStableId(Y) || this._getQueueItemUri(Y) || `${e.entity_id}:${e.attributes.media_content_id || e.attributes.media_title || ""}`;
+    const J = this._state.maQueueState?.current_item || null, j = this._getQueueItemStableId(J) || this._getQueueItemUri(J) || `${e.entity_id}:${e.attributes.media_content_id || e.attributes.media_title || ""}`;
     this._state.mobileArtAnchorKey !== j && (this._state.mobileArtAnchorKey = j, this._state.mobileArtBrowseOffset = 0);
-    const V = this._mobileArtStackItems(), X = this._mobileNowPlayingDisplaySource(e, t, V), K = X.queueItem || t, ne = X.media || {}, ge = X.hasPendingPlay, o = String(e.attributes.media_content_id || "").trim(), m = String(X.uri || this._getQueueItemUri(K) || "").trim(), g = X.title, y = X.artist, S = X.album, B = X.mediaType, E = this._mobileUpNextItem(), I = !!this._state.forceRadioHero, F = this._isLikelyRadioPlayback(e, K, ne), J = !!(e.attributes.media_title || e.attributes.media_content_id || K?.name || ne?.name), Z = Number(this._state.quickMixPendingUntil || 0) > Date.now() ? this._state.quickMixPendingEntry : null;
-    if (J && this._state.quickMixPendingUntil && (this._state.quickMixPendingUntil = 0, this._state.quickMixPendingEntry = null), !J && Z) {
+    const V = this._mobileArtStackItems(), X = this._mobileNowPlayingDisplaySource(e, t, V), K = X.queueItem || t, ne = X.media || {}, ge = X.hasPendingPlay, o = String(e.attributes.media_content_id || "").trim(), m = String(X.uri || this._getQueueItemUri(K) || "").trim(), g = X.title, y = X.artist, S = X.album, B = X.mediaType, E = this._mobileUpNextItem(), I = !!this._state.forceRadioHero, F = this._isLikelyRadioPlayback(e, K, ne), O = !!(e.attributes.media_title || e.attributes.media_content_id || K?.name || ne?.name), Z = Number(this._state.quickMixPendingUntil || 0) > Date.now() ? this._state.quickMixPendingEntry : null;
+    if (O && this._state.quickMixPendingUntil && (this._state.quickMixPendingUntil = 0, this._state.quickMixPendingEntry = null), !O && Z) {
       const Be = Z.name || this._i18n("ui.quick_mix"), Ee = this._normalizeArtworkUrl(Z.image || this._currentArtworkUrl(e, t, 420, { preferPlayerArtwork: !0 }), {
         size: 420,
         cacheKey: `quick-mix:${Z.uri || Be}`
@@ -54916,7 +54852,7 @@ class ta extends ss {
       }), c(), this._syncControlRoomUi();
       return;
     }
-    if (!J) {
+    if (!O) {
       if (this._state.forceRadioHero = !1, this._syncSourceBadgesUi(null, null), this._syncRecentHistoryUi(), p({
         title: this._i18n("ui.player_is_ready"),
         subtitle: e.attributes?.friendly_name || this._i18n("ui.nothing_is_playing_right_now"),
@@ -55075,8 +55011,8 @@ class ta extends ss {
     let z = null;
     if (!c || p !== r) {
       if (r === "queue") {
-        const U = this._getNowPlayingQueueItems(), Y = U.findIndex((j) => this._isQueueItemCurrent(j));
-        this._queueVirtualStart = Y >= 0 ? Math.max(0, Math.min(Math.max(0, U.length - 72), Y - 12)) : 0, this._queueVirtualStart > 0 && t?.queueFlow !== !0 && (z = this._queueVirtualStart * 104);
+        const U = this._getNowPlayingQueueItems(), J = U.findIndex((j) => this._isQueueItemCurrent(j));
+        this._queueVirtualStart = J >= 0 ? Math.max(0, Math.min(Math.max(0, U.length - 72), J - 12)) : 0, this._queueVirtualStart > 0 && t?.queueFlow !== !0 && (z = this._queueVirtualStart * 104);
       }
       this._mediaVirtualStarts.set(this._mediaVirtualPageKey(r), 0);
     }
@@ -55839,7 +55775,7 @@ class ta extends ss {
       volume: this._state.mobileStartTimerVolume ?? p?.volume ?? 35,
       days: this._state.mobileStartTimerDays || p?.days,
       afterRun: this._state.mobileStartTimerAfterRun || p?.afterRun || "keep"
-    } : p, k = this._normalizeClockTime(v?.time || "07:00", "07:00"), C = this._scheduledStartPlayerId(v), Q = Math.max(0, Math.min(100, Number(v?.volume ?? 35) || 35)), z = new Set(this._normalizeNightModeDays(v?.days || this._state.mobileStartTimerDays)), q = String(v?.afterRun || "keep") === "disable" ? "disable" : "keep", G = this._mobileNightMode(), U = this._nightModeWindow(), Y = new Set(this._nightModeDays()), j = ["timers", "wake", "night"].includes(this._state.mobileSchedulesTab) ? this._state.mobileSchedulesTab : "timers", X = this._strictSchedulePlayers().map((g) => {
+    } : p, k = this._normalizeClockTime(v?.time || "07:00", "07:00"), C = this._scheduledStartPlayerId(v), Q = Math.max(0, Math.min(100, Number(v?.volume ?? 35) || 35)), z = new Set(this._normalizeNightModeDays(v?.days || this._state.mobileStartTimerDays)), q = String(v?.afterRun || "keep") === "disable" ? "disable" : "keep", G = this._mobileNightMode(), U = this._nightModeWindow(), J = new Set(this._nightModeDays()), j = ["timers", "wake", "night"].includes(this._state.mobileSchedulesTab) ? this._state.mobileSchedulesTab : "timers", X = this._strictSchedulePlayers().map((g) => {
       const y = g.attributes?.friendly_name || g.entity_id;
       return `<option value="${this._esc(g.entity_id)}" ${g.entity_id === C ? "selected" : ""}>${this._esc(y)}</option>`;
     }).join(""), K = c.length ? `
@@ -55945,7 +55881,7 @@ class ta extends ss {
         <div class="settings-check-grid">
           ${this._nightModeDayOptions().map(([g, y]) => `
             <label class="settings-check-pill">
-              <input type="checkbox" data-schedule-form-control data-setting-night-day="${this._esc(String(g))}" ${Y.has(g) ? "checked" : ""}>
+              <input type="checkbox" data-schedule-form-control data-setting-night-day="${this._esc(String(g))}" ${J.has(g) ? "checked" : ""}>
               <span>${this._esc(y)}</span>
             </label>`).join("")}
         </div>
@@ -56363,7 +56299,7 @@ class ta extends ss {
     const p = this._playerArtworkUrl(e, 180), _ = e?.state === "playing", v = !!c.controls, k = c.pin !== !1, C = this._frontPinnedPlayerEntity() === e?.entity_id, Q = this._playerDisplayName(e), z = Tt.isPlayerAvailable(e), q = z ? e.attributes?.media_title || e.attributes?.media_artist || "" : this._i18n("ui.disconnected"), G = `<span class="player-premium-bars eq-icon ${_ ? "is-active" : "is-static"}" aria-label="${this._esc(this._playerStateLabel(e))}"><span></span><span></span><span></span></span>`, U = k ? `<button type="button" class="player-premium-side player-front-pin ${C ? "active" : ""}" data-front-pin-player="${this._esc(e.entity_id)}" title="${this._esc(C ? this._m("Clear front pin", "בטל נעיצה בחזית") : this._m("Pin player to front", "נעץ נגן בחזית"))}" aria-pressed="${C ? "true" : "false"}">${this._iconSvg("pin")}</button>` : "";
     if (Di(this) && t.includes("data-menu-player="))
       return RA(this, e, { attrs: t, active: r, available: z, name: Q, track: q, art: p, pinHtml: U });
-    const Y = `
+    const J = `
       <button class="player-premium-head ${r ? "active" : ""} ${_ ? "is-playing" : ""}" ${t}>
         <span class="player-premium-art">
           ${p ? this._imgHtml(p, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}
@@ -56379,13 +56315,13 @@ class ta extends ss {
     `;
     return v ? `
       <div class="player-menu-card ${r ? "active" : ""}">
-        ${Y}
+        ${J}
         ${U}
         ${Qn(this, e)}
       </div>
     ` : `
         <div class="player-menu-card ${r ? "active" : ""}">
-          ${Y}
+          ${J}
           ${U}
         </div>
       `;
@@ -56626,13 +56562,13 @@ class ta extends ss {
           ${r === "custom" ? `
             <div class="settings-check-grid quick-actions-grid">
               ${_.map(([G, U]) => {
-      const Y = c.includes(G) ? c.indexOf(G) : c.length + _.findIndex(([j]) => j === G);
+      const J = c.includes(G) ? c.indexOf(G) : c.length + _.findIndex(([j]) => j === G);
       return `
                   <div class="settings-check-pill quick-action-pill">
                     <span>${this._esc(U)}</span>
                     <span class="quick-action-order-controls">
-                      <button type="button" class="quick-action-order-btn" data-setting-player-order-move="${this._esc(G)}" data-direction="-1" title="${this._esc(this._i18n("ui.move_up"))}" ${Y <= 0 ? "disabled" : ""}>${this._iconSvg("up")}</button>
-                      <button type="button" class="quick-action-order-btn" data-setting-player-order-move="${this._esc(G)}" data-direction="1" title="${this._esc(this._i18n("ui.move_down"))}" ${Y >= _.length - 1 ? "disabled" : ""}>${this._iconSvg("down")}</button>
+                      <button type="button" class="quick-action-order-btn" data-setting-player-order-move="${this._esc(G)}" data-direction="-1" title="${this._esc(this._i18n("ui.move_up"))}" ${J <= 0 ? "disabled" : ""}>${this._iconSvg("up")}</button>
+                      <button type="button" class="quick-action-order-btn" data-setting-player-order-move="${this._esc(G)}" data-direction="1" title="${this._esc(this._i18n("ui.move_down"))}" ${J >= _.length - 1 ? "disabled" : ""}>${this._iconSvg("down")}</button>
                     </span>
                   </div>`;
     }).join("")}
@@ -56682,13 +56618,13 @@ class ta extends ss {
         <div class="settings-group quick-actions-settings-card">
           <div class="settings-label">${this._i18n("ui.quick_actions")}</div>
           <div class="settings-check-grid quick-actions-grid">
-            ${e.map(({ value: U, label: Y, icon: j, tone: V }) => {
+            ${e.map(({ value: U, label: J, icon: j, tone: V }) => {
       const X = t.indexOf(U), K = X >= 0;
       return `
               <div class="settings-check-pill quick-action-pill ${V === "danger" ? "danger" : ""}">
                 <input type="checkbox" data-setting-quick-action="${this._esc(U)}" ${r.has(U) ? "checked" : ""}>
                 <span class="quick-action-setting-icon">${this._iconSvg(j)}</span>
-                <span class="quick-action-pill-label">${this._esc(Y)}</span>
+                <span class="quick-action-pill-label">${this._esc(J)}</span>
                 ${K ? `
                   <span class="quick-action-order-controls">
                     <button type="button" class="quick-action-order-btn" data-setting-quick-action-move="${this._esc(U)}" data-direction="-1" title="${this._esc(this._i18n("ui.move_up"))}" ${X <= 0 ? "disabled" : ""}>${this._iconSvg("up")}</button>
@@ -56709,12 +56645,12 @@ class ta extends ss {
                 <span>${this._esc(this._controlRoomLabel())}</span>
               </label>
             ` : ""}
-            ${p.map(([U, Y]) => {
+            ${p.map(([U, J]) => {
       const j = C && U === "settings";
       return `
               <label class="settings-check-pill ${j ? "is-locked" : ""}">
                 <input type="checkbox" data-setting-main-bar-item="${this._esc(U)}" ${_.has(U) || j ? "checked" : ""} ${j ? "disabled" : ""}>
-                <span>${this._esc(Y)}</span>
+                <span>${this._esc(J)}</span>
                 ${j ? `<span class="settings-fixed-badge">${this._esc(this._i18n("ui.fixed"))}</span>` : ""}
               </label>`;
     }).join("")}
@@ -57141,9 +57077,9 @@ class ta extends ss {
       e("fail", "Configured entity", "The configured entity was not found in Home Assistant states. Check the entity id in YAML or the visual editor.", p);
       return;
     }
-    const C = (Array.isArray(this._state?.players) ? this._state.players : []).some((K) => K?.entity_id === p), Q = t?.entity_id === p, z = this._diagnosticIsStrictMusicAssistantPlayer(v, c), q = !z && this._isGenericMusicAssistantFallbackPlayer?.(v), G = this._isPlayerExcluded?.(v), U = t && t.entity_id !== p && this._isPlayerActive?.(t), Y = v.attributes?.friendly_name || p, j = t?.attributes?.friendly_name || t?.entity_id || "(none)";
+    const C = (Array.isArray(this._state?.players) ? this._state.players : []).some((K) => K?.entity_id === p), Q = t?.entity_id === p, z = this._diagnosticIsStrictMusicAssistantPlayer(v, c), q = !z && this._isGenericMusicAssistantFallbackPlayer?.(v), G = this._isPlayerExcluded?.(v), U = t && t.entity_id !== p && this._isPlayerActive?.(t), J = v.attributes?.friendly_name || p, j = t?.attributes?.friendly_name || t?.entity_id || "(none)";
     let V = "ok", X = "Configured entity exists and is available as the card default player.";
-    G ? (V = "warn", X = "Configured entity exists, but it is excluded in HOMEii settings.") : !z && !q ? (V = "warn", X = "Configured entity exists, but it does not look like a Music Assistant player.") : C ? _ ? (V = Q ? "ok" : "info", X = Q ? "Configured entity is selected even with a query-string override present." : "A query-string player override is active, so it can intentionally win over the configured entity.") : Q ? X = "Configured entity is the currently selected player." : U ? (V = "info", X = "Another player is currently active, so HOMEii is showing the active player and keeping the configured entity as the fallback default.") : (V = "warn", X = "Configured entity exists, but HOMEii selected a different player. This usually means manual/front selection, pinned order, or remembered state is taking priority.") : (V = "warn", X = "Configured entity exists, but it is not in the current visible player list. Check pinned/excluded player filters."), e(V, "Configured entity", `${X} Selected now: ${j}.`, `${Y} | ${p} | ${this._diagnosticPlayerMarkerSummary(v, c)}`);
+    G ? (V = "warn", X = "Configured entity exists, but it is excluded in HOMEii settings.") : !z && !q ? (V = "warn", X = "Configured entity exists, but it does not look like a Music Assistant player.") : C ? _ ? (V = Q ? "ok" : "info", X = Q ? "Configured entity is selected even with a query-string override present." : "A query-string player override is active, so it can intentionally win over the configured entity.") : Q ? X = "Configured entity is the currently selected player." : U ? (V = "info", X = "Another player is currently active, so HOMEii is showing the active player and keeping the configured entity as the fallback default.") : (V = "warn", X = "Configured entity exists, but HOMEii selected a different player. This usually means manual/front selection, pinned order, or remembered state is taking priority.") : (V = "warn", X = "Configured entity exists, but it is not in the current visible player list. Check pinned/excluded player filters."), e(V, "Configured entity", `${X} Selected now: ${j}.`, `${J} | ${p} | ${this._diagnosticPlayerMarkerSummary(v, c)}`);
   }
   async _diagnosticSearchRows(e, t = []) {
     const r = this._diagnosticSearchQuery(), c = this._hasService?.("music_assistant", "search") || Array.isArray(t) && t.includes("search"), p = Number(this._cache?.library?.size || 0);
@@ -57257,17 +57193,17 @@ class ta extends ss {
       const ge = this._diagnosticIsStrictMusicAssistantPlayer(t);
       e(ge && !_ ? "warn" : "fail", "Queue snapshot", ge && !_ ? `${U}. The selected Engine player has no active_queue/queue_id, so the Engine may not be able to resolve its Music Assistant queue.` : U);
     }
-    const Y = Array.isArray(G?.snapshot?.items) ? G.snapshot.items : [];
-    if (!Y.length) {
+    const J = Array.isArray(G?.snapshot?.items) ? G.snapshot.items : [];
+    if (!J.length) {
       e("info", "Queue artwork sample", "Skipped because the selected player's queue returned no items.");
       return;
     }
-    const j = Y.map((ge) => ({
+    const j = J.map((ge) => ({
       item: ge,
       art: this._queueItemImageUrl?.(ge, 300) || this._artUrl(ge, { size: 300 }) || this._artUrl(ge?.media_item || ge, { size: 300 })
     })).find((ge) => ge.art);
     if (!j) {
-      e("warn", "Queue artwork sample", "Queue items were returned, but HOMEii could not infer artwork from the sample window.", `${G.label}: ${Y.length} item(s)`);
+      e("warn", "Queue artwork sample", "Queue items were returned, but HOMEii could not infer artwork from the sample window.", `${G.label}: ${J.length} item(s)`);
       return;
     }
     const X = (j.item?.media_item || j.item)?.name || j.item?.name || j.item?.media_title || "queue item", K = this._diagnosticUrlHasMixedContentRisk(j.art);
@@ -57288,15 +57224,15 @@ class ta extends ss {
     e("info", "Library providers", `Engine library yes; HA get_library ${t.includes("get_library") ? "available to Engine" : "not exposed"}; Direct browser library disabled for HOMEii Flow 6.`);
     const r = ["playlist", "artist", "album", "track", "radio"], c = await Promise.all(r.map(async (U) => {
       try {
-        const Y = await this._fetchLibrary(U, "sort_name", 3, !1);
-        return { type: U, items: Array.isArray(Y) ? Y : [], error: "" };
-      } catch (Y) {
-        return { type: U, items: [], error: Y?.message || "failed" };
+        const J = await this._fetchLibrary(U, "sort_name", 3, !1);
+        return { type: U, items: Array.isArray(J) ? J : [], error: "" };
+      } catch (J) {
+        return { type: U, items: [], error: J?.message || "failed" };
       }
     })), p = c.map((U) => {
-      const Y = U.items.filter((j) => this._artUrl(j, { size: 160 })).length;
-      return `${U.type}:${U.error ? `error(${U.error})` : `${U.items.length} item(s), ${Y} art`}`;
-    }), _ = c.reduce((U, Y) => U + Y.items.length, 0), v = c.filter((U) => U.error).length;
+      const J = U.items.filter((j) => this._artUrl(j, { size: 160 })).length;
+      return `${U.type}:${U.error ? `error(${U.error})` : `${U.items.length} item(s), ${J} art`}`;
+    }), _ = c.reduce((U, J) => U + J.items.length, 0), v = c.filter((U) => U.error).length;
     e(_ ? "ok" : v === c.length ? "fail" : "warn", "Library coverage", p.join("; "));
     const k = c.find((U) => U.items.length), C = k?.items?.[0] || null;
     if (!C) {
@@ -57364,7 +57300,7 @@ class ta extends ss {
       e("ok", "HOMEii Flow Engine", `Connected to HOMEii Flow Engine ${v}. Capabilities: ${_}.`, t), e("info", "Engine routing", "Card writes will use the resolved Engine instance/profile unless explicitly overridden in the card config.", `instance=${r.instanceId || "default"}; profile=${r.profileId || "default"}; transport=${this._state.engineLastTransport || "websocket"}`);
       const k = r.raw?.required_connections || r.raw?.connections || this._state.engineRequiredConnections;
       if (k && typeof k == "object") {
-        const E = k.music_assistant || k.connections?.music_assistant || {}, I = k.queue_provider || k.connections?.queue_provider || {}, F = k.library_provider || k.connections?.library_provider || {}, J = k.search_provider || k.connections?.search_provider || {};
+        const E = k.music_assistant || k.connections?.music_assistant || {}, I = k.queue_provider || k.connections?.queue_provider || {}, F = k.library_provider || k.connections?.library_provider || {}, O = k.search_provider || k.connections?.search_provider || {};
         e(
           k.ok ? "ok" : "warn",
           "Engine required connections",
@@ -57375,7 +57311,7 @@ class ta extends ss {
           "Engine Music Assistant connection",
           E.message || "Music Assistant connection state was not reported.",
           `${Number(E.music_assistant_player_count || 0)} MA player(s), ${Number(E.service_count || 0)} service(s)`
-        ), e(I.ok ? "ok" : "warn", "Engine queue provider", I.message || "Queue provider state was not reported."), e(F.ok ? "ok" : "fail", "Engine library provider", F.message || "Library provider state was not reported."), e(J.ok ? "ok" : "fail", "Engine search provider", J.message || "Search provider state was not reported.");
+        ), e(I.ok ? "ok" : "warn", "Engine queue provider", I.message || "Queue provider state was not reported."), e(F.ok ? "ok" : "fail", "Engine library provider", F.message || "Library provider state was not reported."), e(O.ok ? "ok" : "fail", "Engine search provider", O.message || "Search provider state was not reported.");
       }
       e(
         r.capabilities?.item_artwork_proxy ? "ok" : "info",
@@ -57399,7 +57335,7 @@ class ta extends ss {
         `Last menu render ${Number(Q.lastMenuRenderMs || 0)}ms on ${Q.lastMenuPage || "none"} with ${Number(Q.lastMenuDomNodes || 0)} DOM node(s).`,
         `renders=${Number(Q.menuRenders || 0)}; slowest=${Number(Q.slowestMenuRenderMs || 0)}ms`
       ), r.capabilities?.schedule_calendar && e("ok", "Engine schedule calendar", "HOMEii Flow Engine reports a Home Assistant calendar entity for stored schedules.");
-      const [z, q, G, U, Y, j, V, X, K, ne] = await Promise.allSettled([
+      const [z, q, G, U, J, j, V, X, K, ne] = await Promise.allSettled([
         this._homeiiEngineGetPlayers(),
         this._homeiiEngineGetStats(),
         this._homeiiEngineGetSchedules(),
@@ -57416,7 +57352,7 @@ class ta extends ss {
         e(ge ? "ok" : "warn", "Engine player state", `${ge} Music Assistant player(s), ${E} playing, ${I} grouped.`, F ? `active=${F}` : "");
       }
       if (X.status === "fulfilled") {
-        const E = X.value || {}, I = E.last_schedule_check || {}, F = E.last_schedule_action || {}, J = E.last_timer_action || {}, Z = E.last_volume_action || {}, $ = E.last_button_action || {}, ce = I.local_time ? `Last schedule check at ${I.local_time}; ${I.schedule_count ?? 0} schedule(s), ${I.attempted_count ?? 0} attempted, ${I.executed_count ?? 0} executed, ${I.failed_count ?? 0} failed.` : "No schedule check has been recorded yet. Restart Home Assistant or run orchestration once if this stays empty.", be = F.error ? ` Last schedule action failed: ${F.error}` : F.provider ? ` Last schedule action used ${F.provider}.` : "", ue = J.error ? ` Last timer action failed: ${J.error}` : J.provider ? ` Last timer action used ${J.provider}.` : "", de = Z.player ? ` Last volume rule adjusted ${Z.player}.` : "", me = $.action ? ` Last Engine button action: ${$.action}${$.ok === !1 && $.error ? ` (${$.error})` : ""}.` : "";
+        const E = X.value || {}, I = E.last_schedule_check || {}, F = E.last_schedule_action || {}, O = E.last_timer_action || {}, Z = E.last_volume_action || {}, $ = E.last_button_action || {}, ce = I.local_time ? `Last schedule check at ${I.local_time}; ${I.schedule_count ?? 0} schedule(s), ${I.attempted_count ?? 0} attempted, ${I.executed_count ?? 0} executed, ${I.failed_count ?? 0} failed.` : "No schedule check has been recorded yet. Restart Home Assistant or run orchestration once if this stays empty.", be = F.error ? ` Last schedule action failed: ${F.error}` : F.provider ? ` Last schedule action used ${F.provider}.` : "", ue = O.error ? ` Last timer action failed: ${O.error}` : O.provider ? ` Last timer action used ${O.provider}.` : "", de = Z.player ? ` Last volume rule adjusted ${Z.player}.` : "", me = $.action ? ` Last Engine button action: ${$.action}${$.ok === !1 && $.error ? ` (${$.error})` : ""}.` : "";
         e(E.running ? "ok" : "warn", "Engine scheduler", `${ce}${be}`, `running=${E.running ? "yes" : "no"}; last_tick=${E.last_tick_at || "(none)"}`), (ue || de || me) && e("info", "Engine background actions", `${ue}${de}${me}`.trim());
       }
       if (K.status === "fulfilled") {
@@ -57427,19 +57363,19 @@ class ta extends ss {
         const E = ne.value || {}, I = E.config || {}, F = I.frontend_url || r.raw?.frontend?.system_screensaver_url || "/homeii_flow/homeii-flow-system-screensaver.js";
         e(E.enabled ? "ok" : "info", "Engine system screensaver", `System-wide screensaver is ${E.enabled ? "enabled" : "disabled"}; effective mode ${E.effective_mode || "clock"} after ${E.timeout_seconds || I.timeout_seconds || 90}s.`, `Resource: ${F}`);
       }
-      const o = Array.isArray(G.value?.schedules) ? G.value.schedules : [], m = Array.isArray(U.value?.timers) ? U.value.timers : [], g = Array.isArray(Y.value?.volume_rules) ? Y.value.volume_rules : [], y = Array.isArray(Y.value?.active) ? Y.value.active : [], S = Array.isArray(j.value?.announcements) ? j.value.announcements : [], B = Array.isArray(V.value?.activity) ? V.value.activity : [];
-      if (G.status === "fulfilled" || U.status === "fulfilled" || Y.status === "fulfilled" || j.status === "fulfilled" || V.status === "fulfilled") {
+      const o = Array.isArray(G.value?.schedules) ? G.value.schedules : [], m = Array.isArray(U.value?.timers) ? U.value.timers : [], g = Array.isArray(J.value?.volume_rules) ? J.value.volume_rules : [], y = Array.isArray(J.value?.active) ? J.value.active : [], S = Array.isArray(j.value?.announcements) ? j.value.announcements : [], B = Array.isArray(V.value?.activity) ? V.value.activity : [];
+      if (G.status === "fulfilled" || U.status === "fulfilled" || J.status === "fulfilled" || j.status === "fulfilled" || V.status === "fulfilled") {
         const E = this._scheduledStartSchedules(), I = this._sleepTimerRemainingMs() > 0;
         e("info", "Engine orchestration store", `${o.length} schedule(s), ${m.length} timer(s), ${g.length} volume rule(s), ${S.length} announcement record(s), ${B.length} activity event(s) stored in HOMEii Flow Engine. Card state has ${E.length} schedule(s) and ${I ? 1 : 0} active sleep timer(s).`), o.length && e("info", "Engine schedule controls", `${o.length} per-schedule Run now button(s) should be available on the HOMEii Flow Engine device page after HA reloads the integration.`);
         const F = V.value?.last_activity || B[0] || {};
-        if (F?.message && e("info", "Engine last activity", `${F.message}`, `${F.kind || "event"} · ${F.created_at || ""}`), Y.status === "fulfilled") {
+        if (F?.message && e("info", "Engine last activity", `${F.message}`, `${F.kind || "event"} · ${F.created_at || ""}`), J.status === "fulfilled") {
           const $ = y.slice(0, 4).map((ce) => `${ce.player || "(no player)"} <= ${ce.max_volume ?? "?"}%`).join("; ");
           e(g.length ? "ok" : "info", "Engine volume policies", `${y.length}/${g.length} volume rule(s) active now.`, $);
         }
-        const J = G.value?.next_schedule || {};
-        if (J?.next_run) {
-          const $ = [J.name, J.player, J.media_name || J.playlist_name].filter(Boolean).join(" · ");
-          e("info", "Engine next schedule", `${J.next_run}${$ ? ` · ${$}` : ""}`);
+        const O = G.value?.next_schedule || {};
+        if (O?.next_run) {
+          const $ = [O.name, O.player, O.media_name || O.playlist_name].filter(Boolean).join(" · ");
+          e("info", "Engine next schedule", `${O.next_run}${$ ? ` · ${$}` : ""}`);
         }
         const Z = U.value?.next_timer || {};
         if (Z?.ends_at) {
@@ -57466,14 +57402,14 @@ class ta extends ss {
   async _runDiagnostics() {
     if (this._state.diagnosticsStatus === "running") return;
     this._state.diagnosticsStatus = "running", this._state.diagnosticsItems = [], this._state.menuOpen && this._state.menuPage === "diagnostics" && await this._renderMobileMenu();
-    const e = [], t = (U, Y, j = "", V = "") => e.push(this._diagnosticItem(U, Y, j, V)), r = !!(this._hass && this._hass.states && this._hass.services), c = Object.keys(this._hass?.services?.music_assistant || {}), p = c.length > 0, _ = this._hass?.states || {}, v = this._hass?.entities || {}, k = Object.values(_).filter((U) => Tt.isMusicAssistantPlayer(U, v?.[U.entity_id])), C = Object.values(_).filter((U) => U?.entity_id?.startsWith?.("media_player."));
+    const e = [], t = (U, J, j = "", V = "") => e.push(this._diagnosticItem(U, J, j, V)), r = !!(this._hass && this._hass.states && this._hass.services), c = Object.keys(this._hass?.services?.music_assistant || {}), p = c.length > 0, _ = this._hass?.states || {}, v = this._hass?.entities || {}, k = Object.values(_).filter((U) => Tt.isMusicAssistantPlayer(U, v?.[U.entity_id])), C = Object.values(_).filter((U) => U?.entity_id?.startsWith?.("media_player."));
     let Q = Array.isArray(this._state.enginePlayers) ? this._state.enginePlayers : [], z = this._getSelectedPlayer(), q = "", G = !1;
     if (t("ok", "Card version", "HOMEii Flow runtime is loaded.", ea), t("ok", "Diagnostics version", "Diagnostic v7 is active.", "v7"), t("info", "Browser", this._diagnosticBrowserSummary()), t("info", "Viewport", this._diagnosticViewportSummary()), t("info", "Diagnostic privacy", "External/private hostnames are redacted in visible and copied diagnostic output."), t(this._diagnosticCurrentOrigin() ? "ok" : "warn", "Home Assistant URL", this._diagnosticCurrentOrigin() ? this._diagnosticUrlDescription(this._diagnosticCurrentOrigin()) : "Could not read current Home Assistant origin.", this._diagnosticCurrentOrigin() ? this._sanitizeDiagnosticUrl(this._diagnosticCurrentOrigin()) : ""), t(r ? "ok" : "fail", "Home Assistant frontend", r ? "The card can read Home Assistant state and services." : "The card does not have a usable Home Assistant frontend object."), t(c.length ? "ok" : "fail", "Music Assistant services", c.length ? `${c.length} service(s) are exposed by Home Assistant.` : "No music_assistant services are exposed by Home Assistant."), t(p ? "ok" : "warn", "Music Assistant dependency", p ? "Home Assistant exposes Music Assistant services for the Engine to use." : "Home Assistant does not expose music_assistant services. HOMEii Flow Engine will not be able to provide full playback, queue, search and library data."), await this._diagnosticEngineRows(t), this._homeiiEngineRequired?.() && typeof this._refreshEnginePlayers == "function" && (await this._refreshEnginePlayers({ force: !0 }).catch(() => []), Q = Array.isArray(this._state.enginePlayers) ? this._state.enginePlayers : [], z = this._getSelectedPlayer()), t("info", "Engine source of truth", "HOMEii Flow 6 uses HOMEii Flow Engine exclusively for players, queue, library, search, artwork and playback. Music Assistant credentials are not stored in the card."), this._hass?.connection?.sendMessagePromise)
       try {
         const U = await this._withTimeout(this._hass.connection.sendMessagePromise({
           type: "config_entries/get",
           domain: "music_assistant"
-        }), this._musicAssistantTimeoutMs(), this._timeoutMessage("Music Assistant config lookup")), Y = Array.isArray(U) ? U : [], j = Y.find((V) => V?.state === "loaded") || Y.find((V) => V?.state === "setup_retry") || Y.find((V) => V?.state === "not_loaded") || Y[0];
+        }), this._musicAssistantTimeoutMs(), this._timeoutMessage("Music Assistant config lookup")), J = Array.isArray(U) ? U : [], j = J.find((V) => V?.state === "loaded") || J.find((V) => V?.state === "setup_retry") || J.find((V) => V?.state === "not_loaded") || J[0];
         j?.entry_id ? (this._resolvedConfigEntryId = j.entry_id, this._resolvedConfigEntryState = String(j.state || "").trim(), q = this._resolvedConfigEntryState, G = !0, t(j.state === "loaded" ? "ok" : "warn", "Music Assistant config entry", j.state === "loaded" ? "Home Assistant reports the Music Assistant entry as loaded." : "Home Assistant reports the Music Assistant entry as not fully loaded.", String(j.state || "unknown"))) : (q = "none", t("fail", "Music Assistant config entry", "No Music Assistant config entry was returned by Home Assistant."));
       } catch (U) {
         q = "unreadable", t("warn", "Music Assistant config entry", U?.message || "Could not read Home Assistant config entries.");
@@ -57487,8 +57423,8 @@ class ta extends ss {
     ), !z)
       t("fail", "Selected player", "No selected player is available.");
     else {
-      const U = z.attributes?.friendly_name || z.entity_id || "", Y = this._isPlayerExcluded?.(z), j = Q.some((S) => S?.entity_id === z.entity_id);
-      t(j && !Y ? "ok" : "warn", "Selected player", Y ? "The selected player is currently excluded in HOMEii settings." : j ? "Selected player was provided by HOMEii Flow Engine." : "Selected player was not found in the Engine player list.", `${U} | ${this._diagnosticPlayerMarkerSummary(z, v)}`);
+      const U = z.attributes?.friendly_name || z.entity_id || "", J = this._isPlayerExcluded?.(z), j = Q.some((S) => S?.entity_id === z.entity_id);
+      t(j && !J ? "ok" : "warn", "Selected player", J ? "The selected player is currently excluded in HOMEii settings." : j ? "Selected player was provided by HOMEii Flow Engine." : "Selected player was not found in the Engine player list.", `${U} | ${this._diagnosticPlayerMarkerSummary(z, v)}`);
       const V = this._playerOverrideParamValue?.() || "", X = String(this._config?.entity || this.config?.entity || "").trim(), K = V ? `query string (${V})` : X ? `card entity (${X})` : "automatic / remembered";
       t("info", "Player selection source", "Query-string player overrides win first, then card entity, then automatic/remembered selection.", K), this._diagnosticConfiguredEntityRows(t, z, _, v);
       const ne = this._currentSpeakerGroupMemberIds?.(z.entity_id) || [], ge = ne.map((S) => this._playerByEntityId?.(S)?.attributes?.friendly_name || S).filter(Boolean);
@@ -57658,14 +57594,14 @@ class ta extends ss {
   _libraryMediaDetailHtml(e = {}) {
     const t = String(e.media_type || e.type || "album").toLowerCase();
     if (t === "artist") return this._libraryArtistDetailHtml(e);
-    const r = t === "podcast", c = r ? this._i18n("ui.podcasts") : t === "playlist" ? this._i18n("ui.playlist") : this._i18n("ui.album"), p = e.name || c, _ = [e.artist, typeof e.album == "string" ? e.album : e.album?.name].filter(Boolean).join(" · ") || c, v = e.image || e.image_url || this._artUrl(e), k = r ? "podcast" : t === "playlist" ? "playlist" : "album", C = Array.isArray(e.tracks) ? e.tracks : [], Q = !!e.loading, z = r ? this._m("Episodes", "פרקים") : this._i18n("ui.tracks"), q = C.length ? `${C.length} ${z.toLowerCase()}` : "", G = e.error || (r ? this._m("No episodes were returned by the provider.", "הספק לא החזיר פרקים לפודקאסט הזה.") : this._m("No tracks were returned. You can still play it.", "לא חזרו רצועות. עדיין אפשר להפעיל.")), U = this._mediaDetailEntryData({ ...e, image: v, image_url: v }, t, e), Y = this._mediaDetailDataAttrs(U), j = this._isEntryLiked(U), V = t === "album" ? this._albumBrowseState(e) : null, X = t === "album" ? this._albumKindLabel(e) : "";
+    const r = t === "podcast", c = r ? this._i18n("ui.podcasts") : t === "playlist" ? this._i18n("ui.playlist") : this._i18n("ui.album"), p = e.name || c, _ = [e.artist, typeof e.album == "string" ? e.album : e.album?.name].filter(Boolean).join(" · ") || c, v = e.image || e.image_url || this._artUrl(e), k = r ? "podcast" : t === "playlist" ? "playlist" : "album", C = Array.isArray(e.tracks) ? e.tracks : [], Q = !!e.loading, z = r ? this._m("Episodes", "פרקים") : this._i18n("ui.tracks"), q = C.length ? `${C.length} ${z.toLowerCase()}` : "", G = e.error || (r ? this._m("No episodes were returned by the provider.", "הספק לא החזיר פרקים לפודקאסט הזה.") : this._m("No tracks were returned. You can still play it.", "לא חזרו רצועות. עדיין אפשר להפעיל.")), U = this._mediaDetailEntryData({ ...e, image: v, image_url: v }, t, e), J = this._mediaDetailDataAttrs(U), j = this._isEntryLiked(U), V = t === "album" ? this._albumBrowseState(e) : null, X = t === "album" ? this._albumKindLabel(e) : "";
     return `
       <div class="media-detail-shell album-detail-shell">
         <div class="menu-list-item media-detail-hero album-detail-player">
           <span class="media-detail-art-stage">
             <span class="media-detail-art">${v ? this._imgHtml(v, "", { fallbackIcon: k }) : this._iconSvg(k)}</span>
             <span class="media-detail-player-actions media-detail-cover-actions">
-              <button class="chip-btn media-detail-play-btn like ${j ? "active" : ""}" data-media-detail-action="like" ${Y} title="${this._esc(this._i18n("ui.like_2"))}" aria-label="${this._esc(this._i18n("ui.like_2"))}" aria-pressed="${j ? "true" : "false"}">${this._iconSvg(j ? "heart_filled" : "heart_outline")}</button>
+              <button class="chip-btn media-detail-play-btn like ${j ? "active" : ""}" data-media-detail-action="like" ${J} title="${this._esc(this._i18n("ui.like_2"))}" aria-label="${this._esc(this._i18n("ui.like_2"))}" aria-pressed="${j ? "true" : "false"}">${this._iconSvg(j ? "heart_filled" : "heart_outline")}</button>
             </span>
           </span>
           <span class="media-detail-copy">
@@ -57673,9 +57609,9 @@ class ta extends ss {
             <span class="media-detail-title">${this._esc(p)}</span>
             <span class="media-detail-sub">${this._esc(q || _ || "—")}${X ? `<span class="media-detail-kind-badge">${this._esc(X)}</span>` : ""}</span>
             <span class="media-detail-player-actions media-detail-hero-actions">
-              <button class="chip-btn media-detail-play-btn" data-media-more="${this._esc(U.uri || "")}" ${Y} title="${this._esc(this._i18n("ui.actions_2"))}" aria-label="${this._esc(this._i18n("ui.actions_2"))}">${this._iconSvg("more")}</button>
-              <button class="chip-btn media-detail-play-btn subtle" data-media-detail-action="add" ${Y} title="${this._esc(this._i18n("ui.add_to_queue"))}" aria-label="${this._esc(this._i18n("ui.add_to_queue"))}">${this._iconSvg("queue_add")}</button>
-              <button class="chip-btn media-detail-play-btn" data-media-detail-action="play" ${Y} title="${this._esc(this._i18n("ui.play_now"))}" aria-label="${this._esc(this._i18n("ui.play_now"))}">${this._iconSvg("play")}</button>
+              <button class="chip-btn media-detail-play-btn" data-media-more="${this._esc(U.uri || "")}" ${J} title="${this._esc(this._i18n("ui.actions_2"))}" aria-label="${this._esc(this._i18n("ui.actions_2"))}">${this._iconSvg("more")}</button>
+              <button class="chip-btn media-detail-play-btn subtle" data-media-detail-action="add" ${J} title="${this._esc(this._i18n("ui.add_to_queue"))}" aria-label="${this._esc(this._i18n("ui.add_to_queue"))}">${this._iconSvg("queue_add")}</button>
+              <button class="chip-btn media-detail-play-btn" data-media-detail-action="play" ${J} title="${this._esc(this._i18n("ui.play_now"))}" aria-label="${this._esc(this._i18n("ui.play_now"))}">${this._iconSvg("play")}</button>
             </span>
             ${V ? this._albumBrowseSelectHtml(V) : ""}
           </span>
@@ -57747,10 +57683,10 @@ class ta extends ss {
                   ${_.length ? `<div class="media-detail-count-badge">${this._esc(`${_.length} ${this._i18n("ui.albums").toLowerCase()}`)}</div>` : ""}
                 </div>
               </div>
-              ${q.length ? q.map(([U, Y]) => `
+              ${q.length ? q.map(([U, J]) => `
                     <div class="artist-year-group">
                       <div class="artist-year-title">${this._esc(U)}</div>
-                      ${this._mediaItemsListHtml(Y, "album", { albumBadges: !0 })}
+                      ${this._mediaItemsListHtml(J, "album", { albumBadges: !0 })}
                     </div>
                   `).join("") : `<div class="notice open media-detail-empty">${this._esc(C)}</div>`}
             </div>
@@ -58411,8 +58347,8 @@ class ta extends ss {
         </div>
       </div>
     `;
-      const G = e.querySelector(".voice-assistant-panel"), U = (Y) => {
-        this._state.screensaverOpen && this._state.voiceAssistantKeepScreensaver === !0 && Y.stopPropagation();
+      const G = e.querySelector(".voice-assistant-panel"), U = (J) => {
+        this._state.screensaverOpen && this._state.voiceAssistantKeepScreensaver === !0 && J.stopPropagation();
       };
       G?.addEventListener("pointerdown", U), G?.addEventListener("click", U), G?.addEventListener("keydown", U), e.querySelector("#voiceAssistantDialogClose")?.addEventListener("click", () => this._closeVoiceAssistantDialog()), e.querySelector("#voiceAssistantDialogCloseSecondary")?.addEventListener("click", () => this._closeVoiceAssistantDialog()), e.querySelector("#voiceAssistantDialogRetry")?.addEventListener("click", () => {
         this._startVoiceAssistantCommand({ keepScreensaver: this._state.voiceAssistantKeepScreensaver === !0 });
@@ -58447,7 +58383,7 @@ class ta extends ss {
   }
   _startVoiceAssistantCommand(e = {}) {
     const t = e?.keepScreensaver === !0, r = e?.ignoreWhenListening === !0, c = (G = "error", U = null) => {
-      const Y = Number(U), j = Number.isFinite(Y) && Y > 0 ? Y : this._flowAssistantAutoCloseMs(G);
+      const J = Number(U), j = Number.isFinite(J) && J > 0 ? J : this._flowAssistantAutoCloseMs(G);
       j > 0 && this._scheduleVoiceAssistantDialogClose(j);
     };
     if (t && this._resetScreensaverTimer({ hide: !1, activity: !0 }), !this._voiceAssistantEnabled()) {
@@ -58501,11 +58437,11 @@ class ta extends ss {
           this._flowAssistantResponseTimeoutMs(),
           this._timeoutMessage(this._flowAssistantLabel())
         ).then((U) => {
-          const Y = U?.message || (U?.ok === !1 ? this._i18n("ui.voice_command_failed") : this._i18n("ui.voice_command_executed")), j = U?.ok === !1 ? "error" : "success";
-          this._updateVoiceAssistantDialog({ status: j, transcript: G, response: Y }), U?.ok !== !1 && this._speakVoiceAssistantFeedback(Y), c(j, U?.autoCloseMs);
+          const J = U?.message || (U?.ok === !1 ? this._i18n("ui.voice_command_failed") : this._i18n("ui.voice_command_executed")), j = U?.ok === !1 ? "error" : "success";
+          this._updateVoiceAssistantDialog({ status: j, transcript: G, response: J }), U?.ok !== !1 && this._speakVoiceAssistantFeedback(J), c(j, U?.autoCloseMs);
         }).catch((U) => {
-          const Y = U?.message || this._i18n("ui.voice_command_failed");
-          this._toastError(Y), this._updateVoiceAssistantDialog({ status: "error", transcript: G, response: Y }), c("error");
+          const J = U?.message || this._i18n("ui.voice_command_failed");
+          this._toastError(J), this._updateVoiceAssistantDialog({ status: "error", transcript: G, response: J }), c("error");
         });
       }
     };
@@ -58944,8 +58880,8 @@ class ta extends ss {
   }
   _mediaItemsListHtml(e = [], t, r = {}) {
     if (!e.length) return `<div class="notice open">${this._i18n("ui.no_results_found")}</div>`;
-    const c = r.layout || this._state.mobileMediaLayout || this._defaultMobileMediaLayout(), p = { track: "tracks", radio: "radio", album: "album", artist: "artist", podcast: "podcast", playlist: "playlist" }, _ = r.virtual !== !1 && e.length > 72, v = this._mediaVirtualPageKey(), k = this._mediaVirtualMetrics(c), C = _ ? Math.max(0, Number(this._mediaVirtualStarts.get(v) || 0)) : 0, Q = Math.floor(C / k.columns) * k.columns, z = _ ? Math.min(e.length, Q + k.windowSize) : e.length, q = e.slice(Q, z), G = Math.floor(Q / k.columns), U = Math.ceil(Math.max(0, e.length - z) / k.columns), Y = "grid-column:1/-1;pointer-events:none;";
-    return `<div class="media-items-list layout-${this._esc(c)}" data-homeii-virtual-total="${_ ? this._esc(String(e.length)) : "0"}" data-virtual-columns="${this._esc(String(k.columns))}" data-virtual-row-height="${this._esc(String(k.rowHeight))}">${G ? `<div class="virtual-list-spacer top" style="${Y}height:${this._esc(String(G * k.rowHeight))}px" aria-hidden="true"></div>` : ""}${q.map((j) => {
+    const c = r.layout || this._state.mobileMediaLayout || this._defaultMobileMediaLayout(), p = { track: "tracks", radio: "radio", album: "album", artist: "artist", podcast: "podcast", playlist: "playlist" }, _ = r.virtual !== !1 && e.length > 72, v = this._mediaVirtualPageKey(), k = this._mediaVirtualMetrics(c), C = _ ? Math.max(0, Number(this._mediaVirtualStarts.get(v) || 0)) : 0, Q = Math.floor(C / k.columns) * k.columns, z = _ ? Math.min(e.length, Q + k.windowSize) : e.length, q = e.slice(Q, z), G = Math.floor(Q / k.columns), U = Math.ceil(Math.max(0, e.length - z) / k.columns), J = "grid-column:1/-1;pointer-events:none;";
+    return `<div class="media-items-list layout-${this._esc(c)}" data-homeii-virtual-total="${_ ? this._esc(String(e.length)) : "0"}" data-virtual-columns="${this._esc(String(k.columns))}" data-virtual-row-height="${this._esc(String(k.rowHeight))}">${G ? `<div class="virtual-list-spacer top" style="${J}height:${this._esc(String(G * k.rowHeight))}px" aria-hidden="true"></div>` : ""}${q.map((j) => {
       const V = String(j?.media_type || j?.type || t || "album").toLowerCase(), X = r.openDetails !== !1 && this._mediaTypeCanOpenDetails(V), K = this._artUrl(j), ne = p[V] || p[t] || "repeat", ge = K ? `<span class="menu-thumb" data-img="${this._esc(K)}" data-placeholder="${this._esc(ne)}">${this._iconSvg(ne)}</span>` : `<span class="menu-thumb">${this._iconSvg(ne)}</span>`, o = this._artistName(j) || "", m = V === "artist" ? this._i18n("ui.artist") : V === "radio" ? j.metadata?.description || "" : o || j.album?.name || j.publisher || "", g = j?.radio_browser || j?.radio_browser_id ? "radio_browser" : j?.favorite_scope || r.favorite_scope || "library", y = `data-media-type="${this._esc(V)}" data-media-name="${this._esc(j.name || "")}" data-media-artist="${this._esc(o)}" data-media-album="${this._esc(j.album?.name || "")}" data-media-image="${this._esc(K || "")}" data-media-favorite-scope="${this._esc(g)}"`;
       return `
         <div class="menu-list-item media-entry ${this._esc(c)} media-type-${this._esc(V)}">
@@ -58961,7 +58897,7 @@ class ta extends ss {
           <button class="chip-btn queue-more-btn media-more-btn" data-media-more="${this._esc(j.uri || "")}" ${y} title="${this._esc(this._i18n("ui.actions_2"))}">${this._iconSvg("more")}</button>
         </div>
       `;
-    }).join("")}${U ? `<div class="virtual-list-spacer bottom" style="${Y}height:${this._esc(String(U * k.rowHeight))}px" aria-hidden="true"></div>` : ""}</div>`;
+    }).join("")}${U ? `<div class="virtual-list-spacer bottom" style="${J}height:${this._esc(String(U * k.rowHeight))}px" aria-hidden="true"></div>` : ""}</div>`;
   }
   _countryFlagEmoji(e = "") {
     return Vc(e);
@@ -59083,7 +59019,7 @@ class ta extends ss {
     }
     if (!v()) return;
     this._hasSearchResults(z) ? (Q = !0, t.innerHTML = this._mediaSearchSectionsHtml(z, C), this._hydrateImages(e)) : Q || (t.innerHTML = this._loadingStateHtml(this._i18n("ui.searching"), { notice: !0 }));
-    const Y = (j) => {
+    const J = (j) => {
       if (!v() || !this._hasSearchResults(j)) return !1;
       const V = this._mergeSearchResults(z, j);
       return this._hasSearchResults(V) ? (t.innerHTML = this._mediaSearchSectionsHtml(V, C), this._hydrateImages(e), !0) : !1;
@@ -59091,7 +59027,7 @@ class ta extends ss {
     if (q) {
       const j = await q;
       if (_ = !0, !v()) return;
-      Y(j) && (Q = !0);
+      J(j) && (Q = !0);
     }
     if (_ = !0, !!v()) {
       if (G || U) {
@@ -59279,18 +59215,18 @@ class ta extends ss {
       preview: _
     })), this._announcementSendPending = !0;
     try {
-      const k = this._announcementTtsEntity(), C = c.map((Y) => String(Y?.entity_id || "").trim()).filter(Boolean), Q = /* @__PURE__ */ new Map();
-      for (const Y of this._prepareAnnouncementVolumes(c)) {
-        const j = Q.get(Y.targetVolumePct) || [];
-        j.push(Y.entityId), Q.set(Y.targetVolumePct, j);
+      const k = this._announcementTtsEntity(), C = c.map((J) => String(J?.entity_id || "").trim()).filter(Boolean), Q = /* @__PURE__ */ new Map();
+      for (const J of this._prepareAnnouncementVolumes(c)) {
+        const j = Q.get(J.targetVolumePct) || [];
+        j.push(J.entityId), Q.set(J.targetVolumePct, j);
       }
-      const q = (await Promise.all([...Q].map(async ([Y, j]) => {
+      const q = (await Promise.all([...Q].map(async ([J, j]) => {
         try {
           const V = await this._homeiiEngineAnnounce({
             message: e,
             player: j.length === 1 ? j[0] : "",
             players: j,
-            volume: Y,
+            volume: J,
             language: v,
             tts_entity: k,
             target: t
@@ -59299,10 +59235,10 @@ class ta extends ss {
         } catch (V) {
           return j.map((X) => ({ player: X, ok: !1, error: V?.message }));
         }
-      }))).flat(), G = q.filter((Y) => Y?.ok !== !0);
-      if (!C.every((Y) => q.some((j) => j?.player === Y && j?.ok === !0)) || G.length) {
-        const Y = C.filter((j) => !q.some((V) => V?.player === j && V?.ok === !0)).map((j) => c.find((V) => V.entity_id === j)?.attributes?.friendly_name || j);
-        throw new Error(`${this._m("Announcement not confirmed", "הכריזה לא אושרה")}: ${Y.join(", ") || p}`);
+      }))).flat(), G = q.filter((J) => J?.ok !== !0);
+      if (!C.every((J) => q.some((j) => j?.player === J && j?.ok === !0)) || G.length) {
+        const J = C.filter((j) => !q.some((V) => V?.player === j && V?.ok === !0)).map((j) => c.find((V) => V.entity_id === j)?.attributes?.friendly_name || j);
+        throw new Error(`${this._m("Announcement not confirmed", "הכריזה לא אושרה")}: ${J.join(", ") || p}`);
       }
       this._toastSuccess(this._i18n("ui.announcement_sent_to_player", { player: p }));
     } catch (k) {
@@ -59383,11 +59319,11 @@ class ta extends ss {
       ` : ""}
       <div class="players-premium-grid">
       ${e.map((U) => {
-      const Y = p.has(U.entity_id), j = c.has(U.entity_id), V = U.entity_id === _, X = Tt.isPlayerAvailable(U), K = this._groupPlayerStatusClass(Y, j, V), ne = X ? this._groupPlayerStatusText(Y, j, V) : this._i18n("ui.disconnected"), ge = this._playerGroupCount(U), o = this._playerArtworkUrl(U, 180), m = X && (U?.state === "playing" || j && this._playerByEntityId(_)?.state === "playing"), g = U.attributes?.media_title || U.attributes?.media_artist || "";
+      const J = p.has(U.entity_id), j = c.has(U.entity_id), V = U.entity_id === _, X = Tt.isPlayerAvailable(U), K = this._groupPlayerStatusClass(J, j, V), ne = X ? this._groupPlayerStatusText(J, j, V) : this._i18n("ui.disconnected"), ge = this._playerGroupCount(U), o = this._playerArtworkUrl(U, 180), m = X && (U?.state === "playing" || j && this._playerByEntityId(_)?.state === "playing"), g = U.attributes?.media_title || U.attributes?.media_artist || "";
       return `
-          <div data-group-player="${this._esc(U.entity_id)}" class="group-player-card ${Y ? "checked" : ""} ${K}" data-group-connected="${j ? "true" : "false"}" data-group-owner="${V ? "true" : "false"}">
-            <label class="group-player-row player-premium-head ${Y ? "checked" : ""}">
-              <span class="group-player-toggle ${Y ? "checked" : ""}" aria-hidden="true">${this._iconSvg(this._groupPlayerStatusIcon(Y, j, V))}</span>
+          <div data-group-player="${this._esc(U.entity_id)}" class="group-player-card ${J ? "checked" : ""} ${K}" data-group-connected="${j ? "true" : "false"}" data-group-owner="${V ? "true" : "false"}">
+            <label class="group-player-row player-premium-head ${J ? "checked" : ""}">
+              <span class="group-player-toggle ${J ? "checked" : ""}" aria-hidden="true">${this._iconSvg(this._groupPlayerStatusIcon(J, j, V))}</span>
               <span class="player-premium-art" ${X ? 'data-group-drag-art draggable="true"' : ""} title="${this._esc(this._m("Drag onto another player to connect", "גרור לנגן אחר לחיבור"))}">
                 ${o ? this._imgHtml(o, "", { loading: "lazy", fetchpriority: "low" }) : this._iconSvg("speaker")}
                 ${ge ? `<span class="player-group-badge">${this._esc(ge)}</span>` : ""}
@@ -59400,7 +59336,7 @@ class ta extends ss {
                 <span class="group-player-status ${K}">${this._esc(ne)}</span>
                 ${g ? `<span class="player-premium-track">${this._esc(g)}</span>` : ""}
               </span>
-              <input class="group-player-check" type="checkbox" data-menu-group-player="${this._esc(U.entity_id)}" data-group-owner="${V ? "true" : "false"}" ${Y ? "checked" : ""} ${!X && !j ? "disabled" : ""}>
+              <input class="group-player-check" type="checkbox" data-menu-group-player="${this._esc(U.entity_id)}" data-group-owner="${V ? "true" : "false"}" ${J ? "checked" : ""} ${!X && !j ? "disabled" : ""}>
             </label>
             ${X && !V ? `<button type="button" class="group-quick-connect" data-group-quick="${this._esc(U.entity_id)}">${Lt(this, j ? "group_remove" : "group_add")}<span>${this._esc(j ? this._m("Disconnect", "ניתוק") : this._m("Connect", "חיבור"))}</span></button>` : ""}
             ${X ? Qn(this, U, { inline: !0 }) : ""}
@@ -59466,7 +59402,7 @@ class ta extends ss {
           <div class="queue-flow-picker" data-queue-flow-picker>
             <div class="queue-flow-track">
               ${p.map((q, G) => {
-      const U = String(q?.media_type || q?.type || t || "album").toLowerCase(), Y = r.openDetails !== !1 && this._mediaTypeCanOpenDetails(U), j = String(q?.uri || q?.media_item?.uri || "").trim(), V = this._artUrl(q, { size: 220 }) || q?.image || q?.image_url || "", X = this._artistName(q) || q?.artist || "", K = typeof q?.album == "string" ? q.album : q?.album?.name || "", ne = v[U] || v[t] || "album", ge = this._libraryFlowCaptionForItem(q, t, r), o = j ? Y ? `data-media-open="${this._esc(j)}"` : `data-media-uri="${this._esc(j)}"` : "", m = q?.radio_browser || q?.radio_browser_id ? "radio_browser" : q?.favorite_scope || r.favorite_scope || "library";
+      const U = String(q?.media_type || q?.type || t || "album").toLowerCase(), J = r.openDetails !== !1 && this._mediaTypeCanOpenDetails(U), j = String(q?.uri || q?.media_item?.uri || "").trim(), V = this._artUrl(q, { size: 220 }) || q?.image || q?.image_url || "", X = this._artistName(q) || q?.artist || "", K = typeof q?.album == "string" ? q.album : q?.album?.name || "", ne = v[U] || v[t] || "album", ge = this._libraryFlowCaptionForItem(q, t, r), o = j ? J ? `data-media-open="${this._esc(j)}"` : `data-media-uri="${this._esc(j)}"` : "", m = q?.radio_browser || q?.radio_browser_id ? "radio_browser" : q?.favorite_scope || r.favorite_scope || "library";
       return `
                   <button class="queue-flow-item library-flow-item ${G === _ ? "active centered" : ""}" data-library-flow-item="1" ${o} data-flow-caption-title="${this._esc(ge.title)}" data-flow-caption-artist="${this._esc(ge.artist)}" data-media-type="${this._esc(U)}" data-media-name="${this._esc(q?.name || q?.title || "")}" data-media-artist="${this._esc(X)}" data-media-album="${this._esc(K)}" data-media-image="${this._esc(V || "")}" data-media-favorite-scope="${this._esc(m)}" ${j ? "" : "disabled"}>
                     <span class="queue-flow-art" ${V ? `data-img="${this._esc(V)}" data-placeholder="${this._esc(ne)}"` : ""}>
@@ -59545,15 +59481,15 @@ class ta extends ss {
     if (!t) return;
     const r = Array.from(t.querySelectorAll?.(".queue-flow-item") || []);
     if (!r.length) return;
-    const c = r[0], p = r[1] || null, _ = Number(c.offsetTop || 0) + Number(c.offsetHeight || 0) / 2, v = p ? Number(p.offsetTop || 0) - Number(c.offsetTop || 0) : 0, k = Math.max(1, v || Number(c.offsetHeight || 0) + 22), C = Number(t.scrollTop || 0) + Number(t.clientHeight || 0) / 2, Q = (G, U, Y) => Math.max(U, Math.min(Y, G)), z = Q(Math.round((C - _) / k), 0, r.length - 1);
+    const c = r[0], p = r[1] || null, _ = Number(c.offsetTop || 0) + Number(c.offsetHeight || 0) / 2, v = p ? Number(p.offsetTop || 0) - Number(c.offsetTop || 0) : 0, k = Math.max(1, v || Number(c.offsetHeight || 0) + 22), C = Number(t.scrollTop || 0) + Number(t.clientHeight || 0) / 2, Q = (G, U, J) => Math.max(U, Math.min(J, G)), z = Q(Math.round((C - _) / k), 0, r.length - 1);
     r.forEach((G, U) => {
-      const Y = _ + U * k, j = Q((Y - C) / k, -3, 3), V = Math.abs(j), X = z >= 0 ? U - z : 0, K = Math.min(3, Math.floor(V + 0.62)), ne = Q(1.06 - V * 0.15, 0.58, 1.06), ge = Q(1 - V * 0.26, 0.18, 1), o = Q(V * 0.48, 0, 1.25), m = Q(30 - V * 38, -86, 30), g = Q(j * -5.5, -16, 16), y = Q(1 - V * 0.13, 0.62, 1), S = Q(1 - V * 0.09, 0.7, 1);
+      const J = _ + U * k, j = Q((J - C) / k, -3, 3), V = Math.abs(j), X = z >= 0 ? U - z : 0, K = Math.min(3, Math.floor(V + 0.62)), ne = Q(1.06 - V * 0.15, 0.58, 1.06), ge = Q(1 - V * 0.26, 0.18, 1), o = Q(V * 0.48, 0, 1.25), m = Q(30 - V * 38, -86, 30), g = Q(j * -5.5, -16, 16), y = Q(1 - V * 0.13, 0.62, 1), S = Q(1 - V * 0.09, 0.7, 1);
       G.classList.toggle("centered", U === z), G.classList.toggle("is-before", X < 0), G.classList.toggle("is-after", X > 0), G.classList.toggle("depth-1", K === 1), G.classList.toggle("depth-2", K === 2), G.classList.toggle("depth-3", K >= 3), G.style.setProperty("--queue-flow-scale", ne.toFixed(3)), G.style.setProperty("--queue-flow-opacity", ge.toFixed(3)), G.style.setProperty("--queue-flow-blur", `${o.toFixed(2)}px`), G.style.setProperty("--queue-flow-z", `${m.toFixed(1)}px`), G.style.setProperty("--queue-flow-rotate", `${g.toFixed(2)}deg`), G.style.setProperty("--queue-flow-saturate", y.toFixed(3)), G.style.setProperty("--queue-flow-brightness", S.toFixed(3)), G.style.setProperty("--queue-flow-y", `${(j * -2).toFixed(1)}px`);
     });
     const q = t.closest?.("[data-queue-flow-stage]")?.querySelector?.("[data-queue-flow-caption]");
     if (q) {
-      const G = r[z] || null, U = G?.dataset?.flowCaptionTitle !== void 0 || G?.dataset?.flowCaptionArtist !== void 0 ? { title: G?.dataset?.flowCaptionTitle || "", artist: G?.dataset?.flowCaptionArtist || "" } : this._queueFlowCaptionForIndex(z), Y = q.querySelector?.("[data-queue-flow-caption-title]"), j = q.querySelector?.("[data-queue-flow-caption-artist]");
-      Y && (Y.textContent = U.title || ""), j && (j.textContent = U.artist || ""), q.hidden = !(U.title || U.artist);
+      const G = r[z] || null, U = G?.dataset?.flowCaptionTitle !== void 0 || G?.dataset?.flowCaptionArtist !== void 0 ? { title: G?.dataset?.flowCaptionTitle || "", artist: G?.dataset?.flowCaptionArtist || "" } : this._queueFlowCaptionForIndex(z), J = q.querySelector?.("[data-queue-flow-caption-title]"), j = q.querySelector?.("[data-queue-flow-caption-artist]");
+      J && (J.textContent = U.title || ""), j && (j.textContent = U.artist || ""), q.hidden = !(U.title || U.artist);
     }
   }
   _bindQueueFlowPicker(e = this.$("mobileMenuBody")) {
@@ -59600,9 +59536,9 @@ class ta extends ss {
     this._prefetchQueueArtworkWindow(t.length ? t : r, { immediate: !0, before: 2, after: 18, visibleStartIndex: _, visibleCount: k.length });
     const C = 104;
     return `${p}${this._queueFlowPickerHtml(t)}<div class="queue-list" data-homeii-virtual-total="${this._esc(String(r.length))}" data-virtual-columns="1" data-virtual-row-height="${C}">${_ ? `<div class="virtual-list-spacer top" style="height:${this._esc(String(_ * C))}px;pointer-events:none" aria-hidden="true"></div>` : ""}${k.map((Q, z) => {
-      const q = this._getQueueItemKey(Q), G = this._queueItemImageUrl(Q, 120), U = Q.media_item?.artists?.map((ne) => ne.name).join(", ") || "", Y = this._isQueueItemCurrent(Q), j = Q.media_item || {}, V = String(this._state.expandedQueueItemId || "") === String(q || ""), X = _ + z + 1, K = this._esc(String(X));
+      const q = this._getQueueItemKey(Q), G = this._queueItemImageUrl(Q, 120), U = Q.media_item?.artists?.map((ne) => ne.name).join(", ") || "", J = this._isQueueItemCurrent(Q), j = Q.media_item || {}, V = String(this._state.expandedQueueItemId || "") === String(q || ""), X = _ + z + 1, K = this._esc(String(X));
       return `
-        <div class="queue-row ${Y ? "active" : ""} ${V ? "expanded" : ""}" data-queue-item-id="${this._esc(q)}" data-uri="${this._esc(Q.media_item?.uri || "")}" data-type="track" data-sort-index="${this._esc(Q.sort_index ?? "")}" data-queue-position="${this._esc(String(X))}">
+        <div class="queue-row ${J ? "active" : ""} ${V ? "expanded" : ""}" data-queue-item-id="${this._esc(q)}" data-uri="${this._esc(Q.media_item?.uri || "")}" data-type="track" data-sort-index="${this._esc(Q.sort_index ?? "")}" data-queue-position="${this._esc(String(X))}">
           <button class="queue-index queue-drag-handle" data-queue-drag title="${this._esc(this._m("Drag to reorder; use Actions to choose a position", "גרור לשינוי סדר; בתפריט הפעולות ניתן לבחור מיקום"))}" aria-label="${this._esc(this._m("Reorder", "שינוי סדר"))} ${K}"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><circle cx="8" cy="6" r="1.6"/><circle cx="16" cy="6" r="1.6"/><circle cx="8" cy="12" r="1.6"/><circle cx="16" cy="12" r="1.6"/><circle cx="8" cy="18" r="1.6"/><circle cx="16" cy="18" r="1.6"/></svg></button>
           <div class="menu-thumb" ${G ? `data-img="${this._esc(G)}" data-placeholder="album"` : ""}>${this._iconSvg("album")}</div>
           <div class="queue-meta">
@@ -59681,12 +59617,12 @@ class ta extends ss {
     const v = typeof performance < "u" && typeof performance.now == "function" ? performance.now() : Date.now(), k = this._mobileMenuRenderToken = (this._mobileMenuRenderToken || 0) + 1, C = () => k === this._mobileMenuRenderToken && this._state.menuOpen && this._state.menuPage === _, Q = e.dataset.menuPage || "", z = Q === _ ? this._captureMobileMenuScroll(_) : null, q = () => {
       if (!C()) return !1;
       e.dataset.menuPage = _, ["players", "players_active", "group", "group_volume"].includes(_) && zA(this, e), Ki(this, e.parentElement, _), _ === "queue" && (e.dataset.queueSignature = this._queueRenderSignature()), z && this._restoreMobileMenuScrollSnapshot(z, _), this._hydrateImages(e), this._bindQueueFlowPicker(e);
-      const F = typeof performance < "u" && typeof performance.now == "function" ? performance.now() : Date.now(), J = Math.max(0, F - v);
-      return this._performanceMetrics.menuRenders += 1, this._performanceMetrics.lastMenuRenderMs = Number(J.toFixed(2)), this._performanceMetrics.slowestMenuRenderMs = Math.max(
+      const F = typeof performance < "u" && typeof performance.now == "function" ? performance.now() : Date.now(), O = Math.max(0, F - v);
+      return this._performanceMetrics.menuRenders += 1, this._performanceMetrics.lastMenuRenderMs = Number(O.toFixed(2)), this._performanceMetrics.slowestMenuRenderMs = Math.max(
         Number(this._performanceMetrics.slowestMenuRenderMs || 0),
-        Number(J.toFixed(2))
+        Number(O.toFixed(2))
       ), this._performanceMetrics.lastMenuPage = _, this._performanceMetrics.lastMenuDomNodes = e.querySelectorAll?.("*")?.length || 0, !0;
-    }, G = Array.isArray(this._state.menuStack) && this._state.menuStack.length > 0, U = _ === "media_detail" ? this._libraryDetailMediaType(this._state.mobileLibraryDetail || {}) : "", Y = _ === "media_detail" && U === "artist", j = _ === "media_detail", V = this._isMobileSearchPage(_), X = _.startsWith("library_") || j, K = (_.startsWith("library_") || Y) && this._layoutModeConfig() === "tablet", ne = this._isPhoneActionFullscreenMenuPage(_) || Y;
+    }, G = Array.isArray(this._state.menuStack) && this._state.menuStack.length > 0, U = _ === "media_detail" ? this._libraryDetailMediaType(this._state.mobileLibraryDetail || {}) : "", J = _ === "media_detail" && U === "artist", j = _ === "media_detail", V = this._isMobileSearchPage(_), X = _.startsWith("library_") || j, K = (_.startsWith("library_") || J) && this._layoutModeConfig() === "tablet", ne = this._isPhoneActionFullscreenMenuPage(_) || J;
     r.hidden = !(G || _ === "media_detail" && Array.isArray(this._state.mobileLibraryDetailStack) && this._state.mobileLibraryDetailStack.length), c.hidden = !0, p.hidden = !1, e.classList.toggle("library-mode", X), e.classList.toggle("library-flow-mode", this._libraryFlowPageActive(_) || _ === "artist_album_flow"), e.classList.toggle("search-mode", V), this.$("mobileMenu")?.classList.toggle("search-open", V), this.$("mobileMenu")?.classList.toggle("discovery-open", _ === "discovery"), this.$("mobileMenu")?.classList.toggle("action-fullscreen-open", ne), this.$("mobileMenu")?.classList.toggle("library-fullscreen-open", K), this.$("homeShortcutFab")?.toggleAttribute("hidden", _ === "discovery" || K), this._syncCompactMenuOverlayState();
     const ge = this.$("mobileMenu"), o = ge?.querySelector(".menu-sheet"), m = _ === "media_detail" ? this._state.mobileLibraryDetail || {} : null, g = m ? this._libraryDetailArtworkUrl(m, 960) : "", y = g || this._currentArtworkUrl(this._getSelectedPlayer(), this._state.maQueueState?.current_item || null, 720);
     ge && (y ? (ge.style.setProperty("--menu-dynamic-art", `url(${JSON.stringify(y)})`), ge.classList.add("has-menu-art")) : (ge.style.removeProperty("--menu-dynamic-art"), ge.classList.remove("has-menu-art")), m ? this._applyMenuDetailTheme(ge, g, m) : this._clearMenuDetailTheme(ge));
@@ -59708,7 +59644,7 @@ class ta extends ss {
       "sheet-discovery"
     ];
     e.classList.remove(...S), o?.classList.remove(...S);
-    const B = _ === "main" ? "sheet-actions" : _ === "discovery" ? "sheet-discovery" : _ === "simple_wizard" ? "sheet-simple" : _ === "players" || _ === "players_active" ? "sheet-players" : _ === "artist_album_flow" ? "sheet-queue-flow" : _ === "queue" ? this._mobileQueueFlowMenuActive() ? "sheet-queue-flow" : "sheet-queue" : _ === "media_detail" ? Y ? "sheet-artist-detail" : "sheet-media-detail" : V ? "sheet-search" : X ? "sheet-library" : _ === "group" ? "sheet-group" : _ === "transfer" ? "sheet-transfer" : _ === "announcements" ? "sheet-announcements" : _ === "settings" || _ === "diagnostics" || _ === "queue_settings" ? "sheet-settings" : _ === "sleep_timer" ? "sheet-schedules" : "";
+    const B = _ === "main" ? "sheet-actions" : _ === "discovery" ? "sheet-discovery" : _ === "simple_wizard" ? "sheet-simple" : _ === "players" || _ === "players_active" ? "sheet-players" : _ === "artist_album_flow" ? "sheet-queue-flow" : _ === "queue" ? this._mobileQueueFlowMenuActive() ? "sheet-queue-flow" : "sheet-queue" : _ === "media_detail" ? J ? "sheet-artist-detail" : "sheet-media-detail" : V ? "sheet-search" : X ? "sheet-library" : _ === "group" ? "sheet-group" : _ === "transfer" ? "sheet-transfer" : _ === "announcements" ? "sheet-announcements" : _ === "settings" || _ === "diagnostics" || _ === "queue_settings" ? "sheet-settings" : _ === "sleep_timer" ? "sheet-schedules" : "";
     if (B && (e.classList.add(B), o?.classList.add(B)), Ki(this, e.parentElement, _), _ === "main") {
       this._setMobileMenuHeader(this._i18n("ui.actions_2"), this._menuPageIcon(_)), e.innerHTML = this._mainMenuHtml(), q();
       return;
@@ -59719,8 +59655,8 @@ class ta extends ss {
     }
     if (_ === "discovery") {
       this._setMobileMenuHeader(this._i18n("ui.discover_music", {}, this._m("Discover", "גילוי מוזיקה")), this._menuPageIcon(_));
-      const F = this._discoveryLastView, J = F?.activeCategory?.key === this._discoveryCategory().key && F?.selectedProvider === (this._state.discoveryProviderPath || "all");
-      this._updateDiscoveryMenuBody(e, J ? F : { providers: F?.providers || [], loading: !0 });
+      const F = this._discoveryLastView, O = F?.activeCategory?.key === this._discoveryCategory().key && F?.selectedProvider === (this._state.discoveryProviderPath || "all");
+      this._updateDiscoveryMenuBody(e, O ? F : { providers: F?.providers || [], loading: !0 });
       let Z;
       try {
         Z = await this._loadDiscoverySections(), C() && (this._discoveryLastView = Z);
@@ -59749,8 +59685,8 @@ class ta extends ss {
       return;
     }
     if (_ === "media_detail") {
-      const F = this._state.mobileLibraryDetail || {}, J = String(F.media_type || "").toLowerCase(), Z = J === "podcast" ? "podcast" : J === "playlist" ? "playlist" : J === "artist" ? "artist" : "album", $ = J === "playlist" ? this._i18n("ui.playlist") : J === "artist" ? this._i18n("ui.artist") : this._i18n("ui.album");
-      this._setMobileMenuHeader(F.name || $, Z, "players"), e.innerHTML = this._libraryDetailPopupShellHtml(this._libraryMediaDetailHtml(F), J === "artist" ? "artist-detail-page-shell" : ""), q();
+      const F = this._state.mobileLibraryDetail || {}, O = String(F.media_type || "").toLowerCase(), Z = O === "podcast" ? "podcast" : O === "playlist" ? "playlist" : O === "artist" ? "artist" : "album", $ = O === "playlist" ? this._i18n("ui.playlist") : O === "artist" ? this._i18n("ui.artist") : this._i18n("ui.album");
+      this._setMobileMenuHeader(F.name || $, Z, "players"), e.innerHTML = this._libraryDetailPopupShellHtml(this._libraryMediaDetailHtml(F), O === "artist" ? "artist-detail-page-shell" : ""), q();
       return;
     }
     if (_ === "artist_album_flow") {
@@ -59772,7 +59708,7 @@ class ta extends ss {
         q();
         return;
       }
-      const J = { playlist: 250, artist: 250, album: 250, track: 350, radio: 200, podcast: 250 }, Z = this._mobileLibraryOrderBy(), $ = this._libraryTabSearchQuery(_), ce = this._libraryFavoritesOnlyEnabled(_), be = `${_}:${Z}:${ce}:${$.toLowerCase()}`, ue = this._state.engineCapabilities?.library_pagination ? this._state.libraryVisibleLimits?.[be] || 60 : J[F.type] || 250, de = (Ve) => this._state.engineCapabilities?.library_pagination && Ve >= ue ? `<button type="button" class="chip-btn" data-library-load-more="${this._esc(be)}" data-library-current-limit="${ue}">${this._esc(this._m("Load more from Music Assistant", "טען עוד מ־Music Assistant"))}</button>` : "", me = $ ? `tab-search:${F.type}:${Z}:${ue}:${ce}:${$.toLowerCase()}` : `${F.type}:${Z}:${ue}:${ce}`;
+      const O = { playlist: 250, artist: 250, album: 250, track: 350, radio: 200, podcast: 250 }, Z = this._mobileLibraryOrderBy(), $ = this._libraryTabSearchQuery(_), ce = this._libraryFavoritesOnlyEnabled(_), be = `${_}:${Z}:${ce}:${$.toLowerCase()}`, ue = this._state.engineCapabilities?.library_pagination ? this._state.libraryVisibleLimits?.[be] || 60 : O[F.type] || 250, de = (Ve) => this._state.engineCapabilities?.library_pagination && Ve >= ue ? `<button type="button" class="chip-btn" data-library-load-more="${this._esc(be)}" data-library-current-limit="${ue}">${this._esc(this._m("Load more from Music Assistant", "טען עוד מ־Music Assistant"))}</button>` : "", me = $ ? `tab-search:${F.type}:${Z}:${ue}:${ce}:${$.toLowerCase()}` : `${F.type}:${Z}:${ue}:${ce}`;
       !this._cache.library.get(me) && e.dataset.libraryLoadingKey !== me && (e.innerHTML = this._libraryShellHtml(this._loadingStateHtml(this._i18n("ui.loading"), { notice: !0 }), _), e.dataset.libraryLoadingKey = me);
       const ve = _ === "library_radio" ? this._mobileRadioSourceMode() : "combined", xe = ce || ve !== "radiobrowser_only", ke = !ce && ve !== "ma_only", Me = ce || ve === "ma_first" || ve === "ma_only";
       let Be = [], Ee = "";
@@ -59984,8 +59920,8 @@ class ta extends ss {
       this._setMobileMenuHeader(_ === "volume_rules" ? this._m("Volume limits", "מגבלות ווליום") : this._m("Engine playlists", "רשימות במנוע"), _ === "volume_rules" ? "volume" : "playlist"), _ === "volume_rules" ? await ml(this, e) : await wr(this, e), C() && q();
       return;
     } else if (["playback_stats", "group_volume", "lighting", "favorite_radios", "smart", "recommendations", "system_screensaver", "night_preferences"].includes(_)) {
-      const F = { night_preferences: ["Night display", "תצוגת לילה", "settings"], system_screensaver: ["System screensaver", "שומר מסך מערכתי", "clock"], smart: ["Smart", "חכם", "studio"], recommendations: ["Recommendations", "המלצות", "compass"], playback_stats: ["Listening statistics", "סטטיסטיקות האזנה", "stats"], lighting: ["Lighting", "תאורה", "lightbulb"], group_volume: ["Group volume", "ווליום משותף", "speaker_group"], favorite_radios: ["Favorite stations", "תחנות מועדפות", "radio"] }, [J, Z, $] = F[_];
-      if (this._setMobileMenuHeader(this._m(J, Z), $), await LA(this, e, _), !C()) return;
+      const F = { night_preferences: ["Night display", "תצוגת לילה", "settings"], system_screensaver: ["System screensaver", "שומר מסך מערכתי", "clock"], smart: ["Smart", "חכם", "studio"], recommendations: ["Recommendations", "המלצות", "compass"], playback_stats: ["Listening statistics", "סטטיסטיקות האזנה", "stats"], lighting: ["Lighting", "תאורה", "lightbulb"], group_volume: ["Group volume", "ווליום משותף", "speaker_group"], favorite_radios: ["Favorite stations", "תחנות מועדפות", "radio"] }, [O, Z, $] = F[_];
+      if (this._setMobileMenuHeader(this._m(O, Z), $), await LA(this, e, _), !C()) return;
     } else if (_ === "ai_radio") {
       if (this._setMobileMenuHeader(this._m("AI Radio", "רדיו AI"), "radio"), await TA(this, e), !C()) return;
     } else if (_ === "group") e.innerHTML = this._groupMenuHtml();
@@ -60113,9 +60049,9 @@ class ta extends ss {
       je && (je.value = Ie), this._flashInteraction(U), this._hapticTap([8]);
       return;
     }
-    const Y = t.closest("[data-announcement-voice]");
-    if (Y) {
-      e.preventDefault(), e.stopPropagation(), this._flashInteraction(Y), this._startMobileAnnouncementVoice();
+    const J = t.closest("[data-announcement-voice]");
+    if (J) {
+      e.preventDefault(), e.stopPropagation(), this._flashInteraction(J), this._startMobileAnnouncementVoice();
       return;
     }
     const j = t.closest("[data-announcement-send]");
@@ -60249,9 +60185,9 @@ class ta extends ss {
       e.preventDefault(), e.stopPropagation(), this._state.mobileScheduleControlActiveUntil = 0, this._flashInteraction(F), await this._deleteScheduledStart(F.dataset.startScheduleDelete), await this._renderMobileMenu();
       return;
     }
-    const J = t.closest("[data-sleep-timer-start]");
-    if (J?.dataset.sleepTimerStart) {
-      e.preventDefault(), e.stopPropagation(), this._flashInteraction(J), await this._setSleepTimerMinutes(Number(J.dataset.sleepTimerStart || 15), "general"), await this._renderMobileMenu();
+    const O = t.closest("[data-sleep-timer-start]");
+    if (O?.dataset.sleepTimerStart) {
+      e.preventDefault(), e.stopPropagation(), this._flashInteraction(O), await this._setSleepTimerMinutes(Number(O.dataset.sleepTimerStart || 15), "general"), await this._renderMobileMenu();
       return;
     }
     const Z = t.closest("[data-sleep-timer-cancel]");
@@ -61122,12 +61058,12 @@ class ta extends ss {
       this._state.mobileMainBarItems = ne.length ? ne : this._defaultMobileMainBarItems(), this._persistMobileAppearance(), this._refreshAfterSettingsChange({ mainBarChanged: !0 });
       return;
     }
-    const Y = e.target?.closest?.("input[data-setting-quick-action]");
-    if (Y) {
-      const X = String(Y.dataset.settingQuickAction || "").trim(), K = new Set(this._mobileQuickActions());
-      Y.checked ? K.add(X) : K.delete(X);
+    const J = e.target?.closest?.("input[data-setting-quick-action]");
+    if (J) {
+      const X = String(J.dataset.settingQuickAction || "").trim(), K = new Set(this._mobileQuickActions());
+      J.checked ? K.add(X) : K.delete(X);
       const ne = Array.from(K);
-      this._state.mobileQuickActions = ne, X === "home" && (this._state.mobileHomeShortcutEnabled = !!Y.checked), this._persistMobileAppearance(), this._refreshAfterSettingsChange({ quickActionsChanged: !0 });
+      this._state.mobileQuickActions = ne, X === "home" && (this._state.mobileHomeShortcutEnabled = !!J.checked), this._persistMobileAppearance(), this._refreshAfterSettingsChange({ quickActionsChanged: !0 });
       return;
     }
     const j = e.target?.closest?.("input[data-setting-screensaver-control]");
@@ -61203,7 +61139,7 @@ function Ps() {
     name: "HOMEii Flow",
     description: `Premium Music Assistant dashboard card v${ea}`,
     preview: !1,
-    documentationURL: "https://github.com/r11a/homeii-music-flow"
+    documentationURL: "https://github.com/ambient-home-systems/maverick-music-flow"
   });
 }
 Ps();
@@ -61239,10 +61175,10 @@ function Kg() {
       function z(Ce) {
         return r.locateFile ? r.locateFile(Ce, Q) : Q + Ce;
       }
-      var q, G, U, Y;
+      var q, G, U, J;
       k ? (v ? Q = t("path").dirname(Q) + "/" : Q = __dirname + "/", q = function(Pe, He) {
         var ot = vt(Pe);
-        return ot ? He ? ot : ot.toString() : (U || (U = t("fs")), Y || (Y = t("path")), Pe = Y.normalize(Pe), U.readFileSync(Pe, He ? null : "utf8"));
+        return ot ? He ? ot : ot.toString() : (U || (U = t("fs")), J || (J = t("path")), Pe = J.normalize(Pe), U.readFileSync(Pe, He ? null : "utf8"));
       }, G = function(Pe) {
         var He = q(Pe, !0);
         return He.buffer || (He = new Uint8Array(He)), y(He.buffer), He;
@@ -61829,7 +61765,7 @@ function Kg() {
                 return _e = R + 16 | 0, a | 0;
               }
               function gt(a, s, u, l, A, d) {
-                var h = 0, b = 0, f = 0, w = 0, M = x(0), P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0;
+                var h = 0, b = 0, f = 0, w = 0, M = x(0), P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0;
                 b = _e - 192 | 0, _e = b, f = b, i[f + 136 >> 2] = 0, h = -2;
                 e: {
                   t: {
@@ -61842,11 +61778,11 @@ function Kg() {
                                 u: {
                                   l: {
                                     h: {
-                                      pe = i[a + 12 >> 2], O = (pe | 0) / 50 | 0, P = O >> 3;
+                                      pe = i[a + 12 >> 2], Y = (pe | 0) / 50 | 0, P = Y >> 3;
                                       d: {
                                         if ((P | 0) > (A | 0))
                                           break d;
-                                        ze = i[a >> 2], H = i[a + 4 >> 2], ie = O >> 2, w = O >> 1, h = D((pe | 0) / 25 | 0, 3), h = (A | 0) < (h | 0) ? A : h;
+                                        ze = i[a >> 2], H = i[a + 4 >> 2], ie = Y >> 2, w = Y >> 1, h = D((pe | 0) / 25 | 0, 3), h = (A | 0) < (h | 0) ? A : h;
                                         A: {
                                           s: {
                                             m: {
@@ -61868,9 +61804,9 @@ function Kg() {
                                                         qt(l, 0, A << 2);
                                                         break d;
                                                       }
-                                                      if ((h | 0) > (O | 0)) {
+                                                      if ((h | 0) > (Y | 0)) {
                                                         for (A = h; ; ) {
-                                                          if (P = gt(a, 0, 0, l, (A | 0) < (O | 0) ? A : O, 0), (P | 0) < 0) {
+                                                          if (P = gt(a, 0, 0, l, (A | 0) < (Y | 0) ? A : Y, 0), (P | 0) < 0) {
                                                             h = P;
                                                             break d;
                                                           }
@@ -61879,7 +61815,7 @@ function Kg() {
                                                         }
                                                         break d;
                                                       }
-                                                      if ((h | 0) >= (O | 0)) {
+                                                      if ((h | 0) >= (Y | 0)) {
                                                         R = h;
                                                         break _;
                                                       }
@@ -62048,7 +61984,7 @@ function Kg() {
                                             if ((ee | 0) != 1e3) {
                                               if (A = i[a + 60 >> 2], !(i[a + 68 >> 2] | ((ee | 0) == (A | 0) | (A | 0) < 1)) && ki(b, 4028, 0))
                                                 break o;
-                                              oe = rr(b, Se ? s : 0, u, l, (R | 0) > (O | 0) ? O : R, f + 144 | 0, 0);
+                                              oe = rr(b, Se ? s : 0, u, l, (R | 0) > (Y | 0) ? Y : R, f + 144 | 0, 0);
                                               break s;
                                             }
                                             if (N[f + 132 >> 1] = 65535, A = D(i[a + 8 >> 2], R), (A | 0) >= 1 && qt(l, 0, A << 2), !(i[a + 60 >> 2] != 1001 | (i[a + 68 >> 2] ? re : 0))) {
@@ -62061,12 +61997,12 @@ function Kg() {
                                           s: {
                                             if (ye || (h = D(i[a + 8 >> 2], R), (h | 0) < 1))
                                               break s;
-                                            for (A = 0; O = (A << 2) + l | 0, L[O >> 2] = L[O >> 2] + x(x(N[(A << 1) + Ae >> 1]) * x(30517578125e-15)), A = A + 1 | 0, (h | 0) != (A | 0); )
+                                            for (A = 0; Y = (A << 2) + l | 0, L[Y >> 2] = L[Y >> 2] + x(x(N[(A << 1) + Ae >> 1]) * x(30517578125e-15)), A = A + 1 | 0, (h | 0) != (A | 0); )
                                               ;
                                           }
                                           if (i[f + 32 >> 2] = f + 132, ki(b, 10015, f + 32 | 0))
                                             break r;
-                                          O = i[i[f + 132 >> 2] + 60 >> 2];
+                                          Y = i[i[f + 132 >> 2] + 60 >> 2];
                                           s: {
                                             if (!w | te)
                                               break s;
@@ -62080,7 +62016,7 @@ function Kg() {
                                               break s;
                                             for (Ae = (D(s, P) << 2) + H | 0, d = (D(R - P | 0, s) << 2) + l | 0, w = 0, ze = (pe | 0) < 400; ; ) {
                                               if (A = 0, !ze)
-                                                for (; h = D(s, A) + w << 2, b = h + d | 0, M = L[(D(A, T) << 2) + O >> 2], M = x(M * M), L[b >> 2] = x(M * L[h + Ae >> 2]) + x(x(x(1) - M) * L[b >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
+                                                for (; h = D(s, A) + w << 2, b = h + d | 0, M = L[(D(A, T) << 2) + Y >> 2], M = x(M * M), L[b >> 2] = x(M * L[h + Ae >> 2]) + x(x(x(1) - M) * L[b >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
                                                   ;
                                               if (w = w + 1 | 0, (w | 0) == (s | 0))
                                                 break;
@@ -62100,7 +62036,7 @@ function Kg() {
                                               break s;
                                             for (A = D(b, P) << 2, Ae = A + l | 0, H = A + H | 0, s = 0, d = (pe | 0) < 400; ; ) {
                                               if (A = 0, !d)
-                                                for (; h = D(A, b) + s << 2, w = Ae + h | 0, M = L[(D(A, T) << 2) + O >> 2], M = x(M * M), L[w >> 2] = x(M * L[w >> 2]) + x(x(x(1) - M) * L[h + H >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
+                                                for (; h = D(A, b) + s << 2, w = Ae + h | 0, M = L[(D(A, T) << 2) + Y >> 2], M = x(M * M), L[w >> 2] = x(M * L[w >> 2]) + x(x(x(1) - M) * L[h + H >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
                                                   ;
                                               if (s = s + 1 | 0, (b | 0) == (s | 0))
                                                 break;
@@ -62117,7 +62053,7 @@ function Kg() {
                                                 break s;
                                               for (A = w << 2, T = A + l | 0, Ae = A + fe | 0, s = 0, d = (pe | 0) < 400; ; ) {
                                                 if (A = 0, !d)
-                                                  for (; b = D(A, h) + s << 2, w = T + b | 0, M = L[(D(A, H) << 2) + O >> 2], M = x(M * M), L[w >> 2] = x(M * L[w >> 2]) + x(x(x(1) - M) * L[b + Ae >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
+                                                  for (; b = D(A, h) + s << 2, w = T + b | 0, M = L[(D(A, H) << 2) + Y >> 2], M = x(M * M), L[w >> 2] = x(M * L[w >> 2]) + x(x(x(1) - M) * L[b + Ae >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
                                                     ;
                                                 if (s = s + 1 | 0, (h | 0) == (s | 0))
                                                   break;
@@ -62128,7 +62064,7 @@ function Kg() {
                                               break s;
                                             for (s = 0, T = (pe | 0) < 400; ; ) {
                                               if (A = 0, !T)
-                                                for (; b = D(A, h) + s << 2, w = b + l | 0, M = L[(D(A, H) << 2) + O >> 2], M = x(M * M), L[w >> 2] = x(M * L[w >> 2]) + x(x(x(1) - M) * L[b + fe >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
+                                                for (; b = D(A, h) + s << 2, w = b + l | 0, M = L[(D(A, H) << 2) + Y >> 2], M = x(M * M), L[w >> 2] = x(M * L[w >> 2]) + x(x(x(1) - M) * L[b + fe >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
                                                   ;
                                               if (s = s + 1 | 0, (h | 0) == (s | 0))
                                                 break;
@@ -62136,9 +62072,9 @@ function Kg() {
                                           }
                                           A = i[a + 40 >> 2];
                                           s: {
-                                            if (!A || (P = i[a + 8 >> 2], Ne = sr(+x(x(A | 0) * x(6488140788860619e-19)) * 0.6931471805599453), O = D(R, P), (O | 0) < 1))
+                                            if (!A || (P = i[a + 8 >> 2], Ne = sr(+x(x(A | 0) * x(6488140788860619e-19)) * 0.6931471805599453), Y = D(R, P), (Y | 0) < 1))
                                               break s;
-                                            for (M = x(Ne), A = 0; P = (A << 2) + l | 0, L[P >> 2] = L[P >> 2] * M, A = A + 1 | 0, (O | 0) != (A | 0); )
+                                            for (M = x(Ne), A = 0; P = (A << 2) + l | 0, L[P >> 2] = L[P >> 2] * M, A = A + 1 | 0, (Y | 0) != (A | 0); )
                                               ;
                                           }
                                           A = i[f + 136 >> 2], P = i[f + 172 >> 2], i[a + 60 >> 2] = ee, i[a + 68 >> 2] = (te ^ 1) & se, i[a + 84 >> 2] = (u | 0) < 2 ? 0 : A ^ P, h = (oe | 0) < 0 ? oe : R;
@@ -62168,7 +62104,7 @@ function Kg() {
                 }
                 Re(36419, 35333, 488), Le();
               }
-              function Et(a, s, u, l, A, d, h, b, f, w, M, P, R, H, O, T, ee, ie, Ae, te, oe, pe, fe) {
+              function Et(a, s, u, l, A, d, h, b, f, w, M, P, R, H, Y, T, ee, ie, Ae, te, oe, pe, fe) {
                 var re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = x(0), nt = x(0), yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ei = 0, Ii = x(0), Qi = 0, Ri = 0, Gi = 0, la = 0, ca = 0, ua = 0, da = 0, Aa = 0, ma = 0, pa = 0, ya = 0, va = 0, wa = 0, Ar = 0, ao = 0, ro = 0, oo = 0, so = 0, no = 0, lo = 0, co = 0, uo = 0, Ao = 0, mo = 0, po = 0, ho = 0, _o = 0, go = 0, bo = 0, fo = 0, yo = 0, vo = 0, wo = 0, xo = 0, ko = 0, So = 0, Mo = 0, Co = x(0), Bo = 0, Eo = 0, Io = 0, Po = 0, Qo = 0, Do = 0, Lo = 0, To = 0, Ro = 0, zo = 0, Fo = 0, qo = 0, No = 0, Ho = 0, bn = 0, fn = 0, yn = 0, vn = 0, wn = 0, xn = 0, kn = 0, Sn = x(0);
                 Qe = _e - 1568 | 0, ye = Qe, _e = ye, ze = 1, Dt = i[s + 32 >> 2], ao = Dt + (u << 1) | 0, $t = N[ao >> 1] << ie, Qi = d ? 2 : 1, We = ye - ((D(Qi, (N[((i[s + 8 >> 2] << 1) + Dt | 0) - 2 >> 1] << ie) - $t | 0) << 2) + 15 & -16) | 0, Se = We, _e = Se, Qe = i[s + 8 >> 2], Ne = N[((Qe << 1) + Dt | 0) - 2 >> 1], Ut = Ne << ie << 2, Ri = !P & ((a | 0) != 0 & (d | 0) != 0) & (oe | 0) > 7, ya = Ri | !a, Ot = w ? 1 << ie : 1;
                 e: {
@@ -62184,7 +62120,7 @@ function Kg() {
                     e: {
                       t: {
                         if (la = fe + 1 | 0, yt = (fe << 1) + Dt | 0, a = N[yt >> 1] << ie, Qe = (N[(la << 1) + Dt >> 1] << ie) - a | 0, (Qe | 0) > 0) {
-                          wa = na(ee), Se = O - wa | 0, i[ye + 1536 >> 2] = Se - 1, Ao = T - ((u | 0) == (fe | 0) ? 0 : wa) | 0, It = 0;
+                          wa = na(ee), Se = Y - wa | 0, i[ye + 1536 >> 2] = Se - 1, Ao = T - ((u | 0) == (fe | 0) ? 0 : wa) | 0, It = 0;
                           i: {
                             if ((Ae | 0) <= (fe | 0) || (T = Ae - fe | 0, T = i[(fe << 2) + f >> 2] + ((Ao | 0) / (((T | 0) < 3 ? T : 3) | 0) | 0) | 0, T = (T | 0) > (Se | 0) ? Se : T, It = 16383, (T | 0) > 16383))
                               break i;
@@ -62273,7 +62209,7 @@ function Kg() {
                 i[te >> 2] = Qe, _e = ye + 1568 | 0;
               }
               function Ft(a, s, u, l, A, d, h) {
-                var b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0;
+                var b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0;
                 b = _e - 80 | 0, _e = b, i[b + 76 >> 2] = s, fe = b + 55 | 0, oe = b + 56 | 0, s = 0;
                 e: {
                   t: for (; ; ) {
@@ -62385,7 +62321,7 @@ function Kg() {
                                       if (!f)
                                         break e;
                                       if ((te | 0) >= 0) {
-                                        i[(te << 2) + A >> 2] = f, M = (te << 3) + l | 0, O = i[M >> 2], M = i[M + 4 >> 2], i[b + 64 >> 2] = O, i[b + 68 >> 2] = M;
+                                        i[(te << 2) + A >> 2] = f, M = (te << 3) + l | 0, Y = i[M >> 2], M = i[M + 4 >> 2], i[b + 64 >> 2] = Y, i[b + 68 >> 2] = M;
                                         break n;
                                       }
                                       if (!a)
@@ -62399,7 +62335,7 @@ function Kg() {
                                   if (s = 0, !a)
                                     continue t;
                                 }
-                                O = Ae & -65537, f = Ae & 8192 ? O : Ae, ee = 0, te = 1028, Ae = oe;
+                                Y = Ae & -65537, f = Ae & 8192 ? Y : Ae, ee = 0, te = 1028, Ae = oe;
                                 o: {
                                   n: {
                                     u: {
@@ -62482,7 +62418,7 @@ function Kg() {
                                                                 break d;
                                                               break a;
                                                             }
-                                                            M = i[b + 64 >> 2], w = M, O = i[b + 68 >> 2], s = O, te = 1028;
+                                                            M = i[b + 64 >> 2], w = M, Y = i[b + 68 >> 2], s = Y, te = 1028;
                                                             break m;
                                                           }
                                                           s = 0;
@@ -62495,7 +62431,7 @@ function Kg() {
                                                                 i[i[b + 64 >> 2] >> 2] = ie;
                                                                 continue t;
                                                               case 2:
-                                                                M = ie, O = M >> 31, M = i[b + 64 >> 2], i[M >> 2] = ie, i[M + 4 >> 2] = O;
+                                                                M = ie, Y = M >> 31, M = i[b + 64 >> 2], i[M >> 2] = ie, i[M + 4 >> 2] = Y;
                                                                 continue t;
                                                               case 3:
                                                                 N[i[b + 64 >> 2] >> 1] = ie;
@@ -62511,23 +62447,23 @@ function Kg() {
                                                               default:
                                                                 continue t;
                                                             }
-                                                          M = ie, O = M >> 31, M = i[b + 64 >> 2], i[M >> 2] = ie, i[M + 4 >> 2] = O;
+                                                          M = ie, Y = M >> 31, M = i[b + 64 >> 2], i[M >> 2] = ie, i[M + 4 >> 2] = Y;
                                                           continue t;
                                                         }
                                                         P = P >>> 0 > 8 ? P : 8, f = f | 8, s = 120;
                                                       }
-                                                      if (O = i[b + 64 >> 2], M = i[b + 68 >> 2], H = bd(O, M, oe, s & 32), !(f & 8) || (M = i[b + 64 >> 2], O = i[b + 68 >> 2], !(M | O)))
+                                                      if (Y = i[b + 64 >> 2], M = i[b + 68 >> 2], H = bd(Y, M, oe, s & 32), !(f & 8) || (M = i[b + 64 >> 2], Y = i[b + 68 >> 2], !(M | Y)))
                                                         break s;
                                                       te = (s >>> 4 | 0) + 1028 | 0, ee = 2;
                                                       break s;
                                                     }
-                                                    if (O = i[b + 64 >> 2], M = i[b + 68 >> 2], H = vd(O, M, oe), !(f & 8))
+                                                    if (Y = i[b + 64 >> 2], M = i[b + 68 >> 2], H = vd(Y, M, oe), !(f & 8))
                                                       break s;
                                                     s = oe - H | 0, P = (s | 0) < (P | 0) ? P : s + 1 | 0;
                                                     break s;
                                                   }
-                                                  if (O = i[b + 68 >> 2], s = O, M = i[b + 64 >> 2], w = M, (O | 0) < -1 || (O | 0) <= -1) {
-                                                    M = w, w = 0 - M | 0, O = s, M = O + ((M | 0) != 0) | 0, M = 0 - M | 0, s = M, i[b + 64 >> 2] = w, i[b + 68 >> 2] = M, ee = 1, te = 1028;
+                                                  if (Y = i[b + 68 >> 2], s = Y, M = i[b + 64 >> 2], w = M, (Y | 0) < -1 || (Y | 0) <= -1) {
+                                                    M = w, w = 0 - M | 0, Y = s, M = Y + ((M | 0) != 0) | 0, M = 0 - M | 0, s = M, i[b + 64 >> 2] = w, i[b + 68 >> 2] = M, ee = 1, te = 1028;
                                                     break m;
                                                   }
                                                   if (f & 2048) {
@@ -62545,7 +62481,7 @@ function Kg() {
                                               s = !(w | s) + (oe - H | 0) | 0, P = (s | 0) < (P | 0) ? P : s;
                                               break a;
                                             }
-                                            s = i[b + 64 >> 2], H = s || 1038, s = Ku(H, 0, P), Ae = s || P + H | 0, f = O, P = s ? s - H | 0 : P;
+                                            s = i[b + 64 >> 2], H = s || 1038, s = Ku(H, 0, P), Ae = s || P + H | 0, f = Y, P = s ? s - H | 0 : P;
                                             break a;
                                           }
                                           if (w = i[b + 64 >> 2], P)
@@ -62587,7 +62523,7 @@ function Kg() {
                                   s = $i[d | 0](a, we[b + 64 >> 3], T, P, f, s) | 0;
                                   continue t;
                                 }
-                                M = i[b + 64 >> 2], W[b + 55 | 0] = M, P = 1, H = fe, f = O;
+                                M = i[b + 64 >> 2], W[b + 55 | 0] = M, P = 1, H = fe, f = Y;
                                 break a;
                               }
                               w = s + 1 | 0, i[b + 76 >> 2] = w, f = le[s + 1 | 0], s = w;
@@ -62627,7 +62563,7 @@ function Kg() {
                 return _e = b + 80 | 0, ee;
               }
               function sa(a, s, u, l, A) {
-                var d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0;
+                var d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0;
                 if (R = _e - 32 | 0, Qe = R, _e = R, re = R - ((i[a + 2336 >> 2] << 1) + 15 & -16) | 0, R = re, _e = R, b = i[a + 2328 >> 2], pe = R - ((b + i[a + 2336 >> 2] << 2) + 15 & -16) | 0, R = pe, _e = R, w = i[a + 2332 >> 2] << 2, se = R - (w + 15 & -16) | 0, R = se, _e = R, T = R - (w + 79 & -16) | 0, _e = T, H = W[a + 2767 | 0], (b | 0) >= 1)
                   for (ee = N[((W[a + 2765 | 0] << 1 & -4) + (W[a + 2766 | 0] << 1) | 0) + 6720 >> 1] << 4, f = W[a + 2770 | 0], b = 0; ; ) {
                     d = (b << 2) + a | 0, oe = d + 4 | 0, w = N[(b << 1) + l >> 1], R = w << 14, i[oe >> 2] = R, f = D(f, 196314165) + 907633515 | 0, h = d;
@@ -62651,10 +62587,10 @@ function Kg() {
                       ze = ((Ae << 4 & -32) + s | 0) + 32 | 0, R = bt(Qe, ze, i[a + 2340 >> 2] << 1), Se = (Ae << 2) + s | 0, te = i[Se + 16 >> 2], b = te >> 31, l = b ^ b + te, f = $e(l), ee = te << f - 1, w = ee >> 16, b = 536870911 / (w | 0) | 0, d = (b >> 15) + 1 >> 1, H = b << 16, b = H >> 16, w = 0 - ((D(b, ee & 65535) >> 16) + D(b, w) << 3) | 0, w = ((D(w, d) + H | 0) + D(w >> 16, b) | 0) + (D(w & 65528, b) >> 16) | 0, H = 15 - f | 0, ie = D(Ae, 10), P = le[a + 2765 | 0];
                       t: {
                         if (l >>> 0 <= 131071) {
-                          l = 0 - H | 0, H = 2147483647 >>> l | 0, h = -2147483648 >> l, O = ((w | 0) > (H | 0) ? H : (w | 0) < (h | 0) ? h : w) << l;
+                          l = 0 - H | 0, H = 2147483647 >>> l | 0, h = -2147483648 >> l, Y = ((w | 0) > (H | 0) ? H : (w | 0) < (h | 0) ? h : w) << l;
                           break t;
                         }
-                        O = w >> H;
+                        Y = w >> H;
                       }
                       if (ie = s + ie | 0, l = 65536, w = i[a >> 2], (te | 0) != (w | 0)) {
                         l = w >> 31, l = $e(l ^ l + w), w = w << l - 1, H = w, w = D(w >> 16, b) + (D(w & 65535, b) >> 16) | 0, M = w >> 31, h = M, d = ee, M = d >> 31, d = M, M = h, d = bi(w, M, ee, d), h = d, M = ht, ee = H - (((M & 536870911) << 3 | h >>> 29) & -8) | 0, b = (D(ee >> 16, b) + w | 0) + (D(ee & 65535, b) >> 16) | 0, w = l - f | 0, f = w + 13 | 0, w = w + 29 | 0;
@@ -62686,9 +62622,9 @@ function Kg() {
                             if (!(!((Ae | 0) == 2 & Ne) && Ae)) {
                               if (w = i[a + 2336 >> 2], f = i[a + 2340 >> 2], b = (w - h | 0) - f | 0, (b | 0) <= 2)
                                 break e;
-                              if (b = b - 2 | 0, (Ae | 0) == 2 && (bt(((w << 1) + a | 0) + 1348 | 0, u, i[a + 2332 >> 2] << 2), w = i[a + 2336 >> 2], f = i[a + 2340 >> 2]), Zs((b << 1) + re | 0, ((D(i[a + 2332 >> 2], Ae) + b << 1) + a | 0) + 1348 | 0, ze, w - b | 0, f, A), Ae || (b = N[s + 136 >> 1], O = (D(b, O & 65535) >> 16) + D(O >> 16, b) << 2), (h | 0) < -1)
+                              if (b = b - 2 | 0, (Ae | 0) == 2 && (bt(((w << 1) + a | 0) + 1348 | 0, u, i[a + 2332 >> 2] << 2), w = i[a + 2336 >> 2], f = i[a + 2340 >> 2]), Zs((b << 1) + re | 0, ((D(i[a + 2332 >> 2], Ae) + b << 1) + a | 0) + 1348 | 0, ze, w - b | 0, f, A), Ae || (b = N[s + 136 >> 1], Y = (D(b, Y & 65535) >> 16) + D(Y >> 16, b) << 2), (h | 0) < -1)
                                 break a;
-                              for (f = h + 1 | 0, l = O & 65535, ee = O >> 16, H = i[a + 2336 >> 2], b = 0; w = b ^ -1, d = (oe + w << 2) + pe | 0, w = N[(w + H << 1) + re >> 1], i[d >> 2] = (D(w, l) >> 16) + D(w, ee), w = (b | 0) == (f | 0), b = b + 1 | 0, !w; )
+                              for (f = h + 1 | 0, l = Y & 65535, ee = Y >> 16, H = i[a + 2336 >> 2], b = 0; w = b ^ -1, d = (oe + w << 2) + pe | 0, w = N[(w + H << 1) + re >> 1], i[d >> 2] = (D(w, l) >> 16) + D(w, ee), w = (b | 0) == (f | 0), b = b + 1 | 0, !w; )
                                 ;
                               break a;
                             }
@@ -62699,13 +62635,13 @@ function Kg() {
                           }
                           if (f = i[a + 2332 >> 2], (f | 0) < 1)
                             break t;
-                          for (b = ((oe - h << 2) + pe | 0) + 8 | 0, l = N[ie + 104 >> 1], ee = N[ie + 102 >> 1], H = N[ie + 100 >> 1], P = N[ie + 98 >> 1], ie = N[ie + 96 >> 1], w = 0; h = w << 2, d = se + h | 0, O = i[b >> 2], M = D(O >> 16, ie) + (D(O & 65535, ie) >> 16) | 0, O = i[b - 4 >> 2], M = (M + D(O >> 16, P) | 0) + (D(O & 65535, P) >> 16) | 0, O = i[b - 8 >> 2], M = (M + D(O >> 16, H) | 0) + (D(O & 65535, H) >> 16) | 0, O = i[b - 12 >> 2], M = (M + D(O >> 16, ee) | 0) + (D(O & 65535, ee) >> 16) | 0, O = i[b - 16 >> 2], h = (i[h + fe >> 2] + ((M + D(O >> 16, l) | 0) + (D(O & 65535, l) >> 16) << 1) | 0) + 4 | 0, i[d >> 2] = h, i[(oe << 2) + pe >> 2] = h << 1, oe = oe + 1 | 0, b = b + 4 | 0, w = w + 1 | 0, (w | 0) != (f | 0); )
+                          for (b = ((oe - h << 2) + pe | 0) + 8 | 0, l = N[ie + 104 >> 1], ee = N[ie + 102 >> 1], H = N[ie + 100 >> 1], P = N[ie + 98 >> 1], ie = N[ie + 96 >> 1], w = 0; h = w << 2, d = se + h | 0, Y = i[b >> 2], M = D(Y >> 16, ie) + (D(Y & 65535, ie) >> 16) | 0, Y = i[b - 4 >> 2], M = (M + D(Y >> 16, P) | 0) + (D(Y & 65535, P) >> 16) | 0, Y = i[b - 8 >> 2], M = (M + D(Y >> 16, H) | 0) + (D(Y & 65535, H) >> 16) | 0, Y = i[b - 12 >> 2], M = (M + D(Y >> 16, ee) | 0) + (D(Y & 65535, ee) >> 16) | 0, Y = i[b - 16 >> 2], h = (i[h + fe >> 2] + ((M + D(Y >> 16, l) | 0) + (D(Y & 65535, l) >> 16) << 1) | 0) + 4 | 0, i[d >> 2] = h, i[(oe << 2) + pe >> 2] = h << 1, oe = oe + 1 | 0, b = b + 4 | 0, w = w + 1 | 0, (w | 0) != (f | 0); )
                             ;
                           l = se;
                         }
                         if (ie = l, (f | 0) < 1)
                           break t;
-                        for (l = te >>> 6 << 16 >> 16, ee = i[a + 2340 >> 2], h = ee >>> 1 | 0, O = (te >> 21) + 1 >> 1, w = 0; ; ) {
+                        for (l = te >>> 6 << 16 >> 16, ee = i[a + 2340 >> 2], h = ee >>> 1 | 0, Y = (te >> 21) + 1 >> 1, w = 0; ; ) {
                           i:
                             switch (ee - 10 | 0) {
                               default:
@@ -62722,7 +62658,7 @@ function Kg() {
                             }
                             b = (b | f) > -1 ? 2147483647 : H;
                           }
-                          if (i[d >> 2] = b, b = (D(b >> 16, l) + D(b, O) | 0) + (D(b & 65535, l) >> 16) | 0, N[(w << 1) + ye >> 1] = (b | 0) > 8388479 ? 32767 : (b | 0) < -8388736 ? -32768 : (b >>> 7 | 0) + 1 >>> 1 | 0, f = i[a + 2332 >> 2], w = w + 1 | 0, !((f | 0) > (w | 0)))
+                          if (i[d >> 2] = b, b = (D(b >> 16, l) + D(b, Y) | 0) + (D(b & 65535, l) >> 16) | 0, N[(w << 1) + ye >> 1] = (b | 0) > 8388479 ? 32767 : (b | 0) < -8388736 ? -32768 : (b >>> 7 | 0) + 1 >>> 1 | 0, f = i[a + 2332 >> 2], w = w + 1 | 0, !((f | 0) > (w | 0)))
                             break;
                         }
                       }
@@ -62735,8 +62671,8 @@ function Kg() {
                 Re(8959, 8991, 144), Le();
               }
               function ar(a, s, u, l, A, d, h, b) {
-                var f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0;
-                O = _e - 656 | 0, _e = O, M = O, i[M + 652 >> 2] = 0, i[M + 640 >> 2] = 0, i[M + 644 >> 2] = 0;
+                var f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0;
+                Y = _e - 656 | 0, _e = Y, M = Y, i[M + 652 >> 2] = 0, i[M + 640 >> 2] = 0, i[M + 644 >> 2] = 0;
                 e: {
                   t: {
                     i: {
@@ -62916,7 +62852,7 @@ function Kg() {
                       i[M >> 2] = d, w = d, f = a + 2328 | 0;
                       break t;
                     }
-                    w = O - ((D(i[a + 2328 >> 2] + 2 | 0, f) << 1) + 15 & -16) | 0, O = w, _e = w, i[M >> 2] = w, f = a + 2328 | 0;
+                    w = Y - ((D(i[a + 2328 >> 2] + 2 | 0, f) << 1) + 15 & -16) | 0, Y = w, _e = w, i[M >> 2] = w, f = a + 2328 | 0;
                   }
                   R = ((i[f >> 2] << 1) + w | 0) + 4 | 0, i[l + 4 >> 2] = R;
                   t: {
@@ -62962,7 +62898,7 @@ function Kg() {
                     }
                     l = i[a + 8532 >> 2], N[w >> 1] = l, N[w + 2 >> 1] = l >>> 16, P = i[M + 648 >> 2], l = (P << 1) + w | 0, i[a + 8532 >> 2] = Ie[l >> 1] | Ie[l + 2 >> 1] << 16;
                   }
-                  f = (D(i[s + 8 >> 2], P) | 0) / (D(N[a + 2316 >> 1], 1e3) | 0) | 0, i[h >> 2] = f, R = i[s >> 2], l = (R | 0) == 2, A = O - (((l ? f : 1) << 1) + 15 & -16) | 0, b = A, _e = A, f = i[s + 4 >> 2], H || (H = i[a + 2328 >> 2], O = D(H + 2 | 0, f) << 1, w = b - (O + 15 & -16) | 0, _e = w, b = bt(w, d, O), i[M + 4 >> 2] = (b + (H << 1) | 0) + 4, i[M >> 2] = b), A = l ? A : d;
+                  f = (D(i[s + 8 >> 2], P) | 0) / (D(N[a + 2316 >> 1], 1e3) | 0) | 0, i[h >> 2] = f, R = i[s >> 2], l = (R | 0) == 2, A = Y - (((l ? f : 1) << 1) + 15 & -16) | 0, b = A, _e = A, f = i[s + 4 >> 2], H || (H = i[a + 2328 >> 2], Y = D(H + 2 | 0, f) << 1, w = b - (Y + 15 & -16) | 0, _e = w, b = bt(w, d, Y), i[M + 4 >> 2] = (b + (H << 1) | 0) + 4, i[M >> 2] = b), A = l ? A : d;
                   t: {
                     if ((((f | 0) > (R | 0) ? R : f) | 0) < 1)
                       break t;
@@ -63014,10 +62950,10 @@ function Kg() {
                 return _e = M + 656 | 0, l;
               }
               function Qs(a, s) {
-                var u = 0, l = x(0), A = 0, d = x(0), h = x(0), b = 0, f = x(0), w = 0, M = 0, P = x(0), R = 0, H = x(0), O = 0, T = x(0), ee = x(0), ie = x(0), Ae = 0, te = x(0), oe = x(0), pe = 0, fe = x(0), re = x(0), se = x(0), ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = x(0), et = x(0), rt = x(0), nt = 0, yt = 0, It = 0, Dt = x(0), Ut = 0, Ot = 0, Jt = x(0), $t = x(0), ii = x(0), Ai = x(0), fi = x(0), Ci = x(0), Bi = x(0), Ei = x(0), Ii = x(0), Qi = x(0), Ri = 0;
-                for (Ne = _e - 32 | 0, _e = Ne, O = i[a + 8 >> 2], i[Ne >> 2] = 1, b = a + 12 | 0, w = 1; u = A, M = u << 2, Ae = Ie[(M | 2) + b >> 1], A = u + 1 | 0, w = D(N[b + M >> 1], w), i[(A << 2) + Ne >> 2] = w, (Ae | 0) != 1; )
+                var u = 0, l = x(0), A = 0, d = x(0), h = x(0), b = 0, f = x(0), w = 0, M = 0, P = x(0), R = 0, H = x(0), Y = 0, T = x(0), ee = x(0), ie = x(0), Ae = 0, te = x(0), oe = x(0), pe = 0, fe = x(0), re = x(0), se = x(0), ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = x(0), et = x(0), rt = x(0), nt = 0, yt = 0, It = 0, Dt = x(0), Ut = 0, Ot = 0, Jt = x(0), $t = x(0), ii = x(0), Ai = x(0), fi = x(0), Ci = x(0), Bi = x(0), Ei = x(0), Ii = x(0), Qi = x(0), Ri = 0;
+                for (Ne = _e - 32 | 0, _e = Ne, Y = i[a + 8 >> 2], i[Ne >> 2] = 1, b = a + 12 | 0, w = 1; u = A, M = u << 2, Ae = Ie[(M | 2) + b >> 1], A = u + 1 | 0, w = D(N[b + M >> 1], w), i[(A << 2) + Ne >> 2] = w, (Ae | 0) != 1; )
                   ;
-                Ut = (O | 0) > 0 ? O : 0, yt = N[((A << 2) + a | 0) + 10 >> 1];
+                Ut = (Y | 0) > 0 ? Y : 0, yt = N[((A << 2) + a | 0) + 10 >> 1];
                 e: {
                   for (; ; ) {
                     R = yt, A = 0, yt = 1, Ye = u, u && (yt = N[((Ye << 2) + a | 0) + 10 >> 1], A = Ye << 1);
@@ -63044,7 +62980,7 @@ function Kg() {
                               break t;
                             for (Se = D(R, 3), Qe = R << 1, pe = nt << Ut, ze = D(pe, 3), Ot = pe << 1, Ri = i[a + 48 >> 2], It = 0; ; ) {
                               if ((R | 0) >= 1)
-                                for (u = (D(yt, It) << 3) + s | 0, ye = 0, A = Ri, b = A, w = A; M = (R << 3) + u | 0, h = L[M + 4 >> 2], l = L[M >> 2], Ae = (Se << 3) + u | 0, d = L[Ae + 4 >> 2], f = L[Ae >> 2], P = L[w >> 2], T = L[w + 4 >> 2], oe = L[A >> 2], fe = L[A + 4 >> 2], ee = L[b >> 2], O = (Qe << 3) + u | 0, ie = L[O + 4 >> 2], H = L[O >> 2], te = L[b + 4 >> 2], We = x(x(ee * ie) + x(H * te)), re = L[u + 4 >> 2], se = x(We + re), L[u + 4 >> 2] = se, ee = x(x(H * ee) - x(ie * te)), ie = L[u >> 2], H = x(ee + ie), L[u >> 2] = H, te = x(x(P * h) + x(l * T)), et = x(x(oe * d) + x(f * fe)), rt = x(te + et), L[O + 4 >> 2] = se - rt, h = x(x(l * P) - x(h * T)), l = x(x(f * oe) - x(d * fe)), d = x(h + l), L[O >> 2] = H - d, L[u >> 2] = d + L[u >> 2], L[u + 4 >> 2] = rt + L[u + 4 >> 2], d = x(re - We), h = x(h - l), L[M + 4 >> 2] = d - h, l = x(ie - ee), f = x(te - et), L[M >> 2] = l + f, L[Ae + 4 >> 2] = d + h, L[Ae >> 2] = l - f, u = u + 8 | 0, A = (ze << 3) + A | 0, b = (Ot << 3) + b | 0, w = (pe << 3) + w | 0, ye = ye + 1 | 0, (ye | 0) != (R | 0); )
+                                for (u = (D(yt, It) << 3) + s | 0, ye = 0, A = Ri, b = A, w = A; M = (R << 3) + u | 0, h = L[M + 4 >> 2], l = L[M >> 2], Ae = (Se << 3) + u | 0, d = L[Ae + 4 >> 2], f = L[Ae >> 2], P = L[w >> 2], T = L[w + 4 >> 2], oe = L[A >> 2], fe = L[A + 4 >> 2], ee = L[b >> 2], Y = (Qe << 3) + u | 0, ie = L[Y + 4 >> 2], H = L[Y >> 2], te = L[b + 4 >> 2], We = x(x(ee * ie) + x(H * te)), re = L[u + 4 >> 2], se = x(We + re), L[u + 4 >> 2] = se, ee = x(x(H * ee) - x(ie * te)), ie = L[u >> 2], H = x(ee + ie), L[u >> 2] = H, te = x(x(P * h) + x(l * T)), et = x(x(oe * d) + x(f * fe)), rt = x(te + et), L[Y + 4 >> 2] = se - rt, h = x(x(l * P) - x(h * T)), l = x(x(f * oe) - x(d * fe)), d = x(h + l), L[Y >> 2] = H - d, L[u >> 2] = d + L[u >> 2], L[u + 4 >> 2] = rt + L[u + 4 >> 2], d = x(re - We), h = x(h - l), L[M + 4 >> 2] = d - h, l = x(ie - ee), f = x(te - et), L[M >> 2] = l + f, L[Ae + 4 >> 2] = d + h, L[Ae >> 2] = l - f, u = u + 8 | 0, A = (ze << 3) + A | 0, b = (Ot << 3) + b | 0, w = (pe << 3) + w | 0, ye = ye + 1 | 0, (ye | 0) != (R | 0); )
                                   ;
                               if (It = It + 1 | 0, (It | 0) == (nt | 0))
                                 break;
@@ -63053,8 +62989,8 @@ function Kg() {
                           case 1:
                             if (ze = i[(Ye << 2) + Ne >> 2], (ze | 0) < 1)
                               break t;
-                            for (ye = R << 1, Qe = i[a + 48 >> 2], O = ze << Ut, h = L[(Qe + (D(O, R) << 3) | 0) + 4 >> 2], pe = O << 1, Se = 0; ; ) {
-                              for (u = (D(Se, yt) << 3) + s | 0, b = Qe, w = b, Ae = R; A = (R << 3) + u | 0, l = L[A >> 2], d = L[w >> 2], f = L[A + 4 >> 2], P = L[w + 4 >> 2], T = x(x(l * d) - x(f * P)), M = (ye << 3) + u | 0, oe = L[M >> 2], fe = L[b >> 2], ee = L[M + 4 >> 2], ie = L[b + 4 >> 2], H = x(x(oe * fe) - x(ee * ie)), te = x(T + H), L[A >> 2] = L[u >> 2] - x(te * x(0.5)), l = x(x(d * f) + x(l * P)), d = x(x(fe * ee) + x(oe * ie)), f = x(l + d), L[A + 4 >> 2] = L[u + 4 >> 2] - x(f * x(0.5)), L[u >> 2] = te + L[u >> 2], L[u + 4 >> 2] = f + L[u + 4 >> 2], l = x(h * x(l - d)), L[M >> 2] = l + L[A >> 2], d = x(h * x(T - H)), L[M + 4 >> 2] = L[A + 4 >> 2] - d, L[A >> 2] = L[A >> 2] - l, L[A + 4 >> 2] = d + L[A + 4 >> 2], u = u + 8 | 0, b = (pe << 3) + b | 0, w = (O << 3) + w | 0, Ae = Ae - 1 | 0, !!Ae; )
+                            for (ye = R << 1, Qe = i[a + 48 >> 2], Y = ze << Ut, h = L[(Qe + (D(Y, R) << 3) | 0) + 4 >> 2], pe = Y << 1, Se = 0; ; ) {
+                              for (u = (D(Se, yt) << 3) + s | 0, b = Qe, w = b, Ae = R; A = (R << 3) + u | 0, l = L[A >> 2], d = L[w >> 2], f = L[A + 4 >> 2], P = L[w + 4 >> 2], T = x(x(l * d) - x(f * P)), M = (ye << 3) + u | 0, oe = L[M >> 2], fe = L[b >> 2], ee = L[M + 4 >> 2], ie = L[b + 4 >> 2], H = x(x(oe * fe) - x(ee * ie)), te = x(T + H), L[A >> 2] = L[u >> 2] - x(te * x(0.5)), l = x(x(d * f) + x(l * P)), d = x(x(fe * ee) + x(oe * ie)), f = x(l + d), L[A + 4 >> 2] = L[u + 4 >> 2] - x(f * x(0.5)), L[u >> 2] = te + L[u >> 2], L[u + 4 >> 2] = f + L[u + 4 >> 2], l = x(h * x(l - d)), L[M >> 2] = l + L[A >> 2], d = x(h * x(T - H)), L[M + 4 >> 2] = L[A + 4 >> 2] - d, L[A >> 2] = L[A >> 2] - l, L[A + 4 >> 2] = d + L[A + 4 >> 2], u = u + 8 | 0, b = (pe << 3) + b | 0, w = (Y << 3) + w | 0, Ae = Ae - 1 | 0, !!Ae; )
                                 ;
                               if (Se = Se + 1 | 0, (ze | 0) == (Se | 0))
                                 break;
@@ -63069,7 +63005,7 @@ function Kg() {
                         break t;
                       for (Ae = i[a + 48 >> 2], Se = ze << Ut, u = D(Se, R), A = Ae + (u << 4) | 0, h = L[A + 4 >> 2], l = L[A >> 2], u = (u << 3) + Ae | 0, d = L[u + 4 >> 2], f = L[u >> 2], Ot = R << 2, It = D(R, 3), nt = R << 1, Qe = 0; ; ) {
                         if ((R | 0) >= 1)
-                          for (u = (D(Qe, yt) << 3) + s | 0, A = u + (R << 3) | 0, b = (nt << 3) + u | 0, w = (It << 3) + u | 0, M = (Ot << 3) + u | 0, ye = 0; P = L[u >> 2], T = L[u + 4 >> 2], O = D(ye, Se), pe = (O << 4) + Ae | 0, ee = L[pe >> 2], ie = L[b + 4 >> 2], H = L[b >> 2], te = L[pe + 4 >> 2], We = x(x(ee * ie) + x(H * te)), pe = D(O, 24) + Ae | 0, re = L[pe >> 2], se = L[w + 4 >> 2], et = L[w >> 2], rt = L[pe + 4 >> 2], Dt = x(x(re * se) + x(et * rt)), oe = x(We + Dt), pe = (O << 3) + Ae | 0, Jt = L[pe >> 2], $t = L[A + 4 >> 2], ii = L[A >> 2], Ai = L[pe + 4 >> 2], fi = x(x(Jt * $t) + x(ii * Ai)), O = (O << 5) + Ae | 0, Ci = L[O >> 2], Bi = L[M + 4 >> 2], Ei = L[M >> 2], Ii = L[O + 4 >> 2], Qi = x(x(Ci * Bi) + x(Ei * Ii)), fe = x(fi + Qi), L[u + 4 >> 2] = T + x(oe + fe), H = x(x(H * ee) - x(ie * te)), te = x(x(et * re) - x(se * rt)), ee = x(H + te), re = x(x(ii * Jt) - x($t * Ai)), se = x(x(Ei * Ci) - x(Bi * Ii)), ie = x(re + se), L[u >> 2] = P + x(ee + ie), H = x(H - te), te = x(re - se), re = x(x(h * H) + x(d * te)), se = x(T + x(x(l * oe) + x(f * fe))), L[A + 4 >> 2] = re + se, et = x(P + x(x(l * ee) + x(f * ie))), We = x(We - Dt), rt = x(fi - Qi), Dt = x(x(h * We) + x(d * rt)), L[A >> 2] = et - Dt, L[M + 4 >> 2] = se - re, L[M >> 2] = Dt + et, H = x(x(h * te) - x(d * H)), T = x(T + x(x(f * oe) + x(l * fe))), L[b + 4 >> 2] = H + T, oe = x(x(d * We) - x(h * rt)), P = x(P + x(x(f * ee) + x(l * ie))), L[b >> 2] = oe + P, L[w + 4 >> 2] = T - H, L[w >> 2] = P - oe, M = M + 8 | 0, w = w + 8 | 0, b = b + 8 | 0, A = A + 8 | 0, u = u + 8 | 0, ye = ye + 1 | 0, (ye | 0) != (R | 0); )
+                          for (u = (D(Qe, yt) << 3) + s | 0, A = u + (R << 3) | 0, b = (nt << 3) + u | 0, w = (It << 3) + u | 0, M = (Ot << 3) + u | 0, ye = 0; P = L[u >> 2], T = L[u + 4 >> 2], Y = D(ye, Se), pe = (Y << 4) + Ae | 0, ee = L[pe >> 2], ie = L[b + 4 >> 2], H = L[b >> 2], te = L[pe + 4 >> 2], We = x(x(ee * ie) + x(H * te)), pe = D(Y, 24) + Ae | 0, re = L[pe >> 2], se = L[w + 4 >> 2], et = L[w >> 2], rt = L[pe + 4 >> 2], Dt = x(x(re * se) + x(et * rt)), oe = x(We + Dt), pe = (Y << 3) + Ae | 0, Jt = L[pe >> 2], $t = L[A + 4 >> 2], ii = L[A >> 2], Ai = L[pe + 4 >> 2], fi = x(x(Jt * $t) + x(ii * Ai)), Y = (Y << 5) + Ae | 0, Ci = L[Y >> 2], Bi = L[M + 4 >> 2], Ei = L[M >> 2], Ii = L[Y + 4 >> 2], Qi = x(x(Ci * Bi) + x(Ei * Ii)), fe = x(fi + Qi), L[u + 4 >> 2] = T + x(oe + fe), H = x(x(H * ee) - x(ie * te)), te = x(x(et * re) - x(se * rt)), ee = x(H + te), re = x(x(ii * Jt) - x($t * Ai)), se = x(x(Ei * Ci) - x(Bi * Ii)), ie = x(re + se), L[u >> 2] = P + x(ee + ie), H = x(H - te), te = x(re - se), re = x(x(h * H) + x(d * te)), se = x(T + x(x(l * oe) + x(f * fe))), L[A + 4 >> 2] = re + se, et = x(P + x(x(l * ee) + x(f * ie))), We = x(We - Dt), rt = x(fi - Qi), Dt = x(x(h * We) + x(d * rt)), L[A >> 2] = et - Dt, L[M + 4 >> 2] = se - re, L[M >> 2] = Dt + et, H = x(x(h * te) - x(d * H)), T = x(T + x(x(f * oe) + x(l * fe))), L[b + 4 >> 2] = H + T, oe = x(x(d * We) - x(h * rt)), P = x(P + x(x(f * ee) + x(l * ie))), L[b >> 2] = oe + P, L[w + 4 >> 2] = T - H, L[w >> 2] = P - oe, M = M + 8 | 0, w = w + 8 | 0, b = b + 8 | 0, A = A + 8 | 0, u = u + 8 | 0, ye = ye + 1 | 0, (ye | 0) != (R | 0); )
                             ;
                         if (Qe = Qe + 1 | 0, (ze | 0) == (Qe | 0))
                           break;
@@ -63084,12 +63020,12 @@ function Kg() {
                 Re(34088, 34072, 76), Le();
               }
               function rr(a, s, u, l, A, d, h) {
-                var b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = x(0), pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = x(0), ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0, yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ei = 0, Ii = 0, Qi = 0, Ri = 0, Gi = x(0);
+                var b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = x(0), pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = x(0), ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0, yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ei = 0, Ii = 0, Qi = 0, Ri = 0, Gi = x(0);
                 te = _e - 80 | 0, _e = te, Ne = i[a + 8 >> 2], ie = te, i[ie + 12 >> 2] = 0, i[ie + 8 >> 2] = 0, pe = i[a + 12 >> 2], du(a), M = -1, R = i[a >> 2], fe = i[R + 36 >> 2];
                 e: {
                   if ((fe | 0) < 0)
                     break e;
-                  for (O = i[R + 8 >> 2], b = O << 3, rt = i[R + 4 >> 2], P = rt + 2048 | 0, ee = (((D(Ne, P) << 2) + a | 0) + D(Ne, 96) | 0) + 92 | 0, Se = b + ee | 0, Ye = b + Se | 0, fi = Ye + b | 0, A = D(i[a + 16 >> 2], A), H = i[a + 24 >> 2], nt = i[R + 32 >> 2], f = i[R + 44 >> 2]; ; ) {
+                  for (Y = i[R + 8 >> 2], b = Y << 3, rt = i[R + 4 >> 2], P = rt + 2048 | 0, ee = (((D(Ne, P) << 2) + a | 0) + D(Ne, 96) | 0) + 92 | 0, Se = b + ee | 0, Ye = b + Se | 0, fi = Ye + b | 0, A = D(i[a + 16 >> 2], A), H = i[a + 24 >> 2], nt = i[R + 32 >> 2], f = i[R + 44 >> 2]; ; ) {
                     if (f << w != (A | 0)) {
                       if (b = (w | 0) < (fe | 0), w = w + 1 | 0, b)
                         continue;
@@ -63099,14 +63035,14 @@ function Kg() {
                   }
                   if (!l | u >>> 0 > 1275)
                     break e;
-                  for (Ae = i[a + 20 >> 2], yt = O << 1, ii = 1 << w, fe = (Ne | 0) > 1 ? Ne : 1, b = 0, T = 0 - A << 2; f = b << 2, M = ((D(b, P) << 2) + a | 0) + 92 | 0, i[f + (ie + 24 | 0) >> 2] = M, i[(ie + 16 | 0) + f >> 2] = (M + T | 0) - -8192, b = b + 1 | 0, (fe | 0) != (b | 0); )
+                  for (Ae = i[a + 20 >> 2], yt = Y << 1, ii = 1 << w, fe = (Ne | 0) > 1 ? Ne : 1, b = 0, T = 0 - A << 2; f = b << 2, M = ((D(b, P) << 2) + a | 0) + 92 | 0, i[f + (ie + 24 | 0) >> 2] = M, i[(ie + 16 | 0) + f >> 2] = (M + T | 0) - -8192, b = b + 1 | 0, (fe | 0) != (b | 0); )
                     ;
                   if (!((u | 0) > 1 && s)) {
                     nu(a, A, w), js(ie + 16 | 0, l, A, Ne, i[a + 16 >> 2], R + 16 | 0, a + 84 | 0, h), M = (A | 0) / i[a + 16 >> 2] | 0;
                     break e;
                   }
-                  if (It = i[R + 12 >> 2], b = 0, i[a + 56 >> 2] = i[a + 52 >> 2] != 0, d || (tn(ie + 32 | 0, s, u), d = ie + 32 | 0), We = 1, !((pe | 0) != 1 | (O | 0) < 1))
-                    for (; f = (b << 2) + ee | 0, oe = L[f >> 2], Qe = L[(b + O << 2) + ee >> 2], L[f >> 2] = oe > Qe ? oe : Qe, b = b + 1 | 0, (O | 0) != (b | 0); )
+                  if (It = i[R + 12 >> 2], b = 0, i[a + 56 >> 2] = i[a + 52 >> 2] != 0, d || (tn(ie + 32 | 0, s, u), d = ie + 32 | 0), We = 1, !((pe | 0) != 1 | (Y | 0) < 1))
+                    for (; f = (b << 2) + ee | 0, oe = L[f >> 2], Qe = L[(b + Y << 2) + ee >> 2], L[f >> 2] = oe > Qe ? oe : Qe, b = b + 1 | 0, (Y | 0) != (b | 0); )
                       ;
                   f = $e(i[d + 28 >> 2]), b = (f + i[d + 20 >> 2] | 0) - 32 | 0, se = u << 3;
                   t: {
@@ -63130,7 +63066,7 @@ function Kg() {
                     }
                     b = (i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 32 | 0;
                   }
-                  b = b + 3 | 0, !w | (se | 0) < (b | 0) || (ze = Si(d, 3), b = (i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 29 | 0), f = 0, s = R, P = Ae, M = H, ye = ee, (b | 0) <= (se | 0) && (f = Si(d, 3)), Qu(s, P, M, ye, f, d, pe, w), et = te - ((O << 2) + 15 & -16) | 0, ye = et, _e = ye, f = i[d + 4 >> 2] << 3, M = (i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 32 | 0, b = ze ? 2 : 4, s = (w | 0) != 0 & f >>> 0 >= M + (b | 1) >>> 0, T = 0, re = (H | 0) <= (Ae | 0);
+                  b = b + 3 | 0, !w | (se | 0) < (b | 0) || (ze = Si(d, 3), b = (i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 29 | 0), f = 0, s = R, P = Ae, M = H, ye = ee, (b | 0) <= (se | 0) && (f = Si(d, 3)), Qu(s, P, M, ye, f, d, pe, w), et = te - ((Y << 2) + 15 & -16) | 0, ye = et, _e = ye, f = i[d + 4 >> 2] << 3, M = (i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 32 | 0, b = ze ? 2 : 4, s = (w | 0) != 0 & f >>> 0 >= M + (b | 1) >>> 0, T = 0, re = (H | 0) <= (Ae | 0);
                   t: {
                     if (re || (te = f - s | 0, te >>> 0 >= b + M >>> 0 && (T = Si(d, b), M = (i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 32 | 0), i[(Ae << 2) + et >> 2] = T, b = Ae + 1 | 0, (H | 0) == (b | 0)))
                       break t;
@@ -63146,7 +63082,7 @@ function Kg() {
                   if (!re)
                     for (M = (ze << 2) + b | 0, P = w << 3, b = Ae; f = (b << 2) + et | 0, i[f >> 2] = W[((i[f >> 2] + M | 0) + P | 0) + 1664 | 0], b = b + 1 | 0, (H | 0) != (b | 0); )
                       ;
-                  Ai = 2, ((i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 28 | 0) <= (se | 0) && (Ai = mt(d, 35249, 5)), b = (O << 2) + 15 & -16, Jt = ye - b | 0, f = Jt, _e = f, cd(R, f, w, pe), s = 6, Dt = u << 6, ye = f - b | 0, $t = ye, _e = ye, f = na(d);
+                  Ai = 2, ((i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 28 | 0) <= (se | 0) && (Ai = mt(d, 35249, 5)), b = (Y << 2) + 15 & -16, Jt = ye - b | 0, f = Jt, _e = f, cd(R, f, w, pe), s = 6, Dt = u << 6, ye = f - b | 0, $t = ye, _e = ye, f = na(d);
                   t: {
                     if (re) {
                       M = Dt;
@@ -63179,7 +63115,7 @@ function Kg() {
                         break;
                     }
                   }
-                  P = $t - ((O << 2) + 15 & -16) | 0, te = P, _e = P, u = 5, (f + 48 | 0) <= (M | 0) && (u = mt(d, 35253, 7)), M = (H | 0) > (It | 0), f = (na(d) ^ -1) + Dt | 0, b = 0, nt = M ? It : H, It = ze ? ii : 0, M = (O << 2) + 15 & -16, te = te - M | 0, s = te, _e = s, s = s - M | 0, $t = s, _e = s, M = R, Bi = Ae, Ei = H, Ii = ie + 12 | 0, Qi = ie + 8 | 0, Ri = f;
+                  P = $t - ((Y << 2) + 15 & -16) | 0, te = P, _e = P, u = 5, (f + 48 | 0) <= (M | 0) && (u = mt(d, 35253, 7)), M = (H | 0) > (It | 0), f = (na(d) ^ -1) + Dt | 0, b = 0, nt = M ? It : H, It = ze ? ii : 0, M = (Y << 2) + 15 & -16, te = te - M | 0, s = te, _e = s, s = s - M | 0, $t = s, _e = s, M = R, Bi = Ae, Ei = H, Ii = ie + 12 | 0, Qi = ie + 8 | 0, Ri = f;
                   t: {
                     if (w >>> 0 < 2) {
                       re = 0, T = 0;
@@ -63191,7 +63127,7 @@ function Kg() {
                   }
                   for (u = ru(M, Bi, Ei, ye, Jt, u, Ii, Qi, Ri - T | 0, ie + 4 | 0, te, P, s, pe, w, d, 0, 0), rd(R, Ae, H, ee, P, d, pe), M = (((rt | 0) / 2 | 0) - A << 2) - -8192 | 0; f = i[(ie + 24 | 0) + (b << 2) >> 2], _a(f, (A << 2) + f | 0, M), b = b + 1 | 0, (fe | 0) != (b | 0); )
                     ;
-                  f = D(O, pe), b = $t - (f + 15 & -16) | 0, _e = b, M = b - ((D(A, pe) << 2) + 15 & -16) | 0, _e = M, Et(0, R, Ae, H, M, (pe | 0) == 2 ? (A << 2) + M | 0 : 0, b, 0, te, It, Ai, i[ie + 8 >> 2], i[ie + 12 >> 2], et, Dt - T | 0, i[ie + 4 >> 2], d, w, u, a + 40 | 0, 0, i[a + 36 >> 2], i[a + 32 >> 2]);
+                  f = D(Y, pe), b = $t - (f + 15 & -16) | 0, _e = b, M = b - ((D(A, pe) << 2) + 15 & -16) | 0, _e = M, Et(0, R, Ae, H, M, (pe | 0) == 2 ? (A << 2) + M | 0 : 0, b, 0, te, It, Ai, i[ie + 8 >> 2], i[ie + 12 >> 2], et, Dt - T | 0, i[ie + 4 >> 2], d, w, u, a + 40 | 0, 0, i[a + 36 >> 2], i[a + 32 >> 2]);
                   t: {
                     if (re) {
                       if (T = Wi(d, 1), Ws(R, Ae, H, ee, P, s, ((se - i[d + 20 >> 2] | 0) - $e(i[d + 28 >> 2]) | 0) + 32 | 0, d, pe), !T)
@@ -63206,16 +63142,16 @@ function Kg() {
                       ;
                   for (Gs(R, M, ie + 16 | 0, ee, Ae, nt, pe, Ne, ze, w, i[a + 16 >> 2], We, i[a + 36 >> 2]), b = 0; f = i[a + 60 >> 2], M = (f | 0) > 15 ? f : 15, i[a + 60 >> 2] = M, f = i[a + 64 >> 2], P = (f | 0) > 15 ? f : 15, i[a + 64 >> 2] = P, f = i[(ie + 16 | 0) + (b << 2) >> 2], Jr(f, f, P, M, i[R + 44 >> 2], L[a + 72 >> 2], L[a + 68 >> 2], i[a + 80 >> 2], i[a + 76 >> 2], i[R + 60 >> 2], rt, i[a + 36 >> 2]), w && (M = i[R + 44 >> 2], f = (M << 2) + f | 0, Jr(f, f, i[a + 60 >> 2], Ot, A - M | 0, L[a + 68 >> 2], oe, i[a + 76 >> 2], Ut, i[R + 60 >> 2], rt, i[a + 36 >> 2])), b = b + 1 | 0, (fe | 0) != (b | 0); )
                     ;
-                  i[a + 64 >> 2] = i[a + 60 >> 2], b = i[a + 68 >> 2], L[a + 68 >> 2] = oe, i[a + 72 >> 2] = b, b = i[a + 76 >> 2], i[a + 76 >> 2] = Ut, i[a + 80 >> 2] = b, i[a + 60 >> 2] = Ot, w && (i[a + 80 >> 2] = Ut, L[a + 72 >> 2] = oe, i[a + 64 >> 2] = Ot), (pe | 0) == 1 && (w = O << 2, bt(ee + w | 0, ee, w));
+                  i[a + 64 >> 2] = i[a + 60 >> 2], b = i[a + 68 >> 2], L[a + 68 >> 2] = oe, i[a + 72 >> 2] = b, b = i[a + 76 >> 2], i[a + 76 >> 2] = Ut, i[a + 80 >> 2] = b, i[a + 60 >> 2] = Ot, w && (i[a + 80 >> 2] = Ut, L[a + 72 >> 2] = oe, i[a + 64 >> 2] = Ot), (pe | 0) == 1 && (w = Y << 2, bt(ee + w | 0, ee, w));
                   t: {
                     if (ze) {
-                      if ((O | 0) < 1)
+                      if ((Y | 0) < 1)
                         break t;
                       for (f = (yt | 0) > 1 ? yt : 1, w = 0; b = w << 2, fe = Se + b | 0, oe = L[fe >> 2], Qe = L[b + ee >> 2], L[fe >> 2] = oe < Qe ? oe : Qe, w = w + 1 | 0, (w | 0) != (f | 0); )
                         ;
                       break t;
                     }
-                    if (w = O << 3, bt(Ye, Se, w), bt(Se, ee, w), (O | 0) < 1)
+                    if (w = Y << 3, bt(Ye, Se, w), bt(Se, ee, w), (Y | 0) < 1)
                       break t;
                     for (Gi = i[a + 52 >> 2] < 10 ? x(x(ii | 0) * x(0.0010000000474974513)) : x(1), f = (yt | 0) > 1 ? yt : 1, w = 0; b = w << 2, fe = fi + b | 0, oe = x(Gi + L[fe >> 2]), Qe = L[b + ee >> 2], L[fe >> 2] = oe < Qe ? oe : Qe, w = w + 1 | 0, (w | 0) != (f | 0); )
                       ;
@@ -63223,20 +63159,20 @@ function Kg() {
                   if (w = 0, (Ae | 0) > 0)
                     for (; b = w << 2, i[ee + b >> 2] = 0, i[b + Ye >> 2] = -1042284544, i[b + Se >> 2] = -1042284544, w = w + 1 | 0, (Ae | 0) != (w | 0); )
                       ;
-                  if ((H | 0) < (O | 0))
-                    for (w = H; b = w << 2, i[ee + b >> 2] = 0, i[b + Ye >> 2] = -1042284544, i[b + Se >> 2] = -1042284544, w = w + 1 | 0, (O | 0) != (w | 0); )
+                  if ((H | 0) < (Y | 0))
+                    for (w = H; b = w << 2, i[ee + b >> 2] = 0, i[b + Ye >> 2] = -1042284544, i[b + Se >> 2] = -1042284544, w = w + 1 | 0, (Y | 0) != (w | 0); )
                       ;
                   if (w = 0, (Ae | 0) > 0)
-                    for (; b = w + O << 2, i[ee + b >> 2] = 0, i[b + Ye >> 2] = -1042284544, i[b + Se >> 2] = -1042284544, w = w + 1 | 0, (Ae | 0) != (w | 0); )
+                    for (; b = w + Y << 2, i[ee + b >> 2] = 0, i[b + Ye >> 2] = -1042284544, i[b + Se >> 2] = -1042284544, w = w + 1 | 0, (Ae | 0) != (w | 0); )
                       ;
-                  if ((H | 0) < (O | 0))
-                    for (; w = H + O << 2, i[ee + w >> 2] = 0, i[w + Ye >> 2] = -1042284544, i[w + Se >> 2] = -1042284544, H = H + 1 | 0, (O | 0) != (H | 0); )
+                  if ((H | 0) < (Y | 0))
+                    for (; w = H + Y << 2, i[ee + w >> 2] = 0, i[w + Ye >> 2] = -1042284544, i[w + Se >> 2] = -1042284544, H = H + 1 | 0, (Y | 0) != (H | 0); )
                       ;
                   i[a + 40 >> 2] = i[d + 28 >> 2], js(ie + 16 | 0, l, A, Ne, i[a + 16 >> 2], R + 16 | 0, a + 84 | 0, h), i[a + 52 >> 2] = 0, M = -3, ((i[d + 20 >> 2] + $e(i[d + 28 >> 2]) | 0) - 32 | 0) <= (se | 0) && (i[d + 44 >> 2] && (i[a + 44 >> 2] = 1), M = (A | 0) / i[a + 16 >> 2] | 0);
                 }
                 return _e = ie + 80 | 0, M;
               }
-              function ru(a, s, u, l, A, d, h, b, f, w, M, P, R, H, O, T, ee, ie, Ae) {
+              function ru(a, s, u, l, A, d, h, b, f, w, M, P, R, H, Y, T, ee, ie, Ae) {
                 var te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0, yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0;
                 te = _e, $t = te, f = (f | 0) > 0 ? f : 0, Ot = ((f | 0) > 7) << 3, rt = f - Ot | 0, Dt = i[a + 8 >> 2];
                 e: {
@@ -63249,14 +63185,14 @@ function Kg() {
                   f = rt - yt | 0, It = ((f | 0) > 7) << 3, rt = f - It | 0;
                 }
                 if (f = (Dt << 2) + 15 & -16, re = te - f | 0, te = re, _e = te, Ye = te - f | 0, te = Ye, _e = te, Qe = te - f | 0, te = Qe, _e = te, ze = H << 3, nt = te - f | 0, _e = nt, Ut = (s | 0) >= (u | 0), !Ut)
-                  for (ye = O + 3 | 0, se = D((d - O | 0) - 5 | 0, H), Se = i[a + 32 >> 2], oe = Ie[Se + (s << 1) >> 1], f = s; d = oe << 16, pe = f << 2, te = f + 1 | 0, oe = N[(te << 1) + Se >> 1], d = oe - (d >> 16) | 0, fe = D(d, 3) << O << 3 >> 4, i[Qe + pe >> 2] = (fe | 0) < (ze | 0) ? ze : fe, i[pe + nt >> 2] = (D(D((f ^ -1) + u | 0, se), d) << ye >> 6) - (d << O == 1 ? ze : 0), f = te, (u | 0) != (te | 0); )
+                  for (ye = Y + 3 | 0, se = D((d - Y | 0) - 5 | 0, H), Se = i[a + 32 >> 2], oe = Ie[Se + (s << 1) >> 1], f = s; d = oe << 16, pe = f << 2, te = f + 1 | 0, oe = N[(te << 1) + Se >> 1], d = oe - (d >> 16) | 0, fe = D(d, 3) << Y << 3 >> 4, i[Qe + pe >> 2] = (fe | 0) < (ze | 0) ? ze : fe, i[pe + nt >> 2] = (D(D((f ^ -1) + u | 0, se), d) << ye >> 6) - (d << Y == 1 ? ze : 0), f = te, (u | 0) != (te | 0); )
                     ;
                 Jt = i[a + 48 >> 2], et = Jt - 1 | 0, Ne = 1;
                 e: {
                   for (; ; ) {
                     if (We = Ne + et >> 1, !Ut) {
                       for (ye = D(We, Dt), se = i[a + 32 >> 2], pe = Ie[se + (u << 1) >> 1], Se = i[a + 52 >> 2], oe = 0, f = u, fe = 0; ; ) {
-                        d = pe << 16 >> 16, f = f - 1 | 0, pe = N[(f << 1) + se >> 1], d = D(D(d - pe | 0, H), le[(f + ye | 0) + Se | 0]) << O, te = d >> 2, fe = !fe, (d | 0) >= 4 && (te = i[(f << 2) + nt >> 2] + te | 0, te = (te | 0) > 0 ? te : 0), d = f << 2, te = i[d + l >> 2] + te | 0;
+                        d = pe << 16 >> 16, f = f - 1 | 0, pe = N[(f << 1) + se >> 1], d = D(D(d - pe | 0, H), le[(f + ye | 0) + Se | 0]) << Y, te = d >> 2, fe = !fe, (d | 0) >= 4 && (te = i[(f << 2) + nt >> 2] + te | 0, te = (te | 0) > 0 ? te : 0), d = f << 2, te = i[d + l >> 2] + te | 0;
                         t: {
                           if (!((te | 0) < i[d + Qe >> 2] && fe)) {
                             d = i[A + d >> 2], te = (d | 0) > (te | 0) ? te : d, fe = 1;
@@ -63271,7 +63207,7 @@ function Kg() {
                         continue;
                       if (We = s, Ut)
                         break e;
-                      for (ii = D(Ne, Dt), Se = D(Ne - 1 | 0, Dt), et = i[a + 32 >> 2], ye = Ie[et + (s << 1) >> 1], se = i[a + 52 >> 2], f = s, We = f; te = ye << 16, d = f + 1 | 0, ye = N[(d << 1) + et >> 1], te = D(ye - (te >> 16) | 0, H), oe = D(te, le[(f + Se | 0) + se | 0]) << O, (Ne | 0) >= (Jt | 0) ? te = i[(f << 2) + A >> 2] : te = D(le[(f + ii | 0) + se | 0], te) << O >> 2, pe = oe >> 2, (oe | 0) >= 4 && (oe = i[(f << 2) + nt >> 2] + pe | 0, pe = (oe | 0) > 0 ? oe : 0), (te | 0) >= 1 && (te = i[(f << 2) + nt >> 2] + te | 0, te = (te | 0) > 0 ? te : 0), oe = f << 2, fe = i[oe + l >> 2], pe = ((Ne | 0) > 1 ? fe : 0) + pe | 0, i[oe + re >> 2] = pe, te = (te - pe | 0) + fe | 0, i[oe + Ye >> 2] = (te | 0) > 0 ? te : 0, We = (fe | 0) > 0 ? f : We, f = d, (f | 0) != (u | 0); )
+                      for (ii = D(Ne, Dt), Se = D(Ne - 1 | 0, Dt), et = i[a + 32 >> 2], ye = Ie[et + (s << 1) >> 1], se = i[a + 52 >> 2], f = s, We = f; te = ye << 16, d = f + 1 | 0, ye = N[(d << 1) + et >> 1], te = D(ye - (te >> 16) | 0, H), oe = D(te, le[(f + Se | 0) + se | 0]) << Y, (Ne | 0) >= (Jt | 0) ? te = i[(f << 2) + A >> 2] : te = D(le[(f + ii | 0) + se | 0], te) << Y >> 2, pe = oe >> 2, (oe | 0) >= 4 && (oe = i[(f << 2) + nt >> 2] + pe | 0, pe = (oe | 0) > 0 ? oe : 0), (te | 0) >= 1 && (te = i[(f << 2) + nt >> 2] + te | 0, te = (te | 0) > 0 ? te : 0), oe = f << 2, fe = i[oe + l >> 2], pe = ((Ne | 0) > 1 ? fe : 0) + pe | 0, i[oe + re >> 2] = pe, te = (te - pe | 0) + fe | 0, i[oe + Ye >> 2] = (te | 0) > 0 ? te : 0, We = (fe | 0) > 0 ? f : We, f = d, (f | 0) != (u | 0); )
                         ;
                       break e;
                     }
@@ -63355,7 +63291,7 @@ function Kg() {
                           }
                           i[b >> 2] = 0;
                         }
-                        for (We = O << 3, fe = i[a + 32 >> 2], Ye = N[fe + (s << 1) >> 1], ye = (rt - f | 0) + te | 0, oe = N[(d << 1) + fe >> 1], re = (ye >>> 0) / (oe - Ye >>> 0) | 0, se = D(re, Ye - oe | 0), oe = Ye, f = s; pe = oe << 16, Qe = (f << 2) + M | 0, te = f + 1 | 0, oe = N[(te << 1) + fe >> 1], i[Qe >> 2] = i[Qe >> 2] + D(oe - (pe >> 16) | 0, re), f = te, (d | 0) != (te | 0); )
+                        for (We = Y << 3, fe = i[a + 32 >> 2], Ye = N[fe + (s << 1) >> 1], ye = (rt - f | 0) + te | 0, oe = N[(d << 1) + fe >> 1], re = (ye >>> 0) / (oe - Ye >>> 0) | 0, se = D(re, Ye - oe | 0), oe = Ye, f = s; pe = oe << 16, Qe = (f << 2) + M | 0, te = f + 1 | 0, oe = N[(te << 1) + fe >> 1], i[Qe >> 2] = i[Qe >> 2] + D(oe - (pe >> 16) | 0, re), f = te, (d | 0) != (te | 0); )
                           ;
                         for (f = se + ye | 0, pe = Ye, te = s; Qe = pe << 16, re = (te << 2) + M | 0, oe = te + 1 | 0, pe = N[(oe << 1) + fe >> 1], te = pe - (Qe >> 16) | 0, te = (f | 0) < (te | 0) ? f : te, i[re >> 2] = te + i[re >> 2], f = f - te | 0, te = oe, (te | 0) != (d | 0); )
                           ;
@@ -63366,7 +63302,7 @@ function Kg() {
                               break a;
                             if (f = s << 2, te = M + f | 0, oe = i[te >> 2], (oe | 0) <= -1)
                               break i;
-                            re = Ye << 16, pe = oe + Qe | 0, ye = s + 1 | 0, Ye = N[(ye << 1) + fe >> 1], re = Ye - (re >> 16) << O;
+                            re = Ye << 16, pe = oe + Qe | 0, ye = s + 1 | 0, Ye = N[(ye << 1) + fe >> 1], re = Ye - (re >> 16) << Y;
                             r: {
                               if ((re | 0) >= 2) {
                                 Se = 0, oe = pe - i[A + f >> 2] | 0, oe = (oe | 0) > 0 ? oe : 0, se = pe - oe | 0, i[te >> 2] = se, pe = D(H, re), i[b >> 2] | ((re | 0) == 2 | (H | 0) != 2) || (Se = i[h >> 2] > (s | 0)), pe = pe + Se | 0, Se = pe << 3, T = ((re | 0) == 2 ? Se >> 2 : 0) + D(pe, -21) | 0, re = D(N[i[a + 56 >> 2] + (s << 1) >> 1] + We | 0, pe), s = T + (re >> 1) | 0, nt = se + s | 0;
@@ -63409,8 +63345,8 @@ function Kg() {
                 Re(25016, 24941, 524), Le();
               }
               function Ds(a, s, u, l, A, d, h, b, f, w, M) {
-                var P = 0, R = 0, H = 0, O = 0, T = x(0), ee = x(0), ie = 0, Ae = 0, te = 0, oe = 0, pe = x(0), fe = 0, re = 0, se = 0, ye = 0;
-                fe = i[a + 36 >> 2], O = i[a + 28 >> 2], R = i[a + 16 >> 2], re = i[a >> 2], P = 1, te = i[d >> 2], se = i[a + 8 >> 2], oe = i[a + 12 >> 2], f = N[i[se + 56 >> 2] + (oe << 1) >> 1] + (f << 3) | 0, H = (te - f | 0) - 32 | 0, ie = f >> 1, f = (A | 0) == 2 & (w | 0) != 0;
+                var P = 0, R = 0, H = 0, Y = 0, T = x(0), ee = x(0), ie = 0, Ae = 0, te = 0, oe = 0, pe = x(0), fe = 0, re = 0, se = 0, ye = 0;
+                fe = i[a + 36 >> 2], Y = i[a + 28 >> 2], R = i[a + 16 >> 2], re = i[a >> 2], P = 1, te = i[d >> 2], se = i[a + 8 >> 2], oe = i[a + 12 >> 2], f = N[i[se + 56 >> 2] + (oe << 1) >> 1] + (f << 3) | 0, H = (te - f | 0) - 32 | 0, ie = f >> 1, f = (A | 0) == 2 & (w | 0) != 0;
                 e: {
                   t: {
                     i: {
@@ -63430,7 +63366,7 @@ function Kg() {
                                           s: {
                                             m: {
                                               if (re) {
-                                                if (f = Mu(u, l, w, A, i[a + 44 >> 2]), te = na(O), (P | 0) == 1)
+                                                if (f = Mu(u, l, w, A, i[a + 44 >> 2]), te = na(Y), (P | 0) == 1)
                                                   break A;
                                                 p: {
                                                   g: {
@@ -63466,13 +63402,13 @@ function Kg() {
                                                 }
                                                 if ((A | 0) <= 2)
                                                   break u;
-                                                f = (P | 0) / 2 | 0, R = D(f, 3) + 3 | 0, H = D(a, 3), b = (a | 0) > (f | 0), nr(O, b ? (R + (f ^ -1) | 0) + a | 0 : H, b ? (R - f | 0) + a | 0 : H + 3 | 0, f + R | 0);
+                                                f = (P | 0) / 2 | 0, R = D(f, 3) + 3 | 0, H = D(a, 3), b = (a | 0) > (f | 0), nr(Y, b ? (R + (f ^ -1) | 0) + a | 0 : H, b ? (R - f | 0) + a | 0 : H + 3 | 0, f + R | 0);
                                                 break n;
                                               }
-                                              if (te = na(O), (P | 0) == 1)
+                                              if (te = na(Y), (P | 0) == 1)
                                                 break h;
                                               if (!(!w | (A | 0) < 3)) {
-                                                ie = O, f = (P | 0) / 2 | 0, b = f + 1 | 0, R = D(b, 3), H = f + R | 0, a = An(O, H);
+                                                ie = Y, f = (P | 0) / 2 | 0, b = f + 1 | 0, R = D(b, 3), H = f + R | 0, a = An(Y, H);
                                                 p: {
                                                   if ((R | 0) > (a | 0)) {
                                                     a = (a | 0) / 3 | 0;
@@ -63485,13 +63421,13 @@ function Kg() {
                                               }
                                               if (!w && (b | 0) <= 1)
                                                 break s;
-                                              a = Na(O, P + 1 | 0);
+                                              a = Na(Y, P + 1 | 0);
                                               break n;
                                             }
-                                            Ae = P - a | 0, ie = Ae + 1 | 0, ye = a + 1 | 0, f = P >> 1, H = (f | 0) < (a | 0), b = H ? ie : ye, f = f + 1 | 0, R = D(f, f), f = H ? R - (D(Ae + 2 | 0, ie) >> 1) | 0 : D(a, ye) >> 1, nr(O, f, b + f | 0, R);
+                                            Ae = P - a | 0, ie = Ae + 1 | 0, ye = a + 1 | 0, f = P >> 1, H = (f | 0) < (a | 0), b = H ? ie : ye, f = f + 1 | 0, R = D(f, f), f = H ? R - (D(Ae + 2 | 0, ie) >> 1) | 0 : D(a, ye) >> 1, nr(Y, f, b + f | 0, R);
                                             break n;
                                           }
-                                          b = O, u = P >> 1, w = u + 1 | 0, l = D(w, w), a = An(O, l);
+                                          b = Y, u = P >> 1, w = u + 1 | 0, l = D(w, w), a = An(Y, l);
                                           s: {
                                             if ((a | 0) < D(u, w) >> 1) {
                                               w = un(a << 3 | 1) - 1 >>> 1 | 0, a = w + 1 | 0, u = D(a, w) >>> 1 | 0;
@@ -63527,15 +63463,15 @@ function Kg() {
                                     if (i[d >> 2] < 17 || (A = 0, i[a + 32 >> 2] < 17))
                                       break l;
                                     if (re) {
-                                      Tu(O, R, 2), A = R;
+                                      Tu(Y, R, 2), A = R;
                                       break l;
                                     }
-                                    A = Si(O, 2);
+                                    A = Si(Y, 2);
                                   }
                                   R = i[a + 52 >> 2] ? 0 : A;
                                   break o;
                                 }
-                                an(O, a, P + 1 | 0);
+                                an(Y, a, P + 1 | 0);
                               }
                               if ((a | 0) <= -1)
                                 break c;
@@ -63554,12 +63490,12 @@ function Kg() {
                                 ;
                               break r;
                             }
-                            A = na(O), a = A - te | 0, i[d >> 2] = i[d >> 2] - a;
+                            A = na(Y), a = A - te | 0, i[d >> 2] = i[d >> 2] - a;
                             break a;
                           }
                           Re(33720, 33495, 838), Le();
                         }
-                        if (w = na(O), a = w - te | 0, i[d >> 2] = i[d >> 2] - a, w = 16384, (f | 0) == 16384)
+                        if (w = na(Y), a = w - te | 0, i[d >> 2] = i[d >> 2] - a, w = 16384, (f | 0) == 16384)
                           break i;
                         if (f)
                           break t;
@@ -63576,7 +63512,7 @@ function Kg() {
                 i[s + 20 >> 2] = a, i[s + 16 >> 2] = w, i[s + 12 >> 2] = A, i[s + 8 >> 2] = u, i[s + 4 >> 2] = l, i[s >> 2] = R;
               }
               function ou(a, s, u, l) {
-                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0;
+                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = 0;
                 A = _e + -64 | 0, _e = A, ee = A - ((i[a + 2328 >> 2] + i[a + 2336 >> 2] << 2) + 15 & -16) | 0, d = ee, _e = d, P = d - ((i[a + 2336 >> 2] << 1) + 15 & -16) | 0, _e = P, w = A, i[A + 8 >> 2] = i[a + 4244 >> 2] >> 6, Se = i[a + 4248 >> 2], Qe = Se >> 6, i[A + 12 >> 2] = Qe, i[a + 2376 >> 2] && (d = a + 4210 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4202 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4194 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0, d = a + 4186 | 0, N[d >> 1] = 0, N[d + 2 >> 1] = 0, N[d + 4 >> 1] = 0, N[d + 6 >> 1] = 0), f = a + 4 | 0, Hu(w + 52 | 0, w + 60 | 0, w + 48 | 0, w + 56 | 0, f, w + 8 | 0, i[a + 2332 >> 2], i[a + 2324 >> 2]), te = Ie[a + 4228 >> 1], oe = i[a + 4260 >> 2], se = i[a + 4256 >> 2], d = i[a + 4160 >> 2], b = i[a + 4164 >> 2], T = i[w + 56 >> 2], pe = i[w + 52 >> 2], ie = i[w + 60 >> 2], ye = i[w + 48 >> 2], h = a + 4186 | 0, Xr(h, i[a + 2340 >> 2], 64881), A = i[a + 2340 >> 2], bt(w + 16 | 0, h, A << 1), fe = ((d | 0) < 1 ? d : 1) << 1, M = N[fe + ((b | 0) == 2 ? 2234 : 2238) >> 1];
                 e: {
                   if (i[a + 4160 >> 2])
@@ -63588,7 +63524,7 @@ function Kg() {
                   A = Yr(h, A), A = (A | 0) < 134217728 ? A : 134217728, A = (A | 0) > 4194304 ? A : 4194304, M = (D(A << 3 & 65528, M) >> 16) + D(A >>> 13 & 65535, M) >> 14, A = i[a + 2340 >> 2], te = 16384;
                 }
                 if (d = i[a + 2336 >> 2], H = (i[a + 4172 >> 2] >> 7) + 1 >> 1, h = (d - H | 0) - A | 0, (h | 0) > 2) {
-                  Ne = i[a + 4224 >> 2], h = h - 2 | 0, b = h << 1, Zs(P + b | 0, (a + b | 0) + 1348 | 0, w + 16 | 0, d - h | 0, A, l), A = i[a + 4248 >> 2], l = A >> 31, b = l ^ l + A, R = $e(b), A = A << R - 1, l = A >> 16, O = 536870911 / (l | 0) | 0, Ae = (O >> 15) + 1 >> 1, re = A & 65535, O = O << 16, A = O >> 16, l = 0 - ((D(re, A) >> 16) + D(l, A) << 3) | 0, A = ((D(l, Ae) + O | 0) + D(l >> 16, A) | 0) + (D(l & 65528, A) >> 16) | 0, l = 16 - R | 0;
+                  Ne = i[a + 4224 >> 2], h = h - 2 | 0, b = h << 1, Zs(P + b | 0, (a + b | 0) + 1348 | 0, w + 16 | 0, d - h | 0, A, l), A = i[a + 4248 >> 2], l = A >> 31, b = l ^ l + A, R = $e(b), A = A << R - 1, l = A >> 16, Y = 536870911 / (l | 0) | 0, Ae = (Y >> 15) + 1 >> 1, re = A & 65535, Y = Y << 16, A = Y >> 16, l = 0 - ((D(re, A) >> 16) + D(l, A) << 3) | 0, A = ((D(l, Ae) + Y | 0) + D(l >> 16, A) | 0) + (D(l & 65528, A) >> 16) | 0, l = 16 - R | 0;
                   e: {
                     if (b >>> 0 <= 65535) {
                       l = 0 - l | 0, b = 2147483647 >>> l | 0, R = -2147483648 >> l, l = ((A | 0) > (b | 0) ? b : (A | 0) < (R | 0) ? R : A) << l;
@@ -63606,7 +63542,7 @@ function Kg() {
                           h = te << 16 >> 16, P = A << 16 >> 16, l = l << 16 >> 16, b = b << 16 >> 16, M = M << 16 >> 16, R = R << 16 >> 16;
                           break e;
                         }
-                        for (h = te << 16 >> 16, P = A << 16 >> 16, l = l << 16 >> 16, b = b << 16 >> 16, M = M << 16 >> 16, R = R << 16 >> 16, A = ((d - H << 2) + ee | 0) + 8 | 0, O = 0; f = i[A >> 2], H = D(f >> 16, R) + (D(f & 65535, R) >> 16) | 0, f = i[A - 4 >> 2], H = (H + D(f >> 16, M) | 0) + (D(f & 65535, M) >> 16) | 0, f = i[A - 8 >> 2], H = (H + D(f >> 16, b) | 0) + (D(f & 65535, b) >> 16) | 0, f = i[A - 12 >> 2], H = (H + D(f >> 16, l) | 0) + (D(f & 65535, l) >> 16) | 0, f = i[A - 16 >> 2], H = (H + D(f >> 16, P) | 0) + (D(f & 65535, P) >> 16) | 0, Ne = D(Ne, 196314165) + 907633515 | 0, f = i[(Ne >>> 23 & 508) + se >> 2], i[(d << 2) + ee >> 2] = ((H + D(f >> 16, h) | 0) + (D(f & 65535, h) >> 16) << 2) + 8, d = d + 1 | 0, A = A + 4 | 0, O = O + 1 | 0, (oe | 0) != (O | 0); )
+                        for (h = te << 16 >> 16, P = A << 16 >> 16, l = l << 16 >> 16, b = b << 16 >> 16, M = M << 16 >> 16, R = R << 16 >> 16, A = ((d - H << 2) + ee | 0) + 8 | 0, Y = 0; f = i[A >> 2], H = D(f >> 16, R) + (D(f & 65535, R) >> 16) | 0, f = i[A - 4 >> 2], H = (H + D(f >> 16, M) | 0) + (D(f & 65535, M) >> 16) | 0, f = i[A - 8 >> 2], H = (H + D(f >> 16, b) | 0) + (D(f & 65535, b) >> 16) | 0, f = i[A - 12 >> 2], H = (H + D(f >> 16, l) | 0) + (D(f & 65535, l) >> 16) | 0, f = i[A - 16 >> 2], H = (H + D(f >> 16, P) | 0) + (D(f & 65535, P) >> 16) | 0, Ne = D(Ne, 196314165) + 907633515 | 0, f = i[(Ne >>> 23 & 508) + se >> 2], i[(d << 2) + ee >> 2] = ((H + D(f >> 16, h) | 0) + (D(f & 65535, h) >> 16) << 2) + 8, d = d + 1 | 0, A = A + 4 | 0, Y = Y + 1 | 0, (oe | 0) != (Y | 0); )
                           ;
                       }
                       if (A = i[a + 4172 >> 2], A = A + D(A >> 16, 655) + (D(A & 65535, 655) >>> 16) | 0, A = (A | 0) < (pe | 0) ? A : pe, i[a + 4172 >> 2] = A, H = (A >> 7) + 1 >> 1, te = fe ? D(h, ye) >>> 15 | 0 : te, A = D(P, T) >>> 15 | 0, l = D(l, T) >>> 15 | 0, b = D(b, T) >>> 15 | 0, M = D(M, T) >>> 15 | 0, R = D(R, T) >>> 15 | 0, ie = ie + 1 | 0, (ze | 0) == (ie | 0))
@@ -63617,7 +63553,7 @@ function Kg() {
                   if (d = i[a + 1288 >> 2], h = i[a + 1284 >> 2], l = ((Ae << 2) + ee | 0) + -64 | 0, i[l >> 2] = h, i[l + 4 >> 2] = d, A = a + 1340 | 0, d = i[A >> 2], h = i[A + 4 >> 2], i[l + 56 >> 2] = d, i[l + 60 >> 2] = h, A = a + 1332 | 0, h = i[A >> 2], d = i[A + 4 >> 2], i[l + 48 >> 2] = h, i[l + 52 >> 2] = d, A = a + 1324 | 0, d = i[A >> 2], h = i[A + 4 >> 2], i[l + 40 >> 2] = d, i[l + 44 >> 2] = h, A = a + 1316 | 0, h = i[A >> 2], d = i[A + 4 >> 2], i[l + 32 >> 2] = h, i[l + 36 >> 2] = d, A = a + 1308 | 0, d = i[A >> 2], h = i[A + 4 >> 2], i[l + 24 >> 2] = d, i[l + 28 >> 2] = h, A = a + 1300 | 0, h = i[A >> 2], d = i[A + 4 >> 2], i[l + 16 >> 2] = h, i[l + 20 >> 2] = d, A = a + 1292 | 0, d = i[A >> 2], h = i[A + 4 >> 2], i[l + 8 >> 2] = d, i[l + 12 >> 2] = h, (re | 0) >= 10) {
                     if (Ye = i[a + 2328 >> 2], (Ye | 0) >= 1)
                       for (We = re >>> 1 | 0, oe = Qe << 16 >> 16, et = (Se >> 21) + 1 >> 1, d = i[l + 28 >> 2], h = i[l + 36 >> 2], P = i[l + 44 >> 2], b = i[l + 52 >> 2], A = i[l + 60 >> 2], se = N[w + 34 >> 1], T = N[w + 32 >> 1], pe = N[w + 30 >> 1], ie = N[w + 28 >> 1], ze = N[w + 26 >> 1], ye = N[w + 24 >> 1], fe = N[w + 22 >> 1], Ae = N[w + 20 >> 1], Se = N[w + 18 >> 1], Qe = N[w + 16 >> 1], rt = (re | 0) < 11, M = 0; ; ) {
-                        if (nt = (D(A >> 16, Qe) + We | 0) + (D(A & 65535, Qe) >> 16) | 0, A = (M << 2) + l | 0, R = i[A + 56 >> 2], O = i[A + 48 >> 2], f = i[A + 40 >> 2], ee = i[A + 32 >> 2], A = i[A + 24 >> 2], d = (((((((((((((((((nt + D(R >> 16, Se) | 0) + (D(R & 65535, Se) >> 16) | 0) + D(b >> 16, Ae) | 0) + (D(b & 65535, Ae) >> 16) | 0) + D(O >> 16, fe) | 0) + (D(O & 65535, fe) >> 16) | 0) + D(P >> 16, ye) | 0) + (D(P & 65535, ye) >> 16) | 0) + D(f >> 16, ze) | 0) + (D(f & 65535, ze) >> 16) | 0) + D(h >> 16, ie) | 0) + (D(h & 65535, ie) >> 16) | 0) + D(ee >> 16, pe) | 0) + (D(ee & 65535, pe) >> 16) | 0) + D(d >> 16, T) | 0) + (D(d & 65535, T) >> 16) | 0) + D(A >> 16, se) | 0) + (D(A & 65535, se) >> 16) | 0, b = M + 16 | 0, A = 10, !rt)
+                        if (nt = (D(A >> 16, Qe) + We | 0) + (D(A & 65535, Qe) >> 16) | 0, A = (M << 2) + l | 0, R = i[A + 56 >> 2], Y = i[A + 48 >> 2], f = i[A + 40 >> 2], ee = i[A + 32 >> 2], A = i[A + 24 >> 2], d = (((((((((((((((((nt + D(R >> 16, Se) | 0) + (D(R & 65535, Se) >> 16) | 0) + D(b >> 16, Ae) | 0) + (D(b & 65535, Ae) >> 16) | 0) + D(Y >> 16, fe) | 0) + (D(Y & 65535, fe) >> 16) | 0) + D(P >> 16, ye) | 0) + (D(P & 65535, ye) >> 16) | 0) + D(f >> 16, ze) | 0) + (D(f & 65535, ze) >> 16) | 0) + D(h >> 16, ie) | 0) + (D(h & 65535, ie) >> 16) | 0) + D(ee >> 16, pe) | 0) + (D(ee & 65535, pe) >> 16) | 0) + D(d >> 16, T) | 0) + (D(d & 65535, T) >> 16) | 0) + D(A >> 16, se) | 0) + (D(A & 65535, se) >> 16) | 0, b = M + 16 | 0, A = 10, !rt)
                           for (; P = N[(w + 16 | 0) + (A << 1) >> 1], h = i[((A ^ -1) + b << 2) + l >> 2], d = (D(P, h >> 16) + d | 0) + (D(h & 65535, P) >> 16) | 0, A = A + 1 | 0, (re | 0) != (A | 0); )
                             ;
                         h = (b << 2) + l | 0, A = i[h >> 2], d = (d | 0) > -134217728 ? d : -134217728, d = ((d | 0) < 134217727 ? d : 134217727) << 4, P = A + d | 0;
@@ -63628,7 +63564,7 @@ function Kg() {
                           }
                           A = (A | d) > -1 ? 2147483647 : P;
                         }
-                        if (i[h >> 2] = A, d = (D(A >> 16, oe) + D(A, et) | 0) + (D(A & 65535, oe) >> 16) | 0, N[(M << 1) + u >> 1] = (d | 0) > 8388479 ? 32767 : (d | 0) < -8388736 ? -32768 : (d >>> 7 | 0) + 1 >>> 1 | 0, d = ee, h = f, P = O, b = R, M = M + 1 | 0, (Ye | 0) == (M | 0))
+                        if (i[h >> 2] = A, d = (D(A >> 16, oe) + D(A, et) | 0) + (D(A & 65535, oe) >> 16) | 0, N[(M << 1) + u >> 1] = (d | 0) > 8388479 ? 32767 : (d | 0) < -8388736 ? -32768 : (d >>> 7 | 0) + 1 >>> 1 | 0, d = ee, h = f, P = Y, b = R, M = M + 1 | 0, (Ye | 0) == (M | 0))
                           break;
                       }
                     A = (Ye << 2) + l | 0, d = i[A + 4 >> 2], h = i[A >> 2], l = h, u = a + 1284 | 0, h = u, i[h >> 2] = l, i[h + 4 >> 2] = d, h = i[A + 60 >> 2], d = i[A + 56 >> 2], l = d, d = u, i[d + 56 >> 2] = l, i[d + 60 >> 2] = h, d = i[A + 52 >> 2], h = i[A + 48 >> 2], l = h, h = u, i[h + 48 >> 2] = l, i[h + 52 >> 2] = d, h = i[A + 44 >> 2], d = i[A + 40 >> 2], l = d, d = u, i[d + 40 >> 2] = l, i[d + 44 >> 2] = h, d = i[A + 36 >> 2], h = i[A + 32 >> 2], l = h, h = u, i[h + 32 >> 2] = l, i[h + 36 >> 2] = d, h = i[A + 28 >> 2], d = i[A + 24 >> 2], l = d, d = u, i[d + 24 >> 2] = l, i[d + 28 >> 2] = h, d = i[A + 20 >> 2], h = i[A + 16 >> 2], l = h, h = u, i[h + 16 >> 2] = l, i[h + 20 >> 2] = d, h = i[A + 12 >> 2], d = i[A + 8 >> 2], l = d, d = u, i[d + 8 >> 2] = l, i[d + 12 >> 2] = h, N[a + 4228 >> 1] = te, i[a + 4224 >> 2] = Ne, i[s + 12 >> 2] = H, i[s + 8 >> 2] = H, i[s + 4 >> 2] = H, i[s >> 2] = H, _e = w - -64 | 0;
@@ -63639,7 +63575,7 @@ function Kg() {
                 Re(2242, 2268, 294), Le();
               }
               function su(a, s, u, l) {
-                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0;
+                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0, et = 0, rt = 0;
                 if (H = _e - 32 | 0, w = H, _e = w, f = i[a + 2316 >> 2], (f | 0) != i[a + 4156 >> 2]) {
                   if (d = i[a + 2340 >> 2], h = 32767 / (d + 1 | 0) | 0, (d | 0) >= 1)
                     for (; b = b + h | 0, N[((A << 1) + a | 0) + 4052 >> 1] = b, A = A + 1 | 0, (d | 0) != (A | 0); )
@@ -63655,7 +63591,7 @@ function Kg() {
                         if (A = 0, h = i[a + 2340 >> 2], (h | 0) > 0)
                           for (; b = (A << 1) + a | 0, d = b + 4052 | 0, R = d, d = N[d >> 1], b = N[b + 2344 >> 1] - d | 0, N[R >> 1] = (D(b >>> 16 | 0, 16348) + (D(b & 65535, 16348) >>> 16 | 0) | 0) + d, A = A + 1 | 0, (h | 0) != (A | 0); )
                             ;
-                        O = a + 2772 | 0, A = 0, f = i[a + 2324 >> 2];
+                        Y = a + 2772 | 0, A = 0, f = i[a + 2324 >> 2];
                         a: {
                           if ((f | 0) <= 0) {
                             d = 0;
@@ -63664,7 +63600,7 @@ function Kg() {
                           for (d = 0, b = 0; h = i[((A << 2) + s | 0) + 16 >> 2], R = h, h = (b | 0) < (h | 0), b = h ? R : b, d = h ? A : d, A = A + 1 | 0, (f | 0) != (A | 0); )
                             ;
                         }
-                        if (A = i[a + 2332 >> 2], _a(((A << 2) + a | 0) + 2772 | 0, O, D((f << 2) - 4 | 0, A)), A = i[a + 2332 >> 2], bt(O, ((D(d, A) << 2) + a | 0) + 4 | 0, A << 2), h = i[a + 2324 >> 2], (h | 0) < 1)
+                        if (A = i[a + 2332 >> 2], _a(((A << 2) + a | 0) + 2772 | 0, Y, D((f << 2) - 4 | 0, A)), A = i[a + 2332 >> 2], bt(Y, ((D(d, A) << 2) + a | 0) + 4 | 0, A << 2), h = i[a + 2324 >> 2], (h | 0) < 1)
                           break i;
                         for (A = i[a + 4148 >> 2], b = 0; d = i[((b << 2) + s | 0) + 16 >> 2] - A | 0, A = D(d >> 16, 4634) + A + (D(d & 65535, 4634) >>> 16) | 0, i[a + 4148 >> 2] = A, b = b + 1 | 0, (h | 0) != (b | 0); )
                           ;
@@ -63722,7 +63658,7 @@ function Kg() {
                       Re(2041, 2108, 149), Le();
                     }
                     if ((l | 0) >= 1)
-                      for (et = T >>> 1 | 0, O = s << 10 >> 16, rt = (s >> 21) + 1 >> 1, a = i[f + 28 >> 2], d = i[f + 36 >> 2], h = i[f + 44 >> 2], s = i[f + 52 >> 2], A = i[f + 60 >> 2], ee = N[w + 30 >> 1], ie = N[w + 28 >> 1], Ae = N[w + 26 >> 1], te = N[w + 24 >> 1], oe = N[w + 22 >> 1], pe = N[w + 20 >> 1], fe = N[w + 18 >> 1], re = N[w + 16 >> 1], se = N[w + 14 >> 1], ye = N[w + 12 >> 1], Se = N[w + 10 >> 1], Qe = N[w + 8 >> 1], ze = N[w + 6 >> 1], Ne = N[w + 4 >> 1], Ye = N[w + 2 >> 1], We = N[w >> 1], b = 0; ; ) {
+                      for (et = T >>> 1 | 0, Y = s << 10 >> 16, rt = (s >> 21) + 1 >> 1, a = i[f + 28 >> 2], d = i[f + 36 >> 2], h = i[f + 44 >> 2], s = i[f + 52 >> 2], A = i[f + 60 >> 2], ee = N[w + 30 >> 1], ie = N[w + 28 >> 1], Ae = N[w + 26 >> 1], te = N[w + 24 >> 1], oe = N[w + 22 >> 1], pe = N[w + 20 >> 1], fe = N[w + 18 >> 1], re = N[w + 16 >> 1], se = N[w + 14 >> 1], ye = N[w + 12 >> 1], Se = N[w + 10 >> 1], Qe = N[w + 8 >> 1], ze = N[w + 6 >> 1], Ne = N[w + 4 >> 1], Ye = N[w + 2 >> 1], We = N[w >> 1], b = 0; ; ) {
                         M = (D(A >> 16, We) + et | 0) + (D(A & 65535, We) >> 16) | 0, A = (b << 2) + f | 0, H = i[A + 56 >> 2], M = (((M + D(H >> 16, Ye) | 0) + (D(H & 65535, Ye) >> 16) | 0) + D(s >> 16, Ne) | 0) + (D(s & 65535, Ne) >> 16) | 0, s = i[A + 48 >> 2], M = (((M + D(s >> 16, ze) | 0) + (D(s & 65535, ze) >> 16) | 0) + D(h >> 16, Qe) | 0) + (D(h & 65535, Qe) >> 16) | 0, h = i[A + 40 >> 2], M = (((M + D(h >> 16, Se) | 0) + (D(h & 65535, Se) >> 16) | 0) + D(d >> 16, ye) | 0) + (D(d & 65535, ye) >> 16) | 0, d = i[A + 32 >> 2], M = (((M + D(d >> 16, se) | 0) + (D(d & 65535, se) >> 16) | 0) + D(a >> 16, re) | 0) + (D(a & 65535, re) >> 16) | 0, a = i[A + 24 >> 2], a = (M + D(a >> 16, fe) | 0) + (D(a & 65535, fe) >> 16) | 0, M = b + 16 | 0, (T | 0) == 16 && (P = i[A + 20 >> 2], P = (D(P >> 16, pe) + a | 0) + (D(P & 65535, pe) >> 16) | 0, a = i[A + 16 >> 2], P = (P + D(a >> 16, oe) | 0) + (D(a & 65535, oe) >> 16) | 0, a = i[A + 12 >> 2], P = (P + D(a >> 16, te) | 0) + (D(a & 65535, te) >> 16) | 0, a = i[A + 8 >> 2], P = (P + D(a >> 16, Ae) | 0) + (D(a & 65535, Ae) >> 16) | 0, a = i[A + 4 >> 2], A = i[A >> 2], a = (((P + D(a >> 16, ie) | 0) + (D(a & 65535, ie) >> 16) | 0) + D(A >> 16, ee) | 0) + (D(A & 65535, ee) >> 16) | 0), A = (a | 0) > -134217728 ? a : -134217728, A = ((A | 0) < 134217727 ? A : 134217727) << 4, a = (M << 2) + f | 0, M = i[a >> 2], P = A + M | 0;
                         i: {
                           if ((P | 0) >= 0) {
@@ -63731,7 +63667,7 @@ function Kg() {
                           }
                           A = (A | M) > -1 ? 2147483647 : P;
                         }
-                        if (i[a >> 2] = A, M = (b << 1) + u | 0, a = (D(A >> 16, O) + D(A, rt) | 0) + (D(A & 65535, O) >> 16) | 0, a = N[M >> 1] + ((a | 0) > 8388479 ? 32767 : (a | 0) < -8388736 ? -32768 : (a >> 7) + 1 >> 1) | 0, a = (a | 0) > -32768 ? a : -32768, N[M >> 1] = (a | 0) < 32767 ? a : 32767, a = d, d = h, h = s, s = H, b = b + 1 | 0, (b | 0) == (l | 0))
+                        if (i[a >> 2] = A, M = (b << 1) + u | 0, a = (D(A >> 16, Y) + D(A, rt) | 0) + (D(A & 65535, Y) >> 16) | 0, a = N[M >> 1] + ((a | 0) > 8388479 ? 32767 : (a | 0) < -8388736 ? -32768 : (a >> 7) + 1 >> 1) | 0, a = (a | 0) > -32768 ? a : -32768, N[M >> 1] = (a | 0) < 32767 ? a : 32767, a = d, d = h, h = s, s = H, b = b + 1 | 0, (b | 0) == (l | 0))
                           break;
                       }
                     A = (l << 2) + f | 0, d = i[A + 4 >> 2], h = i[A >> 2], a = h, h = R, i[h >> 2] = a, i[h + 4 >> 2] = d, h = i[A + 60 >> 2], d = i[A + 56 >> 2], a = d, d = R, i[d + 56 >> 2] = a, i[d + 60 >> 2] = h, d = i[A + 52 >> 2], h = i[A + 48 >> 2], a = h, h = R, i[h + 48 >> 2] = a, i[h + 52 >> 2] = d, h = i[A + 44 >> 2], d = i[A + 40 >> 2], a = d, d = R, i[d + 40 >> 2] = a, i[d + 44 >> 2] = h, d = i[A + 36 >> 2], h = i[A + 32 >> 2], a = h, h = R, i[h + 32 >> 2] = a, i[h + 36 >> 2] = d, h = i[A + 28 >> 2], d = i[A + 24 >> 2], a = d, d = R, i[d + 24 >> 2] = a, i[d + 28 >> 2] = h, d = i[A + 20 >> 2], h = i[A + 16 >> 2], a = h, h = R, i[h + 16 >> 2] = a, i[h + 20 >> 2] = d, h = i[A + 12 >> 2], d = i[A + 8 >> 2], a = d, d = R, i[d + 8 >> 2] = a, i[d + 12 >> 2] = h;
@@ -63742,9 +63678,9 @@ function Kg() {
                 _e = w + 32 | 0;
               }
               function Ls(a, s, u, l) {
-                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0;
+                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0;
                 for (M = _e, oe = M, h = i[a + 268 >> 2], f = i[a + 276 >> 2], M = M - ((h + f << 2) + 15 & -16) | 0, _e = M, ie = a + 24 | 0, R = bt(M, ie, f << 2), M = i[a + 296 >> 2], Ae = M + 4 | 0, T = i[a + 272 >> 2], d = M; ; ) {
-                  H = (l | 0) < (h | 0) ? l : h, ld(a, (f << 2) + R | 0, u, d, H), O = H << 16;
+                  H = (l | 0) < (h | 0) ? l : h, ld(a, (f << 2) + R | 0, u, d, H), Y = H << 16;
                   e: {
                     t: {
                       i: {
@@ -63760,23 +63696,23 @@ function Kg() {
                               default:
                                 break i;
                             }
-                          if ((O | 0) < 1)
+                          if ((Y | 0) < 1)
                             break e;
-                          for (te = i[a + 280 >> 2], pe = te << 16 >> 16, d = 0; b = D(d & 65535, pe) >> 16, f = D(b, 18) + Ae | 0, w = N[f >> 1], h = (d >> 16 << 2) + R | 0, A = i[h >> 2], P = (D(w, A & 65535) >> 16) + D(A >> 16, w) | 0, w = N[f + 2 >> 1], A = i[h + 4 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 4 >> 1], A = i[h + 8 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 6 >> 1], A = i[h + 12 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 8 >> 1], A = i[h + 16 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 10 >> 1], A = i[h + 20 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 12 >> 1], A = i[h + 24 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 14 >> 1], A = i[h + 28 >> 2], w = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, f = N[f + 16 >> 1], A = i[h + 32 >> 2], w = (w + D(f, A >> 16) | 0) + (D(A & 65535, f) >> 16) | 0, f = D((b ^ -1) + te | 0, 18) + Ae | 0, b = N[f >> 1], A = i[h + 68 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 2 >> 1], A = i[h + 64 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 4 >> 1], A = i[h + 60 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 6 >> 1], A = i[h + 56 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 8 >> 1], A = i[h + 52 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 10 >> 1], A = i[h + 48 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 12 >> 1], A = i[h + 44 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 14 >> 1], A = i[h + 40 >> 2], f = N[f + 16 >> 1], h = i[h + 36 >> 2], h = (((w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0) + D(f, h >> 16) | 0) + (D(h & 65535, f) >> 16) | 0, f = (h >> 5) + 1 >> 1, N[s >> 1] = (h | 0) > 2097119 ? 32767 : (f | 0) > -32768 ? f : -32768, s = s + 2 | 0, d = d + T | 0, (O | 0) > (d | 0); )
+                          for (te = i[a + 280 >> 2], pe = te << 16 >> 16, d = 0; b = D(d & 65535, pe) >> 16, f = D(b, 18) + Ae | 0, w = N[f >> 1], h = (d >> 16 << 2) + R | 0, A = i[h >> 2], P = (D(w, A & 65535) >> 16) + D(A >> 16, w) | 0, w = N[f + 2 >> 1], A = i[h + 4 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 4 >> 1], A = i[h + 8 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 6 >> 1], A = i[h + 12 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 8 >> 1], A = i[h + 16 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 10 >> 1], A = i[h + 20 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 12 >> 1], A = i[h + 24 >> 2], P = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, w = N[f + 14 >> 1], A = i[h + 28 >> 2], w = (P + D(w, A >> 16) | 0) + (D(A & 65535, w) >> 16) | 0, f = N[f + 16 >> 1], A = i[h + 32 >> 2], w = (w + D(f, A >> 16) | 0) + (D(A & 65535, f) >> 16) | 0, f = D((b ^ -1) + te | 0, 18) + Ae | 0, b = N[f >> 1], A = i[h + 68 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 2 >> 1], A = i[h + 64 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 4 >> 1], A = i[h + 60 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 6 >> 1], A = i[h + 56 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 8 >> 1], A = i[h + 52 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 10 >> 1], A = i[h + 48 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 12 >> 1], A = i[h + 44 >> 2], w = (w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0, b = N[f + 14 >> 1], A = i[h + 40 >> 2], f = N[f + 16 >> 1], h = i[h + 36 >> 2], h = (((w + D(b, A >> 16) | 0) + (D(A & 65535, b) >> 16) | 0) + D(f, h >> 16) | 0) + (D(h & 65535, f) >> 16) | 0, f = (h >> 5) + 1 >> 1, N[s >> 1] = (h | 0) > 2097119 ? 32767 : (f | 0) > -32768 ? f : -32768, s = s + 2 | 0, d = d + T | 0, (Y | 0) > (d | 0); )
                             ;
                           break e;
                         }
-                        if (f = 0, (O | 0) <= 0)
+                        if (f = 0, (Y | 0) <= 0)
                           break e;
-                        for (; A = N[M + 4 >> 1], h = (f >> 16 << 2) + R | 0, d = i[h + 92 >> 2] + i[h >> 2] | 0, b = (D(A, d & 65535) >> 16) + D(d >> 16, A) | 0, A = N[M + 6 >> 1], d = i[h + 88 >> 2] + i[h + 4 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 8 >> 1], d = i[h + 84 >> 2] + i[h + 8 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 10 >> 1], d = i[h + 80 >> 2] + i[h + 12 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 12 >> 1], d = i[h + 76 >> 2] + i[h + 16 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 14 >> 1], d = i[h + 72 >> 2] + i[h + 20 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 16 >> 1], d = i[h + 68 >> 2] + i[h + 24 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 18 >> 1], d = i[h + 64 >> 2] + i[h + 28 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 20 >> 1], d = i[h + 60 >> 2] + i[h + 32 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 22 >> 1], d = i[h + 56 >> 2] + i[h + 36 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 24 >> 1], d = i[h + 52 >> 2] + i[h + 40 >> 2] | 0, A = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, d = N[M + 26 >> 1], h = i[h + 48 >> 2] + i[h + 44 >> 2] | 0, h = (A + D(d, h >> 16) | 0) + (D(h & 65535, d) >> 16) | 0, d = (h >> 5) + 1 >> 1, N[s >> 1] = (h | 0) > 2097119 ? 32767 : (d | 0) > -32768 ? d : -32768, s = s + 2 | 0, f = f + T | 0, (O | 0) > (f | 0); )
+                        for (; A = N[M + 4 >> 1], h = (f >> 16 << 2) + R | 0, d = i[h + 92 >> 2] + i[h >> 2] | 0, b = (D(A, d & 65535) >> 16) + D(d >> 16, A) | 0, A = N[M + 6 >> 1], d = i[h + 88 >> 2] + i[h + 4 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 8 >> 1], d = i[h + 84 >> 2] + i[h + 8 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 10 >> 1], d = i[h + 80 >> 2] + i[h + 12 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 12 >> 1], d = i[h + 76 >> 2] + i[h + 16 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 14 >> 1], d = i[h + 72 >> 2] + i[h + 20 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 16 >> 1], d = i[h + 68 >> 2] + i[h + 24 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 18 >> 1], d = i[h + 64 >> 2] + i[h + 28 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 20 >> 1], d = i[h + 60 >> 2] + i[h + 32 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 22 >> 1], d = i[h + 56 >> 2] + i[h + 36 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 24 >> 1], d = i[h + 52 >> 2] + i[h + 40 >> 2] | 0, A = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, d = N[M + 26 >> 1], h = i[h + 48 >> 2] + i[h + 44 >> 2] | 0, h = (A + D(d, h >> 16) | 0) + (D(h & 65535, d) >> 16) | 0, d = (h >> 5) + 1 >> 1, N[s >> 1] = (h | 0) > 2097119 ? 32767 : (d | 0) > -32768 ? d : -32768, s = s + 2 | 0, f = f + T | 0, (Y | 0) > (f | 0); )
                           ;
                         break e;
                       }
                       Re(2704, 2724, 139), Le();
                     }
-                    if (f = 0, (O | 0) <= 0)
+                    if (f = 0, (Y | 0) <= 0)
                       break e;
-                    for (; A = N[M + 4 >> 1], h = (f >> 16 << 2) + R | 0, d = i[h + 140 >> 2] + i[h >> 2] | 0, b = (D(A, d & 65535) >> 16) + D(d >> 16, A) | 0, A = N[M + 6 >> 1], d = i[h + 136 >> 2] + i[h + 4 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 8 >> 1], d = i[h + 132 >> 2] + i[h + 8 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 10 >> 1], d = i[h + 128 >> 2] + i[h + 12 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 12 >> 1], d = i[h + 124 >> 2] + i[h + 16 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 14 >> 1], d = i[h + 120 >> 2] + i[h + 20 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 16 >> 1], d = i[h + 116 >> 2] + i[h + 24 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 18 >> 1], d = i[h + 112 >> 2] + i[h + 28 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 20 >> 1], d = i[h + 108 >> 2] + i[h + 32 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 22 >> 1], d = i[h + 104 >> 2] + i[h + 36 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 24 >> 1], d = i[h + 100 >> 2] + i[h + 40 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 26 >> 1], d = i[h + 96 >> 2] + i[h + 44 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 28 >> 1], d = i[h + 92 >> 2] + i[h + 48 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 30 >> 1], d = i[h + 88 >> 2] + i[h + 52 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 32 >> 1], d = i[h + 84 >> 2] + i[h + 56 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 34 >> 1], d = i[h + 80 >> 2] + i[h + 60 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 36 >> 1], d = i[h + 76 >> 2] + i[h + 64 >> 2] | 0, A = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, d = N[M + 38 >> 1], h = i[h + 72 >> 2] + i[h + 68 >> 2] | 0, h = (A + D(d, h >> 16) | 0) + (D(h & 65535, d) >> 16) | 0, d = (h >> 5) + 1 >> 1, N[s >> 1] = (h | 0) > 2097119 ? 32767 : (d | 0) > -32768 ? d : -32768, s = s + 2 | 0, f = f + T | 0, (O | 0) > (f | 0); )
+                    for (; A = N[M + 4 >> 1], h = (f >> 16 << 2) + R | 0, d = i[h + 140 >> 2] + i[h >> 2] | 0, b = (D(A, d & 65535) >> 16) + D(d >> 16, A) | 0, A = N[M + 6 >> 1], d = i[h + 136 >> 2] + i[h + 4 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 8 >> 1], d = i[h + 132 >> 2] + i[h + 8 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 10 >> 1], d = i[h + 128 >> 2] + i[h + 12 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 12 >> 1], d = i[h + 124 >> 2] + i[h + 16 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 14 >> 1], d = i[h + 120 >> 2] + i[h + 20 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 16 >> 1], d = i[h + 116 >> 2] + i[h + 24 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 18 >> 1], d = i[h + 112 >> 2] + i[h + 28 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 20 >> 1], d = i[h + 108 >> 2] + i[h + 32 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 22 >> 1], d = i[h + 104 >> 2] + i[h + 36 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 24 >> 1], d = i[h + 100 >> 2] + i[h + 40 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 26 >> 1], d = i[h + 96 >> 2] + i[h + 44 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 28 >> 1], d = i[h + 92 >> 2] + i[h + 48 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 30 >> 1], d = i[h + 88 >> 2] + i[h + 52 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 32 >> 1], d = i[h + 84 >> 2] + i[h + 56 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 34 >> 1], d = i[h + 80 >> 2] + i[h + 60 >> 2] | 0, b = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, A = N[M + 36 >> 1], d = i[h + 76 >> 2] + i[h + 64 >> 2] | 0, A = (b + D(A, d >> 16) | 0) + (D(d & 65535, A) >> 16) | 0, d = N[M + 38 >> 1], h = i[h + 72 >> 2] + i[h + 68 >> 2] | 0, h = (A + D(d, h >> 16) | 0) + (D(h & 65535, d) >> 16) | 0, d = (h >> 5) + 1 >> 1, N[s >> 1] = (h | 0) > 2097119 ? 32767 : (d | 0) > -32768 ? d : -32768, s = s + 2 | 0, f = f + T | 0, (Y | 0) > (f | 0); )
                       ;
                   }
                   if (l = l - H | 0, (l | 0) >= 2) {
@@ -63788,20 +63724,20 @@ function Kg() {
                 bt(ie, (H << 2) + R | 0, ee << 2), _e = oe;
               }
               function nu(a, s, u) {
-                var l = 0, A = 0, d = 0, h = 0, b = x(0), f = 0, w = x(0), M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = x(0), te = 0, oe = 0, pe = 0, fe = x(0), re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = x(0), Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = x(0), yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ei = 0, Ii = 0, Qi = 0, Ri = 0, Gi = 0, la = 0, ca = 0, ua = 0, da = 0, Aa = 0, ma = 0, pa = 0, ya = 0, va = 0, wa = 0;
-                for (M = _e - 4320 | 0, d = M, _e = d, O = i[a + 8 >> 2], Se = (O | 0) > 1 ? O : 1, rt = 0 - s | 0, H = i[a >> 2], T = i[H + 4 >> 2], f = T + 2048 | 0, P = i[H + 32 >> 2], ie = i[H + 8 >> 2]; A = l << 2, h = ((D(l, f) << 2) + a | 0) + 92 | 0, i[A + (d + 4312 | 0) >> 2] = h, i[(d + 4304 | 0) + A >> 2] = ((rt << 2) + h | 0) - -8192, l = l + 1 | 0, (Se | 0) != (l | 0); )
+                var l = 0, A = 0, d = 0, h = 0, b = x(0), f = 0, w = x(0), M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = x(0), te = 0, oe = 0, pe = 0, fe = x(0), re = 0, se = 0, ye = 0, Se = 0, Qe = 0, ze = x(0), Ne = 0, Ye = 0, We = 0, et = 0, rt = 0, nt = x(0), yt = 0, It = 0, Dt = 0, Ut = 0, Ot = 0, Jt = 0, $t = 0, ii = 0, Ai = 0, fi = 0, Ci = 0, Bi = 0, Ei = 0, Ii = 0, Qi = 0, Ri = 0, Gi = 0, la = 0, ca = 0, ua = 0, da = 0, Aa = 0, ma = 0, pa = 0, ya = 0, va = 0, wa = 0;
+                for (M = _e - 4320 | 0, d = M, _e = d, Y = i[a + 8 >> 2], Se = (Y | 0) > 1 ? Y : 1, rt = 0 - s | 0, H = i[a >> 2], T = i[H + 4 >> 2], f = T + 2048 | 0, P = i[H + 32 >> 2], ie = i[H + 8 >> 2]; A = l << 2, h = ((D(l, f) << 2) + a | 0) + 92 | 0, i[A + (d + 4312 | 0) >> 2] = h, i[(d + 4304 | 0) + A >> 2] = ((rt << 2) + h | 0) - -8192, l = l + 1 | 0, (Se | 0) != (l | 0); )
                   ;
-                Ne = ((D(f, O) << 2) + a | 0) + 92 | 0, ee = i[a + 20 >> 2], se = i[a + 52 >> 2];
+                Ne = ((D(f, Y) << 2) + a | 0) + 92 | 0, ee = i[a + 20 >> 2], se = i[a + 52 >> 2];
                 e: {
                   if (!(!i[a + 56 >> 2] && !(ee | (se | 0) > 4))) {
-                    for (l = ie << 3, te = D(O, 96) + Ne | 0, oe = l + ((te + l | 0) + l | 0) | 0, fe = x(se ? 0.5 : 1.5), f = i[a + 24 >> 2], l = i[H + 12 >> 2], ye = (l | 0) > (f | 0) ? f : l, M = M - ((D(s, O) << 2) + 15 & -16) | 0, _e = M; ; ) {
+                    for (l = ie << 3, te = D(Y, 96) + Ne | 0, oe = l + ((te + l | 0) + l | 0) | 0, fe = x(se ? 0.5 : 1.5), f = i[a + 24 >> 2], l = i[H + 12 >> 2], ye = (l | 0) > (f | 0) ? f : l, M = M - ((D(s, Y) << 2) + 15 & -16) | 0, _e = M; ; ) {
                       if ((f | 0) > (ee | 0))
                         for (R = D(ie, pe), l = ee; A = l + R << 2, h = te + A | 0, b = L[A + oe >> 2], w = x(L[h >> 2] - fe), L[h >> 2] = b > w ? b : w, l = l + 1 | 0, (f | 0) != (l | 0); )
                           ;
                       if (pe = pe + 1 | 0, (Se | 0) == (pe | 0))
                         break;
                     }
-                    if (pe = (ee | 0) > (ye | 0) ? ee : ye, A = i[a + 40 >> 2], (O | 0) >= 1)
+                    if (pe = (ee | 0) > (ye | 0) ? ee : ye, A = i[a + 40 >> 2], (Y | 0) >= 1)
                       for (ie = 0; ; ) {
                         if ((ee | 0) < (ye | 0))
                           for (oe = D(s, ie), R = ee; ; ) {
@@ -63811,22 +63747,22 @@ function Kg() {
                             if (Kr((h << 2) + M | 0, f, x(1), i[a + 36 >> 2]), (R | 0) == (pe | 0))
                               break;
                           }
-                        if (ie = ie + 1 | 0, (ie | 0) == (O | 0))
+                        if (ie = ie + 1 | 0, (ie | 0) == (Y | 0))
                           break;
                       }
                     for (i[a + 40 >> 2] = A, h = ((T >>> 1 | 0) - s << 2) - -8192 | 0, l = 0; A = i[(d + 4312 | 0) + (l << 2) >> 2], _a(A, (s << 2) + A | 0, h), l = l + 1 | 0, (Se | 0) != (l | 0); )
                       ;
-                    Gs(H, M, d + 4304 | 0, te, ee, pe, O, O, 0, u, i[a + 16 >> 2], 0, i[a + 36 >> 2]);
+                    Gs(H, M, d + 4304 | 0, te, ee, pe, Y, Y, 0, u, i[a + 16 >> 2], 0, i[a + 36 >> 2]);
                     break e;
                   }
                   t: {
                     if (!se) {
-                      l = i[a + 36 >> 2], pu(d + 4312 | 0, d + 112 | 0, 2048, O, l), uu(d + 1552 | 0, d + 112 | 0, 1328, 620, d, l), u = 720 - i[d >> 2] | 0, i[a + 48 >> 2] = u, nt = x(1);
+                      l = i[a + 36 >> 2], pu(d + 4312 | 0, d + 112 | 0, 2048, Y, l), uu(d + 1552 | 0, d + 112 | 0, 1328, 620, d, l), u = 720 - i[d >> 2] | 0, i[a + 48 >> 2] = u, nt = x(1);
                       break t;
                     }
                     u = i[a + 48 >> 2], nt = x(0.800000011920929);
                   }
-                  for (l = u << 1, Qe = (l | 0) < 1024 ? l : 1024, l = Qe >> 1, pe = (l | 0) > 1 ? l : 1, oe = M - ((T << 2) + 15 & -16) | 0, A = oe, _e = A, ee = 1024 - Qe | 0, ie = 1024 - l | 0, We = Qe << 2, yt = (d - We | 0) + 4304 | 0, ye = (T | 0) / 2 | 0, O = 1024 - u | 0, R = s + T | 0, Ut = R << 2, M = 2048 - s | 0, It = M << 2, et = A - (We + 15 & -16) | 0, _e = et, f = d + 208 | 0, te = i[H + 60 >> 2], Ot = 2047 - s << 2, Jt = 2046 - s << 2, $t = 2045 - s << 2, ii = 2044 - s << 2, Ai = 2043 - s << 2, fi = 2042 - s << 2, Ci = 2041 - s << 2, Bi = 2040 - s << 2, Ei = 2039 - s << 2, Ii = 2038 - s << 2, Qi = 2037 - s << 2, Ri = 2036 - s << 2, Gi = 2035 - s << 2, la = 2034 - s << 2, ca = 2033 - s << 2, ua = 2032 - s << 2, da = 2031 - s << 2, Aa = 2030 - s << 2, ma = 2029 - s << 2, pa = 2028 - s << 2, ya = 2027 - s << 2, va = 2026 - s << 2, wa = 2025 - s << 2, Ye = 2024 - s << 2, H = 0; ; ) {
+                  for (l = u << 1, Qe = (l | 0) < 1024 ? l : 1024, l = Qe >> 1, pe = (l | 0) > 1 ? l : 1, oe = M - ((T << 2) + 15 & -16) | 0, A = oe, _e = A, ee = 1024 - Qe | 0, ie = 1024 - l | 0, We = Qe << 2, yt = (d - We | 0) + 4304 | 0, ye = (T | 0) / 2 | 0, Y = 1024 - u | 0, R = s + T | 0, Ut = R << 2, M = 2048 - s | 0, It = M << 2, et = A - (We + 15 & -16) | 0, _e = et, f = d + 208 | 0, te = i[H + 60 >> 2], Ot = 2047 - s << 2, Jt = 2046 - s << 2, $t = 2045 - s << 2, ii = 2044 - s << 2, Ai = 2043 - s << 2, fi = 2042 - s << 2, Ci = 2041 - s << 2, Bi = 2040 - s << 2, Ei = 2039 - s << 2, Ii = 2038 - s << 2, Qi = 2037 - s << 2, Ri = 2036 - s << 2, Gi = 2035 - s << 2, la = 2034 - s << 2, ca = 2033 - s << 2, ua = 2032 - s << 2, da = 2031 - s << 2, Aa = 2030 - s << 2, ma = 2029 - s << 2, pa = 2028 - s << 2, ya = 2027 - s << 2, va = 2026 - s << 2, wa = 2025 - s << 2, Ye = 2024 - s << 2, H = 0; ; ) {
                     for (h = i[(d + 4312 | 0) + (H << 2) >> 2], l = 0; A = l << 2, i[A + (d + 112 | 0) >> 2] = i[(A + h | 0) + 4e3 >> 2], l = l + 1 | 0, (l | 0) != 1048; )
                       ;
                     t: {
@@ -63842,7 +63778,7 @@ function Kg() {
                       for (; w = L[(l + ee << 2) + f >> 2], b = x(b + x(w * w)), w = L[(l + ie << 2) + f >> 2], Ae = x(Ae + x(w * w)), l = l + 1 | 0, (pe | 0) != (l | 0); )
                         ;
                     if (l = _a(h, (s << 2) + h | 0, It), fe = x(0), w = x(0), re = (R | 0) < 1, !re)
-                      for (ze = x(si(x((b > Ae ? Ae : b) / b))), b = x(nt * ze), A = 0, h = 0; P = (u | 0) > (h | 0), b = P ? b : x(ze * b), h = h - (P ? 0 : u) | 0, P = O + h | 0, L[(A + M << 2) + l >> 2] = b * L[(P << 2) + f >> 2], h = h + 1 | 0, Ae = L[((P - s << 2) + l | 0) + 4096 >> 2], w = x(w + x(Ae * Ae)), A = A + 1 | 0, (R | 0) != (A | 0); )
+                      for (ze = x(si(x((b > Ae ? Ae : b) / b))), b = x(nt * ze), A = 0, h = 0; P = (u | 0) > (h | 0), b = P ? b : x(ze * b), h = h - (P ? 0 : u) | 0, P = Y + h | 0, L[(A + M << 2) + l >> 2] = b * L[(P << 2) + f >> 2], h = h + 1 | 0, Ae = L[((P - s << 2) + l | 0) + 4096 >> 2], w = x(w + x(Ae * Ae)), A = A + 1 | 0, (R | 0) != (A | 0); )
                         ;
                     i[d >> 2] = i[l + Ot >> 2], i[d + 4 >> 2] = i[l + Jt >> 2], i[d + 8 >> 2] = i[l + $t >> 2], i[d + 12 >> 2] = i[l + ii >> 2], i[d + 16 >> 2] = i[l + Ai >> 2], i[d + 20 >> 2] = i[l + fi >> 2], i[d + 24 >> 2] = i[l + Ci >> 2], i[d + 28 >> 2] = i[l + Bi >> 2], i[d + 32 >> 2] = i[l + Ei >> 2], i[d + 36 >> 2] = i[l + Ii >> 2], i[d + 40 >> 2] = i[l + Qi >> 2], i[d + 44 >> 2] = i[l + Ri >> 2], i[d + 48 >> 2] = i[l + Gi >> 2], i[d + 52 >> 2] = i[l + la >> 2], i[d + 56 >> 2] = i[l + ca >> 2], i[d + 60 >> 2] = i[l + ua >> 2], i[d + 64 >> 2] = i[l + da >> 2], i[d + 68 >> 2] = i[l + Aa >> 2], i[d + 72 >> 2] = i[l + ma >> 2], i[d + 76 >> 2] = i[l + pa >> 2], i[d + 80 >> 2] = i[l + ya >> 2], i[d + 84 >> 2] = i[l + va >> 2], i[d + 88 >> 2] = i[l + wa >> 2], i[d + 92 >> 2] = i[l + Ye >> 2], P = l - -8192 | 0, A = P + (rt << 2) | 0, yu(A, Dt, A, R, 24, d, i[a + 36 >> 2]), A = 0;
                     t: {
@@ -63880,7 +63816,7 @@ function Kg() {
                 i[a + 52 >> 2] = se + 1, _e = d + 4320 | 0;
               }
               function lu(a, s, u, l, A) {
-                var d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0;
+                var d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0;
                 if (f = _e - 560 | 0, _e = f, b = (u - 3 | 0) / 24 | 0, te = (b | 0) > 0 ? b : 0, H = D(te, -24) + u | 0, R = i[(A << 2) + 25088 >> 2], T = l - 1 | 0, (R + T | 0) >= 0)
                   for (h = l + R | 0, u = te - T | 0, b = 0; d = (u | 0) < 0 ? 0 : +i[(u << 2) + 25104 >> 2], we[(f + 320 | 0) + (b << 3) >> 3] = d, u = u + 1 | 0, b = b + 1 | 0, (b | 0) != (h | 0); )
                     ;
@@ -63935,20 +63871,20 @@ function Kg() {
                           fe = (Ae | 0) < 1;
                           r: {
                             if (!fe) {
-                              b = (h << 2) + f | 0, u = b + 476 | 0, P = u, u = i[b + 476 >> 2], b = u, u = u >> pe, b = b - (u << pe) | 0, i[P >> 2] = b, ie = u + ie | 0, O = b >> re;
+                              b = (h << 2) + f | 0, u = b + 476 | 0, P = u, u = i[b + 476 >> 2], b = u, u = u >> pe, b = b - (u << pe) | 0, i[P >> 2] = b, ie = u + ie | 0, Y = b >> re;
                               break r;
                             }
                             if (Ae)
                               break a;
-                            O = i[((h << 2) + f | 0) + 476 >> 2] >> 23;
+                            Y = i[((h << 2) + f | 0) + 476 >> 2] >> 23;
                           }
-                          if ((O | 0) < 1)
+                          if ((Y | 0) < 1)
                             break t;
                           break i;
                         }
-                        if (O = 2, !(d >= 0.5 ^ 1))
+                        if (Y = 2, !(d >= 0.5 ^ 1))
                           break i;
-                        O = 0;
+                        Y = 0;
                         break t;
                       }
                       if (u = 0, P = 0, !T)
@@ -63981,7 +63917,7 @@ function Kg() {
                           }
                         b = (h << 2) + f | 0, u = b + 476 | 0, i[u >> 2] = i[b + 476 >> 2] & 4194303;
                       }
-                      if (ie = ie + 1 | 0, (O | 0) != 2 || (d = 1 - d, O = 2, !P))
+                      if (ie = ie + 1 | 0, (Y | 0) != 2 || (d = 1 - d, Y = 2, !P))
                         break t;
                       d = d - Ha(1, Ae);
                     }
@@ -64072,7 +64008,7 @@ function Kg() {
                             for (; oe = oe + we[(f + 160 | 0) + (h << 3) >> 3], u = (h | 0) > 2, h = h - 1 | 0, !!u; )
                               ;
                           }
-                          if (d = we[f + 160 >> 3], O)
+                          if (d = we[f + 160 >> 3], Y)
                             break t;
                           we[s >> 3] = d, d = we[f + 168 >> 3], we[s + 16 >> 3] = oe, we[s + 8 >> 3] = d;
                           break e;
@@ -64080,7 +64016,7 @@ function Kg() {
                           if (d = 0, (h | 0) >= 0)
                             for (; d = d + we[(f + 160 | 0) + (h << 3) >> 3], u = (h | 0) > 0, h = h - 1 | 0, !!u; )
                               ;
-                          we[s >> 3] = O ? -d : d;
+                          we[s >> 3] = Y ? -d : d;
                           break e;
                         case 1:
                         case 2:
@@ -64091,10 +64027,10 @@ function Kg() {
                     if (d = 0, (h | 0) >= 0)
                       for (u = h; d = d + we[(f + 160 | 0) + (u << 3) >> 3], l = (u | 0) > 0, u = u - 1 | 0, !!l; )
                         ;
-                    if (we[s >> 3] = O ? -d : d, d = we[f + 160 >> 3] - d, u = 1, (h | 0) >= 1)
+                    if (we[s >> 3] = Y ? -d : d, d = we[f + 160 >> 3] - d, u = 1, (h | 0) >= 1)
                       for (; d = d + we[(f + 160 | 0) + (u << 3) >> 3], l = (u | 0) != (h | 0), u = u + 1 | 0, !!l; )
                         ;
-                    we[s + 8 >> 3] = O ? -d : d;
+                    we[s + 8 >> 3] = Y ? -d : d;
                     break e;
                   }
                   we[s >> 3] = -d, d = we[f + 168 >> 3], we[s + 16 >> 3] = -oe, we[s + 8 >> 3] = -d;
@@ -64102,7 +64038,7 @@ function Kg() {
                 return _e = f + 560 | 0, ie & 7;
               }
               function Xi(a, s, u, l, A, d, h, b, f, w, M) {
-                var P = 0, R = 0, H = 0, O = 0, T = 0, ee = x(0), ie = x(0), Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0;
+                var P = 0, R = 0, H = 0, Y = 0, T = 0, ee = x(0), ie = x(0), Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0, ye = 0;
                 fe = (u >>> 0) / (A >>> 0) | 0, se = i[a >> 2];
                 e: {
                   if ((u | 0) == 1) {
@@ -64143,21 +64079,21 @@ function Kg() {
                         if (se) {
                           if ((R | 0) == 31)
                             break t;
-                          for (T = u >> R, d = T >> 1, oe = (d | 0) > 1 ? d : 1, O = 1 << R, Ae = O << 1, P = 0; ; ) {
+                          for (T = u >> R, d = T >> 1, oe = (d | 0) > 1 ? d : 1, Y = 1 << R, Ae = Y << 1, P = 0; ; ) {
                             if (d = 0, (T | 0) >= 2)
                               for (; H = (D(d, Ae) + P << 2) + s | 0, re = H, ee = x(L[H >> 2] * x(0.7071067690849304)), H = (((d << 1 | 1) << R) + P << 2) + s | 0, ie = x(L[H >> 2] * x(0.7071067690849304)), L[re >> 2] = ee + ie, L[H >> 2] = ee - ie, d = d + 1 | 0, (oe | 0) != (d | 0); )
                                 ;
-                            if (P = P + 1 | 0, (O | 0) == (P | 0))
+                            if (P = P + 1 | 0, (Y | 0) == (P | 0))
                               break;
                           }
                         }
                         if (!w | (R | 0) == 31)
                           break t;
-                        for (T = u >> R, d = T >> 1, oe = (d | 0) > 1 ? d : 1, O = 1 << R, Ae = O << 1, P = 0; ; ) {
+                        for (T = u >> R, d = T >> 1, oe = (d | 0) > 1 ? d : 1, Y = 1 << R, Ae = Y << 1, P = 0; ; ) {
                           if (d = 0, (T | 0) >= 2)
                             for (; H = (D(d, Ae) + P << 2) + w | 0, re = H, ee = x(L[H >> 2] * x(0.7071067690849304)), H = (((d << 1 | 1) << R) + P << 2) + w | 0, ie = x(L[H >> 2] * x(0.7071067690849304)), L[re >> 2] = ee + ie, L[H >> 2] = ee - ie, d = d + 1 | 0, (oe | 0) != (d | 0); )
                               ;
-                          if (P = P + 1 | 0, (O | 0) == (P | 0))
+                          if (P = P + 1 | 0, (Y | 0) == (P | 0))
                             break;
                         }
                       }
@@ -64171,13 +64107,13 @@ function Kg() {
                         if (!(!se | (R | 0) < 1))
                           for (d = T >> 1, oe = (d | 0) > 1 ? d : 1, Ae = R << 1, P = 0; ; ) {
                             if (d = 0, (T | 0) >= 2)
-                              for (; H = (D(d, Ae) + P << 2) + s | 0, O = H, ee = x(L[H >> 2] * x(0.7071067690849304)), H = (D(d << 1 | 1, R) + P << 2) + s | 0, ie = x(L[H >> 2] * x(0.7071067690849304)), L[O >> 2] = ee + ie, L[H >> 2] = ee - ie, d = d + 1 | 0, (oe | 0) != (d | 0); )
+                              for (; H = (D(d, Ae) + P << 2) + s | 0, Y = H, ee = x(L[H >> 2] * x(0.7071067690849304)), H = (D(d << 1 | 1, R) + P << 2) + s | 0, ie = x(L[H >> 2] * x(0.7071067690849304)), L[Y >> 2] = ee + ie, L[H >> 2] = ee - ie, d = d + 1 | 0, (oe | 0) != (d | 0); )
                                 ;
                             if (P = P + 1 | 0, (R | 0) == (P | 0))
                               break;
                           }
-                        if (O = T >> 1, !(!w | (R | 0) < 1))
-                          for (oe = (O | 0) > 1 ? O : 1, Ae = R << 1, P = 0; ; ) {
+                        if (Y = T >> 1, !(!w | (R | 0) < 1))
+                          for (oe = (Y | 0) > 1 ? Y : 1, Ae = R << 1, P = 0; ; ) {
                             if (d = 0, (T | 0) >= 2)
                               for (; H = (D(d, Ae) + P << 2) + w | 0, re = H, ee = x(L[H >> 2] * x(0.7071067690849304)), H = (D(d << 1 | 1, R) + P << 2) + w | 0, ie = x(L[H >> 2] * x(0.7071067690849304)), L[re >> 2] = ee + ie, L[H >> 2] = ee - ie, d = d + 1 | 0, (oe | 0) != (d | 0); )
                                 ;
@@ -64186,31 +64122,31 @@ function Kg() {
                           }
                         if (ye = ye + 1 | 0, d = R << 1, M = M << R | M, T & 2)
                           break t;
-                        if (P = (fe | 0) < -1, fe = fe + 1 | 0, R = d, T = O, !P)
+                        if (P = (fe | 0) < -1, fe = fe + 1 | 0, R = d, T = Y, !P)
                           break;
                       }
                       break t;
                     }
-                    O = T, d = R;
+                    Y = T, d = R;
                   }
                   P = (A | 0) == 1;
                   t: {
-                    if ((d | 0) < 2 || (se && rn(s, O >> te, d << te, P), !w))
+                    if ((d | 0) < 2 || (se && rn(s, Y >> te, d << te, P), !w))
                       break t;
-                    rn(w, O >> te, d << te, P);
+                    rn(w, Y >> te, d << te, P);
                   }
                   if (M = qa(a, s, u, l, d, w, h, f, M), !i[a + 4 >> 2])
                     break e;
-                  (d | 0) >= 2 && Ou(s, O >> te, d << te, P);
+                  (d | 0) >= 2 && Ou(s, Y >> te, d << te, P);
                   t: {
                     if (!ye) {
                       H = d;
                       break t;
                     }
                     for (Ae = 0; ; ) {
-                      if (O = O << 1, H = d >> 1, T = M >>> H | 0, (d | 0) >= 2)
-                        for (w = O >> 1, R = (w | 0) > 1 ? w : 1, oe = d & -2, w = 0; ; ) {
-                          if (d = 0, (O | 0) >= 2)
+                      if (Y = Y << 1, H = d >> 1, T = M >>> H | 0, (d | 0) >= 2)
+                        for (w = Y >> 1, R = (w | 0) > 1 ? w : 1, oe = d & -2, w = 0; ; ) {
+                          if (d = 0, (Y | 0) >= 2)
                             for (; P = (D(d, oe) + w << 2) + s | 0, a = P, ee = x(L[P >> 2] * x(0.7071067690849304)), P = (D(d << 1 | 1, H) + w << 2) + s | 0, ie = x(L[P >> 2] * x(0.7071067690849304)), L[a >> 2] = ee + ie, L[P >> 2] = ee - ie, d = d + 1 | 0, (R | 0) != (d | 0); )
                               ;
                           if (w = w + 1 | 0, (H | 0) == (w | 0))
@@ -64223,11 +64159,11 @@ function Kg() {
                   if (R = 0, (pe | 0) > 0)
                     for (; ; ) {
                       if (M = le[M + 33552 | 0], (R | 0) != 31)
-                        for (T = u >> R, d = T >> 1, oe = (d | 0) > 1 ? d : 1, O = 1 << R, Ae = O << 1, w = 0; ; ) {
+                        for (T = u >> R, d = T >> 1, oe = (d | 0) > 1 ? d : 1, Y = 1 << R, Ae = Y << 1, w = 0; ; ) {
                           if (d = 0, (T | 0) >= 2)
                             for (; P = (D(d, Ae) + w << 2) + s | 0, a = P, ee = x(L[P >> 2] * x(0.7071067690849304)), P = (((d << 1 | 1) << R) + w << 2) + s | 0, ie = x(L[P >> 2] * x(0.7071067690849304)), L[a >> 2] = ee + ie, L[P >> 2] = ee - ie, d = d + 1 | 0, (oe | 0) != (d | 0); )
                               ;
-                          if (w = w + 1 | 0, (O | 0) == (w | 0))
+                          if (w = w + 1 | 0, (Y | 0) == (w | 0))
                             break;
                         }
                       if (R = R + 1 | 0, (te | 0) == (R | 0))
@@ -64241,7 +64177,7 @@ function Kg() {
                 return M;
               }
               function Ts(a) {
-                var s = 0, u = 0, l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = x(0), O = x(0), T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0;
+                var s = 0, u = 0, l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = x(0), Y = x(0), T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0;
                 u = i[a + 8 >> 2], s = i[a + 12 >> 2], d = (u >>> 0) / (s >>> 0) | 0, i[a + 36 >> 2] = d, l = D(i[a + 16 >> 2], 20), h = i[l + 37364 >> 2], i[a + 48 >> 2] = h, P = i[a + 24 >> 2], A = i[l + 37360 >> 2], i[a + 24 >> 2] = A, i[a + 40 >> 2] = u - D(s, d), ie = i[a + 28 >> 2];
                 e: {
                   t: {
@@ -64281,7 +64217,7 @@ function Kg() {
                           if (u = i[a + 24 >> 2], f = i[a + 12 >> 2], f)
                             for (d = (u | 0) / -2 | 0, H = x(f >>> 0), b = 0; ; ) {
                               if (u)
-                                for (A = D(u, b), O = x(x(b >>> 0) / H), l = i[D(i[a + 16 >> 2], 20) + 37376 >> 2], h = i[a + 76 >> 2], s = 0; M = (s + A << 2) + h | 0, s = s + 1 | 0, L[M >> 2] = on(L[a + 44 >> 2], x(x(d + s | 0) - O), u, l), (s | 0) != (u | 0); )
+                                for (A = D(u, b), Y = x(x(b >>> 0) / H), l = i[D(i[a + 16 >> 2], 20) + 37376 >> 2], h = i[a + 76 >> 2], s = 0; M = (s + A << 2) + h | 0, s = s + 1 | 0, L[M >> 2] = on(L[a + 44 >> 2], x(x(d + s | 0) - Y), u, l), (s | 0) != (u | 0); )
                                   ;
                               if (b = b + 1 | 0, (f | 0) == (b | 0))
                                 break;
@@ -64289,7 +64225,7 @@ function Kg() {
                           s = i[a + 16 >> 2] > 8 ? 4 : 5;
                           break i;
                         }
-                        for (O = x(u >>> 1 >>> 0), d = i[a + 16 >> 2], l = i[D(d, 20) + 37376 >> 2], H = x(h >>> 0), h = i[a + 76 >> 2]; L[((s << 2) + h | 0) + 16 >> 2] = on(L[a + 44 >> 2], x(x(x(s | 0) / H) - O), u, l), s = s + 1 | 0, (A | 0) != (s | 0); )
+                        for (Y = x(u >>> 1 >>> 0), d = i[a + 16 >> 2], l = i[D(d, 20) + 37376 >> 2], H = x(h >>> 0), h = i[a + 76 >> 2]; L[((s << 2) + h | 0) + 16 >> 2] = on(L[a + 44 >> 2], x(x(x(s | 0) / H) - Y), u, l), s = s + 1 | 0, (A | 0) != (s | 0); )
                           ;
                       }
                       s = (d | 0) > 8 ? 6 : 7;
@@ -64508,7 +64444,7 @@ function Kg() {
                 i[l + 4 >> 2] = a | 1, i[a + l >> 2] = a;
               }
               function Ur(a, s, u, l, A, d, h, b, f) {
-                var w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0;
+                var w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0;
                 R = _e - 112 | 0, _e = R;
                 e: {
                   t: {
@@ -64597,13 +64533,13 @@ function Kg() {
                                     }
                                     if ((u | 0) < 0)
                                       break i;
-                                    w = le[s | 0], O = w & 96, T = w & 128;
+                                    w = le[s | 0], Y = w & 96, T = w & 128;
                                     l: {
                                       if (T) {
                                         w = w >>> 5 & 3, H = w ? w + 1102 | 0 : 1101;
                                         break l;
                                       }
-                                      if (H = w & 16 ? 1105 : 1104, (O | 0) == 96)
+                                      if (H = w & 16 ? 1105 : 1104, (Y | 0) == 96)
                                         break l;
                                       H = (w >>> 5 & 3) + 1101 | 0;
                                     }
@@ -64611,7 +64547,7 @@ function Kg() {
                                       w = P;
                                       break i;
                                     }
-                                    if (u = T ? 1002 : (O | 0) == 96 ? 1001 : 1e3, h = w & 4 ? 2 : 1, s = i[R + 108 >> 2] + s | 0, d) {
+                                    if (u = T ? 1002 : (Y | 0) == 96 ? 1001 : 1e3, h = w & 4 ? 2 : 1, s = i[R + 108 >> 2] + s | 0, d) {
                                       if (!(i[a + 56 >> 2] != 1002 && !((u | 0) == 1002 | (A | 0) < (M | 0)))) {
                                         w = Ur(a, 0, 0, l, A, 0, 0);
                                         break i;
@@ -64825,7 +64761,7 @@ function Kg() {
                 }
               }
               function Gr(a, s, u, l) {
-                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0;
+                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0;
                 h = _e - 320 | 0, _e = h;
                 e:
                   switch (u - 10 | 0) {
@@ -64842,11 +64778,11 @@ function Kg() {
                   if (oe = (u | 0) < 4, oe)
                     break e;
                   for (; ; ) {
-                    ie = i[(h + 224 | 0) + (d << 3) >> 2], l = ie, A = l >> 31, O = l, T = A, l = s, A = l >> 31, l = A, H = d + 1 | 0, Ae = (h + 160 | 0) + (H << 2) | 0, A = T, l = bi(O, A, s, l), w = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | w >>> 15, M = A + 1 | 0, P = M >>> 0 < 1 ? l + 1 | 0 : l, l = M, i[Ae >> 2] = (b << 1) - ((P & 1) << 31 | l >>> 1), f = d << 2, ee = f + (h + 160 | 0) | 0;
+                    ie = i[(h + 224 | 0) + (d << 3) >> 2], l = ie, A = l >> 31, Y = l, T = A, l = s, A = l >> 31, l = A, H = d + 1 | 0, Ae = (h + 160 | 0) + (H << 2) | 0, A = T, l = bi(Y, A, s, l), w = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | w >>> 15, M = A + 1 | 0, P = M >>> 0 < 1 ? l + 1 | 0 : l, l = M, i[Ae >> 2] = (b << 1) - ((P & 1) << 31 | l >>> 1), f = d << 2, ee = f + (h + 160 | 0) | 0;
                     t: {
-                      if (d >>> 0 < 2 || (f = i[(h + f | 0) + 152 >> 2], s = f + s | 0, l = b, A = l >> 31, l = T, l = bi(b, A, O, l), P = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | P >>> 15, w = A + 1 | 0, M = w >>> 0 < 1 ? l + 1 | 0 : l, l = w, i[ee >> 2] = s - ((M & 1) << 31 | l >>> 1), (d | 0) == 2))
+                      if (d >>> 0 < 2 || (f = i[(h + f | 0) + 152 >> 2], s = f + s | 0, l = b, A = l >> 31, l = T, l = bi(b, A, Y, l), P = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | P >>> 15, w = A + 1 | 0, M = w >>> 0 < 1 ? l + 1 | 0 : l, l = w, i[ee >> 2] = s - ((M & 1) << 31 | l >>> 1), (d | 0) == 2))
                         break t;
-                      for (; b = d - 1 | 0, s = (h + 160 | 0) + (b << 2) | 0, R = i[((d << 2) + h | 0) + 148 >> 2], pe = R + i[s >> 2] | 0, l = f, A = l >> 31, l = T, l = bi(f, A, O, l), M = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | M >>> 15, P = A + 1 | 0, w = P >>> 0 < 1 ? l + 1 | 0 : l, l = P, i[s >> 2] = pe - ((w & 1) << 31 | l >>> 1), s = (d | 0) > 3, d = b, f = R, !!s; )
+                      for (; b = d - 1 | 0, s = (h + 160 | 0) + (b << 2) | 0, R = i[((d << 2) + h | 0) + 148 >> 2], pe = R + i[s >> 2] | 0, l = f, A = l >> 31, l = T, l = bi(f, A, Y, l), M = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | M >>> 15, P = A + 1 | 0, w = P >>> 0 < 1 ? l + 1 | 0 : l, l = P, i[s >> 2] = pe - ((w & 1) << 31 | l >>> 1), s = (d | 0) > 3, d = b, f = R, !!s; )
                         ;
                     }
                     if (i[h + 164 >> 2] = i[h + 164 >> 2] - ie, (H | 0) == (te | 0))
@@ -64859,11 +64795,11 @@ function Kg() {
                   if (oe)
                     break e;
                   for (oe = h + 224 | 4, d = 1; ; ) {
-                    ie = i[(d << 3) + oe >> 2], l = ie, A = l >> 31, O = l, T = A, l = s, A = l >> 31, l = A, H = d + 1 | 0, Ae = (h + 96 | 0) + (H << 2) | 0, A = T, l = bi(O, A, s, l), w = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | w >>> 15, M = A + 1 | 0, P = M >>> 0 < 1 ? l + 1 | 0 : l, l = M, i[Ae >> 2] = (b << 1) - ((P & 1) << 31 | l >>> 1), f = d << 2, ee = f + (h + 96 | 0) | 0;
+                    ie = i[(d << 3) + oe >> 2], l = ie, A = l >> 31, Y = l, T = A, l = s, A = l >> 31, l = A, H = d + 1 | 0, Ae = (h + 96 | 0) + (H << 2) | 0, A = T, l = bi(Y, A, s, l), w = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | w >>> 15, M = A + 1 | 0, P = M >>> 0 < 1 ? l + 1 | 0 : l, l = M, i[Ae >> 2] = (b << 1) - ((P & 1) << 31 | l >>> 1), f = d << 2, ee = f + (h + 96 | 0) | 0;
                     t: {
-                      if (d >>> 0 < 2 || (f = i[(h + f | 0) + 88 >> 2], s = f + s | 0, l = b, A = l >> 31, l = T, l = bi(b, A, O, l), P = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | P >>> 15, w = A + 1 | 0, M = w >>> 0 < 1 ? l + 1 | 0 : l, l = w, i[ee >> 2] = s - ((M & 1) << 31 | l >>> 1), (d | 0) == 2))
+                      if (d >>> 0 < 2 || (f = i[(h + f | 0) + 88 >> 2], s = f + s | 0, l = b, A = l >> 31, l = T, l = bi(b, A, Y, l), P = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | P >>> 15, w = A + 1 | 0, M = w >>> 0 < 1 ? l + 1 | 0 : l, l = w, i[ee >> 2] = s - ((M & 1) << 31 | l >>> 1), (d | 0) == 2))
                         break t;
-                      for (; b = d - 1 | 0, s = (h + 96 | 0) + (b << 2) | 0, R = i[((d << 2) + h | 0) + 84 >> 2], pe = R + i[s >> 2] | 0, l = f, A = l >> 31, l = T, l = bi(f, A, O, l), M = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | M >>> 15, P = A + 1 | 0, w = P >>> 0 < 1 ? l + 1 | 0 : l, l = P, i[s >> 2] = pe - ((w & 1) << 31 | l >>> 1), s = (d | 0) > 3, d = b, f = R, !!s; )
+                      for (; b = d - 1 | 0, s = (h + 96 | 0) + (b << 2) | 0, R = i[((d << 2) + h | 0) + 84 >> 2], pe = R + i[s >> 2] | 0, l = f, A = l >> 31, l = T, l = bi(f, A, Y, l), M = l, A = ht, l = A >>> 15 | 0, A = (A & 32767) << 17 | M >>> 15, P = A + 1 | 0, w = P >>> 0 < 1 ? l + 1 | 0 : l, l = P, i[s >> 2] = pe - ((w & 1) << 31 | l >>> 1), s = (d | 0) > 3, d = b, f = R, !!s; )
                         ;
                     }
                     if (i[h + 100 >> 2] = i[h + 100 >> 2] - ie, (H | 0) == (te | 0))
@@ -64890,22 +64826,22 @@ function Kg() {
                 _e = h + 320 | 0;
               }
               function zs(a, s, u, l, A, d) {
-                var h = x(0), b = 0, f = x(0), w = 0, M = 0, P = 0, R = x(0), H = 0, O = 0, T = 0, ee = x(0), ie = 0, Ae = x(0), te = 0, oe = x(0), pe = x(0), fe = x(0), re = x(0), se = x(0), ye = x(0), Se = x(0), Qe = x(0), ze = x(0), Ne = 0, Ye = 0, We = x(0), et = 0, rt = 0, nt = 0;
+                var h = x(0), b = 0, f = x(0), w = 0, M = 0, P = 0, R = x(0), H = 0, Y = 0, T = 0, ee = x(0), ie = 0, Ae = x(0), te = 0, oe = x(0), pe = x(0), fe = x(0), re = x(0), se = x(0), ye = x(0), Se = x(0), Qe = x(0), ze = x(0), Ne = 0, Ye = 0, We = x(0), et = 0, rt = 0, nt = 0;
                 if ((A | 0) >= 1) {
                   e: {
                     if ((A | 0) < 4)
                       break e;
                     if ((l | 0) >= 3) {
                       for (et = A - 3 | 0, te = l - 3 | 0, rt = (l | 0) == 3, Ne = l & -4, Ye = Ne | 1, nt = (Ye + 1 | 0) >= (l | 0); ; ) {
-                        if (ie = P << 2, d = ie + s | 0, b = d + 12 | 0, f = L[d + 8 >> 2], Ae = L[d + 4 >> 2], ee = L[d >> 2], R = x(0), ye = x(0), Se = x(0), Qe = x(0), d = a, M = 0, w = 0, H = 0, O = 0, T = 0, !rt) {
+                        if (ie = P << 2, d = ie + s | 0, b = d + 12 | 0, f = L[d + 8 >> 2], Ae = L[d + 4 >> 2], ee = L[d >> 2], R = x(0), ye = x(0), Se = x(0), Qe = x(0), d = a, M = 0, w = 0, H = 0, Y = 0, T = 0, !rt) {
                           for (; oe = L[d >> 2], h = L[b >> 2], pe = L[d + 4 >> 2], fe = L[b + 4 >> 2], re = L[d + 8 >> 2], ze = L[b + 8 >> 2], se = L[d + 12 >> 2], We = L[b + 12 >> 2], R = x(x(x(x(R + x(oe * h)) + x(pe * fe)) + x(re * ze)) + x(se * We)), ye = x(x(x(x(ye + x(f * oe)) + x(h * pe)) + x(fe * re)) + x(ze * se)), Se = x(x(x(x(Se + x(Ae * oe)) + x(f * pe)) + x(h * re)) + x(fe * se)), Qe = x(x(x(x(Qe + x(ee * oe)) + x(Ae * pe)) + x(f * re)) + x(h * se)), b = b + 16 | 0, d = d + 16 | 0, ee = fe, f = We, Ae = ze, M = M + 4 | 0, (te | 0) > (M | 0); )
                             ;
-                          H = (Nt(Se), wt(2)), O = (Nt(ye), wt(2)), T = (Nt(R), wt(2)), R = h, w = (Nt(Qe), wt(2));
+                          H = (Nt(Se), wt(2)), Y = (Nt(ye), wt(2)), T = (Nt(R), wt(2)), R = h, w = (Nt(Qe), wt(2));
                         }
                         t: {
                           if ((l | 0) <= (Ne | 0))
                             break t;
-                          h = L[d >> 2], R = L[b >> 2], T = (Nt(x(x(h * R) + (jt(2, T), Rt()))), wt(2)), O = (Nt(x(x(f * h) + (jt(2, O), Rt()))), wt(2)), H = (Nt(x(x(Ae * h) + (jt(2, H), Rt()))), wt(2)), w = (Nt(x(x(ee * h) + (jt(2, w), Rt()))), wt(2)), b = b + 4 | 0, d = d + 4 | 0;
+                          h = L[d >> 2], R = L[b >> 2], T = (Nt(x(x(h * R) + (jt(2, T), Rt()))), wt(2)), Y = (Nt(x(x(f * h) + (jt(2, Y), Rt()))), wt(2)), H = (Nt(x(x(Ae * h) + (jt(2, H), Rt()))), wt(2)), w = (Nt(x(x(ee * h) + (jt(2, w), Rt()))), wt(2)), b = b + 4 | 0, d = d + 4 | 0;
                         }
                         M = b;
                         t: {
@@ -64913,9 +64849,9 @@ function Kg() {
                             b = M;
                             break t;
                           }
-                          h = L[d >> 2], ee = L[M >> 2], T = (Nt(x(x(h * ee) + (jt(2, T), Rt()))), wt(2)), O = (Nt(x(x(R * h) + (jt(2, O), Rt()))), wt(2)), H = (Nt(x(x(f * h) + (jt(2, H), Rt()))), wt(2)), w = (Nt(x(x(Ae * h) + (jt(2, w), Rt()))), wt(2)), d = d + 4 | 0, b = M + 4 | 0;
+                          h = L[d >> 2], ee = L[M >> 2], T = (Nt(x(x(h * ee) + (jt(2, T), Rt()))), wt(2)), Y = (Nt(x(x(R * h) + (jt(2, Y), Rt()))), wt(2)), H = (Nt(x(x(f * h) + (jt(2, H), Rt()))), wt(2)), w = (Nt(x(x(Ae * h) + (jt(2, w), Rt()))), wt(2)), d = d + 4 | 0, b = M + 4 | 0;
                         }
-                        if (nt || (h = L[d >> 2], T = (Nt(x(x(h * L[b >> 2]) + (jt(2, T), Rt()))), wt(2)), O = (Nt(x(x(ee * h) + (jt(2, O), Rt()))), wt(2)), H = (Nt(x(x(R * h) + (jt(2, H), Rt()))), wt(2)), w = (Nt(x(x(f * h) + (jt(2, w), Rt()))), wt(2))), i[u + ie >> 2] = w, i[(ie | 4) + u >> 2] = H, i[(ie | 8) + u >> 2] = O, i[(ie | 12) + u >> 2] = T, P = P + 4 | 0, !((et | 0) > (P | 0)))
+                        if (nt || (h = L[d >> 2], T = (Nt(x(x(h * L[b >> 2]) + (jt(2, T), Rt()))), wt(2)), Y = (Nt(x(x(ee * h) + (jt(2, Y), Rt()))), wt(2)), H = (Nt(x(x(R * h) + (jt(2, H), Rt()))), wt(2)), w = (Nt(x(x(f * h) + (jt(2, w), Rt()))), wt(2))), i[u + ie >> 2] = w, i[(ie | 4) + u >> 2] = H, i[(ie | 8) + u >> 2] = Y, i[(ie | 12) + u >> 2] = T, P = P + 4 | 0, !((et | 0) > (P | 0)))
                           break;
                       }
                       break e;
@@ -64935,7 +64871,7 @@ function Kg() {
                 Re(33965, 33995, 251), Le();
               }
               function jr(a, s, u, l, A, d, h, b, f, w, M) {
-                var P = x(0), R = 0, H = 0, O = 0, T = x(0), ee = 0, ie = 0, Ae = x(0), te = x(0), oe = 0, pe = 0, fe = 0, re = x(0);
+                var P = x(0), R = 0, H = 0, Y = 0, T = x(0), ee = 0, ie = 0, Ae = x(0), te = x(0), oe = 0, pe = 0, fe = 0, re = x(0);
                 R = _e - 32 | 0, _e = R, i[R + 24 >> 2] = M, i[R + 28 >> 2] = A, A = i[a + 28 >> 2], ee = i[a >> 2];
                 e: {
                   if ((l | 0) == 1) {
@@ -64969,29 +64905,29 @@ function Kg() {
                     i[f >> 2] = i[s >> 2];
                     break e;
                   }
-                  Ds(a, R, s, u, l, R + 28 | 0, d, d, b, 1, R + 24 | 0), P = x(x(i[R + 8 >> 2]) * x(30517578125e-15)), te = x(x(i[R + 4 >> 2]) * x(30517578125e-15)), O = i[R + 28 >> 2], ie = i[R + 20 >> 2], H = i[R + 16 >> 2], fe = i[R >> 2];
+                  Ds(a, R, s, u, l, R + 28 | 0, d, d, b, 1, R + 24 | 0), P = x(x(i[R + 8 >> 2]) * x(30517578125e-15)), te = x(x(i[R + 4 >> 2]) * x(30517578125e-15)), Y = i[R + 28 >> 2], ie = i[R + 20 >> 2], H = i[R + 16 >> 2], fe = i[R >> 2];
                   t: {
                     if ((l | 0) == 2) {
-                      pe = H & -16385, oe = ((pe | 0) != 0) << 3, i[a + 32 >> 2] = i[a + 32 >> 2] - (oe + ie | 0), H = (H | 0) > 8192, ie = H ? s : u, H = H ? u : s, oe = O - oe | 0, O = 0;
+                      pe = H & -16385, oe = ((pe | 0) != 0) << 3, i[a + 32 >> 2] = i[a + 32 >> 2] - (oe + ie | 0), H = (H | 0) > 8192, ie = H ? s : u, H = H ? u : s, oe = Y - oe | 0, Y = 0;
                       i: {
                         if (!pe)
                           break i;
                         if (ee) {
-                          O = x(x(L[H >> 2] * L[ie + 4 >> 2]) - x(L[H + 4 >> 2] * L[ie >> 2])) < x(0), ur(A, O, 1);
+                          Y = x(x(L[H >> 2] * L[ie + 4 >> 2]) - x(L[H + 4 >> 2] * L[ie >> 2])) < x(0), ur(A, Y, 1);
                           break i;
                         }
-                        O = Wi(A, 1);
+                        Y = Wi(A, 1);
                       }
-                      if (b = Xi(a, H, 2, oe, d, h, b, f, x(1), w, M), d = 1 - (O << 1) | 0, L[ie >> 2] = L[H + 4 >> 2] * x(0 - d | 0), L[ie + 4 >> 2] = L[H >> 2] * x(d | 0), !i[a + 4 >> 2])
+                      if (b = Xi(a, H, 2, oe, d, h, b, f, x(1), w, M), d = 1 - (Y << 1) | 0, L[ie >> 2] = L[H + 4 >> 2] * x(0 - d | 0), L[ie + 4 >> 2] = L[H >> 2] * x(d | 0), !i[a + 4 >> 2])
                         break t;
                       L[s >> 2] = te * L[s >> 2], L[s + 4 >> 2] = te * L[s + 4 >> 2], T = x(P * L[u >> 2]), L[u >> 2] = T, L[u + 4 >> 2] = P * L[u + 4 >> 2], P = L[s >> 2], L[s >> 2] = P - T, L[u >> 2] = P + L[u >> 2], P = L[s + 4 >> 2], L[s + 4 >> 2] = P - L[u + 4 >> 2], L[u + 4 >> 2] = P + L[u + 4 >> 2];
                       break t;
                     }
-                    if (M = i[R + 12 >> 2], ie = i[a + 32 >> 2] - ie | 0, i[a + 32 >> 2] = ie, A = i[R + 24 >> 2], M = (O - M | 0) / 2 | 0, M = (M | 0) > (O | 0) ? O : M, M = (M | 0) > 0 ? M : 0, ee = O - M | 0, (M | 0) >= (ee | 0)) {
+                    if (M = i[R + 12 >> 2], ie = i[a + 32 >> 2] - ie | 0, i[a + 32 >> 2] = ie, A = i[R + 24 >> 2], M = (Y - M | 0) / 2 | 0, M = (M | 0) > (Y | 0) ? Y : M, M = (M | 0) > 0 ? M : 0, ee = Y - M | 0, (M | 0) >= (ee | 0)) {
                       h = Xi(a, s, l, M, d, h, b, f, x(1), w, A), M = (i[a + 32 >> 2] - ie | 0) + M | 0, b = h | Xi(a, u, l, (H && (M | 0) > 24 ? M - 24 | 0 : 0) + ee | 0, d, 0, b, 0, P, 0, A >> d);
                       break t;
                     }
-                    O = Xi(a, u, l, ee, d, 0, b, 0, P, 0, A >> d), ee = (i[a + 32 >> 2] - ie | 0) + ee | 0, b = O | Xi(a, s, l, ((H | 0) != 16384 && (ee | 0) > 24 ? ee - 24 | 0 : 0) + M | 0, d, h, b, f, x(1), w, A);
+                    Y = Xi(a, u, l, ee, d, 0, b, 0, P, 0, A >> d), ee = (i[a + 32 >> 2] - ie | 0) + ee | 0, b = Y | Xi(a, s, l, ((H | 0) != 16384 && (ee | 0) > 24 ? ee - 24 | 0 : 0) + M | 0, d, h, b, f, x(1), w, A);
                   }
                   if (!i[a + 4 >> 2])
                     break e;
@@ -65020,7 +64956,7 @@ function Kg() {
                 return _e = R + 32 | 0, b;
               }
               function Yr(a, s) {
-                var u = 0, l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0;
+                var u = 0, l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0;
                 H = _e - 96 | 0;
                 e: {
                   if ((s | 0) >= 1) {
@@ -65035,14 +64971,14 @@ function Kg() {
                         return 0;
                       if (b = 0 - (f << 7) | 0, l = b >> 31, R = b, ie = l, b = bi(R, l, R, l), l = ht, h = 1073741824 - l | 0, u = h, b = u >> 31, u = b, b = P, u = bi(w, b, h, u), l = u, b = ht, Ae = ((b & 1073741823) << 2 | l >>> 30) & -4, (Ae | 0) < 107374)
                         break e;
-                      for (T = M, M = 0, f = h >> 31, ee = $e(f ^ h + f), f = h << ee - 1, a = f >> 16, h = 536870911 / (a | 0) | 0, l = (h >> 15) + 1 >> 1, O = h << 16, h = O >> 16, f = 0 - ((D(h, f & 65535) >> 16) + D(a, h) << 3) | 0, l = ((D(f, l) + O | 0) + D(f >> 16, h) | 0) + (D(f & 65528, h) >> 16) | 0, u = l >> 31, te = l, oe = u, h = s >>> 1 | 0, re = h >>> 0 > 1 ? h : 1, pe = 31 - ee | 0; ; ) {
-                        O = (M << 2) + H | 0, h = i[O >> 2], fe = ((M ^ -1) + T << 2) + H | 0, f = i[fe >> 2], l = f, u = l >> 31, l = ie, l = bi(f, u, R, l), b = l, u = ht, l = u >>> 30 | 0, u = (u & 1073741823) << 2 | b >>> 30, A = u + 1 | 0, s = A >>> 0 < 1 ? l + 1 | 0 : l, l = A, s = (s & 1) << 31 | l >>> 1, a = h - s | 0, l = a, a = (a | 0) > -1, l = (((a ? s : h) ^ -2147483648) & (a ? h : s)) > -1 ? l : a ? -2147483648 : 2147483647, u = l >> 31, a = l, l = oe, l = bi(a, u, te, l), w = l, u = ht, P = u, s = l, b = l & 1, l = 0, A = l, l = u, u = s, d = (l & 1) << 31 | u >>> 1, a = (ee | 0) != 31, s = l >> 1, u = s, s = A, A = u + s | 0, l = b, b = l + d | 0, A = b >>> 0 < d >>> 0 ? A + 1 | 0 : A, s = b;
+                      for (T = M, M = 0, f = h >> 31, ee = $e(f ^ h + f), f = h << ee - 1, a = f >> 16, h = 536870911 / (a | 0) | 0, l = (h >> 15) + 1 >> 1, Y = h << 16, h = Y >> 16, f = 0 - ((D(h, f & 65535) >> 16) + D(a, h) << 3) | 0, l = ((D(f, l) + Y | 0) + D(f >> 16, h) | 0) + (D(f & 65528, h) >> 16) | 0, u = l >> 31, te = l, oe = u, h = s >>> 1 | 0, re = h >>> 0 > 1 ? h : 1, pe = 31 - ee | 0; ; ) {
+                        Y = (M << 2) + H | 0, h = i[Y >> 2], fe = ((M ^ -1) + T << 2) + H | 0, f = i[fe >> 2], l = f, u = l >> 31, l = ie, l = bi(f, u, R, l), b = l, u = ht, l = u >>> 30 | 0, u = (u & 1073741823) << 2 | b >>> 30, A = u + 1 | 0, s = A >>> 0 < 1 ? l + 1 | 0 : l, l = A, s = (s & 1) << 31 | l >>> 1, a = h - s | 0, l = a, a = (a | 0) > -1, l = (((a ? s : h) ^ -2147483648) & (a ? h : s)) > -1 ? l : a ? -2147483648 : 2147483647, u = l >> 31, a = l, l = oe, l = bi(a, u, te, l), w = l, u = ht, P = u, s = l, b = l & 1, l = 0, A = l, l = u, u = s, d = (l & 1) << 31 | u >>> 1, a = (ee | 0) != 31, s = l >> 1, u = s, s = A, A = u + s | 0, l = b, b = l + d | 0, A = b >>> 0 < d >>> 0 ? A + 1 | 0 : A, s = b;
                         t: {
                           if (!a)
                             break t;
                           A = P, s = w, d = pe, u = d & 31, (d & 63) >>> 0 >= 32 ? (l = A >> 31, A = A >> u) : (l = A >> u, A = ((1 << u) - 1 & A) << 32 - u | s >>> u), u = A + 1 | 0, b = u >>> 0 < 1 ? l + 1 | 0 : l, l = u, s = (b & 1) << 31 | l >>> 1, A = b >> 1;
                         }
-                        if (u = A, w = s, b = w, s = b - -2147483648 | 0, u = s >>> 0 < 2147483648 ? u + 1 | 0 : u, u || (i[O >> 2] = w, u = h, A = u >> 31, u = ie, u = bi(h, A, R, u), d = u, A = ht, u = A >>> 30 | 0, A = (A & 1073741823) << 2 | d >>> 30, l = A + 1 | 0, s = l >>> 0 < 1 ? u + 1 | 0 : u, u = l, h = (s & 1) << 31 | u >>> 1, s = f - h | 0, l = s, s = (s | 0) > -1, u = (((s ? h : f) ^ -2147483648) & (s ? f : h)) > -1 ? l : s ? -2147483648 : 2147483647, A = u >> 31, s = u, u = oe, u = bi(s, A, te, u), w = u, A = ht, P = A, a ? (A = P, s = w, b = pe, d = b & 31, (b & 63) >>> 0 >= 32 ? (u = A >> 31, A = A >> d) : (u = A >> d, A = ((1 << d) - 1 & A) << 32 - d | s >>> d), d = A + 1 | 0, l = d >>> 0 < 1 ? u + 1 | 0 : u, u = d, w = (l & 1) << 31 | u >>> 1, A = l >> 1, d = A) : (l = w, s = l & 1, u = 0, a = u, A = P, u = A, b = (u & 1) << 31 | l >>> 1, l = u >> 1, A = l, l = a, d = l + A | 0, u = s, s = b + u | 0, w = s, d = s >>> 0 < b >>> 0 ? d + 1 | 0 : d), P = d, l = w, A = l - -2147483648 | 0, s = A >>> 0 < 2147483648 ? d + 1 | 0 : d, l = 0, s))
+                        if (u = A, w = s, b = w, s = b - -2147483648 | 0, u = s >>> 0 < 2147483648 ? u + 1 | 0 : u, u || (i[Y >> 2] = w, u = h, A = u >> 31, u = ie, u = bi(h, A, R, u), d = u, A = ht, u = A >>> 30 | 0, A = (A & 1073741823) << 2 | d >>> 30, l = A + 1 | 0, s = l >>> 0 < 1 ? u + 1 | 0 : u, u = l, h = (s & 1) << 31 | u >>> 1, s = f - h | 0, l = s, s = (s | 0) > -1, u = (((s ? h : f) ^ -2147483648) & (s ? f : h)) > -1 ? l : s ? -2147483648 : 2147483647, A = u >> 31, s = u, u = oe, u = bi(s, A, te, u), w = u, A = ht, P = A, a ? (A = P, s = w, b = pe, d = b & 31, (b & 63) >>> 0 >= 32 ? (u = A >> 31, A = A >> d) : (u = A >> d, A = ((1 << d) - 1 & A) << 32 - d | s >>> d), d = A + 1 | 0, l = d >>> 0 < 1 ? u + 1 | 0 : u, u = d, w = (l & 1) << 31 | u >>> 1, A = l >> 1, d = A) : (l = w, s = l & 1, u = 0, a = u, A = P, u = A, b = (u & 1) << 31 | l >>> 1, l = u >> 1, A = l, l = a, d = l + A | 0, u = s, s = b + u | 0, w = s, d = s >>> 0 < b >>> 0 ? d + 1 | 0 : d), P = d, l = w, A = l - -2147483648 | 0, s = A >>> 0 < 2147483648 ? d + 1 | 0 : d, l = 0, s))
                           break e;
                         if (i[fe >> 2] = w, M = M + 1 | 0, (re | 0) == (M | 0))
                           break;
@@ -65057,7 +64993,7 @@ function Kg() {
                 return se;
               }
               function cu(a, s, u, l, A, d, h, b) {
-                var f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0;
+                var f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0;
                 T = -1;
                 e: {
                   if (!d | (s | 0) < 0 || (T = -4, !s))
@@ -65105,11 +65041,11 @@ function Kg() {
                               default:
                                 break c;
                             }
-                          if ((s | 0) < 2 || (O = le[a + 1 | 0], M = O & 63, !M | D(M, P) >>> 0 > 5760))
+                          if ((s | 0) < 2 || (Y = le[a + 1 | 0], M = Y & 63, !M | D(M, P) >>> 0 > 5760))
                             break e;
                           H = a + 2 | 0, s = s - 2 | 0;
                           c: {
-                            if (!(O & 64)) {
+                            if (!(Y & 64)) {
                               w = H;
                               break c;
                             }
@@ -65122,13 +65058,13 @@ function Kg() {
                             if ((s | 0) < 0)
                               break e;
                           }
-                          if (H = O >>> 7 ^ 1, O & 128) {
+                          if (H = Y >>> 7 ^ 1, Y & 128) {
                             if (M >>> 0 < 2) {
                               f = s, R = s;
                               break r;
                             }
-                            for (Ae = M - 1 | 0, O = 0, R = s, f = s; ; ) {
-                              if (ie = (O << 1) + d | 0, (f | 0) <= 0)
+                            for (Ae = M - 1 | 0, Y = 0, R = s, f = s; ; ) {
+                              if (ie = (Y << 1) + d | 0, (f | 0) <= 0)
                                 return N[ie >> 1] = 65535, -4;
                               if (P = 1, s = le[w | 0], s >>> 0 >= 252) {
                                 if ((f | 0) <= 1)
@@ -65137,7 +65073,7 @@ function Kg() {
                               }
                               if (N[ie >> 1] = s, f = f - P | 0, (f | 0) < (s | 0))
                                 break e;
-                              if (w = w + P | 0, R = (R - P | 0) - s | 0, O = O + 1 | 0, (Ae | 0) == (O | 0))
+                              if (w = w + P | 0, R = (R - P | 0) - s | 0, Y = Y + 1 | 0, (Ae | 0) == (Y | 0))
                                 break;
                             }
                             if ((R | 0) >= 0)
@@ -65163,13 +65099,13 @@ function Kg() {
                       a: {
                         if ((f | 0) < 1)
                           break a;
-                        if (O = le[w | 0], O >>> 0 < 252) {
-                          s = O, u = 1;
+                        if (Y = le[w | 0], Y >>> 0 < 252) {
+                          s = Y, u = 1;
                           break a;
                         }
                         if (u = -1, (f | 0) < 2)
                           break a;
-                        s = (le[w + 1 | 0] << 2) + O | 0, u = 2;
+                        s = (le[w + 1 | 0] << 2) + Y | 0, u = 2;
                       }
                       if (N[P >> 1] = s, P = s << 16 >> 16, (P | 0) < 0 || (f = f - u | 0, (P | 0) > (f | 0)))
                         break e;
@@ -65198,24 +65134,24 @@ function Kg() {
                 return T;
               }
               function qa(a, s, u, l, A, d, h, b, f) {
-                var w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = x(0), ie = x(0), Ae = 0, te = 0, oe = 0, pe = 0;
+                var w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = x(0), ie = x(0), Ae = 0, te = 0, oe = 0, pe = 0;
                 H = _e - 32 | 0, _e = H, i[H + 24 >> 2] = f, i[H + 28 >> 2] = l, w = i[a + 8 >> 2], M = i[w + 100 >> 2] + N[i[w + 96 >> 2] + (i[a + 12 >> 2] + D(i[w + 8 >> 2], h + 1 | 0) << 1) >> 1] | 0, w = le[M | 0], T = -1, Ae = i[a + 28 >> 2], te = i[a + 20 >> 2], oe = i[a >> 2];
                 e: {
                   if (!((h | 0) == -1 | (u | 0) < 3 | (le[w + M | 0] + 12 | 0) >= (l | 0))) {
-                    w = h - 1 | 0, l = u >>> 1 | 0, u = (l << 2) + s | 0, (A | 0) == 1 && (i[H + 24 >> 2] = f & 1 | f << 1), O = A + 1 >> 1, Ds(a, H, s, u, l, H + 28 | 0, O, A, w, 0, H + 24 | 0), ee = x(i[H + 8 >> 2]), ie = x(i[H + 4 >> 2]), f = i[H + 20 >> 2], M = i[H + 12 >> 2], T = i[H + 16 >> 2], P = M;
+                    w = h - 1 | 0, l = u >>> 1 | 0, u = (l << 2) + s | 0, (A | 0) == 1 && (i[H + 24 >> 2] = f & 1 | f << 1), Y = A + 1 >> 1, Ds(a, H, s, u, l, H + 28 | 0, Y, A, w, 0, H + 24 | 0), ee = x(i[H + 8 >> 2]), ie = x(i[H + 4 >> 2]), f = i[H + 20 >> 2], M = i[H + 12 >> 2], T = i[H + 16 >> 2], P = M;
                     t: {
                       if (!(T & 16383) | (A | 0) < 2 || (P = M - (M >> 5 - h) | 0, (T | 0) >= 8193))
                         break t;
                       h = (l << 3 >> 6 - h) + M | 0, P = h & h >> 31;
                     }
                     if (M = P, ee = x(ee * x(30517578125e-15)), ie = x(ie * x(30517578125e-15)), h = i[H + 28 >> 2], f = i[a + 32 >> 2] - f | 0, i[a + 32 >> 2] = f, R = d ? (l << 2) + d | 0 : 0, M = (h - M | 0) / 2 | 0, M = (h | 0) < (M | 0) ? h : M, M = (M | 0) > 0 ? M : 0, h = h - M | 0, (h | 0) <= (M | 0)) {
-                      P = i[H + 24 >> 2], s = qa(a, s, l, M, O, d, w, x(ie * b), P), M = (i[a + 32 >> 2] - f | 0) + M | 0, w = s | qa(a, u, l, (T && (M | 0) > 24 ? M - 24 | 0 : 0) + h | 0, O, R, w, x(ee * b), P >> O) << (A >> 1);
+                      P = i[H + 24 >> 2], s = qa(a, s, l, M, Y, d, w, x(ie * b), P), M = (i[a + 32 >> 2] - f | 0) + M | 0, w = s | qa(a, u, l, (T && (M | 0) > 24 ? M - 24 | 0 : 0) + h | 0, Y, R, w, x(ee * b), P >> Y) << (A >> 1);
                       break e;
                     }
-                    P = i[H + 24 >> 2], u = qa(a, u, l, h, O, R, w, x(ee * b), P >> O), h = (i[a + 32 >> 2] - f | 0) + h | 0, w = qa(a, s, l, ((T | 0) != 16384 && (h | 0) > 24 ? h - 24 | 0 : 0) + M | 0, O, d, w, x(ie * b), P) | u << (A >> 1);
+                    P = i[H + 24 >> 2], u = qa(a, u, l, h, Y, R, w, x(ee * b), P >> Y), h = (i[a + 32 >> 2] - f | 0) + h | 0, w = qa(a, s, l, ((T | 0) != 16384 && (h | 0) > 24 ? h - 24 | 0 : 0) + M | 0, Y, d, w, x(ie * b), P) | u << (A >> 1);
                     break e;
                   }
-                  h = l - 1 | 0, R = w + 1 >>> 1 | 0, l = (h | 0) > le[R + M | 0], w = l ? w : R, P = w, R = l ? R : 0, l = (R + w | 0) + 1 >>> 1 | 0, w = le[M + l | 0] < (h | 0), P = w ? P : l, w = w ? l : R, l = (P + w | 0) + 1 >>> 1 | 0, R = le[M + l | 0] < (h | 0), w = R ? l : w, P = R ? P : l, l = (w + P | 0) + 1 >>> 1 | 0, R = le[M + l | 0] < (h | 0), w = R ? l : w, P = R ? P : l, l = (w + P | 0) + 1 >> 1, R = le[M + l | 0] < (h | 0), P = R ? P : l, pe = P, R = R ? l : w, l = (P + R | 0) + 1 >> 1, P = le[M + l | 0] < (h | 0), w = P ? pe : l, l = P ? l : R, l && (T = le[l + M | 0]), l = (h - T | 0) > (le[w + M | 0] - h | 0) ? w : l, l && (O = le[l + M | 0] + 1 | 0), w = i[a + 32 >> 2] - O | 0, i[a + 32 >> 2] = w;
+                  h = l - 1 | 0, R = w + 1 >>> 1 | 0, l = (h | 0) > le[R + M | 0], w = l ? w : R, P = w, R = l ? R : 0, l = (R + w | 0) + 1 >>> 1 | 0, w = le[M + l | 0] < (h | 0), P = w ? P : l, w = w ? l : R, l = (P + w | 0) + 1 >>> 1 | 0, R = le[M + l | 0] < (h | 0), w = R ? l : w, P = R ? P : l, l = (w + P | 0) + 1 >>> 1 | 0, R = le[M + l | 0] < (h | 0), w = R ? l : w, P = R ? P : l, l = (w + P | 0) + 1 >> 1, R = le[M + l | 0] < (h | 0), P = R ? P : l, pe = P, R = R ? l : w, l = (P + R | 0) + 1 >> 1, P = le[M + l | 0] < (h | 0), w = P ? pe : l, l = P ? l : R, l && (T = le[l + M | 0]), l = (h - T | 0) > (le[w + M | 0] - h | 0) ? w : l, l && (Y = le[l + M | 0] + 1 | 0), w = i[a + 32 >> 2] - Y | 0, i[a + 32 >> 2] = w;
                   t: {
                     i: {
                       if ((w | 0) > -1) {
@@ -65227,11 +65163,11 @@ function Kg() {
                         break i;
                       }
                       for (; ; ) {
-                        if (w = w + O | 0, i[a + 32 >> 2] = w, h = l - 1 | 0, !h) {
+                        if (w = w + Y | 0, i[a + 32 >> 2] = w, h = l - 1 | 0, !h) {
                           i[a + 32 >> 2] = w;
                           break t;
                         }
-                        if (O = le[h + M | 0] + 1 | 0, w = w - O | 0, i[a + 32 >> 2] = w, (w | 0) > -1)
+                        if (Y = le[h + M | 0] + 1 | 0, w = w - Y | 0, i[a + 32 >> 2] = w, (w | 0) > -1)
                           break i;
                         if (T = (l | 0) > 1, l = h, !T)
                           break;
@@ -65250,7 +65186,7 @@ function Kg() {
                     w = 0;
                     break e;
                   }
-                  if (w = -1 << A ^ -1, O = w & f, i[H + 24 >> 2] = O, !O) {
+                  if (w = -1 << A ^ -1, Y = w & f, i[H + 24 >> 2] = Y, !Y) {
                     w = 0, qt(s, 0, u << 2);
                     break e;
                   }
@@ -65261,7 +65197,7 @@ function Kg() {
                           ;
                         i[a + 40 >> 2] = l;
                       }
-                      w = O;
+                      w = Y;
                       break t;
                     }
                     if ((u | 0) < 1)
@@ -65275,7 +65211,7 @@ function Kg() {
                 return _e = H + 32 | 0, w;
               }
               function uu(a, s, u, l, A, d) {
-                var h = x(0), b = x(0), f = 0, w = 0, M = 0, P = 0, R = x(0), H = x(0), O = x(0), T = 0, ee = 0, ie = x(0), Ae = 0, te = 0, oe = x(0), pe = 0;
+                var h = x(0), b = x(0), f = 0, w = 0, M = 0, P = 0, R = x(0), H = x(0), Y = x(0), T = 0, ee = 0, ie = x(0), Ae = 0, te = 0, oe = x(0), pe = 0;
                 d = _e, pe = d;
                 e: {
                   if ((l | 0) <= 0)
@@ -65290,16 +65226,16 @@ function Kg() {
                     for (d = 0; h = L[(d << 2) + M >> 2], b = x(b + x(h * h)), d = d + 1 | 0, (P | 0) != (d | 0); )
                       ;
                   if (Ae = 1, (l | 0) > 3)
-                    for (H = x(-1), d = 0, O = x(-1); ; ) {
+                    for (H = x(-1), d = 0, Y = x(-1); ; ) {
                       f = d << 2, h = L[ee + f >> 2];
                       t: {
-                        if (h > x(0) ^ 1 || (h = x(h * x(9999999960041972e-28)), h = x(h * h), x(R * h) > x(O * b) ^ 1))
+                        if (h > x(0) ^ 1 || (h = x(h * x(9999999960041972e-28)), h = x(h * h), x(R * h) > x(Y * b) ^ 1))
                           break t;
                         if (x(ie * h) > x(H * b)) {
-                          Ae = te, te = d, O = H, H = h, R = ie, ie = b;
+                          Ae = te, te = d, Y = H, H = h, R = ie, ie = b;
                           break t;
                         }
-                        Ae = d, O = h, R = b;
+                        Ae = d, Y = h, R = b;
                       }
                       if (h = L[(d + P << 2) + M >> 2], oe = x(h * h), h = L[M + f >> 2], b = x(Qt(x(b + x(oe - x(h * h))), x(1))), d = d + 1 | 0, (w | 0) == (d | 0))
                         break;
@@ -65330,16 +65266,16 @@ function Kg() {
                       a = 0;
                       break t;
                     }
-                    for (H = x(-1), ie = x(0), a = 0, d = 0, R = x(0), O = x(-1); ; ) {
+                    for (H = x(-1), ie = x(0), a = 0, d = 0, R = x(0), Y = x(-1); ; ) {
                       M = d << 2, h = L[ee + M >> 2];
                       i: {
-                        if (h > x(0) ^ 1 || (h = x(h * x(9999999960041972e-28)), h = x(h * h), x(R * h) > x(O * b) ^ 1))
+                        if (h > x(0) ^ 1 || (h = x(h * x(9999999960041972e-28)), h = x(h * h), x(R * h) > x(Y * b) ^ 1))
                           break i;
                         if (x(ie * h) > x(H * b)) {
-                          a = d, O = H, H = h, R = ie, ie = b;
+                          a = d, Y = H, H = h, R = ie, ie = b;
                           break i;
                         }
-                        O = h, R = b;
+                        Y = h, R = b;
                       }
                       if (h = L[(d + P << 2) + s >> 2], oe = x(h * h), h = L[s + M >> 2], b = x(Qt(x(b + x(oe - x(h * h))), x(1))), d = d + 1 | 0, (T | 0) == (d | 0))
                         break;
@@ -65354,7 +65290,7 @@ function Kg() {
                 Re(33965, 33995, 303), Le();
               }
               function Or(a, s, u, l, A, d) {
-                var h = x(0), b = 0, f = x(0), w = x(0), M = x(0), P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0;
+                var h = x(0), b = 0, f = x(0), w = x(0), M = x(0), P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0;
                 e: {
                   if (!d | A << 1 >= (s | 0))
                     break e;
@@ -65363,8 +65299,8 @@ function Kg() {
                       ;
                   if ((l | 0) < 1)
                     break e;
-                  for (w = x(Ae), M = x(te), O = (s >>> 0) / (l >>> 0) | 0, T = O - d | 0, R = O - 3 | 0, ee = O - 1 | 0, H = (d << 1 ^ -1) + O | 0, oe = (u | 0) > -1, u = 0; ; ) {
-                    P = D(u, O);
+                  for (w = x(Ae), M = x(te), Y = (s >>> 0) / (l >>> 0) | 0, T = Y - d | 0, R = Y - 3 | 0, ee = Y - 1 | 0, H = (d << 1 ^ -1) + Y | 0, oe = (u | 0) > -1, u = 0; ; ) {
+                    P = D(u, Y);
                     t: {
                       if (!oe) {
                         i: {
@@ -65895,13 +65831,13 @@ function Kg() {
                 N[a + 28 >> 1] = 0, N[a + 30 >> 1] = 0;
               }
               function pu(a, s, u, l, A) {
-                var d = x(0), h = 0, b = 0, f = 0, w = 0, M = x(0), P = x(0), R = x(0), H = 0, O = 0, T = 0, ee = x(0), ie = x(0), Ae = x(0), te = x(0), oe = x(0), pe = x(0), fe = x(0);
-                for (h = _e - 48 | 0, _e = h, H = u >> 1, f = i[a >> 2], T = (H | 0) > 2 ? H : 2, b = 1; w = b << 3, O = w + f | 0, L[(b << 2) + s >> 2] = x(L[O >> 2] + x(x(L[O - 4 >> 2] + L[(w | 4) + f >> 2]) * x(0.5))) * x(0.5), b = b + 1 | 0, (T | 0) != (b | 0); )
+                var d = x(0), h = 0, b = 0, f = 0, w = 0, M = x(0), P = x(0), R = x(0), H = 0, Y = 0, T = 0, ee = x(0), ie = x(0), Ae = x(0), te = x(0), oe = x(0), pe = x(0), fe = x(0);
+                for (h = _e - 48 | 0, _e = h, H = u >> 1, f = i[a >> 2], T = (H | 0) > 2 ? H : 2, b = 1; w = b << 3, Y = w + f | 0, L[(b << 2) + s >> 2] = x(L[Y >> 2] + x(x(L[Y - 4 >> 2] + L[(w | 4) + f >> 2]) * x(0.5))) * x(0.5), b = b + 1 | 0, (T | 0) != (b | 0); )
                   ;
                 if (d = x(x(x(L[f + 4 >> 2] * x(0.5)) + L[f >> 2]) * x(0.5)), L[s >> 2] = d, (l | 0) == 2) {
                   f = i[a + 4 >> 2];
                   {
-                    for (T = (H | 0) > 2 ? H : 2, b = 1; w = (b << 2) + s | 0, a = w, d = L[w >> 2], w = b << 3, O = w + f | 0, L[a >> 2] = d + x(x(L[O >> 2] + x(x(L[O - 4 >> 2] + L[(w | 4) + f >> 2]) * x(0.5))) * x(0.5)), b = b + 1 | 0, (T | 0) != (b | 0); )
+                    for (T = (H | 0) > 2 ? H : 2, b = 1; w = (b << 2) + s | 0, a = w, d = L[w >> 2], w = b << 3, Y = w + f | 0, L[a >> 2] = d + x(x(L[Y >> 2] + x(x(L[Y - 4 >> 2] + L[(w | 4) + f >> 2]) * x(0.5))) * x(0.5)), b = b + 1 | 0, (T | 0) != (b | 0); )
                       ;
                     d = L[s >> 2];
                   }
@@ -65912,7 +65848,7 @@ function Kg() {
                 _e = h + 48 | 0;
               }
               function hu(a, s, u) {
-                var l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0;
+                var l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0;
                 R = (u << 1) + s | 0, H = u - 1 | 0, P = (H << 1) + a | 0, ee = (u | 0) < 2;
                 e: {
                   for (; ; ) {
@@ -65943,7 +65879,7 @@ function Kg() {
                         for (; w = N[(A << 1) + s >> 1] + w | 0, A = A + 1 | 0, (A | 0) != (l | 0); )
                           ;
                       }
-                      f = l << 1, O = f + s | 0, M = N[O >> 1] >> 1, b = M + w | 0, h = 32768;
+                      f = l << 1, Y = f + s | 0, M = N[Y >> 1] >> 1, b = M + w | 0, h = 32768;
                       i: {
                         if ((u | 0) <= (l | 0) || (h = 32768 - d | 0, A = H, (A | 0) <= (l | 0)))
                           break i;
@@ -65962,7 +65898,7 @@ function Kg() {
                           break i;
                         f = (l | 0) < (b | 0) ? b : l;
                       }
-                      d = f, l = d - M | 0, N[w >> 1] = l, N[A >> 1] = Ie[O >> 1] + l;
+                      d = f, l = d - M | 0, N[w >> 1] = l, N[A >> 1] = Ie[Y >> 1] + l;
                     }
                     if (T = T + 1 | 0, (T | 0) == 20)
                       break;
@@ -65977,15 +65913,15 @@ function Kg() {
                 }
               }
               function qs(a, s, u, l, A, d) {
-                var h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0;
-                f = _e - 16 | 0, _e = f, ee = i[a + 24 >> 2], ie = ee - 1 | 0, H = i[a + 72 >> 2], Ae = i[a + 28 >> 2], te = D(Ae, s), O = H + (te << 2) | 0, oe = i[a + 88 >> 2], P = i[d >> 2], R = i[l >> 2], h = s << 2, b = h + i[a + 68 >> 2] | 0;
+                var h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0;
+                f = _e - 16 | 0, _e = f, ee = i[a + 24 >> 2], ie = ee - 1 | 0, H = i[a + 72 >> 2], Ae = i[a + 28 >> 2], te = D(Ae, s), Y = H + (te << 2) | 0, oe = i[a + 88 >> 2], P = i[d >> 2], R = i[l >> 2], h = s << 2, b = h + i[a + 68 >> 2] | 0;
                 e: {
                   if (i[b >> 2]) {
-                    if (i[f + 12 >> 2] = P, i[f + 8 >> 2] = i[b >> 2], i[a + 56 >> 2] = 1, w = $i[i[a + 84 >> 2]](a, s, O, f + 8 | 0, A, f + 12 | 0) | 0, b = i[f + 8 >> 2], h = i[a + 60 >> 2] + h | 0, M = i[h >> 2], (b | 0) > (M | 0) && (i[f + 8 >> 2] = M, b = M), i[f + 12 >> 2] = w, i[h >> 2] = i[h >> 2] - b, b = i[f + 8 >> 2], (ee | 0) >= 2)
-                      for (h = 0; i[(h << 2) + O >> 2] = i[(h + b << 2) + O >> 2], h = h + 1 | 0, (ie | 0) != (h | 0); )
+                    if (i[f + 12 >> 2] = P, i[f + 8 >> 2] = i[b >> 2], i[a + 56 >> 2] = 1, w = $i[i[a + 84 >> 2]](a, s, Y, f + 8 | 0, A, f + 12 | 0) | 0, b = i[f + 8 >> 2], h = i[a + 60 >> 2] + h | 0, M = i[h >> 2], (b | 0) > (M | 0) && (i[f + 8 >> 2] = M, b = M), i[f + 12 >> 2] = w, i[h >> 2] = i[h >> 2] - b, b = i[f + 8 >> 2], (ee | 0) >= 2)
+                      for (h = 0; i[(h << 2) + Y >> 2] = i[(h + b << 2) + Y >> 2], h = h + 1 | 0, (ie | 0) != (h | 0); )
                         ;
                     if (T = i[a + 68 >> 2] + (s << 2) | 0, w = i[T >> 2] - b | 0, i[T >> 2] = w, w)
-                      for (h = 0, M = i[f + 8 >> 2]; b = h + ie | 0, i[(b << 2) + O >> 2] = i[(b + M << 2) + O >> 2], h = h + 1 | 0, (w | 0) != (h | 0); )
+                      for (h = 0, M = i[f + 8 >> 2]; b = h + ie | 0, i[(b << 2) + Y >> 2] = i[(b + M << 2) + Y >> 2], h = h + 1 | 0, (w | 0) != (h | 0); )
                         ;
                     if (h = i[f + 12 >> 2], P = P - h | 0, i[T >> 2])
                       break e;
@@ -65999,7 +65935,7 @@ function Kg() {
                       if (u) {
                         if (h = 0, !b)
                           break t;
-                        for (; i[(h + ie << 2) + O >> 2] = i[(D(h, oe) << 2) + u >> 2], h = h + 1 | 0, (b | 0) != (h | 0); )
+                        for (; i[(h + ie << 2) + Y >> 2] = i[(D(h, oe) << 2) + u >> 2], h = h + 1 | 0, (b | 0) != (h | 0); )
                           ;
                         break t;
                       }
@@ -66021,7 +65957,7 @@ function Kg() {
                 return i[l >> 2] = i[l >> 2] - R, i[d >> 2] = i[d >> 2] - P, _e = f + 16 | 0, h = i[a + 84 >> 2], (h | 0) == 8;
               }
               function _u(a, s, u, l) {
-                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0;
+                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0;
                 e: {
                   t: {
                     i: {
@@ -66072,7 +66008,7 @@ function Kg() {
                       b = 63 - d | 0, d = d + 1 | 0;
                     }
                     if (w = s, A = a, M = 0, f = d & 63, h = f & 31, (f & 63) >>> 0 >= 32 ? R = w >>> h | 0 : (M = w >>> h | 0, R = ((1 << h) - 1 & w) << 32 - h | A >>> h), H = M, M = s, w = a, f = b & 63, h = f & 31, (f & 63) >>> 0 >= 32 ? (A = w << h, a = 0) : (A = (1 << h) - 1 & w >>> 32 - h | M << h, a = w << h), s = A, d)
-                      for (A = l - 1 | 0, h = u - 1 | 0, A = (h | 0) != -1 ? A + 1 | 0 : A, b = h, w = A; A = R, f = A << 1, A = H << 1 | A >>> 31, R = f | s >>> 31, P = R, M = A, A = b, f = P, h = w - ((A >>> 0 < f >>> 0) + M | 0) | 0, H = l & h >> 31, A = f, P = h >> 31, f = P & u, R = A - f | 0, H = M - ((A >>> 0 < f >>> 0) + H | 0) | 0, A = s << 1 | a >>> 31, a = a << 1 | O, s = A | ee, T = 0, P = P & 1, O = P, d = d - 1 | 0, !!d; )
+                      for (A = l - 1 | 0, h = u - 1 | 0, A = (h | 0) != -1 ? A + 1 | 0 : A, b = h, w = A; A = R, f = A << 1, A = H << 1 | A >>> 31, R = f | s >>> 31, P = R, M = A, A = b, f = P, h = w - ((A >>> 0 < f >>> 0) + M | 0) | 0, H = l & h >> 31, A = f, P = h >> 31, f = P & u, R = A - f | 0, H = M - ((A >>> 0 < f >>> 0) + H | 0) | 0, A = s << 1 | a >>> 31, a = a << 1 | Y, s = A | ee, T = 0, P = P & 1, Y = P, d = d - 1 | 0, !!d; )
                         ;
                     return ht = T | (s << 1 | a >>> 31), a << 1 | P;
                   }
@@ -66081,15 +66017,15 @@ function Kg() {
                 return ht = s, a;
               }
               function Ns(a, s, u, l) {
-                var A = x(0), d = 0, h = x(0), b = x(0), f = x(0), w = x(0), M = x(0), P = x(0), R = x(0), H = x(0), O = 0;
+                var A = x(0), d = 0, h = x(0), b = x(0), f = x(0), w = x(0), M = x(0), P = x(0), R = x(0), H = x(0), Y = 0;
                 {
                   d = s + 12 | 0, R = L[s + 8 >> 2], h = L[s + 4 >> 2], P = L[s >> 2];
                   {
-                    for (O = l - 3 | 0, b = L[u + 12 >> 2], f = L[u + 8 >> 2], w = L[u + 4 >> 2], M = L[u >> 2], s = 0; A = L[a >> 2], H = L[d >> 2], b = x(x(A * H) + b), L[u + 12 >> 2] = b, f = x(x(R * A) + f), L[u + 8 >> 2] = f, w = x(x(h * A) + w), L[u + 4 >> 2] = w, M = x(x(P * A) + M), L[u >> 2] = M, A = L[a + 4 >> 2], P = L[d + 4 >> 2], b = x(b + x(A * P)), L[u + 12 >> 2] = b, f = x(f + x(H * A)), L[u + 8 >> 2] = f, w = x(w + x(R * A)), L[u + 4 >> 2] = w, M = x(M + x(h * A)), L[u >> 2] = M, A = L[a + 8 >> 2], h = L[d + 8 >> 2], b = x(b + x(A * h)), L[u + 12 >> 2] = b, f = x(f + x(P * A)), L[u + 8 >> 2] = f, w = x(w + x(H * A)), L[u + 4 >> 2] = w, M = x(M + x(R * A)), L[u >> 2] = M, A = L[a + 12 >> 2], R = L[d + 12 >> 2], b = x(b + x(A * R)), L[u + 12 >> 2] = b, f = x(f + x(h * A)), L[u + 8 >> 2] = f, w = x(w + x(P * A)), L[u + 4 >> 2] = w, M = x(M + x(H * A)), L[u >> 2] = M, d = d + 16 | 0, a = a + 16 | 0, s = s + 4 | 0, (O | 0) > (s | 0); )
+                    for (Y = l - 3 | 0, b = L[u + 12 >> 2], f = L[u + 8 >> 2], w = L[u + 4 >> 2], M = L[u >> 2], s = 0; A = L[a >> 2], H = L[d >> 2], b = x(x(A * H) + b), L[u + 12 >> 2] = b, f = x(x(R * A) + f), L[u + 8 >> 2] = f, w = x(x(h * A) + w), L[u + 4 >> 2] = w, M = x(x(P * A) + M), L[u >> 2] = M, A = L[a + 4 >> 2], P = L[d + 4 >> 2], b = x(b + x(A * P)), L[u + 12 >> 2] = b, f = x(f + x(H * A)), L[u + 8 >> 2] = f, w = x(w + x(R * A)), L[u + 4 >> 2] = w, M = x(M + x(h * A)), L[u >> 2] = M, A = L[a + 8 >> 2], h = L[d + 8 >> 2], b = x(b + x(A * h)), L[u + 12 >> 2] = b, f = x(f + x(P * A)), L[u + 8 >> 2] = f, w = x(w + x(H * A)), L[u + 4 >> 2] = w, M = x(M + x(R * A)), L[u >> 2] = M, A = L[a + 12 >> 2], R = L[d + 12 >> 2], b = x(b + x(A * R)), L[u + 12 >> 2] = b, f = x(f + x(h * A)), L[u + 8 >> 2] = f, w = x(w + x(P * A)), L[u + 4 >> 2] = w, M = x(M + x(H * A)), L[u >> 2] = M, d = d + 16 | 0, a = a + 16 | 0, s = s + 4 | 0, (Y | 0) > (s | 0); )
                       ;
                     s = l & -4;
                   }
-                  O = s | 1, (s | 0) < (l | 0) && (H = L[d >> 2], A = L[a >> 2], L[u >> 2] = x(P * A) + L[u >> 2], L[u + 4 >> 2] = x(h * A) + L[u + 4 >> 2], L[u + 8 >> 2] = x(R * A) + L[u + 8 >> 2], L[u + 12 >> 2] = x(A * H) + L[u + 12 >> 2], d = d + 4 | 0, a = a + 4 | 0), s = O + 1 | 0, (l | 0) > (O | 0) && (P = L[d >> 2], A = L[a >> 2], L[u >> 2] = x(h * A) + L[u >> 2], L[u + 4 >> 2] = x(R * A) + L[u + 4 >> 2], L[u + 8 >> 2] = x(H * A) + L[u + 8 >> 2], L[u + 12 >> 2] = x(A * P) + L[u + 12 >> 2], d = d + 4 | 0, a = a + 4 | 0), (s | 0) < (l | 0) && (A = L[d >> 2], h = L[a >> 2], L[u >> 2] = x(R * h) + L[u >> 2], L[u + 4 >> 2] = x(H * h) + L[u + 4 >> 2], L[u + 8 >> 2] = x(P * h) + L[u + 8 >> 2], L[u + 12 >> 2] = x(h * A) + L[u + 12 >> 2]);
+                  Y = s | 1, (s | 0) < (l | 0) && (H = L[d >> 2], A = L[a >> 2], L[u >> 2] = x(P * A) + L[u >> 2], L[u + 4 >> 2] = x(h * A) + L[u + 4 >> 2], L[u + 8 >> 2] = x(R * A) + L[u + 8 >> 2], L[u + 12 >> 2] = x(A * H) + L[u + 12 >> 2], d = d + 4 | 0, a = a + 4 | 0), s = Y + 1 | 0, (l | 0) > (Y | 0) && (P = L[d >> 2], A = L[a >> 2], L[u >> 2] = x(h * A) + L[u >> 2], L[u + 4 >> 2] = x(R * A) + L[u + 4 >> 2], L[u + 8 >> 2] = x(H * A) + L[u + 8 >> 2], L[u + 12 >> 2] = x(A * P) + L[u + 12 >> 2], d = d + 4 | 0, a = a + 4 | 0), (s | 0) < (l | 0) && (A = L[d >> 2], h = L[a >> 2], L[u >> 2] = x(R * h) + L[u >> 2], L[u + 4 >> 2] = x(H * h) + L[u + 4 >> 2], L[u + 8 >> 2] = x(P * h) + L[u + 8 >> 2], L[u + 12 >> 2] = x(h * A) + L[u + 12 >> 2]);
                   return;
                 }
               }
@@ -66192,8 +66128,8 @@ function Kg() {
                 Re(6958, 6982, 203), Le();
               }
               function gu(a, s, u, l, A) {
-                var d = 0, h = x(0), b = x(0), f = 0, w = x(0), M = x(0), P = 0, R = 0, H = x(0), O = 0, T = 0, ee = x(0), ie = 0, Ae = x(0);
-                for (A = _e, ie = A, d = (l << 2) + 15 & -16, A = A - d | 0, _e = A, O = A - d | 0, _e = O, P = (l | 0) > 1 ? l : 1, R = qt(A, 0, P << 2), A = 0; d = A << 2, f = d + a | 0, h = L[f >> 2], i[d + O >> 2] = h < x(0), L[f >> 2] = ft(h), i[s + d >> 2] = 0, A = A + 1 | 0, (P | 0) != (A | 0); )
+                var d = 0, h = x(0), b = x(0), f = 0, w = x(0), M = x(0), P = 0, R = 0, H = x(0), Y = 0, T = 0, ee = x(0), ie = 0, Ae = x(0);
+                for (A = _e, ie = A, d = (l << 2) + 15 & -16, A = A - d | 0, _e = A, Y = A - d | 0, _e = Y, P = (l | 0) > 1 ? l : 1, R = qt(A, 0, P << 2), A = 0; d = A << 2, f = d + a | 0, h = L[f >> 2], i[d + Y >> 2] = h < x(0), L[f >> 2] = ft(h), i[s + d >> 2] = 0, A = A + 1 | 0, (P | 0) != (A | 0); )
                   ;
                 if (h = x(0), (u | 0) > l >> 1) {
                   for (A = 0; h = x(h + L[(A << 2) + a >> 2]), A = A + 1 | 0, (P | 0) != (A | 0); )
@@ -66225,7 +66161,7 @@ function Kg() {
                       break;
                   }
                 }
-                for (A = 0; d = A << 2, f = d + s | 0, d = i[d + O >> 2], i[f >> 2] = d + (i[f >> 2] ^ 0 - d), A = A + 1 | 0, (P | 0) != (A | 0); )
+                for (A = 0; d = A << 2, f = d + s | 0, d = i[d + Y >> 2], i[f >> 2] = d + (i[f >> 2] ^ 0 - d), A = A + 1 | 0, (P | 0) != (A | 0); )
                   ;
                 return _e = ie, h;
               }
@@ -66315,7 +66251,7 @@ function Kg() {
                 Re(2758, 2778, 94), Le();
               }
               function Jr(a, s, u, l, A, d, h, b, f, w, M, P) {
-                var R = x(0), H = x(0), O = x(0), T = x(0), ee = 0, ie = x(0), Ae = 0, te = 0, oe = 0, pe = 0, fe = x(0), re = x(0), se = x(0), ye = x(0), Se = x(0), Qe = x(0), ze = x(0), Ne = x(0), Ye = x(0);
+                var R = x(0), H = x(0), Y = x(0), T = x(0), ee = 0, ie = x(0), Ae = 0, te = 0, oe = 0, pe = 0, fe = x(0), re = x(0), se = x(0), ye = x(0), Se = x(0), Qe = x(0), ze = x(0), Ne = x(0), Ye = x(0);
                 e: {
                   if (!(d != x(0) | h != x(0))) {
                     if ((a | 0) == (s | 0))
@@ -66324,7 +66260,7 @@ function Kg() {
                     return;
                   }
                   if (P = (l | 0) > 15 ? l : 15, Ae = -2 - P | 0, te = P ^ -1, oe = 1 - P | 0, pe = 0 - P | 0, l = D(f, 12), fe = x(L[l + 1624 >> 2] * h), re = x(L[l + 1620 >> 2] * h), se = x(L[l + 1616 >> 2] * h), l = d == h && (b | 0) == (f | 0) ? 0 : M, f = (u | 0) > 15 ? u : 15, l = (P | 0) == (f | 0) ? l : M, (l | 0) >= 1) {
-                    for (M = D(b, 12), ye = x(L[M + 1624 >> 2] * d), Se = x(L[M + 1620 >> 2] * d), Qe = x(L[M + 1616 >> 2] * d), b = 2 - P | 0, R = L[(oe << 2) + s >> 2], H = L[(pe << 2) + s >> 2], O = L[(te << 2) + s >> 2], d = L[(Ae << 2) + s >> 2], M = 0; u = M << 2, ee = u + a | 0, T = L[(b + M << 2) + s >> 2], ie = x(d + T), d = L[u + w >> 2], d = x(d * d), ie = x(ie * x(fe * d)), ze = x(x(R + O) * x(re * d)), Ne = x(H * x(se * d)), Ye = L[s + u >> 2], u = (M - f << 2) + s | 0, d = x(x(1) - d), L[ee >> 2] = ie + x(ze + x(Ne + x(x(x(Ye + x(L[u >> 2] * x(Qe * d))) + x(x(Se * d) * x(L[u + 4 >> 2] + L[u - 4 >> 2]))) + x(x(ye * d) * x(L[u + 8 >> 2] + L[u - 8 >> 2]))))), d = O, O = H, H = R, R = T, M = M + 1 | 0, (M | 0) != (l | 0); )
+                    for (M = D(b, 12), ye = x(L[M + 1624 >> 2] * d), Se = x(L[M + 1620 >> 2] * d), Qe = x(L[M + 1616 >> 2] * d), b = 2 - P | 0, R = L[(oe << 2) + s >> 2], H = L[(pe << 2) + s >> 2], Y = L[(te << 2) + s >> 2], d = L[(Ae << 2) + s >> 2], M = 0; u = M << 2, ee = u + a | 0, T = L[(b + M << 2) + s >> 2], ie = x(d + T), d = L[u + w >> 2], d = x(d * d), ie = x(ie * x(fe * d)), ze = x(x(R + Y) * x(re * d)), Ne = x(H * x(se * d)), Ye = L[s + u >> 2], u = (M - f << 2) + s | 0, d = x(x(1) - d), L[ee >> 2] = ie + x(ze + x(Ne + x(x(x(Ye + x(L[u >> 2] * x(Qe * d))) + x(x(Se * d) * x(L[u + 4 >> 2] + L[u - 4 >> 2]))) + x(x(ye * d) * x(L[u + 8 >> 2] + L[u - 8 >> 2]))))), d = Y, Y = H, H = R, R = T, M = M + 1 | 0, (M | 0) != (l | 0); )
                       ;
                     ee = l;
                   }
@@ -66336,7 +66272,7 @@ function Kg() {
                   }
                   if (l = A - ee | 0, (l | 0) < 1)
                     break e;
-                  for (M = ee << 2, a = M + a | 0, w = 2 - P | 0, u = s + M | 0, O = L[u + (Ae << 2) >> 2], d = L[(te << 2) + u >> 2], R = L[(pe << 2) + u >> 2], H = L[(oe << 2) + u >> 2], M = 0; s = M << 2, T = L[(w + M << 2) + u >> 2], L[s + a >> 2] = x(fe * x(O + T)) + x(x(re * x(d + H)) + x(x(se * R) + L[s + u >> 2])), O = d, d = R, R = H, H = T, M = M + 1 | 0, (M | 0) != (l | 0); )
+                  for (M = ee << 2, a = M + a | 0, w = 2 - P | 0, u = s + M | 0, Y = L[u + (Ae << 2) >> 2], d = L[(te << 2) + u >> 2], R = L[(pe << 2) + u >> 2], H = L[(oe << 2) + u >> 2], M = 0; s = M << 2, T = L[(w + M << 2) + u >> 2], L[s + a >> 2] = x(fe * x(Y + T)) + x(x(re * x(d + H)) + x(x(se * R) + L[s + u >> 2])), Y = d, d = R, R = H, H = T, M = M + 1 | 0, (M | 0) != (l | 0); )
                     ;
                 }
               }
@@ -66420,10 +66356,10 @@ function Kg() {
                 return _e = l + 48 | 0, u | 0;
               }
               function yu(a, s, u, l, A, d, h) {
-                var b = 0, f = x(0), w = 0, M = 0, P = 0, R = x(0), H = 0, O = 0, T = x(0), ee = 0, ie = 0, Ae = 0;
+                var b = 0, f = x(0), w = 0, M = 0, P = 0, R = x(0), H = 0, Y = 0, T = x(0), ee = 0, ie = 0, Ae = 0;
                 h = _e - 16 | 0, w = h, _e = h;
                 {
-                  H = h - ((A << 2) + 15 & -16) | 0, P = H, _e = P, b = l + A | 0, P = P - ((b << 2) + 15 & -16) | 0, _e = P, O = b, h = 0, M = 0;
+                  H = h - ((A << 2) + 15 & -16) | 0, P = H, _e = P, b = l + A | 0, P = P - ((b << 2) + 15 & -16) | 0, _e = P, Y = b, h = 0, M = 0;
                   {
                     for (; i[(h << 2) + H >> 2] = i[((h ^ -1) + A << 2) + s >> 2], h = h + 1 | 0, (h | 0) != (A | 0); )
                       ;
@@ -66431,8 +66367,8 @@ function Kg() {
                       ;
                     M = A;
                   }
-                  if (h = M, (O | 0) > (h | 0) && qt((h << 2) + P | 0, 0, b - h << 2), b = 0, (l | 0) >= 4)
-                    for (Ae = l - 3 | 0; h = b << 2, i[w >> 2] = i[h + a >> 2], O = h | 4, i[w + 4 >> 2] = i[O + a >> 2], ee = h | 8, i[w + 8 >> 2] = i[ee + a >> 2], ie = h | 12, i[w + 12 >> 2] = i[ie + a >> 2], Ns(H, h + P | 0, w, A), M = (A + b << 2) + P | 0, f = L[w >> 2], L[M >> 2] = -f, L[u + h >> 2] = f, R = x(L[w + 4 >> 2] - x(f * L[s >> 2])), L[w + 4 >> 2] = R, L[M + 4 >> 2] = -R, L[u + O >> 2] = R, T = x(x(L[w + 8 >> 2] - x(R * L[s >> 2])) - x(f * L[s + 4 >> 2])), L[w + 8 >> 2] = T, L[M + 8 >> 2] = -T, L[u + ee >> 2] = T, f = x(x(x(L[w + 12 >> 2] - x(T * L[s >> 2])) - x(R * L[s + 4 >> 2])) - x(f * L[s + 8 >> 2])), L[M + 12 >> 2] = -f, L[u + ie >> 2] = f, b = b + 4 | 0, (Ae | 0) > (b | 0); )
+                  if (h = M, (Y | 0) > (h | 0) && qt((h << 2) + P | 0, 0, b - h << 2), b = 0, (l | 0) >= 4)
+                    for (Ae = l - 3 | 0; h = b << 2, i[w >> 2] = i[h + a >> 2], Y = h | 4, i[w + 4 >> 2] = i[Y + a >> 2], ee = h | 8, i[w + 8 >> 2] = i[ee + a >> 2], ie = h | 12, i[w + 12 >> 2] = i[ie + a >> 2], Ns(H, h + P | 0, w, A), M = (A + b << 2) + P | 0, f = L[w >> 2], L[M >> 2] = -f, L[u + h >> 2] = f, R = x(L[w + 4 >> 2] - x(f * L[s >> 2])), L[w + 4 >> 2] = R, L[M + 4 >> 2] = -R, L[u + Y >> 2] = R, T = x(x(L[w + 8 >> 2] - x(R * L[s >> 2])) - x(f * L[s + 4 >> 2])), L[w + 8 >> 2] = T, L[M + 8 >> 2] = -T, L[u + ee >> 2] = T, f = x(x(x(L[w + 12 >> 2] - x(T * L[s >> 2])) - x(R * L[s + 4 >> 2])) - x(f * L[s + 8 >> 2])), L[M + 12 >> 2] = -f, L[u + ie >> 2] = f, b = b + 4 | 0, (Ae | 0) > (b | 0); )
                       ;
                   if ((l | 0) > (b | 0))
                     for (M = (A | 0) < 1; ; ) {
@@ -66525,7 +66461,7 @@ function Kg() {
               }
               function wu(a, s, u, l, A, d) {
                 a = a | 0, s = s | 0, u = u | 0, l = l | 0, A = A | 0, d = d | 0;
-                var h = x(0), b = x(0), f = x(0), w = 0, M = 0, P = 0, R = 0, H = x(0), O = x(0), T = x(0), ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = x(0), fe = x(0), re = 0, se = 0, ye = 0, Se = x(0), Qe = 0, ze = 0, Ne = 0, Ye = 0, We = x(0);
+                var h = x(0), b = x(0), f = x(0), w = 0, M = 0, P = 0, R = 0, H = x(0), Y = x(0), T = x(0), ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = x(0), fe = x(0), re = 0, se = 0, ye = 0, Se = x(0), Qe = 0, ze = 0, Ne = 0, Ye = 0, We = x(0);
                 s = s << 2, ee = s + i[a + 64 >> 2] | 0, R = i[ee >> 2], ie = i[a + 60 >> 2] + s | 0, w = i[ie >> 2], Ae = i[l >> 2];
                 e: {
                   if ((w | 0) >= (Ae | 0))
@@ -66538,21 +66474,21 @@ function Kg() {
                     d = i[a + 48 >> 2], l = D(R, d), s = l, l = (l >>> 0) / (M >>> 0) | 0, b = x(x(s - D(M, l) >>> 0) / Se);
                     t: {
                       if (Qe) {
-                        f = x(0), H = x(0), O = x(0), T = x(0);
+                        f = x(0), H = x(0), Y = x(0), T = x(0);
                         break t;
                       }
-                      for (ze = (w << 2) + u | 0, Ne = 4 - l | 0, Ye = i[a + 76 >> 2], l = 0, T = x(0), O = x(0), H = x(0), f = x(0); h = L[(l << 2) + ze >> 2], l = l + 1 | 0, s = (D(d, l) + Ne << 2) + Ye | 0, O = x(O + x(h * L[s >> 2])), T = x(T + x(h * L[s + 4 >> 2])), H = x(H + x(h * L[s - 4 >> 2])), f = x(f + x(h * L[s - 8 >> 2])), (l | 0) != (oe | 0); )
+                      for (ze = (w << 2) + u | 0, Ne = 4 - l | 0, Ye = i[a + 76 >> 2], l = 0, T = x(0), Y = x(0), H = x(0), f = x(0); h = L[(l << 2) + ze >> 2], l = l + 1 | 0, s = (D(d, l) + Ne << 2) + Ye | 0, Y = x(Y + x(h * L[s >> 2])), T = x(T + x(h * L[s + 4 >> 2])), H = x(H + x(h * L[s - 4 >> 2])), f = x(f + x(h * L[s - 8 >> 2])), (l | 0) != (oe | 0); )
                         ;
                     }
-                    if (h = x(b * x(0.16666999459266663)), pe = x(b * x(b * h)), fe = x(pe - h), We = x(fe * f), h = x(b * x(b * x(0.5))), f = x(x(b + h) - x(b * h)), h = x(x(h + x(b * x(-0.3333300054073334))) - pe), L[(D(P, ye) << 2) + A >> 2] = x(x(We + x(f * H)) + x(O * x(1 - +fe - +f - +h))) + x(h * T), l = R + re | 0, R = l - (l >>> 0 < M >>> 0 ? 0 : M) | 0, P = P + 1 | 0, w = (w + se | 0) + (l >>> 0 >= M >>> 0) | 0, !((Ae | 0) > (w | 0)))
+                    if (h = x(b * x(0.16666999459266663)), pe = x(b * x(b * h)), fe = x(pe - h), We = x(fe * f), h = x(b * x(b * x(0.5))), f = x(x(b + h) - x(b * h)), h = x(x(h + x(b * x(-0.3333300054073334))) - pe), L[(D(P, ye) << 2) + A >> 2] = x(x(We + x(f * H)) + x(Y * x(1 - +fe - +f - +h))) + x(h * T), l = R + re | 0, R = l - (l >>> 0 < M >>> 0 ? 0 : M) | 0, P = P + 1 | 0, w = (w + se | 0) + (l >>> 0 >= M >>> 0) | 0, !((Ae | 0) > (w | 0)))
                       break;
                   }
                 }
                 return i[ie >> 2] = w, i[ee >> 2] = R, P | 0;
               }
               function Gs(a, s, u, l, A, d, h, b, f, w, M, P, R) {
-                var H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0;
-                H = _e, pe = H, oe = i[a + 8 >> 2], ie = i[a + 4 >> 2], O = i[a + 44 >> 2], ee = O << w, T = H - ((ee << 2) + 15 & -16) | 0, _e = T, te = i[a + 36 >> 2] - (f ? 0 : w) | 0, Ae = 1 << w, H = f ? Ae : 1, f = f ? O : ee;
+                var H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0;
+                H = _e, pe = H, oe = i[a + 8 >> 2], ie = i[a + 4 >> 2], Y = i[a + 44 >> 2], ee = Y << w, T = H - ((ee << 2) + 15 & -16) | 0, _e = T, te = i[a + 36 >> 2] - (f ? 0 : w) | 0, Ae = 1 << w, H = f ? Ae : 1, f = f ? Y : ee;
                 e: {
                   if (!((h | 0) != 1 | (b | 0) != 2)) {
                     if (lr(a, s, T, l, A, d, Ae, M, P), b = bt(i[u + 4 >> 2] + ((ie | 0) / 2 << 2) | 0, T, ee << 2), (H | 0) < 1)
@@ -66566,17 +66502,17 @@ function Kg() {
                     break e;
                   }
                   if (!((b | 0) == 1 && (h | 0) == 2)) {
-                    for (fe = (b | 0) > 1 ? b : 1, h = a - -64 | 0, O = 0; ; ) {
-                      if (lr(a, (D(O, ee) << 2) + s | 0, T, (D(O, oe) << 2) + l | 0, A, d, Ae, M, P), (H | 0) >= 1)
-                        for (b = (O << 2) + u | 0, w = 0; or(h, (w << 2) + T | 0, i[b >> 2] + (D(f, w) << 2) | 0, i[a + 60 >> 2], ie, te, H, R), w = w + 1 | 0, (H | 0) != (w | 0); )
+                    for (fe = (b | 0) > 1 ? b : 1, h = a - -64 | 0, Y = 0; ; ) {
+                      if (lr(a, (D(Y, ee) << 2) + s | 0, T, (D(Y, oe) << 2) + l | 0, A, d, Ae, M, P), (H | 0) >= 1)
+                        for (b = (Y << 2) + u | 0, w = 0; or(h, (w << 2) + T | 0, i[b >> 2] + (D(f, w) << 2) | 0, i[a + 60 >> 2], ie, te, H, R), w = w + 1 | 0, (H | 0) != (w | 0); )
                           ;
-                      if (O = O + 1 | 0, (fe | 0) == (O | 0))
+                      if (Y = Y + 1 | 0, (fe | 0) == (Y | 0))
                         break;
                     }
                     break e;
                   }
-                  if (w = i[u >> 2], lr(a, s, T, l, A, d, Ae, M, P), O = ((ie | 0) / 2 << 2) + w | 0, lr(a, (ee << 2) + s | 0, O, (oe << 2) + l | 0, A, d, Ae, M, P), w = 0, (ee | 0) > 0)
-                    for (; b = w << 2, h = T + b | 0, L[h >> 2] = x(L[h >> 2] * x(0.5)) + x(L[b + O >> 2] * x(0.5)), w = w + 1 | 0, (ee | 0) != (w | 0); )
+                  if (w = i[u >> 2], lr(a, s, T, l, A, d, Ae, M, P), Y = ((ie | 0) / 2 << 2) + w | 0, lr(a, (ee << 2) + s | 0, Y, (oe << 2) + l | 0, A, d, Ae, M, P), w = 0, (ee | 0) > 0)
+                    for (; b = w << 2, h = T + b | 0, L[h >> 2] = x(L[h >> 2] * x(0.5)) + x(L[b + Y >> 2] * x(0.5)), w = w + 1 | 0, (ee | 0) != (w | 0); )
                       ;
                   if ((H | 0) < 1)
                     break e;
@@ -66586,9 +66522,9 @@ function Kg() {
                 _e = pe;
               }
               function xu(a, s, u, l, A, d) {
-                var h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0;
+                var h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0;
                 if (h = Ie[a + 4 >> 1] | Ie[a + 6 >> 1] << 16, N[s >> 1] = h, N[s + 2 >> 1] = h >>> 16, h = Ie[a + 8 >> 1] | Ie[a + 10 >> 1] << 16, N[u >> 1] = h, N[u + 2 >> 1] = h >>> 16, w = d << 1, h = w + s | 0, h = Ie[h >> 1] | Ie[h + 2 >> 1] << 16, N[a + 4 >> 1] = h, N[a + 6 >> 1] = h >>> 16, h = u + w | 0, h = Ie[h >> 1] | Ie[h + 2 >> 1] << 16, N[a + 8 >> 1] = h, N[a + 10 >> 1] = h >>> 16, w = A << 3, b = 65536 / (w | 0) | 0, P = i[l + 4 >> 2], R = i[l >> 2], (A | 0) >= 1)
-                  for (l = b << 16 >> 16, f = N[a + 2 >> 1], H = (D(l, P - f << 16 >> 16) >> 15) + 1 >> 1, M = N[a >> 1], O = (D(R - M << 16 >> 16, l) >> 15) + 1 >> 1, T = (w | 0) > 1 ? w : 1, l = 0; A = l + 1 | 0, b = A << 1, h = b + u | 0, ee = h, ie = N[h >> 1] << 8, f = f + H | 0, h = f << 16 >> 16, b = N[s + b >> 1], h = (ie + D(h, b >> 5) | 0) + (D(b << 11 & 63488, h) >> 16) | 0, l = (l << 1) + s | 0, l = (N[l + 4 >> 1] + N[l >> 1] | 0) + (b << 1) | 0, M = M + O | 0, b = M << 16 >> 16, l = (D(b, l >> 7) + h | 0) + (D(l << 9 & 65024, b) >> 16) | 0, b = (l >> 7) + 1 >> 1, N[ee >> 1] = (l | 0) > 8388479 ? 32767 : (b | 0) > -32768 ? b : -32768, l = A, (T | 0) != (l | 0); )
+                  for (l = b << 16 >> 16, f = N[a + 2 >> 1], H = (D(l, P - f << 16 >> 16) >> 15) + 1 >> 1, M = N[a >> 1], Y = (D(R - M << 16 >> 16, l) >> 15) + 1 >> 1, T = (w | 0) > 1 ? w : 1, l = 0; A = l + 1 | 0, b = A << 1, h = b + u | 0, ee = h, ie = N[h >> 1] << 8, f = f + H | 0, h = f << 16 >> 16, b = N[s + b >> 1], h = (ie + D(h, b >> 5) | 0) + (D(b << 11 & 63488, h) >> 16) | 0, l = (l << 1) + s | 0, l = (N[l + 4 >> 1] + N[l >> 1] | 0) + (b << 1) | 0, M = M + Y | 0, b = M << 16 >> 16, l = (D(b, l >> 7) + h | 0) + (D(l << 9 & 65024, b) >> 16) | 0, b = (l >> 7) + 1 >> 1, N[ee >> 1] = (l | 0) > 8388479 ? 32767 : (b | 0) > -32768 ? b : -32768, l = A, (T | 0) != (l | 0); )
                     ;
                 if ((d | 0) > (w | 0))
                   for (A = P << 16 >> 16, b = R << 16 >> 16; f = w << 1, w = w + 1 | 0, l = w << 1, M = l + u | 0, l = N[s + l >> 1], h = (D(l >> 5, A) + (N[M >> 1] << 8) | 0) + (D(l << 11 & 63488, A) >> 16) | 0, f = s + f | 0, l = (N[f + 4 >> 1] + N[f >> 1] | 0) + (l << 1) | 0, l = (h + D(l >> 7, b) | 0) + (D(l << 9 & 65024, b) >> 16) | 0, f = (l >> 7) + 1 >> 1, N[M >> 1] = (l | 0) > 8388479 ? 32767 : (f | 0) > -32768 ? f : -32768, (d | 0) != (w | 0); )
@@ -66598,20 +66534,20 @@ function Kg() {
                     ;
               }
               function ku(a, s, u, l, A, d, h, b, f, w, M, P, R, H) {
-                var O = 0, T = x(0), ee = 0, ie = x(0), Ae = 0, te = 0, oe = x(0), pe = 0, fe = 0, re = 0, se = 0, ye = x(0), Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = x(0), et = 0, rt = x(0), nt = 0, yt = 0;
+                var Y = 0, T = x(0), ee = 0, ie = x(0), Ae = 0, te = 0, oe = x(0), pe = 0, fe = 0, re = 0, se = 0, ye = x(0), Se = 0, Qe = 0, ze = 0, Ne = 0, Ye = 0, We = x(0), et = 0, rt = x(0), nt = 0, yt = 0;
                 if ((h | 0) < (b | 0))
-                  for (O = 1 << l, Qe = (O | 0) > 1 ? O : 1, ze = (A | 0) > 1 ? A : 1, Ne = (l | 0) == 3, Ye = (l | 0) == 31; ; ) {
-                    for (O = i[a + 32 >> 2], Ae = h, h = Ae + 1 | 0, re = Ae << 1, pe = N[O + (h << 1) >> 1] - N[re + O >> 1] | 0, se = pe << l, We = x(x(1) / x(si(+(se | 0)))), ye = x(x(sr(+x(x((i[(Ae << 2) + P >> 2] + 1 >>> 0) / (pe >>> 0) >>> l | 0) * x(-0.125)) * 0.6931471805599453)) * x(0.5)), et = D(A, Ae), te = 0; ; ) {
-                      ee = i[a + 8 >> 2], O = D(te, ee) + Ae << 2, T = L[O + M >> 2], ie = L[w + O >> 2], rt = L[f + O >> 2], (A | 0) == 1 && (ee = ee + Ae << 2, oe = L[ee + M >> 2], T = T > oe ? T : oe, oe = L[w + ee >> 2], ie = ie > oe ? ie : oe), nt = sr(+x(Qt(x(rt - (T > ie ? ie : T)), x(0))) * -0.6931471805599453);
+                  for (Y = 1 << l, Qe = (Y | 0) > 1 ? Y : 1, ze = (A | 0) > 1 ? A : 1, Ne = (l | 0) == 3, Ye = (l | 0) == 31; ; ) {
+                    for (Y = i[a + 32 >> 2], Ae = h, h = Ae + 1 | 0, re = Ae << 1, pe = N[Y + (h << 1) >> 1] - N[re + Y >> 1] | 0, se = pe << l, We = x(x(1) / x(si(+(se | 0)))), ye = x(x(sr(+x(x((i[(Ae << 2) + P >> 2] + 1 >>> 0) / (pe >>> 0) >>> l | 0) * x(-0.125)) * 0.6931471805599453)) * x(0.5)), et = D(A, Ae), te = 0; ; ) {
+                      ee = i[a + 8 >> 2], Y = D(te, ee) + Ae << 2, T = L[Y + M >> 2], ie = L[w + Y >> 2], rt = L[f + Y >> 2], (A | 0) == 1 && (ee = ee + Ae << 2, oe = L[ee + M >> 2], T = T > oe ? T : oe, oe = L[w + ee >> 2], ie = ie > oe ? ie : oe), nt = sr(+x(Qt(x(rt - (T > ie ? ie : T)), x(0))) * -0.6931471805599453);
                       e: {
                         if (Ye)
                           break e;
                         for (Se = ((D(d, te) << 2) + s | 0) + (N[i[a + 32 >> 2] + re >> 1] << l << 2) | 0, yt = (te + et | 0) + u | 0, T = x(nt), T = x(T + T), T = Ne ? x(T * x(1.4142135381698608)) : T, T = x(We * (T > ye ? ye : T)), ie = x(-T), fe = 0, ee = 0; ; ) {
-                          O = le[yt | 0] >>> ee & 1, fe = O ? fe : 1;
+                          Y = le[yt | 0] >>> ee & 1, fe = Y ? fe : 1;
                           t: {
-                            if (O || (O = 0, (pe | 0) < 1))
+                            if (Y || (Y = 0, (pe | 0) < 1))
                               break t;
-                            for (; R = D(R, 1664525) + 1013904223 | 0, L[((O << l) + ee << 2) + Se >> 2] = R & 32768 ? T : ie, fe = 1, O = O + 1 | 0, (pe | 0) != (O | 0); )
+                            for (; R = D(R, 1664525) + 1013904223 | 0, L[((Y << l) + ee << 2) + Se >> 2] = R & 32768 ? T : ie, fe = 1, Y = Y + 1 | 0, (pe | 0) != (Y | 0); )
                               ;
                           }
                           if (ee = ee + 1 | 0, (Qe | 0) == (ee | 0))
@@ -66629,12 +66565,12 @@ function Kg() {
                   }
               }
               function js(a, s, u, l, A, d, h, b) {
-                var f = x(0), w = x(0), M = 0, P = 0, R = 0, H = 0, O = 0, T = x(0), ee = 0, ie = 0, Ae = x(0), te = 0;
-                if (M = _e, O = M, !(b | ((l | 0) != 2 | (A | 0) != 1))) {
+                var f = x(0), w = x(0), M = 0, P = 0, R = 0, H = 0, Y = 0, T = x(0), ee = 0, ie = 0, Ae = x(0), te = 0;
+                if (M = _e, Y = M, !(b | ((l | 0) != 2 | (A | 0) != 1))) {
                   if (f = L[h + 4 >> 2], w = L[h >> 2], (u | 0) >= 1)
                     for (P = i[a + 4 >> 2], R = i[a >> 2], T = L[d >> 2], b = 0; M = b << 2, Ae = L[P + M >> 2], l = b << 3, w = x(w + x(L[M + R >> 2] + x(10000000031710769e-46))), L[l + s >> 2] = w * x(30517578125e-15), f = x(f + x(Ae + x(10000000031710769e-46))), L[(l | 4) + s >> 2] = f * x(30517578125e-15), f = x(T * f), w = x(T * w), b = b + 1 | 0, (b | 0) != (u | 0); )
                       ;
-                  L[h + 4 >> 2] = f, L[h >> 2] = w, _e = O;
+                  L[h + 4 >> 2] = f, L[h >> 2] = w, _e = Y;
                   return;
                 }
                 if (!b) {
@@ -66663,15 +66599,15 @@ function Kg() {
                     if (H = H + 1 | 0, (te | 0) == (H | 0))
                       break;
                   }
-                  _e = O;
+                  _e = Y;
                   return;
                 }
                 Re(35264, 34183, 279), Le();
               }
               function or(a, s, u, l, A, d, h, b) {
-                var f = 0, w = 0, M = x(0), P = x(0), R = x(0), H = x(0), O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = x(0), oe = x(0), pe = 0, fe = 0;
-                if (b = i[a >> 2], O = b >> 1, w = i[a + 24 >> 2], (d | 0) >= 1)
-                  for (; b = O, O = b >> 1, w = (b << 2) + w | 0, f = f + 1 | 0, (f | 0) != (d | 0); )
+                var f = 0, w = 0, M = x(0), P = x(0), R = x(0), H = x(0), Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = x(0), oe = x(0), pe = 0, fe = 0;
+                if (b = i[a >> 2], Y = b >> 1, w = i[a + 24 >> 2], (d | 0) >= 1)
+                  for (; b = Y, Y = b >> 1, w = (b << 2) + w | 0, f = f + 1 | 0, (f | 0) != (d | 0); )
                     ;
                 f = (A << 1 & -4) + u | 0, ie = i[((d << 2) + a | 0) + 8 >> 2];
                 e: {
@@ -66679,20 +66615,20 @@ function Kg() {
                     Qs(ie, f);
                     break e;
                   }
-                  for (T = b >> 2, pe = (T | 0) > 1 ? T : 1, d = 0, a = (D(O - 1 | 0, h) << 2) + s | 0, ee = i[ie + 44 >> 2], Ae = h << 1, fe = 0 - Ae << 2; h = N[ee >> 1] << 3, R = L[a >> 2], H = L[(d << 2) + w >> 2], M = L[s >> 2], P = L[(d + T << 2) + w >> 2], L[(h | 4) + f >> 2] = x(R * H) + x(M * P), L[h + f >> 2] = x(H * M) - x(R * P), ee = ee + 2 | 0, a = a + fe | 0, s = (Ae << 2) + s | 0, d = d + 1 | 0, (pe | 0) != (d | 0); )
+                  for (T = b >> 2, pe = (T | 0) > 1 ? T : 1, d = 0, a = (D(Y - 1 | 0, h) << 2) + s | 0, ee = i[ie + 44 >> 2], Ae = h << 1, fe = 0 - Ae << 2; h = N[ee >> 1] << 3, R = L[a >> 2], H = L[(d << 2) + w >> 2], M = L[s >> 2], P = L[(d + T << 2) + w >> 2], L[(h | 4) + f >> 2] = x(R * H) + x(M * P), L[h + f >> 2] = x(H * M) - x(R * P), ee = ee + 2 | 0, a = a + fe | 0, s = (Ae << 2) + s | 0, d = d + 1 | 0, (pe | 0) != (d | 0); )
                     ;
                   if (Qs(ie, f), (b | 0) < 4)
                     break e;
-                  for (d = T + 1 >> 1, ee = (d | 0) > 1 ? d : 1, s = (O << 2) + f | 0, d = 0; a = s - 4 | 0, R = L[a >> 2], s = s - 8 | 0, H = L[s >> 2], M = L[f + 4 >> 2], P = L[(d << 2) + w >> 2], te = L[f >> 2], oe = L[(d + T << 2) + w >> 2], L[f >> 2] = x(M * P) + x(te * oe), L[a >> 2] = x(M * oe) - x(te * P), a = d ^ -1, M = L[(T + a << 2) + w >> 2], P = L[(a + O << 2) + w >> 2], L[s >> 2] = x(R * M) + x(H * P), L[f + 4 >> 2] = x(R * P) - x(H * M), f = f + 8 | 0, d = d + 1 | 0, (ee | 0) != (d | 0); )
+                  for (d = T + 1 >> 1, ee = (d | 0) > 1 ? d : 1, s = (Y << 2) + f | 0, d = 0; a = s - 4 | 0, R = L[a >> 2], s = s - 8 | 0, H = L[s >> 2], M = L[f + 4 >> 2], P = L[(d << 2) + w >> 2], te = L[f >> 2], oe = L[(d + T << 2) + w >> 2], L[f >> 2] = x(M * P) + x(te * oe), L[a >> 2] = x(M * oe) - x(te * P), a = d ^ -1, M = L[(T + a << 2) + w >> 2], P = L[(a + Y << 2) + w >> 2], L[s >> 2] = x(R * M) + x(H * P), L[f + 4 >> 2] = x(R * P) - x(H * M), f = f + 8 | 0, d = d + 1 | 0, (ee | 0) != (d | 0); )
                     ;
                 }
-                if (O = (A | 0) / 2 | 0, (A | 0) >= 2)
-                  for (f = A << 2, w = f + u | 0, f = l + f | 0, d = 0; R = L[u >> 2], f = f - 4 | 0, H = L[f >> 2], w = w - 4 | 0, M = L[w >> 2], P = L[l >> 2], L[u >> 2] = x(R * H) - x(M * P), L[w >> 2] = x(M * H) + x(R * P), l = l + 4 | 0, u = u + 4 | 0, d = d + 1 | 0, (O | 0) != (d | 0); )
+                if (Y = (A | 0) / 2 | 0, (A | 0) >= 2)
+                  for (f = A << 2, w = f + u | 0, f = l + f | 0, d = 0; R = L[u >> 2], f = f - 4 | 0, H = L[f >> 2], w = w - 4 | 0, M = L[w >> 2], P = L[l >> 2], L[u >> 2] = x(R * H) - x(M * P), L[w >> 2] = x(M * H) + x(R * P), l = l + 4 | 0, u = u + 4 | 0, d = d + 1 | 0, (Y | 0) != (d | 0); )
                     ;
               }
               function Su(a, s, u, l, A, d) {
                 a = a | 0, s = s | 0, u = u | 0, l = l | 0, A = A | 0, d = d | 0;
-                var h = x(0), b = 0, f = x(0), w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = x(0), re = 0, se = 0, ye = 0, Se = x(0), Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0;
+                var h = x(0), b = 0, f = x(0), w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = x(0), re = 0, se = 0, ye = 0, Se = x(0), Qe = 0, ze = 0, Ne = 0, Ye = 0, We = 0;
                 s = s << 2, ie = s + i[a + 64 >> 2] | 0, H = i[ie >> 2], Ae = i[a + 60 >> 2] + s | 0, w = i[Ae >> 2], te = i[l >> 2];
                 e: {
                   if ((w | 0) >= (te | 0))
@@ -66705,13 +66641,13 @@ function Kg() {
                     d = i[a + 48 >> 2], l = D(H, d), s = l, l = (l >>> 0) / (M >>> 0) | 0, f = x(x(s - D(M, l) >>> 0) / Se);
                     t: {
                       if (Qe) {
-                        b = 0, P = 0, O = 0, T = 0;
+                        b = 0, P = 0, Y = 0, T = 0;
                         break t;
                       }
-                      for (ze = (w << 2) + u | 0, Ne = 4 - l | 0, Ye = i[a + 76 >> 2], l = 0, T = 0, O = 0, P = 0, b = 0; h = L[(l << 2) + ze >> 2], l = l + 1 | 0, s = (D(d, l) + Ne << 2) + Ye | 0, O = O + +x(h * L[s >> 2]), T = T + +x(h * L[s + 4 >> 2]), P = P + +x(h * L[s - 4 >> 2]), b = b + +x(h * L[s - 8 >> 2]), (l | 0) != (pe | 0); )
+                      for (ze = (w << 2) + u | 0, Ne = 4 - l | 0, Ye = i[a + 76 >> 2], l = 0, T = 0, Y = 0, P = 0, b = 0; h = L[(l << 2) + ze >> 2], l = l + 1 | 0, s = (D(d, l) + Ne << 2) + Ye | 0, Y = Y + +x(h * L[s >> 2]), T = T + +x(h * L[s + 4 >> 2]), P = P + +x(h * L[s - 4 >> 2]), b = b + +x(h * L[s - 8 >> 2]), (l | 0) != (pe | 0); )
                         ;
                     }
-                    if (h = x(f * x(0.16666999459266663)), fe = x(f * x(f * h)), ee = +x(fe - h), We = b * ee, h = x(f * x(f * x(0.5))), b = +x(x(f + h) - x(f * h)), P = We + P * b, ee = 1 - ee - b, b = +x(x(h + x(f * x(-0.3333300054073334))) - fe), L[(D(R, ye) << 2) + A >> 2] = P + O * +x(ee - b) + T * b, l = H + re | 0, H = l - (l >>> 0 < M >>> 0 ? 0 : M) | 0, R = R + 1 | 0, w = (w + se | 0) + (l >>> 0 >= M >>> 0) | 0, !((te | 0) > (w | 0)))
+                    if (h = x(f * x(0.16666999459266663)), fe = x(f * x(f * h)), ee = +x(fe - h), We = b * ee, h = x(f * x(f * x(0.5))), b = +x(x(f + h) - x(f * h)), P = We + P * b, ee = 1 - ee - b, b = +x(x(h + x(f * x(-0.3333300054073334))) - fe), L[(D(R, ye) << 2) + A >> 2] = P + Y * +x(ee - b) + T * b, l = H + re | 0, H = l - (l >>> 0 < M >>> 0 ? 0 : M) | 0, R = R + 1 | 0, w = (w + se | 0) + (l >>> 0 >= M >>> 0) | 0, !((te | 0) > (w | 0)))
                       break;
                   }
                 }
@@ -66748,7 +66684,7 @@ function Kg() {
                 return h = x(gi(x(x(b * x(10430.3818359375)) + x(0.5)))), x(ft(h)) < x(2147483648) ? ~~h : -2147483648;
               }
               function Ys(a, s, u, l, A) {
-                var d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0;
+                var d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0;
                 f = _e - 160 | 0, _e = f, P = 8, h = mt(a, D(u >> 1, 9) + 7744 | 0, 8);
                 e: {
                   t: {
@@ -66783,14 +66719,14 @@ function Kg() {
                       break;
                   }
                   for (; ; ) {
-                    if (O = R << 2, b = i[O + f >> 2], (b | 0) >= 1) {
+                    if (Y = R << 2, b = i[Y + f >> 2], (b | 0) >= 1) {
                       for (H = (R << 16 >> 11) + s | 0, w = 0; ; ) {
                         for (M = (w << 1) + H | 0, h = N[M >> 1], d = 0; h = mt(a, 6704, 8) + (h << 1) | 0, d = d + 1 | 0, (b | 0) != (d | 0); )
                           ;
                         if (N[M >> 1] = h, w = w + 1 | 0, (w | 0) == 16)
                           break;
                       }
-                      h = (f + 80 | 0) + O | 0, i[h >> 2] = i[h >> 2] | b << 5;
+                      h = (f + 80 | 0) + Y | 0, i[h >> 2] = i[h >> 2] | b << 5;
                     }
                     if (R = R + 1 | 0, (R | 0) == (P | 0))
                       break;
@@ -66883,10 +66819,10 @@ function Kg() {
                 i[s + 136 >> 2] = u, _e = A - -64 | 0;
               }
               function Os(a, s, u, l) {
-                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0;
+                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0;
                 for (h = _e, P = h, A = i[a + 268 >> 2], b = h - ((A << 2) + 31 & -16) | 0, _e = b, h = i[a + 36 >> 2], d = i[a + 32 >> 2], i[b + 8 >> 2] = d, i[b + 12 >> 2] = h, d = i[a + 28 >> 2], h = i[a + 24 >> 2], i[b >> 2] = h, i[b + 4 >> 2] = d, R = b + 16 | 0, H = i[a + 272 >> 2]; ; ) {
                   if (f = (l | 0) < (A | 0) ? l : A, Vs(a, R, u, f), h = 0, w = f << 17, (w | 0) >= 1)
-                    for (; M = D(h & 65535, 12) >>> 16 | 0, d = M << 3, A = (h >> 16 << 1) + b | 0, O = ((D(N[d + 2610 >> 1], N[A + 2 >> 1]) + D(N[d + 2608 >> 1], N[A >> 1]) | 0) + D(N[d + 2612 >> 1], N[A + 4 >> 1]) | 0) + D(N[d + 2614 >> 1], N[A + 6 >> 1]) | 0, d = 11 - M << 3, A = (((O + D(N[d + 2614 >> 1], N[A + 8 >> 1]) | 0) + D(N[d + 2612 >> 1], N[A + 10 >> 1]) | 0) + D(N[d + 2610 >> 1], N[A + 12 >> 1]) | 0) + D(N[d + 2608 >> 1], N[A + 14 >> 1]) | 0, d = (A >> 14) + 1 >> 1, N[s >> 1] = (A | 0) > 1073725439 ? 32767 : (d | 0) > -32768 ? d : -32768, s = s + 2 | 0, h = h + H | 0, (w | 0) > (h | 0); )
+                    for (; M = D(h & 65535, 12) >>> 16 | 0, d = M << 3, A = (h >> 16 << 1) + b | 0, Y = ((D(N[d + 2610 >> 1], N[A + 2 >> 1]) + D(N[d + 2608 >> 1], N[A >> 1]) | 0) + D(N[d + 2612 >> 1], N[A + 4 >> 1]) | 0) + D(N[d + 2614 >> 1], N[A + 6 >> 1]) | 0, d = 11 - M << 3, A = (((Y + D(N[d + 2614 >> 1], N[A + 8 >> 1]) | 0) + D(N[d + 2612 >> 1], N[A + 10 >> 1]) | 0) + D(N[d + 2610 >> 1], N[A + 12 >> 1]) | 0) + D(N[d + 2608 >> 1], N[A + 14 >> 1]) | 0, d = (A >> 14) + 1 >> 1, N[s >> 1] = (A | 0) > 1073725439 ? 32767 : (d | 0) > -32768 ? d : -32768, s = s + 2 | 0, h = h + H | 0, (w | 0) > (h | 0); )
                       ;
                   if (l = l - f | 0, (l | 0) >= 1) {
                     A = (f << 2) + b | 0, h = i[A + 4 >> 2], d = i[A >> 2], i[b >> 2] = d, i[b + 4 >> 2] = h, d = i[A + 12 >> 2], h = i[A + 8 >> 2], i[b + 8 >> 2] = h, i[b + 12 >> 2] = d, u = (f << 1) + u | 0, A = i[a + 268 >> 2];
@@ -66991,12 +66927,12 @@ function Kg() {
               }
               function Iu(a, s, u, l, A, d) {
                 a = a | 0, s = s | 0, u = u | 0, l = l | 0, A = A | 0, d = d | 0;
-                var h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0;
+                var h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0, pe = 0, fe = 0, re = 0, se = 0;
                 s = s << 2, ee = s + i[a + 64 >> 2] | 0, w = i[ee >> 2], ie = i[a + 60 >> 2] + s | 0, h = i[ie >> 2], Ae = i[l >> 2];
                 e: {
                   if ((h | 0) >= (Ae | 0))
                     break e;
-                  for (H = i[a + 12 >> 2], oe = i[a + 40 >> 2], pe = i[a + 36 >> 2], fe = i[a + 92 >> 2], re = i[a + 76 >> 2], l = i[d >> 2], te = (l | 0) > 0 ? l : 0, O = i[a + 24 >> 2], se = (O | 0) < 1; ; ) {
+                  for (H = i[a + 12 >> 2], oe = i[a + 40 >> 2], pe = i[a + 36 >> 2], fe = i[a + 92 >> 2], re = i[a + 76 >> 2], l = i[d >> 2], te = (l | 0) > 0 ? l : 0, Y = i[a + 24 >> 2], se = (Y | 0) < 1; ; ) {
                     if ((b | 0) == (te | 0)) {
                       b = te;
                       break e;
@@ -67007,7 +66943,7 @@ function Kg() {
                         M = 0, P = 0, R = 0;
                         break t;
                       }
-                      for (l = (h << 2) + u | 0, s = (D(w, O) << 2) + re | 0, d = 0, R = 0, P = 0, M = 0; a = d << 2, M = M + +x(L[s + a >> 2] * L[a + l >> 2]), f = a | 12, T = T + +x(L[f + s >> 2] * L[l + f >> 2]), f = a | 8, R = R + +x(L[f + s >> 2] * L[l + f >> 2]), a = a | 4, P = P + +x(L[s + a >> 2] * L[a + l >> 2]), d = d + 4 | 0, (O | 0) > (d | 0); )
+                      for (l = (h << 2) + u | 0, s = (D(w, Y) << 2) + re | 0, d = 0, R = 0, P = 0, M = 0; a = d << 2, M = M + +x(L[s + a >> 2] * L[a + l >> 2]), f = a | 12, T = T + +x(L[f + s >> 2] * L[l + f >> 2]), f = a | 8, R = R + +x(L[f + s >> 2] * L[l + f >> 2]), a = a | 4, P = P + +x(L[s + a >> 2] * L[a + l >> 2]), d = d + 4 | 0, (Y | 0) > (d | 0); )
                         ;
                     }
                     if (L[(D(b, fe) << 2) + A >> 2] = M + P + R + T, a = w + oe | 0, w = a - (a >>> 0 < H >>> 0 ? 0 : H) | 0, b = b + 1 | 0, h = (h + pe | 0) + (a >>> 0 >= H >>> 0) | 0, !((Ae | 0) > (h | 0)))
@@ -67163,9 +67099,9 @@ function Kg() {
                 return a;
               }
               function Vs(a, s, u, l) {
-                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0;
+                var A = 0, d = 0, h = 0, b = 0, f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0;
                 if ((l | 0) >= 1) {
-                  for (w = i[a + 20 >> 2], b = i[a + 16 >> 2], A = i[a + 12 >> 2], h = i[a + 8 >> 2], f = i[a + 4 >> 2], d = i[a >> 2]; H = N[(R << 1) + u >> 1] << 10, M = H - d | 0, M = (D(M & 65535, 1746) >>> 16 | 0) + D(M >> 16, 1746) | 0, O = M + d | 0, d = O - f | 0, T = (D(d & 65535, 14986) >>> 16 | 0) + D(d >> 16, 14986) | 0, d = T + f | 0, f = d - h | 0, P = R << 2, d = (D(f >> 16, -26453) + (D(f & 65535, -26453) >> 16) | 0) + d | 0, h = (d >> 9) + 1 >> 1, N[P + s >> 1] = (d | 0) > 33553919 ? 32767 : (h | 0) > -32768 ? h : -32768, Ae = (P | 2) + s | 0, h = H - A | 0, P = (D(h & 65535, 6854) >>> 16 | 0) + D(h >> 16, 6854) | 0, ee = P + A | 0, A = ee - b | 0, ie = (D(A & 65535, 25769) >>> 16 | 0) + D(A >> 16, 25769) | 0, A = ie + b | 0, b = A - w | 0, A = (D(b >> 16, -9994) + (D(b & 65535, -9994) >> 16) | 0) + A | 0, w = (A >> 9) + 1 >> 1, N[Ae >> 1] = (A | 0) > 33553919 ? 32767 : (w | 0) > -32768 ? w : -32768, w = A + b | 0, h = d + f | 0, b = ee + ie | 0, f = O + T | 0, A = H + P | 0, d = H + M | 0, R = R + 1 | 0, (R | 0) != (l | 0); )
+                  for (w = i[a + 20 >> 2], b = i[a + 16 >> 2], A = i[a + 12 >> 2], h = i[a + 8 >> 2], f = i[a + 4 >> 2], d = i[a >> 2]; H = N[(R << 1) + u >> 1] << 10, M = H - d | 0, M = (D(M & 65535, 1746) >>> 16 | 0) + D(M >> 16, 1746) | 0, Y = M + d | 0, d = Y - f | 0, T = (D(d & 65535, 14986) >>> 16 | 0) + D(d >> 16, 14986) | 0, d = T + f | 0, f = d - h | 0, P = R << 2, d = (D(f >> 16, -26453) + (D(f & 65535, -26453) >> 16) | 0) + d | 0, h = (d >> 9) + 1 >> 1, N[P + s >> 1] = (d | 0) > 33553919 ? 32767 : (h | 0) > -32768 ? h : -32768, Ae = (P | 2) + s | 0, h = H - A | 0, P = (D(h & 65535, 6854) >>> 16 | 0) + D(h >> 16, 6854) | 0, ee = P + A | 0, A = ee - b | 0, ie = (D(A & 65535, 25769) >>> 16 | 0) + D(A >> 16, 25769) | 0, A = ie + b | 0, b = A - w | 0, A = (D(b >> 16, -9994) + (D(b & 65535, -9994) >> 16) | 0) + A | 0, w = (A >> 9) + 1 >> 1, N[Ae >> 1] = (A | 0) > 33553919 ? 32767 : (w | 0) > -32768 ? w : -32768, w = A + b | 0, h = d + f | 0, b = ee + ie | 0, f = Y + T | 0, A = H + P | 0, d = H + M | 0, R = R + 1 | 0, (R | 0) != (l | 0); )
                     ;
                   i[a + 20 >> 2] = w, i[a + 16 >> 2] = b, i[a + 12 >> 2] = A, i[a + 8 >> 2] = h, i[a + 4 >> 2] = f, i[a >> 2] = d;
                 }
@@ -67198,10 +67134,10 @@ function Kg() {
                   }
               }
               function Ws(a, s, u, l, A, d, h, b, f) {
-                var w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = 0;
-                H = (f | 0) > 1 ? f : 1, O = (s | 0) >= (u | 0);
+                var w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = 0;
+                H = (f | 0) > 1 ? f : 1, Y = (s | 0) >= (u | 0);
                 e: {
-                  if (O | (h | 0) < (f | 0))
+                  if (Y | (h | 0) < (f | 0))
                     break e;
                   for (M = s; ; ) {
                     if (w = M << 2, T = w + A | 0, !(i[T >> 2] > 7 | i[d + w >> 2])) {
@@ -67216,7 +67152,7 @@ function Kg() {
                   }
                 }
                 e: {
-                  if ((h | 0) < (f | 0) | O)
+                  if ((h | 0) < (f | 0) | Y)
                     break e;
                   for (; ; ) {
                     P = s << 2, M = P + A | 0;
@@ -67235,12 +67171,12 @@ function Kg() {
                 }
               }
               function Pu(a, s, u, l, A, d) {
-                var h = 0, b = 0, f = 0, w = 0, M = 0, P = x(0), R = 0, H = 0, O = 0;
+                var h = 0, b = 0, f = 0, w = 0, M = 0, P = x(0), R = 0, H = 0, Y = 0;
                 if (d = _e - 16 | 0, h = d, _e = d, (a | 0) != (u | 0)) {
                   for (w = d - ((A << 2) + 15 & -16) | 0, _e = w, d = 0; i[(d << 2) + w >> 2] = i[((d ^ -1) + A << 2) + s >> 2], d = d + 1 | 0, (d | 0) != (A | 0); )
                     ;
                   if ((l | 0) >= 4)
-                    for (H = l - 3 | 0, O = 0 - A << 2; d = b << 2, s = d + a | 0, i[h >> 2] = i[s >> 2], f = d | 4, i[h + 4 >> 2] = i[f + a >> 2], M = d | 8, i[h + 8 >> 2] = i[M + a >> 2], R = d | 12, i[h + 12 >> 2] = i[R + a >> 2], Ns(w, s + O | 0, h, A), i[u + d >> 2] = i[h >> 2], i[u + f >> 2] = i[h + 4 >> 2], i[u + M >> 2] = i[h + 8 >> 2], i[u + R >> 2] = i[h + 12 >> 2], b = b + 4 | 0, (H | 0) > (b | 0); )
+                    for (H = l - 3 | 0, Y = 0 - A << 2; d = b << 2, s = d + a | 0, i[h >> 2] = i[s >> 2], f = d | 4, i[h + 4 >> 2] = i[f + a >> 2], M = d | 8, i[h + 8 >> 2] = i[M + a >> 2], R = d | 12, i[h + 12 >> 2] = i[R + a >> 2], Ns(w, s + Y | 0, h, A), i[u + d >> 2] = i[h >> 2], i[u + f >> 2] = i[h + 4 >> 2], i[u + M >> 2] = i[h + 8 >> 2], i[u + R >> 2] = i[h + 12 >> 2], b = b + 4 | 0, (H | 0) > (b | 0); )
                       ;
                   if ((l | 0) > (b | 0))
                     for (M = (A | 0) < 1; ; ) {
@@ -67256,8 +67192,8 @@ function Kg() {
                 Re(33804, 33829, 102), Le();
               }
               function Qu(a, s, u, l, A, d, h, b) {
-                var f = 0, w = 0, M = x(0), P = x(0), R = 0, H = x(0), O = x(0), T = 0, ee = 0, ie = 0, Ae = 0;
-                if (f = _e - 16 | 0, _e = f, i[f + 8 >> 2] = 0, i[f + 12 >> 2] = 0, A ? P = x(0.149993896484375) : (w = b << 2, O = L[w + 24832 >> 2], P = L[w + 24848 >> 2]), (s | 0) < (u | 0))
+                var f = 0, w = 0, M = x(0), P = x(0), R = 0, H = x(0), Y = x(0), T = 0, ee = 0, ie = 0, Ae = 0;
+                if (f = _e - 16 | 0, _e = f, i[f + 8 >> 2] = 0, i[f + 12 >> 2] = 0, A ? P = x(0.149993896484375) : (w = b << 2, Y = L[w + 24832 >> 2], P = L[w + 24848 >> 2]), (s | 0) < (u | 0))
                   for (T = (h | 0) > 1 ? h : 1, ee = (i[d + 4 >> 2] << 3) + 32 | 0, R = (D(b, 84) + D(A, 42) | 0) + 24496 | 0; ; ) {
                     for (A = ((s | 0) < 20 ? s : 20) << 1, ie = R + A | 0, Ae = (A | 1) + R | 0, A = 0; ; ) {
                       b = (ee - i[d + 20 >> 2] | 0) - $e(i[d + 28 >> 2]) | 0;
@@ -67274,7 +67210,7 @@ function Kg() {
                           break e;
                         h = 0 - Si(d, 1) | 0;
                       }
-                      if (b = (D(i[a + 8 >> 2], A) + s << 2) + l | 0, w = (f + 8 | 0) + (A << 2) | 0, H = L[w >> 2], M = x(h | 0), L[b >> 2] = x(H + x(O * x(Qt(L[b >> 2], x(-9))))) + M, L[w >> 2] = x(H + M) - x(P * M), A = A + 1 | 0, (T | 0) == (A | 0))
+                      if (b = (D(i[a + 8 >> 2], A) + s << 2) + l | 0, w = (f + 8 | 0) + (A << 2) | 0, H = L[w >> 2], M = x(h | 0), L[b >> 2] = x(H + x(Y * x(Qt(L[b >> 2], x(-9))))) + M, L[w >> 2] = x(H + M) - x(P * M), A = A + 1 | 0, (T | 0) == (A | 0))
                         break;
                     }
                     if (s = s + 1 | 0, (u | 0) == (s | 0))
@@ -67523,14 +67459,14 @@ function Kg() {
               }
               function Fu(a, s, u, l, A, d) {
                 a = a | 0, s = s | 0, u = u | 0, l = l | 0, A = A | 0, d = d | 0;
-                var h = 0, b = 0, f = 0, w = 0, M = x(0), P = 0, R = 0, H = 0, O = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0;
+                var h = 0, b = 0, f = 0, w = 0, M = x(0), P = 0, R = 0, H = 0, Y = 0, T = 0, ee = 0, ie = 0, Ae = 0, te = 0, oe = 0;
                 s = s << 2, P = s + i[a + 64 >> 2] | 0, f = i[P >> 2], R = i[a + 60 >> 2] + s | 0, h = i[R >> 2], H = i[l >> 2];
                 e: {
                   if ((h | 0) >= (H | 0))
                     break e;
-                  for (w = i[a + 12 >> 2], T = i[a + 40 >> 2], ee = i[a + 36 >> 2], ie = i[a + 92 >> 2], Ae = i[a + 76 >> 2], l = i[d >> 2], O = (l | 0) > 0 ? l : 0, s = i[a + 24 >> 2], te = (s | 0) < 1; ; ) {
-                    if ((b | 0) == (O | 0)) {
-                      b = O;
+                  for (w = i[a + 12 >> 2], T = i[a + 40 >> 2], ee = i[a + 36 >> 2], ie = i[a + 92 >> 2], Ae = i[a + 76 >> 2], l = i[d >> 2], Y = (l | 0) > 0 ? l : 0, s = i[a + 24 >> 2], te = (s | 0) < 1; ; ) {
+                    if ((b | 0) == (Y | 0)) {
+                      b = Y;
                       break e;
                     }
                     if (M = x(0), !te)
@@ -67680,8 +67616,8 @@ function Kg() {
                 Re(33896, 33829, 229), Le();
               }
               function lr(a, s, u, l, A, d, h, b, f) {
-                var w = 0, M = 0, P = 0, R = 0, H = 0, O = 0, T = x(0);
-                if (O = D(i[a + 44 >> 2], h), R = i[a + 32 >> 2], w = D(N[R + (d << 1) >> 1], h), (b | 0) != 1 && (a = (O | 0) / (b | 0) | 0, w = (a | 0) > (w | 0) ? w : a), H = f ? 0 : d, M = f ? 0 : A, P = N[(M << 1) + R >> 1], b = D(P, h), A = b << 2, d = u, (b | 0) >= 1)
+                var w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0, T = x(0);
+                if (Y = D(i[a + 44 >> 2], h), R = i[a + 32 >> 2], w = D(N[R + (d << 1) >> 1], h), (b | 0) != 1 && (a = (Y | 0) / (b | 0) | 0, w = (a | 0) > (w | 0) ? w : a), H = f ? 0 : d, M = f ? 0 : A, P = N[(M << 1) + R >> 1], b = D(P, h), A = b << 2, d = u, (b | 0) >= 1)
                   for (a = 0, d = qt(u, 0, A); d = d + 4 | 0, a = a + 1 | 0, (b | 0) != (a | 0); )
                     ;
                 if ((H | 0) > (M | 0))
@@ -67691,11 +67627,11 @@ function Kg() {
                     if ((s | 0) == (H | 0))
                       break;
                   }
-                (H | 0) < (M | 0) && (Re(33464, 33495, 263), Le()), d = f ? 0 : w, qt((d << 2) + u | 0, 0, O - d << 2);
+                (H | 0) < (M | 0) && (Re(33464, 33495, 263), Le()), d = f ? 0 : w, qt((d << 2) + u | 0, 0, Y - d << 2);
               }
               function Hu(a, s, u, l, A, d, h, b) {
-                var f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, O = 0;
-                f = _e, O = f, M = f - ((h << 2) + 15 & -16) | 0, _e = M;
+                var f = 0, w = 0, M = 0, P = 0, R = 0, H = 0, Y = 0;
+                f = _e, Y = f, M = f - ((h << 2) + 15 & -16) | 0, _e = M;
                 e: {
                   if ((h | 0) <= 0) {
                     P = (h << 1) + M | 0;
@@ -67708,7 +67644,7 @@ function Kg() {
                   for (H = D(b - 1 | 0, h), w = i[d + 4 >> 2], R = w << 16 >> 16, d = (w >> 15) + 1 >> 1, w = 0; f = i[(w + H << 2) + A >> 2], f = ((D(f & 65535, R) >> 16) + D(f >> 16, R) | 0) + D(d, f) | 0, N[(w << 1) + P >> 1] = (f | 0) > 8388607 ? 32767 : (f | 0) < -8388608 ? -32768 : f >>> 8 | 0, w = w + 1 | 0, (w | 0) != (h | 0); )
                     ;
                 }
-                cr(a, s, M, h), cr(u, l, P, h), _e = O;
+                cr(a, s, M, h), cr(u, l, P, h), _e = Y;
               }
               function tn(a, s, u) {
                 var l = 0, A = 0, d = 0, h = 0, b = 0, f = 0, w = 0;
@@ -67970,7 +67906,7 @@ function Kg() {
                 (A | 0) < (l | 0) && (u = N[(A << 1) + u >> 1], h = (D(u, u) >>> b | 0) + h | 0), i[s >> 2] = b, i[a >> 2] = h;
               }
               function on(a, s, u, l) {
-                var A = 0, d = 0, h = 0, b = 0, f = x(0), w = 0, M = x(0), P = 0, R = 0, H = 0, O = 0, T = 0;
+                var A = 0, d = 0, h = 0, b = 0, f = x(0), w = 0, M = x(0), P = 0, R = 0, H = 0, Y = 0, T = 0;
                 if (A = +s, h = ft(A), h < 1e-6)
                   return a;
                 if (b = +(u | 0), !(b * 0.5 < h)) {
@@ -67982,7 +67918,7 @@ function Kg() {
                     }
                     l = -2147483648;
                   }
-                  u = u + (l << 3) | 0, h = we[u + 8 >> 3], b = we[u >> 3], H = we[u + 16 >> 3], w = we[u + 24 >> 3], A = +s * 3.141592653589793, O = ed(A) * +a / A, s = x(f - x(l | 0)), a = x(s * s), d = +x(s * a), P = d * 0.1666666667, A = +s, R = P - A * 0.1666666667, T = w * R, w = +a * 0.5, d = w + A - d * 0.5, A = w + A * -0.3333333333 - P, f = x(O * (T + (H * d + (b * A + h * (1 - R - d - A)))));
+                  u = u + (l << 3) | 0, h = we[u + 8 >> 3], b = we[u >> 3], H = we[u + 16 >> 3], w = we[u + 24 >> 3], A = +s * 3.141592653589793, Y = ed(A) * +a / A, s = x(f - x(l | 0)), a = x(s * s), d = +x(s * a), P = d * 0.1666666667, A = +s, R = P - A * 0.1666666667, T = w * R, w = +a * 0.5, d = w + A - d * 0.5, A = w + A * -0.3333333333 - P, f = x(Y * (T + (H * d + (b * A + h * (1 - R - d - A)))));
                 }
                 return f;
               }
@@ -68779,9 +68715,9 @@ function Kg() {
         return Ce ? B(F, Ce, Pe) : "";
       }
       typeof TextDecoder < "u" && new TextDecoder("utf-16le");
-      var I, F, J;
+      var I, F, O;
       function Z(Ce) {
-        I = Ce, r.HEAP8 = new Int8Array(Ce), r.HEAP16 = new Int16Array(Ce), r.HEAP32 = J = new Int32Array(Ce), r.HEAPU8 = F = new Uint8Array(Ce), r.HEAPU16 = new Uint16Array(Ce), r.HEAPU32 = new Uint32Array(Ce), r.HEAPF32 = new Float32Array(Ce), r.HEAPF64 = new Float64Array(Ce);
+        I = Ce, r.HEAP8 = new Int8Array(Ce), r.HEAP16 = new Int16Array(Ce), r.HEAP32 = O = new Int32Array(Ce), r.HEAPU8 = F = new Uint8Array(Ce), r.HEAPU16 = new Uint16Array(Ce), r.HEAPU32 = new Uint32Array(Ce), r.HEAPF32 = new Float32Array(Ce), r.HEAPF64 = new Float64Array(Ce);
       }
       var $ = r.INITIAL_MEMORY || 16777216;
       r.wasmMemory ? m = r.wasmMemory : m = new o.Memory({
@@ -68912,7 +68848,7 @@ function Kg() {
         Pe === 0 || Pe === 10 ? ((Ce === 1 ? j : V)(B(He, 0)), He.length = 0) : He.push(Pe);
       }, varargs: void 0, get: function() {
         Yt.varargs += 4;
-        var Ce = J[Yt.varargs - 4 >> 2];
+        var Ce = O[Yt.varargs - 4 >> 2];
         return Ce;
       }, getStr: function(Ce) {
         var Pe = E(Ce);
@@ -68927,11 +68863,11 @@ function Kg() {
       }
       function oi(Ce, Pe, He, ot) {
         for (var _t = 0, Fe = 0; Fe < He; Fe++) {
-          for (var dt = J[Pe + Fe * 8 >> 2], Ct = J[Pe + (Fe * 8 + 4) >> 2], Ue = 0; Ue < Ct; Ue++)
+          for (var dt = O[Pe + Fe * 8 >> 2], Ct = O[Pe + (Fe * 8 + 4) >> 2], Ue = 0; Ue < Ct; Ue++)
             Yt.printChar(Ce, F[dt + Ue]);
           _t += Ct;
         }
-        return J[ot >> 2] = _t, 0;
+        return O[ot >> 2] = _t, 0;
       }
       function Kt(Ce) {
         for (var Pe = [], He = 0; He < Ce.length; He++) {
@@ -69040,8 +68976,8 @@ function $g() {
           for (var Q = _.getUint8(v + 26, !0), z = v + 27 + Q, q = 0; q < Q; q++) {
             var G = _.getUint8(v + 27 + q, !0);
             if (this.decoderBuffer.set(r.subarray(z, z += G), this.decoderBufferIndex), this.decoderBufferIndex += G, G < 255) {
-              var U = this._opus_decode_float(this.decoder, this.decoderBufferPointer, this.decoderBufferIndex, this.decoderOutputPointer, this.decoderOutputMaxLength, 0), Y = Math.ceil(U * this.config.outputBufferSampleRate / this.config.decoderSampleRate);
-              this.HEAP32[this.decoderOutputLengthPointer >> 2] = U, this.HEAP32[this.resampleOutputLengthPointer >> 2] = Y, this._speex_resampler_process_interleaved_float(this.resampler, this.decoderOutputPointer, this.decoderOutputLengthPointer, this.resampleOutputBufferPointer, this.resampleOutputLengthPointer), c.call(this, this.HEAPF32.subarray(this.resampleOutputBufferPointer >> 2, (this.resampleOutputBufferPointer >> 2) + Y * this.numberOfChannels), p), this.decoderBufferIndex = 0;
+              var U = this._opus_decode_float(this.decoder, this.decoderBufferPointer, this.decoderBufferIndex, this.decoderOutputPointer, this.decoderOutputMaxLength, 0), J = Math.ceil(U * this.config.outputBufferSampleRate / this.config.decoderSampleRate);
+              this.HEAP32[this.decoderOutputLengthPointer >> 2] = U, this.HEAP32[this.resampleOutputLengthPointer >> 2] = J, this._speex_resampler_process_interleaved_float(this.resampler, this.decoderOutputPointer, this.decoderOutputLengthPointer, this.resampleOutputBufferPointer, this.resampleOutputLengthPointer), c.call(this, this.HEAPF32.subarray(this.resampleOutputBufferPointer >> 2, (this.resampleOutputBufferPointer >> 2) + J * this.numberOfChannels), p), this.decoderBufferIndex = 0;
             }
           }
           k & 4 && (this.completed = !0, this.oncomplete && this.oncomplete(p));

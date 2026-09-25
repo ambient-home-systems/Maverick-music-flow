@@ -31,7 +31,7 @@ phone_display_mode: auto
 
 ## Language and Search Ordering
 
-German is available as `language: de`, in the language picker, or automatically when Home Assistant uses German (`language: auto`). The German dictionary incorporates [PR #89](https://github.com/r11a/homeii-music-flow/pull/89), contributed by rtreichl, and includes the current action-label setting.
+German is available as `language: de`, in the language picker, or automatically when Home Assistant uses German (`language: auto`). The German dictionary incorporates [PR #89](https://github.com/ambient-home-systems/maverick-music-flow/pull/89), contributed by rtreichl, and includes the current action-label setting.
 
 Search section order can be configured in YAML. Omitted sections retain their default relative order after the configured sections; sections with no results remain hidden.
 

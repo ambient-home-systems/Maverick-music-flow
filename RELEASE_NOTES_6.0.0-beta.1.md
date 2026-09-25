@@ -28,11 +28,11 @@ Published as GitHub **Pre-release**, explicitly **not Latest**. Stable 5.9.3 rem
 
 ## Feedback
 
-Use [card issues](https://github.com/r11a/homeii-music-flow/issues) or the [Engine tracker](https://github.com/r11a/homeii-flow-engine/issues) when accessible. Include card/Engine/HA/MA versions, device and player details, exact steps and redacted diagnostics. Do not post tokens, cookies or backups.
+Use [card issues](https://github.com/ambient-home-systems/maverick-music-flow/issues) or the [Engine tracker](https://github.com/r11a/homeii-flow-engine/issues) when accessible. Include card/Engine/HA/MA versions, device and player details, exact steps and redacted diagnostics. Do not post tokens, cookies or backups.
 
 
 ## German translation
 
-Thank you to [Richard Treichl (@rtreichl)](https://github.com/rtreichl) for contributing German language support in [PR #89](https://github.com/r11a/homeii-music-flow/pull/89).
+Thank you to [Richard Treichl (@rtreichl)](https://github.com/rtreichl) for contributing German language support in [PR #89](https://github.com/ambient-home-systems/maverick-music-flow/pull/89).
 
 

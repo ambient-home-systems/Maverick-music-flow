@@ -19048,7 +19048,7 @@ function registerHomeiiDashboardCard() {
     name: "HOMEii Flow",
     description: `Premium Music Assistant dashboard card v${HOMEII_CARD_VERSION}`,
     preview: false,
-    documentationURL: "https://github.com/r11a/homeii-music-flow",
+    documentationURL: "https://github.com/ambient-home-systems/maverick-music-flow",
   });
 }
 

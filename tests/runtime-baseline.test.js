@@ -613,16 +613,9 @@ describe("runtime baseline", () => {
     });
 
     expect(editor._editorForm).toBeTruthy();
-    expect(editor.shadowRoot.innerHTML).toContain('class="editor-sponsor"');
+    expect(editor.shadowRoot.innerHTML).not.toContain('class="editor-sponsor"');
     expect(editor.shadowRoot.innerHTML).toContain('class="editor-diagnostics"');
     expect(editor.shadowRoot.innerHTML).toContain('id="editorDiagnosticsPanel"');
-    expect(editor.shadowRoot.innerHTML).toContain('href="https://github.com/sponsors/r11a"');
-    expect(editor.shadowRoot.innerHTML).toContain('rel="noopener noreferrer"');
-    globalThis.window.confirm = vi.fn(() => false);
-    const preventDefault = vi.fn();
-    editor._editorSponsorLink.dispatchEvent({ type: "click", preventDefault });
-    expect(globalThis.window.confirm).toHaveBeenCalledWith("Open the GitHub Sponsors page?");
-    expect(preventDefault).toHaveBeenCalled();
     expect(Array.isArray(editor._editorForm.schema)).toBe(true);
     expect(editor._editorForm.data.mobile_quick_actions).toEqual(["voice", "search"]);
   });

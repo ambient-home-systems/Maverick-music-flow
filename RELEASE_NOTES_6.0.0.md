@@ -15,7 +15,7 @@
 6. Update **HOMEii Music Flow to 6.0.0** and keep exactly one registered card resource.
 7. Fully reload every browser and Companion App, then confirm Card 6.0.0 and Engine 1.0.0 in Diagnostics.
 
-[Beginner installation, upgrade and rollback guide](https://github.com/r11a/homeii-music-flow/blob/v6.0.0/docs/INSTALL_STEP_BY_STEP.md) · [Required Engine](https://github.com/r11a/homeii-flow-engine)
+[Beginner installation, upgrade and rollback guide](https://github.com/ambient-home-systems/maverick-music-flow/blob/v6.0.0/docs/INSTALL_STEP_BY_STEP.md) · [Required Engine](https://github.com/r11a/homeii-flow-engine)
 
 ## A completely new HOMEii Flow
 
@@ -43,6 +43,6 @@ Reinstall card 5.9.3, restore its saved card configuration and keep exactly one 
 
 Requires a current Home Assistant installation, Music Assistant API schema 63 or newer, Engine 1.0.0, a valid Music Assistant token and at least one available Music Assistant player. Provider-specific actions appear only when supported.
 
-Please report reproducible problems through [GitHub Issues](https://github.com/r11a/homeii-music-flow/issues) with card, Engine, HA and MA versions, device/browser, exact steps and redacted Diagnostics. Never include tokens or backups.
+Please report reproducible problems through [GitHub Issues](https://github.com/ambient-home-systems/maverick-music-flow/issues) with card, Engine, HA and MA versions, device/browser, exact steps and redacted Diagnostics. Never include tokens or backups.
 
 German translation contribution: **rtreichl**. Thank you to every beta tester whose reports shaped this release.

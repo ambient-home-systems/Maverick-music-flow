@@ -33,11 +33,11 @@ For an extended test, listen for 30–60 minutes, change tracks/providers and re
 
 ## Report a bug
 
-Use [the structured bug form](https://github.com/r11a/homeii-music-flow/issues/new?template=beta_bug.yml). Engine-only problems can go to [the Engine tracker](https://github.com/r11a/homeii-flow-engine/issues). One reproducible problem per issue; search existing issues first and add evidence there when it matches.
+Use [the structured bug form](https://github.com/ambient-home-systems/maverick-music-flow/issues/new?template=beta_bug.yml). Engine-only problems can go to [the Engine tracker](https://github.com/r11a/homeii-flow-engine/issues). One reproducible problem per issue; search existing issues first and add evidence there when it matches.
 
 Include exact Card, Engine, HA and MA versions; browser/OS; player model/protocol; steps; expected/actual result; frequency; and whether native MA behaves the same. For visual issues include screen size, light/dark and performance profile. Redact tokens, cookies, addresses and personal information from logs/screenshots. Never upload a full HA backup.
 
-Use [feedback](https://github.com/r11a/homeii-music-flow/issues/new?template=beta_feedback.yml) for suggestions. Forum replies are welcome, but actionable bugs should have a linked issue so they can be tracked.
+Use [feedback](https://github.com/ambient-home-systems/maverick-music-flow/issues/new?template=beta_feedback.yml) for suggestions. Forum replies are welcome, but actionable bugs should have a linked issue so they can be tracked.
 
 ## Tracking and retesting
 

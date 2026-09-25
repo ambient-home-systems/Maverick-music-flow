@@ -102,7 +102,7 @@ Token instructions are documented in the [official MA API guide](https://www.mus
 
 Official HACS catalog inclusion is not required. Add the repository as a custom Dashboard repository or install the release assets manually.
 
-1. Open [card releases](https://github.com/r11a/homeii-music-flow/releases).
+1. Open [card releases](https://github.com/ambient-home-systems/maverick-music-flow/releases).
 2. Select **6.0.0**.
 3. Download the card package or the `homeii-music-flow.js`, `homeii-flow-logo-v2.png` and `homeii-flow-icon.png` assets. Use built release assets, not `src/homeii-music-flow.js`.
 4. Create `/config/www/homeii-flow/`.

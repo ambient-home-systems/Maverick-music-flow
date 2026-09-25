@@ -1,5 +1,5 @@
 <p align="center"><img src="artifacts/HOMEii-Flow-Beta-Launch.png" alt="HOMEii Flow 6 — Your music. Within reach." width="1200"></p>
-<p align="center"><a href="https://r11a.github.io/homeii-music-flow/"><img src="https://img.shields.io/badge/%E2%96%B6_WATCH_THE_FILM-60_SECONDS-c89b56?style=for-the-badge&amp;labelColor=151619" alt="Watch the HOMEii Flow film — 60 seconds"></a><br><sub>Watch in your browser · Edited interface demonstration</sub></p>
+<p align="center"><sub>A 60-second edited interface demonstration film is available; see the "See it in motion" section below.</sub></p>
 <h1 align="center">HOMEii Music Flow</h1>
 <p align="center"><strong>Make your Home Assistant dashboard feel like a place for music.</strong><br>Artwork-driven atmosphere, contextual controls and your Music Assistant library — across the screens in your home.</p>
 <p align="center"><img alt="Card release" src="https://img.shields.io/badge/Card-6.0.1-c89b56"><img alt="Matching Engine" src="https://img.shields.io/badge/Engine-1.0.1-41BDF5"><img alt="Stable release" src="https://img.shields.io/badge/Status-STABLE-2e7d32"></p>
@@ -38,7 +38,7 @@ This explicitly enables the immersive edge-to-edge presentation and full visual 
 
 ## See it in motion
 
-[Watch the 60-second HOMEii Flow film](https://r11a.github.io/homeii-music-flow/). Edited interface demonstration with staged playback; see [production notes](artifacts/VIDEO-NOTES.md).
+A 60-second HOMEii Flow film with staged playback demonstrates the interface; see [production notes](artifacts/VIDEO-NOTES.md).
 
 [Tester checklist and reporting](docs/BETA_TESTING.md) · [Report a beta bug](https://github.com/r11a/homeii-music-flow/issues/new?template=beta_bug.yml)
 
@@ -127,7 +127,7 @@ The instructions below are the installation reference. **For upgrades from 5.9.3
 
 Use the My Home Assistant button:
 
-[![Open your Home Assistant instance and add this repository to HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=r11a&repository=homeii-music-flow&category=plugin)
+[![Open your Home Assistant instance and add this repository to HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ambient-home-systems&repository=maverick-music-flow&category=plugin)
 
 Or add it manually:
 
@@ -311,40 +311,40 @@ HOMEii Flow 6 does not expose Music Assistant credentials to the browser. The bu
 ### Main Experience
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/hero-main-light.png" alt="Main now playing layout" width="100%">
+  <img src="docs/media/hero-main-light.png" alt="Main now playing layout" width="100%">
 </p>
 
 ### Studio / Players / Queue
 
 | Studio | Players | Queue |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/studio.png" alt="Studio player grid" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/players.png" alt="Player selection and grouping" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/queue.png" alt="Queue panel" width="100%"> |
+| <img src="docs/media/studio.png" alt="Studio player grid" width="100%"> | <img src="docs/media/players.png" alt="Player selection and grouping" width="100%"> | <img src="docs/media/queue.png" alt="Queue panel" width="100%"> |
 
 ### Library / Actions / Settings
 
 | Library | Actions | Settings |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/library.png" alt="Music Assistant library browser" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/actions.png" alt="Actions and schedules menu" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/settings.png" alt="Settings panel" width="100%"> |
+| <img src="docs/media/library.png" alt="Music Assistant library browser" width="100%"> | <img src="docs/media/actions.png" alt="Actions and schedules menu" width="100%"> | <img src="docs/media/settings.png" alt="Settings panel" width="100%"> |
 
 ### Lyrics / Announcements / Tablet
 
 | Lyrics | Announcements | Tablet |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/lyrics.png" alt="Lyrics screen" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/announcement.png" alt="Announcement screen" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/tablet.png" alt="Tablet layout" width="100%"> |
+| <img src="docs/media/lyrics.png" alt="Lyrics screen" width="100%"> | <img src="docs/media/announcement.png" alt="Announcement screen" width="100%"> | <img src="docs/media/tablet.png" alt="Tablet layout" width="100%"> |
 
 ### Mobile Details
 
 | Mobile 1 | Mobile 2 | Mobile 3 |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-1.jpg" alt="Mobile screenshot 1" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-2.jpg" alt="Mobile screenshot 2" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-3.jpg" alt="Mobile screenshot 3" width="100%"> |
+| <img src="docs/media/mobile-1.jpg" alt="Mobile screenshot 1" width="100%"> | <img src="docs/media/mobile-2.jpg" alt="Mobile screenshot 2" width="100%"> | <img src="docs/media/mobile-3.jpg" alt="Mobile screenshot 3" width="100%"> |
 
 | Mobile 4 | Mobile 5 | Mobile 6 |
 | --- | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-4.jpg" alt="Mobile screenshot 4" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-5.jpg" alt="Mobile screenshot 5" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-6.jpg" alt="Mobile screenshot 6" width="100%"> |
+| <img src="docs/media/mobile-4.jpg" alt="Mobile screenshot 4" width="100%"> | <img src="docs/media/mobile-5.jpg" alt="Mobile screenshot 5" width="100%"> | <img src="docs/media/mobile-6.jpg" alt="Mobile screenshot 6" width="100%"> |
 
 | History | Mobile 7 |
 | --- | --- |
-| <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/history-light.png" alt="History and recommendations drawer" width="100%"> | <img src="https://raw.githubusercontent.com/r11a/homeii-music-flow/main/docs/media/mobile-7.jpg" alt="Mobile screenshot 7" width="100%"> |
+| <img src="docs/media/history-light.png" alt="History and recommendations drawer" width="100%"> | <img src="docs/media/mobile-7.jpg" alt="Mobile screenshot 7" width="100%"> |
 
 ## Feature Highlights
 
