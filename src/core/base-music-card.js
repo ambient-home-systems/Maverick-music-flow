@@ -9732,7 +9732,7 @@ export function createMaverickBaseMusicCard({
           const leftYear = this._mediaYearValue(left);
           const rightYear = this._mediaYearValue(right);
           if (leftYear !== rightYear) return rightYear - leftYear;
-          return String(left?.name || "").localeCompare(String(right?.name || ""), "en", { sensitivity: "base", numeric: true });
+          return String(left?.name || "").localeCompare(String(right?.name || ""), undefined, { sensitivity: "base", numeric: true });
         });
       // Albums are the primary content. Recommendations enrich the same cached
       // detail afterwards, without holding the album screen behind provider search.

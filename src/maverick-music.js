@@ -13658,7 +13658,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (Number.isFinite(leftYear) && Number.isFinite(rightYear)) return rightYear - leftYear;
       if (Number.isFinite(leftYear)) return -1;
       if (Number.isFinite(rightYear)) return 1;
-      return String(left).localeCompare(String(right), "en", { sensitivity: "base", numeric: true });
+      return String(left).localeCompare(String(right), undefined, { sensitivity: "base", numeric: true });
     });
   }
 
@@ -15057,7 +15057,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const mode = this._state.mobileLibrarySort || "name_asc";
     const copy = [...items];
     if (mode === "name_desc") {
-      return copy.sort((a, b) => String(b?.name || "").localeCompare(String(a?.name || ""), "en", { sensitivity: "base", numeric: true }));
+      return copy.sort((a, b) => String(b?.name || "").localeCompare(String(a?.name || ""), undefined, { sensitivity: "base", numeric: true }));
     }
     if (mode === "date_desc") {
       const ranked = copy.map((item, index) => ({ item, index, date: this._itemDateValue(item) }));
@@ -15079,7 +15079,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       });
       return ranked.map((entry) => entry.item);
     }
-    return copy.sort((a, b) => String(a?.name || "").localeCompare(String(b?.name || ""), "en", { sensitivity: "base", numeric: true }));
+    return copy.sort((a, b) => String(a?.name || "").localeCompare(String(b?.name || ""), undefined, { sensitivity: "base", numeric: true }));
   }
 
   _libraryTabSearchPageKey(page = this._state.menuPage) {
