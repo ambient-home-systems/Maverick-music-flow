@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
 import "../src/homeii-music-flow.js";
+import { ENGINE_SENDSPIN_PATH } from "../src/core/engine-client.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 
 const prototype = globalThis.customElements.get("homeii-music-flow").prototype;
@@ -16,7 +17,7 @@ function context(bridge = true) {
   return {
     _state: { engineCapabilities: { sendspin_bridge: bridge } },
     _hass: { hassUrl: () => "https://home.example/" },
-    _callHomeAssistantWs: vi.fn(async () => ({ path: "/api/homeii_flow/sendspin/device?authSig=short-lived" })),
+    _callHomeAssistantWs: vi.fn(async () => ({ path: `${ENGINE_SENDSPIN_PATH}device?authSig=short-lived` })),
     _localSendspinWsUrl: () => "ws://ma.example/sendspin",
     _maToken: "test-ma-token",
     _debugLog: vi.fn(), _localText: (english) => english,
@@ -29,8 +30,8 @@ describe("Sendspin authenticated transport", () => {
     const pending = prototype._openAuthenticatedSendspinSocket.call(card, "device");
     await Promise.resolve();
     socket.onopen();
-    expect(socket.url).toBe("wss://home.example/api/homeii_flow/sendspin/device?authSig=short-lived");
-    expect(card._callHomeAssistantWs).toHaveBeenCalledWith({ type: "auth/sign_path", path: "/api/homeii_flow/sendspin/device", expires: 30 });
+    expect(socket.url).toBe(`wss://home.example${ENGINE_SENDSPIN_PATH}device?authSig=short-lived`);
+    expect(card._callHomeAssistantWs).toHaveBeenCalledWith({ type: "auth/sign_path", path: `${ENGINE_SENDSPIN_PATH}device`, expires: 30 });
     expect(socket.send).not.toHaveBeenCalled();
     let resolved = false;
     pending.then(() => { resolved = true; });

@@ -7,6 +7,12 @@ import { bindProgressSeek } from "./media/progress-seek.js";
 import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
 import * as HomeiiSendspinModule from "../sendspin-js/index.js";
 import { ensureInterfaceFont, interfaceStyles } from "./theme/interface.js";
+import { ENGINE_ARTWORK_PATH, ENGINE_SENDSPIN_PATH } from "./engine-client.js";
+
+const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
+const ENGINE_ARTWORK_ITEM_PATH = `${ENGINE_ARTWORK_PATH}item/`;
+const ENGINE_ARTWORK_ITEM_PATH_RE = new RegExp(`^${escapeRegExp(ENGINE_ARTWORK_ITEM_PATH)}`, "i");
+const LOCAL_ARTWORK_PATH_RE = new RegExp(`^(?:${escapeRegExp(ENGINE_ARTWORK_PATH)}|/api/media_player_proxy/|/local/)`);
 
 export function createHomeiiBaseMusicCard({
   HOMEII_CARD_VERSION,
@@ -977,7 +983,7 @@ export function createHomeiiBaseMusicCard({
     _imageFailureTtlMs(url = "") {
       const raw = String(url || "").trim();
       if (!raw) return 0;
-      if (raw.includes("/api/homeii_flow/artwork/")) return 25000;
+      if (raw.includes(ENGINE_ARTWORK_PATH)) return 25000;
       if (this._isMaImageProxyPath(raw)) return 35000;
       return 90000;
     }
@@ -1042,10 +1048,10 @@ export function createHomeiiBaseMusicCard({
     _shouldFetchArtworkUrl(url = "", { crossOrigin = false } = {}) {
       const raw = String(url || "").trim();
       if (!raw || typeof fetch !== "function") return false;
-      if (/^\/api\/homeii_flow\/artwork\/item\//i.test(raw)) return false;
+      if (ENGINE_ARTWORK_ITEM_PATH_RE.test(raw)) return false;
       try {
         const parsed = new URL(raw, typeof window !== "undefined" ? window.location?.href : "http://homeii.local");
-        if (/^\/api\/homeii_flow\/artwork\/item\//i.test(parsed.pathname)) return false;
+        if (ENGINE_ARTWORK_ITEM_PATH_RE.test(parsed.pathname)) return false;
       } catch (_) {}
       if (crossOrigin) return !!(
         this._isMaImageProxyPath(raw)
@@ -2093,7 +2099,7 @@ export function createHomeiiBaseMusicCard({
       let wsUrl;
       if (engineBridge) {
         const signed = await this._callHomeAssistantWs({
-          type: "auth/sign_path", path: `/api/homeii_flow/sendspin/${encodeURIComponent(playerId)}`, expires: 30,
+          type: "auth/sign_path", path: `${ENGINE_SENDSPIN_PATH}${encodeURIComponent(playerId)}`, expires: 30,
         });
         if (!signed?.path) throw new Error("Home Assistant could not authorize local playback.");
         const url = new URL(signed.path, this._hass?.hassUrl?.("/") || window.location.href);
@@ -8541,7 +8547,7 @@ export function createHomeiiBaseMusicCard({
       const items = Array.isArray(snapshot?.items) ? snapshot.items : [];
       return items.reduce((count, item) => {
         const art = this._artUrl(item, { size: 120 }) || this._artUrl(item?.media_item || item, { size: 120 });
-        return count + (String(art || "").includes("/api/homeii_flow/artwork/item/") ? 1 : 0);
+        return count + (String(art || "").includes(ENGINE_ARTWORK_ITEM_PATH) ? 1 : 0);
       }, 0);
     }
 
@@ -12331,7 +12337,7 @@ export function createHomeiiBaseMusicCard({
             const parsed = new URL(raw, window.location.origin);
             if (
               parsed.origin === window.location.origin
-              && /^\/(?:api\/homeii_flow\/artwork\/|api\/media_player_proxy\/|local\/)/.test(parsed.pathname)
+              && LOCAL_ARTWORK_PATH_RE.test(parsed.pathname)
             ) {
               return this._normalizeArtworkUrl(raw, { size, cacheKey: options?.cacheKey || "" }) || raw;
             }

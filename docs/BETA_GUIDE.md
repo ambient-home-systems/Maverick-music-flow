@@ -7,7 +7,7 @@ Status: opt-in public beta. Beta 2 retains compatibility with Engine 1.0.0-beta.
 | Project | Role | Repository |
 |---|---|---|
 | HOMEii Music Flow | The dashboard experience: artwork, library, contextual controls and player selection | [Card](https://github.com/r11a/homeii-music-flow) |
-| HOMEii Flow Engine | The Home Assistant integration: authenticated MA access, shared state and automation services | [Engine](https://github.com/r11a/homeii-flow-engine) |
+| HOMEii Flow Engine | The Home Assistant integration: authenticated MA access, shared state and automation services | [Engine](https://github.com/ambient-home-systems/maverick-music-flow-engine) |
 
 The Engine repository is public. Install it as a Home Assistant custom integration, not as an App/add-on.
 
@@ -80,7 +80,7 @@ An existing `entity` can remain as the preferred player. Preserve `card_id` valu
 
 ## Installation paths after publication
 
-**Engine manual installation:** copy the package's `custom_components/homeii_flow` directory into `/config/custom_components/homeii_flow`. The `manifest.json` must be directly inside that directory, not inside a second nested `homeii_flow` folder. Restart HA and add/configure the integration. See the [Engine repository](https://github.com/r11a/homeii-flow-engine) for its installation and automation guide.
+**Engine manual installation:** copy the package's `custom_components/homeii_flow` directory into `/config/custom_components/homeii_flow`. The `manifest.json` must be directly inside that directory, not inside a second nested `homeii_flow` folder. Restart HA and add/configure the integration. See the [Engine repository](https://github.com/ambient-home-systems/maverick-music-flow-engine) for its installation and automation guide.
 
 **Card manual installation:** use the built `homeii-music-flow.js`, not the unbundled file in `src`. Put it under `/config/www/community/homeii-music-flow/` (or another deliberately chosen `www` directory) and register the corresponding `/local/...` URL as a JavaScript module. Update the existing resource to avoid duplicate registration.
 
@@ -121,7 +121,7 @@ HACS beta visibility and update entities are controlled by the user's settings. 
 
 ## Help shape the beta
 
-For interface problems use [card issues](https://github.com/r11a/homeii-music-flow/issues); for Engine setup, backend services or persistent state use [Engine issues](https://github.com/r11a/homeii-flow-engine/issues) when accessible. If unsure, start with a card issue and include both versions.
+For interface problems use [card issues](https://github.com/r11a/homeii-music-flow/issues); for Engine setup, backend services or persistent state use [Engine issues](https://github.com/ambient-home-systems/maverick-music-flow-engine/issues) when accessible. If unsure, start with a card issue and include both versions.
 
 Include: card and Engine version, HA Core and MA version/schema, browser/device, player model/protocol, provider/media type, exact reproduction, expected versus actual result, whether native MA behaves the same way, and a redacted diagnostic excerpt. For UI problems add viewport/orientation and a screenshot. Never include tokens, cookies, full backups or private connection credentials. Existing issues should receive additional evidence rather than duplicate reports.
 

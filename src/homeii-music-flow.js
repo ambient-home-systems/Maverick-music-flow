@@ -79,6 +79,7 @@ import * as HomeiiNowPlayingFoundationSource from "./core/media/now-playing.js";
 import * as HomeiiMediaPresentationFoundationSource from "./core/media/presentation.js";
 import * as HomeiiMediaHistoryFoundationSource from "./core/media/history.js";
 import * as HomeiiEngineFoundationSource from "./core/engine-client.js";
+import { ENGINE_REST_COMMAND_PATH, ENGINE_EVENT_TYPE, ENGINE_SCREENSAVER_PATH } from "./core/engine-client.js";
 import * as HomeiiRevisionedSnapshotsFoundationSource from "./core/state/revisioned-snapshots.js";
 import * as HomeiiVoiceMatchingFoundation from "./core/voice-assistant-matching.js";
 import {
@@ -3146,7 +3147,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       .replace(/^\/+|\/+$/g, "")
       .replace(/[^a-zA-Z0-9_/-]+/g, "_")
       || "get_context";
-    return `homeii_flow/command/${clean}`;
+    return `${ENGINE_REST_COMMAND_PATH}${clean}`;
   }
 
   _homeiiEngineHttpFallbackAllowed(command = "get_context") {
@@ -3378,7 +3379,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
     this._homeiiMaEventGeneration = generation;
     const subscription = connection.subscribeEvents(
       (event) => this._handleHomeiiEngineMusicAssistantEvent(event?.data || event || {}),
-      "homeii_flow_music_assistant_event",
+      ENGINE_EVENT_TYPE,
     );
     this._homeiiMaEventSubscription = Promise.resolve(subscription)
       .then((unsubscribe) => {
@@ -13235,7 +13236,7 @@ class HomeiiMusicFlowBaseCard extends HomeiiBaseMusicCard {
       if (screensaverResult.status === "fulfilled") {
         const screen = screensaverResult.value || {};
         const config = screen.config || {};
-        const resource = config.frontend_url || context.raw?.frontend?.system_screensaver_url || "/homeii_flow/homeii-flow-system-screensaver.js";
+        const resource = config.frontend_url || context.raw?.frontend?.system_screensaver_url || ENGINE_SCREENSAVER_PATH;
         add(screen.enabled ? "ok" : "info", "Engine system screensaver", `System-wide screensaver is ${screen.enabled ? "enabled" : "disabled"}; effective mode ${screen.effective_mode || "clock"} after ${screen.timeout_seconds || config.timeout_seconds || 90}s.`, `Resource: ${resource}`);
       }
       const schedules = Array.isArray(schedulesResult.value?.schedules) ? schedulesResult.value.schedules : [];

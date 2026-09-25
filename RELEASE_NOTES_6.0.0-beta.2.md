@@ -2,7 +2,7 @@
 
 **Opt-in BETA, not a stable release. Compatible with HOMEii Flow Engine 1.0.0-beta.1.**
 
-> **Upgrading from 5.9.3 is a breaking upgrade.** Back up Home Assistant and your dashboard first. Install and configure the [Engine custom integration](https://github.com/r11a/homeii-flow-engine) before updating the card. Follow the [installation and rollback guide](https://github.com/r11a/homeii-music-flow/blob/v6.0.0-beta.2/docs/INSTALL_STEP_BY_STEP.md). Stable users can stay on 5.9.3.
+> **Upgrading from 5.9.3 is a breaking upgrade.** Back up Home Assistant and your dashboard first. Install and configure the [Engine custom integration](https://github.com/ambient-home-systems/maverick-music-flow-engine) before updating the card. Follow the [installation and rollback guide](https://github.com/r11a/homeii-music-flow/blob/v6.0.0-beta.2/docs/INSTALL_STEP_BY_STEP.md). Stable users can stay on 5.9.3.
 
 ## What changed
 

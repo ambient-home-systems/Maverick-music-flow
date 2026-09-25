@@ -3,7 +3,7 @@
 <h1 align="center">HOMEii Music Flow</h1>
 <p align="center"><strong>Make your Home Assistant dashboard feel like a place for music.</strong><br>Artwork-driven atmosphere, contextual controls and your Music Assistant library — across the screens in your home.</p>
 <p align="center"><img alt="Card release" src="https://img.shields.io/badge/Card-6.0.1-c89b56"><img alt="Matching Engine" src="https://img.shields.io/badge/Engine-1.0.1-41BDF5"><img alt="Stable release" src="https://img.shields.io/badge/Status-STABLE-2e7d32"></p>
-<p align="center"><a href="docs/INSTALL_STEP_BY_STEP.md">Install & upgrade</a> · <a href="docs/BETA_UPGRADE_HE.md">שדרוג בעברית</a> · <a href="https://github.com/r11a/homeii-flow-engine">Required Engine</a> · <a href="docs/features.md">Features</a> · <a href="https://github.com/r11a/homeii-music-flow/issues">Support</a></p>
+<p align="center"><a href="docs/INSTALL_STEP_BY_STEP.md">Install & upgrade</a> · <a href="docs/BETA_UPGRADE_HE.md">שדרוג בעברית</a> · <a href="https://github.com/ambient-home-systems/maverick-music-flow-engine">Required Engine</a> · <a href="docs/features.md">Features</a> · <a href="https://github.com/r11a/homeii-music-flow/issues">Support</a></p>
 
 > [!WARNING]
 > **BREAKING CHANGE — STOP BEFORE UPGRADING FROM 5.9.3: INSTALL ENGINE 1.0.1 FIRST.**
@@ -46,7 +46,7 @@ This explicitly enables the immersive edge-to-edge presentation and full visual 
 
 The immersive player gives the artwork room to breathe. Dynamic color and glass surfaces carry the mood through the interface, while contextual action wheels bring the next useful control closer to your hand. Keep the previous presentation if it suits your dashboard better.
 
-The matching [HOMEii Flow Engine](https://github.com/r11a/homeii-flow-engine) runs inside Home Assistant. It connects the interface and HA automations to Music Assistant, shares player/queue state, proxies artwork and keeps connection credentials off the card configuration. Music Assistant remains the source of your music and player capabilities.
+The matching [HOMEii Flow Engine](https://github.com/ambient-home-systems/maverick-music-flow-engine) runs inside Home Assistant. It connects the interface and HA automations to Music Assistant, shares player/queue state, proxies artwork and keeps connection credentials off the card configuration. Music Assistant remains the source of your music and player capabilities.
 
 | Explore | Included in 6.0.0 |
 |---|---|
@@ -65,7 +65,7 @@ Features depend on MA, the provider, player and browser. Group persistence, some
 
 
 1. Read the [breaking-change checklist](docs/BETA_GUIDE.md#safe-upgrade-from-593), especially if using 5.9.3.
-2. Install/configure [Engine `1.0.1`](https://github.com/r11a/homeii-flow-engine), then restart and verify HA.
+2. Install/configure [Engine `1.0.1`](https://github.com/ambient-home-systems/maverick-music-flow-engine), then restart and verify HA.
 3. Install card `6.0.1`; do not load old and new card modules together.
 4. Check both displayed versions and test one MA speaker before enabling automation or groups.
 
@@ -77,7 +77,7 @@ This release is published as **Latest**. Existing 5.9.3 installations must follo
 
 - [Full beta guide: requirements, installation, features, upgrade, rollback and test plan](docs/BETA_GUIDE.md)
 - [אזהרת שדרוג והוראות בעברית](docs/BETA_UPGRADE_HE.md)
-- [Engine installation, configuration, HA services and examples](https://github.com/r11a/homeii-flow-engine)
+- [Engine installation, configuration, HA services and examples](https://github.com/ambient-home-systems/maverick-music-flow-engine)
 - [Configuration reference](docs/configuration.md) · [Feature reference](docs/features.md) · [Diagnostics](docs/diagnostics.md)
 - [6.0.1 release notes](RELEASE_NOTES_6.0.1.md)
 - [6.0.0 release notes](RELEASE_NOTES_6.0.0.md)
