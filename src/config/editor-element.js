@@ -951,8 +951,8 @@ return class MaverickBaseMusicEditor extends HTMLElement {
         const index = Number(displayMatch[1]) - 1;
         if (Number.isInteger(index) && index >= 0) {
           const lower = displayValue.toLowerCase();
-          if (lower.includes("player") || lower.includes("נגן")) return { type: "player", index };
-          if (lower.includes("light") || lower.includes("licht") || lower.includes("תאור")) return { type: "lights", index };
+          if (lower.includes("player")) return { type: "player", index };
+          if (lower.includes("light")) return { type: "lights", index };
         }
       }
     }
