@@ -1,30 +1,17 @@
 # Repo Assets Checklist
 
-The repo now uses `docs/brand/` for logo assets and `docs/media/` for stable GitHub-friendly image names.
-The raw `PROJECT PICTUERS` folder can stay local as the source capture folder, but the README should reference only files from `docs/media/`.
+The repo uses `docs/brand/` as the single source for logo assets. Screenshots and videos are not stored in the repository.
 
 ## Current assets
 
-- `homeii-flow-preview.gif`
 - `docs/brand/homeii-flow-logo.svg`
 - `docs/brand/homeii-flow-logo.png`
+- `docs/brand/homeii-flow-logo-v2.png`
 - `docs/brand/homeii-flow-icon.png`
-- `hero-main-light.png`
-- `history-light.png`
-- `studio.png`
-- `queue.png`
-- `library.png`
-- `players.png`
-- `actions.png`
-- `announcement.png`
-- `lyrics.png`
-- `settings.png`
-- `tablet.png`
-- `mobile-1.jpg` through `mobile-7.jpg`
 
 ## README release checks
 
-- The README should reference only `docs/brand/` and `docs/media/` image assets.
+- The README should reference only `docs/brand/` image assets from the repository.
 - The README should include the My Home Assistant HACS repository button:
   `https://my.home-assistant.io/redirect/hacs_repository/?owner=ambient-home-systems&repository=maverick-music-flow&category=plugin`
 - The README should include an HACS install/download link:

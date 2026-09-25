@@ -76,6 +76,5 @@ jobs:
             dist/maverick-music.js \
             dist/homeii-flow-icon.png \
             dist/homeii-flow-logo-v2.png \
-            artifacts/HOMEii-Flow-Film-60s.mp4 \
             --repo "$GITHUB_REPOSITORY" --clobber
 

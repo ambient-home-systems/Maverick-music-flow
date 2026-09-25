@@ -7,10 +7,10 @@ The card and Engine share one visual identity: the Maverick Music gold wave mark
 
 | Asset | Native size | Use |
 |---|---|---|
-| Root `logo.png` | 1024 × 512 | Repository header and broad horizontal brand placement |
-| Root `icon.png` | 512 × 512 | Compact square identity where a logo would be too small |
+| `docs/brand/homeii-flow-logo.png` | 1024 × 512 | Repository header and broad horizontal brand placement |
+| `docs/brand/homeii-flow-icon.png` | 512 × 512 | Compact square identity where a logo would be too small |
 
-Both repositories use identical root assets. Preserve their natural aspect ratio: set a display width, not an unrelated fixed width and height. Do not stretch the mark, add a large surrounding badge, or place text on top of it. The gold color is an accent; use clear neutral text for setup instructions and warnings. Show the wordmark once in each repository introduction and use the compact icon only where it improves identification.
+`docs/brand/` is the single source for brand assets; `scripts/release.mjs` copies them into `dist/`. Preserve their natural aspect ratio: set a display width, not an unrelated fixed width and height. Do not stretch the mark, add a large surrounding badge, or place text on top of it. The gold color is an accent; use clear neutral text for setup instructions and warnings. Show the wordmark once in each repository introduction and use the compact icon only where it improves identification.
 
 Candidate badges must show the actual beta version and **not released** preparation status. Do not show a stable/latest/download badge for a beta package that does not exist. Stable 5.9.3 links must be explicitly labeled as stable history/downloads.
 
