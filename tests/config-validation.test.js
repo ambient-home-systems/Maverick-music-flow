@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   assertStringArrayIfDefined,
+  isSafeInterfaceUrl,
   validateBaseCardEditorConfig,
   validateMobileCardEditorConfig,
 } from "../src/config/validators.js";
@@ -15,6 +16,18 @@ describe("config validators", () => {
     expect(()=>validateBaseCardEditorConfig({entity_sticky:'yes'})).toThrow('entity_sticky');
     expect(()=>validateBaseCardEditorConfig({pinned_player_master:'media_player.kitchen',pinned_players_exclusive:true})).not.toThrow();
     expect(()=>validateBaseCardEditorConfig({pinned_players_exclusive:'yes'})).toThrow('pinned_players_exclusive');
+  });
+  it("only accepts same-site paths or http(s) URLs for ma_interface_url", () => {
+    for (const url of ["/music-assistant", "/hassio/ingress/d5369777_music_assistant", "http://192.168.1.10:8095", "https://ma.example.com/"]) {
+      expect(isSafeInterfaceUrl(url)).toBe(true);
+      expect(() => validateBaseCardEditorConfig({ ma_interface_url: url })).not.toThrow();
+    }
+    for (const url of ["javascript:alert(1)", "data:text/html,hi", "//evil.example", "/\\evil.example", "music-assistant", "ftp://example.com", "java\tscript:alert(1)"]) {
+      expect(isSafeInterfaceUrl(url)).toBe(false);
+      expect(() => validateBaseCardEditorConfig({ ma_interface_url: url })).toThrow('ma_interface_url must be a path starting with "/"');
+    }
+    expect(() => validateBaseCardEditorConfig({ ma_interface_url: "" })).not.toThrow();
+    expect(() => validateBaseCardEditorConfig({ ma_interface_url: 5 })).toThrow("ma_interface_url must be a string");
   });
   it("accepts a valid base editor config", () => {
     expect(() =>

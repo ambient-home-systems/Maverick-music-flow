@@ -8,6 +8,7 @@ import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
 import { ensureInterfaceFont, interfaceStyles } from "./theme/interface.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_SENDSPIN_PATH, normalizeEngineConfigKeys } from "./engine-client.js";
+import { isSafeInterfaceUrl } from "../config/validators.js";
 
 const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
 const ENGINE_ARTWORK_ITEM_PATH = `${ENGINE_ARTWORK_PATH}item/`;
@@ -3237,11 +3238,14 @@ export function createMaverickBaseMusicCard({
 
     _normalizedMusicAssistantInterfaceUrl() {
       const configured = String(this._config?.ma_interface_url || "").trim();
-      return configured || "/music-assistant";
+      return isSafeInterfaceUrl(configured) ? configured : "/music-assistant";
     }
 
     _launchMusicAssistant() {
-      window.open(this._normalizedMusicAssistantInterfaceUrl(), this._config.ma_interface_target || "_self");
+      const target = this._config?.ma_interface_target === "_blank" ? "_blank" : "_self";
+      const url = this._normalizedMusicAssistantInterfaceUrl();
+      if (target === "_blank") window.open(url, target, "noopener");
+      else window.open(url, target);
     }
 
     _openNowPlayingView() {
