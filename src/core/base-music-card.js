@@ -4278,7 +4278,7 @@ export function createMaverickBaseMusicCard({
         { id: "morning", icon: "music_note", label: this._i18n("ui.morning"), subtitle: this._i18n("ui.fresh_start"), queries: ["morning playlist", "coffee music", "feel good morning"] },
         { id: "night", icon: "moon", label: this._i18n("ui.night"), subtitle: this._i18n("ui.lower_volume_mood"), queries: ["night chill playlist", "sleep music", "quiet jazz"] },
         { id: "kids", icon: "speaker", label: this._i18n("ui.kids"), subtitle: this._i18n("ui.family_friendly"), queries: ["kids music playlist", "children songs", "family music"] },
-        { id: "israeli", icon: "music_note", label: this._i18n("ui.israeli"), subtitle: this._i18n("ui.local_favorites"), queries: ["ישראלי עברית פלייליסט", "israeli music hebrew"] },
+        { id: "israeli", icon: "music_note", label: this._i18n("ui.israeli"), subtitle: this._i18n("ui.local_favorites"), queries: ["israeli music playlist", "israeli music hebrew"] },
         { id: "favorites", icon: "heart_filled", label: this._i18n("ui.liked"), subtitle: this._i18n("ui.shuffle_favorites"), favorite: true },
         { id: "random", icon: "shuffle", label: this._i18n("ui.random"), subtitle: this._i18n("ui.library_surprise"), random: true },
       ];

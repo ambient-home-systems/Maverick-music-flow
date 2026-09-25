@@ -11368,10 +11368,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         { key: "vocal", label: this._discoveryGenreLabel("Vocal Jazz"), query: "vocal jazz" },
         { key: "fusion", label: this._discoveryGenreLabel("Fusion"), query: "jazz fusion" },
       ] },
-      { key: "israeli", label: this._i18n("ui.israeli"), query: "israeli hebrew", aliases: ["israeli", "israel", "hebrew", "ישראל", "ישראלית", "עברית"], children: [
-        { key: "mizrahi", label: this._discoveryGenreLabel("Mizrahi"), query: "מוזיקה מזרחית" },
-        { key: "hebrew-hits", label: this._discoveryGenreLabel("Hebrew Hits"), query: "להיטים בעברית" },
-        { key: "israeli-rock", label: this._discoveryGenreLabel("Israeli Rock"), query: "רוק ישראלי" },
+      { key: "israeli", label: this._i18n("ui.israeli"), query: "israeli hebrew", aliases: ["israeli", "israel", "hebrew"], children: [
+        { key: "mizrahi", label: this._discoveryGenreLabel("Mizrahi"), query: "mizrahi music" },
+        { key: "hebrew-hits", label: this._discoveryGenreLabel("Hebrew Hits"), query: "hebrew hits" },
+        { key: "israeli-rock", label: this._discoveryGenreLabel("Israeli Rock"), query: "israeli rock" },
       ] },
       { key: "chill", label: this._discoveryGenreLabel("Chill"), query: "chill", aliases: ["chill", "chillout", "chill out", "lofi", "lo-fi", "lounge", "relax", "relaxing"], children: [
         { key: "lofi", label: this._discoveryGenreLabel("Lo-Fi"), query: "lo-fi chill" },
@@ -11409,7 +11409,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       { key: "reggae", label: this._discoveryGenreLabel("Reggae"), query: "reggae", aliases: ["reggae", "dancehall", "dub"] },
       { key: "folk", label: this._discoveryGenreLabel("Folk"), query: "folk", aliases: ["folk", "singer songwriter", "singer-songwriter", "acoustic"] },
       { key: "ambient", label: this._discoveryGenreLabel("Ambient"), query: "ambient", aliases: ["ambient", "new age", "soundscape"] },
-      { key: "kids", label: this._i18n("ui.kids"), query: "kids", aliases: ["kids", "children", "childrens", "family", "ילדים"] },
+      { key: "kids", label: this._i18n("ui.kids"), query: "kids", aliases: ["kids", "children", "childrens", "family"] },
     ];
   }
 
