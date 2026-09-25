@@ -15817,10 +15817,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return next;
   }
 
-  _preferredAnnouncementSayService(message = "") {
+  _preferredAnnouncementSayService() {
     const services = Object.keys(this._hass?.services?.tts || {});
-    const hasHebrew = /[\u0590-\u05FF]/.test(String(message || ""));
-    if (hasHebrew && services.includes("google_translate_say")) return "google_translate_say";
     return services.find((service) => service === "google_translate_say" || service.endsWith("_say")) || "";
   }
 
