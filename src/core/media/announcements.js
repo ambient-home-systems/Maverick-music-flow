@@ -1,4 +1,6 @@
 import { announcementEligiblePlayers as eligiblePlayersOf } from "../state/players.js";
+import { controlRoomPrimaryPlayerId, controlRoomSelectedPlayerIds } from "./control-room.js";
+import { speechRecognitionCtor } from "./voice.js";
 
 // Announcements: the Announce page, its settings section, the studio tray and
 // the dispatch through the Engine. The Engine owns playback and volume during
@@ -238,8 +240,8 @@ export async function sendControlRoomAnnouncement(card, sourceEl = null) {
     card._toastError(card._i18n("ui.enter_an_announcement_first"));
     return false;
   }
-  const selectedIds = card._controlRoomSelectedPlayerIds();
-  const targets = selectedIds.length ? selectedIds : [card._controlRoomPrimaryPlayerId()].filter(Boolean);
+  const selectedIds = controlRoomSelectedPlayerIds(card);
+  const targets = selectedIds.length ? selectedIds : [controlRoomPrimaryPlayerId(card)].filter(Boolean);
   if (!targets.length) {
     card._toastError(card._i18n("ui.select_at_least_one_studio_player"));
     return false;
@@ -272,7 +274,7 @@ export async function sendControlRoomAnnouncement(card, sourceEl = null) {
 }
 
 export function startAnnouncementDictation(card) {
-  const SpeechRecognition = card._speechRecognitionCtor();
+  const SpeechRecognition = speechRecognitionCtor();
   const input = card.$("mobileAnnouncementText");
   if (!SpeechRecognition) {
     card._toastError(card._i18n("ui.voice_input_is_not_supported_on_this_device"));

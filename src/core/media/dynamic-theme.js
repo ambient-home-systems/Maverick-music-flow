@@ -10,6 +10,7 @@ import {
   tunePaletteColor,
 } from "../theme/palette.js";
 import { cssUrl } from "../theme/css-url.js";
+import { syncControlRoomUi } from "./control-room.js";
 
 // Dynamic theme: the accent and surface palette taken from the current
 // artwork (or supplied by the server), applied as custom properties on the
@@ -294,7 +295,7 @@ export async function syncDynamicThemeArtwork(card, artUrl = "") {
   card._state.controlRoomRenderSignature = "";
   applyDynamicThemeRenderState(card, artworkKey, normalizedArt);
   card._syncAmbientLightForCurrentMedia("theme-palette");
-  if (card._state.controlRoomOpen) card._syncControlRoomUi();
+  if (card._state.controlRoomOpen) syncControlRoomUi(card);
 }
 
 // Drops the artwork palette without going through the render-state signature:

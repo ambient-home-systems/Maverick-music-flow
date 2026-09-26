@@ -22,6 +22,8 @@ import {
 
 // The screensaver only forwards to the lyrics module; keep those calls observable and inert here.
 vi.mock("../src/core/media/dynamic-theme.js", () => ({ syncDynamicThemeArtwork: vi.fn(async () => {}) }));
+vi.mock("../src/core/media/voice.js", () => ({ flowAssistantLabel: () => "Assistant", voiceAssistantEnabled: vi.fn(() => false), syncVoiceAssistantDialog: vi.fn(), startVoiceAssistantCommand: vi.fn() }));
+import { voiceAssistantEnabled } from "../src/core/media/voice.js";
 vi.mock("../src/core/media/lyrics.js", async (importOriginal) => ({
   ...(await importOriginal()),
   clearLyricsState: vi.fn(), closeLyricsModal: vi.fn(), syncLyricsForCurrentTrack: vi.fn(), toggleLyricsSyncEnabled: vi.fn(), nudgeLyricsFontScale: vi.fn(),
@@ -59,8 +61,6 @@ function stubCard(state = {}) {
     _volumeIconName: () => "volume",
     _powerButtonIcon: () => "power",
     _currentMediaFavoriteState: () => false,
-    _flowAssistantLabel: () => "Assistant",
-    _voiceAssistantEnabled: () => false,
     _syncLocalSendspinMediaSession: vi.fn(),
     _currentArtworkUrl: () => "",
     _setButtonIcon: vi.fn(),
@@ -73,7 +73,6 @@ function stubCard(state = {}) {
     _tabletBrandSignatureHtml: () => "<svg class=\"logo\"></svg>",
     _selectedPlayerName: () => "Kitchen",
     _ensureQueueSnapshot: vi.fn(async () => {}),
-    _syncVoiceAssistantDialog: vi.fn(),
     _syncNowPlayingUI: vi.fn(),
     _pressUiButton: () => true,
     _playerCmd: vi.fn(),
@@ -81,7 +80,6 @@ function stubCard(state = {}) {
     _toggleMute: vi.fn(),
     _runAuxiliaryButtonAction: vi.fn(async () => {}),
     _toggleLikeCurrentMedia: vi.fn(async () => {}),
-    _startVoiceAssistantCommand: vi.fn(),
     _layoutModeConfig: () => "tablet",
     _flashInteraction: vi.fn(),
     _persistMobileAppearance: vi.fn(),
@@ -121,7 +119,7 @@ describe("screensaver render", () => {
     expect(html).not.toContain("screensaverVoiceBtn");
     expect(html).toContain('id="screensaverLyricsSyncBtn" data-screensaver-control="lyrics_sync"');
     expect(html.indexOf("screensaver-action-cluster")).toBeLessThan(html.indexOf("screensaver-like-btn"));
-    card._voiceAssistantEnabled = () => true;
+    voiceAssistantEnabled.mockReturnValue(true);
     card._state.voiceAssistantListening = true;
     expect(screensaverOverlayHtml(card)).toContain('screensaver-control-btn listening" id="screensaverVoiceBtn" data-screensaver-control="voice" data-screensaver-voice');
     card._state.screensaverControlsEnabled = false;

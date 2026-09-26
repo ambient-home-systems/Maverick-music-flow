@@ -13,6 +13,7 @@ import {
 import { normalizeVoiceAssistantMode } from "../state/mobile-settings.js";
 import { isPlayerAvailable } from "../state/players.js";
 import { resetScreensaverTimer } from "./screensaver.js";
+import { controlRoomPlayerName, searchControlRoomLibrary, syncControlRoomUi } from "./control-room.js";
 
 // Voice: the Flow Assistant command with its dialog and intents, the smart
 // voice search with its confirm sheet, and the studio library voice input.
@@ -505,8 +506,8 @@ async function runVoiceAssistantPlayerManagementCommand(card, intent = {}) {
         return { handled: true, ok: false, message };
       }
       const ok = await card._transferQueueBetween(sourcePlayerId, targetPlayerId, { silent: true });
-      const source = card._controlRoomPlayerName(sourcePlayerId);
-      const target = card._controlRoomPlayerName(targetPlayerId);
+      const source = controlRoomPlayerName(card, sourcePlayerId);
+      const target = controlRoomPlayerName(card, targetPlayerId);
       const message = ok
         ? card._i18n("ui.voice_queue_transferred_between", { source, target })
         : card._i18n("ui.queue_action_failed");
@@ -527,8 +528,8 @@ async function runVoiceAssistantPlayerManagementCommand(card, intent = {}) {
         card._toastError(message);
         return { handled: true, ok: false, message };
       }
-      const primary = card._controlRoomPlayerName(primaryPlayerId);
-      const members = memberPlayerIds.map((entityId) => card._controlRoomPlayerName(entityId)).join(", ");
+      const primary = controlRoomPlayerName(card, primaryPlayerId);
+      const members = memberPlayerIds.map((entityId) => controlRoomPlayerName(card, entityId)).join(", ");
       const message = card._i18n("ui.voice_group_connected_players", { primary, members });
       card._toastSuccess(message);
       card._timeout(() => {
@@ -546,7 +547,7 @@ async function runVoiceAssistantPlayerManagementCommand(card, intent = {}) {
         return { handled: true, ok: false, message };
       }
       const ok = await card._clearSpeakerGroupFor(playerId);
-      const player = card._controlRoomPlayerName(playerId);
+      const player = controlRoomPlayerName(card, playerId);
       const message = ok
         ? card._i18n("ui.voice_group_disconnected_player", { player })
         : card._i18n("ui.player_groups_could_not_be_disconnected");
@@ -1260,7 +1261,7 @@ export async function startControlRoomLibraryVoice(card) {
     if (!transcript) return;
     card._state.controlRoomLibraryQuery = transcript;
     card._state.controlRoomPanel = "library";
-    card._syncControlRoomUi();
+    syncControlRoomUi(card);
     const input = card.$("controlRoomLibraryInput");
     if (input) {
       input.value = transcript;
@@ -1268,7 +1269,7 @@ export async function startControlRoomLibraryVoice(card) {
       input.setSelectionRange(transcript.length, transcript.length);
     }
     clearTimeout(card._searchTimer);
-    card._searchTimer = setTimeout(() => card._searchControlRoomLibrary(transcript), 120);
+    card._searchTimer = setTimeout(() => searchControlRoomLibrary(card, transcript), 120);
   };
   recognition.onerror = () => card._toastError(card._i18n("ui.voice_input_failed"));
   recognition.onend = () => {

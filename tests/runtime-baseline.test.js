@@ -3823,7 +3823,6 @@ describe("runtime baseline", () => {
     });
     card._loadPlayers = vi.fn(async () => {});
     card._renderMobileMenu = vi.fn(async () => {});
-    card._syncControlRoomUi = vi.fn();
 
     const ok = await card._applySpeakerGroupFor("media_player.living_room", ["media_player.kitchen"]);
 
@@ -3907,7 +3906,6 @@ describe("runtime baseline", () => {
     });
     card._loadPlayers = vi.fn(async () => {});
     card._renderMobileMenu = vi.fn(async () => {});
-    card._syncControlRoomUi = vi.fn();
 
     const ok = await card._applySpeakerGroupFor("media_player.kitchen", ["media_player.living_room", "media_player.terrace"]);
 
@@ -3953,7 +3951,6 @@ describe("runtime baseline", () => {
     });
     card._loadPlayers = vi.fn(async () => {});
     card._renderMobileMenu = vi.fn(async () => {});
-    card._syncControlRoomUi = vi.fn();
 
     const ok = await card._applySpeakerGroupFor("media_player.kitchen", [
       "media_player.living_room",
@@ -4003,7 +4000,6 @@ describe("runtime baseline", () => {
     card._maverickEngineApplyGroup = vi.fn(async () => ({}));
     card._loadPlayers = vi.fn(async () => {});
     card._renderMobileMenu = vi.fn(async () => {});
-    card._syncControlRoomUi = vi.fn();
     card._state.pendingGroupSelections = ["media_player.kitchen", "media_player.terrace"];
     card._state.pendingGroupOwnerRemoval = true;
 
@@ -4049,7 +4045,6 @@ describe("runtime baseline", () => {
     card._maverickEngineApplyGroup = vi.fn(async () => ({}));
     card._loadPlayers = vi.fn(async () => {});
     card._renderMobileMenu = vi.fn(async () => {});
-    card._syncControlRoomUi = vi.fn();
     card._refreshGroupingState({ force: true });
     card._state.pendingGroupSelections = ["media_player.kitchen", "media_player.terrace"];
     card._state.pendingGroupOwnerRemoval = true;

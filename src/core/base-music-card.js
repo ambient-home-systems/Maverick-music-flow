@@ -8,7 +8,7 @@ import { markScreensaverPageEntry, startScreensaverVisibilityTracking, stopScree
 import { lyricsSessionActive, syncLyricsForCurrentTrack } from "./media/lyrics.js";
 import { stopVoiceAssistantRecognition, syncVoiceAssistantDialog } from "./media/voice.js";
 import { syncNightModeUi } from "./media/night-mode.js";
-import { closeControlRoom, controlRoomEnabled, controlRoomMixPresets, controlRoomNormalizeMediaEntry, controlRoomPlayerName, controlRoomPrimaryPlayerId, controlRoomSelectedPlayerIds, controlRoomUniqueEntries, fetchControlRoomQueueSnapshot, loadControlRoomQueues, openControlRoom, revealControlRoomThisDevicePlayer, searchControlRoomLibrary, syncControlRoomChrome, syncControlRoomUi, toggleControlRoomPanel } from "./media/control-room.js";
+import { closeControlRoom, controlRoomEnabled, controlRoomMixPresets, controlRoomNormalizeMediaEntry, controlRoomUniqueEntries, fetchControlRoomQueueSnapshot, loadControlRoomQueues, revealControlRoomThisDevicePlayer, syncControlRoomChrome, syncControlRoomUi } from "./media/control-room.js";
 import { bindProgressSeek } from "./media/progress-seek.js";
 import { contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
@@ -3423,41 +3423,6 @@ export function createMaverickBaseMusicCard({
         }));
       }
       if (this._state.mobileHistoryDrawerOpen) syncScreenDock(this, drawer, "history", () => this._setHistoryDrawerOpen(false));
-    }
-
-    // Control room facade: the modules that read the studio through the card
-    // sit in the import chain of control-room.js, so they keep going through
-    // these delegators. The card itself calls core/media/control-room.js directly.
-    _controlRoomEnabled() {
-      return controlRoomEnabled(this);
-    }
-
-    _controlRoomPlayerName(entityOrPlayer = "") {
-      return controlRoomPlayerName(this, entityOrPlayer);
-    }
-
-    _controlRoomSelectedPlayerIds() {
-      return controlRoomSelectedPlayerIds(this);
-    }
-
-    _controlRoomPrimaryPlayerId() {
-      return controlRoomPrimaryPlayerId(this);
-    }
-
-    _syncControlRoomUi(options = {}) {
-      return syncControlRoomUi(this, options);
-    }
-
-    _searchControlRoomLibrary(query = "") {
-      return searchControlRoomLibrary(this, query);
-    }
-
-    _toggleControlRoomPanel(panel = "") {
-      return toggleControlRoomPanel(this, panel);
-    }
-
-    _openControlRoom() {
-      return openControlRoom(this);
     }
 
     _tabletStabilityModeEnabled() {

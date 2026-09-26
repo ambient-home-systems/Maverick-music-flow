@@ -1,6 +1,7 @@
 import { clampNumber, clampSeconds, normalizeScreensaverClockMode, normalizeScreensaverControlButtons } from "../state/mobile-settings.js";
 import { cssUrl } from "../theme/css-url.js";
 import { syncDynamicThemeArtwork } from "./dynamic-theme.js";
+import { flowAssistantLabel, startVoiceAssistantCommand, syncVoiceAssistantDialog, voiceAssistantEnabled } from "./voice.js";
 import { clearLyricsState, closeLyricsModal, lyricsSessionActive, nudgeLyricsFontScale, syncLyricsForCurrentTrack, syncScreensaverLyricsUi, toggleLyricsSyncEnabled } from "./lyrics.js";
 
 // The screensaver's lyrics mode is rendered by the lyrics module, which owns the session state it reads.
@@ -84,14 +85,14 @@ function controlButtonOptions(card) {
     { value: "lyrics_sync", icon: "sync", label: card._i18n("ui.sync_lyrics") },
     { value: "lyrics_font_minus", icon: "minus", label: card._i18n("ui.smaller_lyrics") },
     { value: "lyrics_font_plus", icon: "plus", label: card._i18n("ui.larger_lyrics") },
-    { value: "voice", icon: "mic", label: card._flowAssistantLabel() },
+    { value: "voice", icon: "mic", label: flowAssistantLabel(card) },
   ];
 }
 
 export function screensaverControlButtonHtml(card, value = "") {
   const option = controlButtonOptions(card).find((item) => item.value === value);
   if (!option) return "";
-  if (value === "voice" && !card._voiceAssistantEnabled()) return "";
+  if (value === "voice" && !voiceAssistantEnabled(card)) return "";
   const id = CONTROL_BUTTON_IDS[value];
   if (!id) return "";
   const voiceAttrs = value === "voice" ? " data-screensaver-voice" : "";
@@ -305,7 +306,7 @@ export function hideScreensaver(card) {
   overlay?.setAttribute("aria-hidden", "true");
   if (card._state.voiceAssistantKeepScreensaver) {
     card._state.voiceAssistantKeepScreensaver = false;
-    card._syncVoiceAssistantDialog();
+    syncVoiceAssistantDialog(card);
   }
   clearInterval(card._screensaverClockTimer);
   card._screensaverClockTimer = null;
@@ -582,7 +583,7 @@ export function bindScreensaver(card) {
     e.preventDefault();
     e.stopPropagation();
     if (!card._pressUiButton(e.currentTarget, [8, 18, 8])) return;
-    card._startVoiceAssistantCommand({ keepScreensaver: true, ignoreWhenListening: true });
+    startVoiceAssistantCommand(card, { keepScreensaver: true, ignoreWhenListening: true });
   });
   [...PLAYER_CONTROL_IDS, "screensaverLikeBtn"].forEach((id) => {
     card.$(id)?.addEventListener("pointerdown", (e) => {

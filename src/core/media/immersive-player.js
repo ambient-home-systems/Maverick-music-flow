@@ -3,6 +3,7 @@ import { preferredFanPages, openFanCatalogue } from "./fan-preferences.js";
 import { actionIconSvg, actionLabelsEnabled, actionSymbolHtml } from "./action-menu.js";
 import { syncWaveform } from "./waveform.js";
 import { isPlayerAvailable } from "../state/players.js";
+import { controlRoomEnabled, openControlRoom } from "./control-room.js";
 
 export const immersivePlayerEnabled = (card) => (card._state?.mobilePlayerDesign ?? card._config?.player_design ?? "immersive") === "immersive";
 
@@ -137,7 +138,7 @@ export function immersiveActionPages(card) {
     !hotel && card._discoveryModeEnabled?.() && item("discovery", "compass", "Discover"),
     !hotel && item("history", "history", "Recent"),
     !hotel && item("announcements", "announcement", "Announce"),
-    !hotel && card._controlRoomEnabled?.() && card._mobileStudioShortcutEnabled?.() !== false && item("studio", "studio", "Studio"),
+    !hotel && controlRoomEnabled(card) && card._mobileStudioShortcutEnabled?.() !== false && item("studio", "studio", "Studio"),
     card._mobileHomeShortcutEnabled?.() && item("home", "home", "Home"),
   ].filter(Boolean);
   const shuffle = player?.attributes?.shuffle === true;
@@ -429,7 +430,7 @@ export function bindImmersivePlayer(card, options = {}) {
     if (action === "history") { card._toggleHistoryDrawer(); return; }
     if (action === "lyrics") {
       openLyricsModal(card);
-    } else if (action === "studio") card._openControlRoom();
+    } else if (action === "studio") openControlRoom(card);
     else if (action === "home") card._goHomeAssistantDashboard();
     else card._openMobileMenu({ announcements:"announcements", ai_radio: "ai_radio", queue: "queue", players: "players", timer: "sleep_timer", more: "main", transfer: "transfer", group: "group", preferences: "queue_settings", discovery: "discovery", settings: "settings" }[action]);
   };
