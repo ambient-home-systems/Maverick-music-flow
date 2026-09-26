@@ -3,8 +3,14 @@ import { showToast } from "./media/feedback.js";
 import * as SpeakerGroups from "./media/speaker-groups.js";
 import { syncPlayerVolumeControls } from "./media/player-volume.js";
 import { syncScreenDock } from "./media/screen-dock.js";
+import { isScheduleFormEditing, loadScheduledStartPlaylists, syncScheduledStartState, syncSleepTimerChip, syncSleepTimerState } from "./media/timers.js";
+import { markScreensaverPageEntry, startScreensaverVisibilityTracking, stopScreensaverVisibilityTracking, syncScreensaverDynamicArtwork, syncScreensaverUi } from "./media/screensaver.js";
+import { lyricsSessionActive, syncLyricsForCurrentTrack } from "./media/lyrics.js";
+import { stopVoiceAssistantRecognition, syncVoiceAssistantDialog } from "./media/voice.js";
+import { syncNightModeUi } from "./media/night-mode.js";
+import { closeControlRoom, controlRoomEnabled, controlRoomMixPresets, controlRoomNormalizeMediaEntry, controlRoomPlayerName, controlRoomPrimaryPlayerId, controlRoomSelectedPlayerIds, controlRoomUniqueEntries, fetchControlRoomQueueSnapshot, loadControlRoomQueues, openControlRoom, revealControlRoomThisDevicePlayer, searchControlRoomLibrary, syncControlRoomChrome, syncControlRoomUi, toggleControlRoomPanel } from "./media/control-room.js";
 import { bindProgressSeek } from "./media/progress-seek.js";
-import { actionIconSvg, contextActionHtml } from "./media/action-menu.js";
+import { contextActionHtml } from "./media/action-menu.js";
 import * as MaverickSendspinModule from "../sendspin-js/index.js";
 import { ensureInterfaceFont, interfaceStyles } from "./theme/interface.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_SENDSPIN_PATH, normalizeEngineConfigKeys } from "./engine-client.js";
@@ -532,15 +538,15 @@ export function createMaverickBaseMusicCard({
       this._syncActivePlayerHelper(selectedPlayer);
       if (selectedPlaybackChanged) this._syncAmbientLightForCurrentMedia("playback-change");
       if (this._state?.screensaverOpen) {
-        this._syncScreensaverDynamicArtwork();
-        this._syncScreensaverUi();
+        syncScreensaverDynamicArtwork(this);
+        syncScreensaverUi(this);
         this._syncAmbientLightForCurrentMedia("screensaver");
         return;
       }
       this._renderPlayerSummary();
       this._syncBrandPlayingState();
       this._syncNowPlayingUI();
-      if (this._state?.voiceAssistantDialogOpen) this._syncVoiceAssistantDialog();
+      if (this._state?.voiceAssistantDialogOpen) syncVoiceAssistantDialog(this);
     }
 
     getCardSize() {
@@ -755,18 +761,6 @@ export function createMaverickBaseMusicCard({
       return this._clampedConfigNumber("music_assistant_timeout_ms", 12000, { min: 3000, max: 60000 });
     }
 
-    _flowAssistantResponseTimeoutMs() {
-      return this._clampedConfigNumber("flow_assistant_response_timeout_ms", 18000, { min: 5000, max: 60000 });
-    }
-
-    _flowAssistantListenTimeoutMs() {
-      return this._clampedConfigNumber("flow_assistant_listen_timeout_ms", 12000, { min: 5000, max: 30000 });
-    }
-
-    _flowAssistantAutoCloseMs(status = "success") {
-      const fallback = String(status || "").toLowerCase() === "error" ? 7000 : 4200;
-      return this._clampedConfigNumber("flow_assistant_auto_close_ms", fallback, { min: 0, max: 30000 });
-    }
 
     _timeoutMessage(label = "Request") {
       return this._m(
@@ -2787,12 +2781,12 @@ export function createMaverickBaseMusicCard({
           this._loadPlayers();
           const thisDevicePlayer = this._getThisDevicePlayer(this._state.players || []);
           if (this._state.controlRoomRevealThisDevicePending && thisDevicePlayer?.entity_id) {
-            this._revealControlRoomThisDevicePlayer(thisDevicePlayer.entity_id, { sync: false });
+            revealControlRoomThisDevicePlayer(this, thisDevicePlayer.entity_id, { sync: false });
           }
           if (options.renderMenu && this._state.menuOpen && typeof this._renderMobileMenu === "function") {
             this._renderMobileMenu().catch(() => {});
           }
-          if (this._state.controlRoomOpen) this._syncControlRoomUi({ force: true });
+          if (this._state.controlRoomOpen) syncControlRoomUi(this, { force: true });
           this._renderPlayerSummary();
           this._syncBrandPlayingState();
           this._syncNowPlayingUI();
@@ -2884,9 +2878,9 @@ export function createMaverickBaseMusicCard({
       this._selectPlayer(player.entity_id, true);
       if (this._state.selectedPlayer !== player.entity_id) return false;
       this._state.awaitingThisDevicePlayer = false;
-      this._revealControlRoomThisDevicePlayer(player.entity_id, { sync: false });
+      revealControlRoomThisDevicePlayer(this, player.entity_id, { sync: false });
       this._closeMobileMenu?.();
-      if (this._state.controlRoomOpen) this._closeControlRoom?.({ silent: true });
+      if (this._state.controlRoomOpen) closeControlRoom(this, { silent: true });
       return true;
     }
 
@@ -2910,7 +2904,7 @@ export function createMaverickBaseMusicCard({
       this._state.localSendspinStatus = "disconnected";
       this._refreshDirectMaPlayers({ renderMenu: true }).catch(() => {});
       this._loadPlayers();
-      if (this._state.controlRoomOpen) this._syncControlRoomUi({ force: true });
+      if (this._state.controlRoomOpen) syncControlRoomUi(this, { force: true });
       if (this._state.menuOpen && typeof this._renderMobileMenu === "function") this._renderMobileMenu().catch(() => {});
       this._toastSuccess(this._i18n("ui.this_device_player_disconnected"));
     }
@@ -3083,9 +3077,6 @@ export function createMaverickBaseMusicCard({
       this._launchMusicAssistant();
     }
 
-    _flowAssistantLabel() {
-      return this._i18n("ui.flow_assistant", {}, "FLOW ASSISTANT") || "FLOW ASSISTANT";
-    }
 
     _cleanAllLabel() {
       return this._m("Disconnect");
@@ -3162,19 +3153,6 @@ export function createMaverickBaseMusicCard({
         player: this._getSelectedPlayer(),
         queueItem: this._state.maQueueState?.current_item || null,
       });
-    }
-
-    _currentLyricsTrackKey() {
-      const info = this._currentTrackInfo();
-      const queueItem = this._state.maQueueState?.current_item || null;
-      const player = this._getSelectedPlayer();
-      return [
-        this._getQueueItemStableId?.(queueItem),
-        this._getQueueItemUri?.(queueItem),
-        player?.attributes?.media_content_id,
-        info.key,
-        Math.round(Number(info.duration || 0) || 0),
-      ].map((value) => String(value || "").trim().toLowerCase()).filter(Boolean).join("|");
     }
 
     _saveMobileRecentHistory() {
@@ -3276,7 +3254,7 @@ export function createMaverickBaseMusicCard({
       this._state.mobileRecommendationPlaylistsLoading = true;
       try {
         const [playlistsResult, nativeResult] = await Promise.allSettled([
-          this._loadScheduledStartPlaylists(force),
+          loadScheduledStartPlaylists(this, force),
           this._loadNativeRecommendationEntries(force, 36),
         ]);
         const playlists = playlistsResult.status === "fulfilled" ? playlistsResult.value : [];
@@ -3447,93 +3425,39 @@ export function createMaverickBaseMusicCard({
       if (this._state.mobileHistoryDrawerOpen) syncScreenDock(this, drawer, "history", () => this._setHistoryDrawerOpen(false));
     }
 
+    // Control room facade: the modules that read the studio through the card
+    // sit in the import chain of control-room.js, so they keep going through
+    // these delegators. The card itself calls core/media/control-room.js directly.
     _controlRoomEnabled() {
-      return this._layoutModeConfig() === "tablet" && !this._isCompactTileMode();
-    }
-
-    _controlRoomLabel() {
-      return this._i18n("ui.studio");
+      return controlRoomEnabled(this);
     }
 
     _controlRoomPlayerName(entityOrPlayer = "") {
-      const player = entityOrPlayer && typeof entityOrPlayer === "object"
-        ? entityOrPlayer
-        : this._playerByEntityId(String(entityOrPlayer || ""));
-      return player ? this._playerDisplayName(player) : (String(entityOrPlayer || "") || this._i18n("ui.player"));
+      return controlRoomPlayerName(this, entityOrPlayer);
     }
 
-    _controlRoomPlayerCountLabel(count = 0) {
-      const amount = Math.max(0, Number(count) || 0);
-      if (amount === 1) return this._i18n("ui.player_count_one");
-      return this._i18n("ui.player_count_many", { count: amount });
+    _controlRoomSelectedPlayerIds() {
+      return controlRoomSelectedPlayerIds(this);
     }
 
-    _controlRoomPanelLabel(panel = "") {
-      const labels = {
-        selection: this._i18n("ui.connected_players"),
-        visible: this._i18n("ui.visible_tiles"),
-        music: this._i18n("ui.music_hub"),
-        actions: this._i18n("ui.actions"),
-        library: this._i18n("ui.studio_search"),
-        transfer: this._i18n("ui.queue_cockpit"),
-        mix: this._i18n("ui.smart_mix"),
-        recent: this._i18n("ui.recent_listening"),
-        favorites: this._i18n("ui.favorite_center"),
-        scenes: this._i18n("ui.scene_presets"),
-        announce: this._i18n("ui.announcement_studio"),
-        pro: this._i18n("ui.studio_pro"),
-      };
-      return labels[String(panel || "")] || this._controlRoomLabel();
+    _controlRoomPrimaryPlayerId() {
+      return controlRoomPrimaryPlayerId(this);
     }
 
-    _controlRoomActionTargetIds() {
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      if (selectedIds.length) return selectedIds;
-      const primaryId = this._controlRoomPrimaryPlayerId();
-      return primaryId ? [primaryId] : [];
+    _syncControlRoomUi(options = {}) {
+      return syncControlRoomUi(this, options);
     }
 
-    _controlRoomFocusTarget() {
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      const selectedPlayers = selectedIds.map((entityId) => this._playerByEntityId(entityId)).filter(Boolean);
-      const primary = this._controlRoomPrimaryPlayer();
-      const players = selectedPlayers.length ? selectedPlayers : (primary ? [primary] : []);
-      const first = players[0] || null;
-      const art = this._bestArtworkUrl([first?.attributes?.entity_picture_local, first?.attributes?.entity_picture], {
-        size: 160,
-        cacheKey: this._currentArtworkCacheKey(first),
-      });
-      if (players.length > 1) {
-        const names = players.map((player) => this._playerDisplayName(player, players)).filter(Boolean);
-        return {
-          art,
-          count: players.length,
-          kicker: this._i18n("ui.controlling"),
-          name: this._controlRoomPlayerCountLabel(players.length),
-          track: names.slice(0, 3).join(" · ") + (names.length > 3 ? "..." : ""),
-        };
-      }
-      const name = this._playerDisplayName(first, players) || this._i18n("ui.selected_player_2");
-      return {
-        art,
-        count: first ? 1 : 0,
-        kicker: selectedIds.length ? this._i18n("ui.controlling") : this._i18n("ui.primary_target"),
-        name,
-        track: first?.attributes?.media_title || first?.attributes?.media_artist || this._playerStateLabel(first) || this._i18n("ui.idle_2"),
-      };
+    _searchControlRoomLibrary(query = "") {
+      return searchControlRoomLibrary(this, query);
     }
 
-    _controlRoomContextChipHtml() {
-      const target = this._controlRoomFocusTarget();
-      return `
-        <div class="control-room-context-chip">
-          <span class="control-room-context-art">${target.art ? this._imgHtml(target.art, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
-          <span class="control-room-context-copy">
-            <span class="control-room-context-kicker">${this._esc(target.kicker)}</span>
-            <span class="control-room-context-name">${this._esc(target.name)}</span>
-          </span>
-        </div>
-      `;
+    _toggleControlRoomPanel(panel = "") {
+      return toggleControlRoomPanel(this, panel);
+    }
+
+    _openControlRoom() {
+      return openControlRoom(this);
     }
 
     _tabletStabilityModeEnabled() {
@@ -3552,56 +3476,6 @@ export function createMaverickBaseMusicCard({
       }
     }
 
-    _controlRoomAllPlayers() {
-      this._loadPlayers();
-      const players = (Array.isArray(this._state.players) ? this._state.players : []).filter(MaverickPlayersFoundation.isPlayerAvailable);
-      const visible = players.filter((player) => !this._isLikelyBrowserPlayer(player) || this._isLocalSendspinPlayer(player));
-      return visible.length ? visible : players;
-    }
-
-    _controlRoomVisiblePlayerIds() {
-      const players = this._controlRoomAllPlayers();
-      const validIds = new Set(players.map((player) => player.entity_id));
-      let visibleIds = (Array.isArray(this._state.controlRoomVisiblePlayers) ? this._state.controlRoomVisiblePlayers : [])
-        .filter((entityId) => validIds.has(entityId));
-      const thisDevicePlayer = players.find((player) => this._isLocalSendspinPlayer(player) && this._isAvailableThisDevicePlayer(player));
-      if (this._state.controlRoomRevealThisDevicePending && thisDevicePlayer?.entity_id) {
-        if (!visibleIds.length && this._state.controlRoomVisiblePlayers?.length) visibleIds = [thisDevicePlayer.entity_id];
-        else if (!visibleIds.includes(thisDevicePlayer.entity_id)) visibleIds.push(thisDevicePlayer.entity_id);
-        this._state.controlRoomRevealThisDevicePending = false;
-      }
-      if (!visibleIds.length) visibleIds = players.map((player) => player.entity_id);
-      if (!visibleIds.length && players[0]?.entity_id) visibleIds = [players[0].entity_id];
-      this._state.controlRoomVisiblePlayers = visibleIds;
-      return visibleIds;
-    }
-
-    _revealControlRoomThisDevicePlayer(entityId = "", options = {}) {
-      const id = String(entityId || "").trim();
-      if (!id) return false;
-      const visible = Array.isArray(this._state.controlRoomVisiblePlayers)
-        ? this._state.controlRoomVisiblePlayers.filter(Boolean)
-        : [];
-      if (visible.length && !visible.includes(id)) this._state.controlRoomVisiblePlayers = [...visible, id];
-      const selected = Array.isArray(this._state.controlRoomSelectedPlayers)
-        ? this._state.controlRoomSelectedPlayers.filter(Boolean)
-        : [];
-      this._state.controlRoomSelectedPlayers = [id, ...selected.filter((value) => value !== id)];
-      this._state.controlRoomRevealThisDevicePending = false;
-      if (options.sync !== false && this._state.controlRoomOpen) {
-        this._syncControlRoomTransferDefaults();
-        this._syncControlRoomUi({ force: true });
-      }
-      return true;
-    }
-
-    _controlRoomPlayers() {
-      const players = this._controlRoomAllPlayers();
-      const visibleIds = new Set(this._controlRoomVisiblePlayerIds());
-      const filtered = players.filter((player) => visibleIds.has(player.entity_id));
-      return filtered.length ? filtered : players;
-    }
-
     _playerByEntityId(entityId = "") {
       const target = String(entityId || "").trim();
       if (!target) return null;
@@ -3616,308 +3490,6 @@ export function createMaverickBaseMusicCard({
       return this._isUsableMusicAssistantTarget(hassPlayer) ? hassPlayer : null;
     }
 
-    _controlRoomGroupKey(player = null) {
-      const attrs = player?.attributes || {};
-      const candidates = [
-        attrs.group_id,
-        attrs.group,
-        attrs.group_leader,
-        attrs.group_parent,
-        attrs.group_master,
-        attrs.group_entity_id,
-        attrs.sync_group,
-        attrs.active_group,
-        attrs.synced_to,
-      ];
-      const key = candidates
-        .map((value) => String(value || "").trim())
-        .find((value) => value && !/^(false|true|none|null|unknown|unavailable)$/i.test(value));
-      return key || "";
-    }
-
-    _controlRoomGroupInfo(player = null) {
-      if (!player?.entity_id || MaverickPlayersFoundation.isLikelyBrowserPlayer(player)) return { ids: [], count: 0, label: "" };
-      const allPlayers = this._controlRoomAllPlayers();
-      const byId = new Map(allPlayers.map((entry) => [entry?.entity_id, entry]).filter(([entityId]) => !!entityId));
-      let ids = this._playerGroupMemberIds(player);
-      if (ids.length <= 1) {
-        const owner = allPlayers.find((candidate) => {
-          const members = this._playerGroupMemberIds(candidate);
-          return members.length > 1 && members.includes(player.entity_id);
-        });
-        if (owner) ids = this._playerGroupMemberIds(owner);
-      }
-      if (ids.length <= 1) {
-        const key = this._controlRoomGroupKey(player);
-        if (key) {
-          ids = allPlayers
-            .filter((candidate) => this._controlRoomGroupKey(candidate) === key)
-            .map((candidate) => candidate.entity_id);
-        }
-      }
-      ids = [...new Set(ids)]
-        .filter((entityId) => entityId && byId.has(entityId))
-        .filter((entityId) => !MaverickPlayersFoundation.isLikelyBrowserPlayer(byId.get(entityId)));
-      const names = ids
-        .map((entityId) => byId.get(entityId)?.attributes?.friendly_name || entityId)
-        .filter(Boolean);
-      return {
-        ids,
-        count: ids.length > 1 ? ids.length : 0,
-        label: names.length > 1 ? names.join(" · ") : "",
-      };
-    }
-
-    _controlRoomGroupSummaries(players = []) {
-      const visible = Array.isArray(players) ? players : [];
-      const byKey = new Map();
-      visible.forEach((player) => {
-        const info = this._controlRoomGroupInfo(player);
-        if (!info.count) return;
-        const ids = [...info.ids].sort();
-        const key = ids.join("|");
-        if (!key || byKey.has(key)) return;
-        const names = ids.map((entityId) => this._controlRoomPlayerName(entityId)).filter(Boolean);
-        const primaryId = ids[0] || player.entity_id;
-        const primary = this._playerByEntityId(primaryId) || player;
-        byKey.set(key, {
-          ids,
-          count: ids.length,
-          label: names.join(" · "),
-          art: this._bestArtworkUrl([primary?.attributes?.entity_picture_local, primary?.attributes?.entity_picture], {
-            size: 120,
-            cacheKey: this._currentArtworkCacheKey(primary),
-          }),
-        });
-      });
-      return [...byKey.values()];
-    }
-
-    _controlRoomGroupSummaryHtml(players = []) {
-      const groups = this._controlRoomGroupSummaries(players);
-      if (!groups.length) return "";
-      return `
-        <div class="control-room-group-summary" data-control-room-scroll="groups">
-          ${groups.map((group) => `
-            <div class="control-room-group-chip" title="${this._esc(group.label)}">
-              <span class="control-room-group-art">${group.art ? this._imgHtml(group.art, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
-              <span class="control-room-group-copy">
-                <span class="control-room-group-title">${this._esc(this._m(`${group.count} grouped players`))}</span>
-                <span class="control-room-group-members">${this._esc(group.label)}</span>
-              </span>
-            </div>
-          `).join("")}
-        </div>
-      `;
-    }
-
-    _controlRoomSelectedPlayerIds() {
-      const players = this._controlRoomPlayers();
-      const validIds = new Set(players.map((player) => player.entity_id));
-      let selected = (Array.isArray(this._state.controlRoomSelectedPlayers) ? this._state.controlRoomSelectedPlayers : [])
-        .filter((entityId) => validIds.has(entityId));
-      if (!selected.length) {
-        const preferred = this._state.selectedPlayer;
-        if (preferred && validIds.has(preferred)) selected = [preferred];
-        else if (players[0]?.entity_id) selected = [players[0].entity_id];
-      }
-      this._state.controlRoomSelectedPlayers = selected;
-      return selected;
-    }
-
-    _controlRoomPrimaryPlayerId() {
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      if (selectedIds[0]) return selectedIds[0];
-      const players = this._controlRoomPlayers();
-      const validIds = new Set(players.map((player) => player.entity_id));
-      const preferred = this._state.selectedPlayer;
-      if (preferred && validIds.has(preferred)) return preferred;
-      return players[0]?.entity_id || "";
-    }
-
-    _controlRoomPrimaryPlayer() {
-      return this._playerByEntityId(this._controlRoomPrimaryPlayerId());
-    }
-
-    _setControlRoomSelection(entityIds = []) {
-      const players = this._controlRoomPlayers();
-      const validIds = new Set(players.map((player) => player.entity_id));
-      const next = [];
-      (Array.isArray(entityIds) ? entityIds : []).forEach((entityId) => {
-        if (entityId && validIds.has(entityId) && !next.includes(entityId)) next.push(entityId);
-      });
-      if (!next.length) {
-        const preferred = this._state.selectedPlayer;
-        if (preferred && validIds.has(preferred)) next.push(preferred);
-        else if (players[0]?.entity_id) next.push(players[0].entity_id);
-      }
-      this._state.controlRoomSelectedPlayers = next;
-      this._syncControlRoomTransferDefaults();
-      this._syncControlRoomUi();
-    }
-
-    _toggleControlRoomPlayerSelection(entityId) {
-      if (!entityId) return "kept";
-      const current = this._controlRoomSelectedPlayerIds();
-      const isSelected = current.includes(entityId);
-      if (isSelected && current.length <= 1) {
-        this._setControlRoomSelection(current);
-        return "kept";
-      }
-      const next = isSelected
-        ? current.filter((id) => id !== entityId)
-        : [...current, entityId];
-      this._setControlRoomSelection(next);
-      return isSelected ? "removed" : "added";
-    }
-
-    _setControlRoomPrimary(entityId, options = {}) {
-      if (!entityId) return;
-      const current = this._controlRoomSelectedPlayerIds().filter((id) => id !== entityId);
-      const exclusive = !!options.exclusive;
-      this._state.controlRoomSelectedPlayers = [entityId, ...(exclusive ? [] : current)];
-      this._syncControlRoomTransferDefaults();
-      if (options.selectPlayer !== false) this._selectPlayer(entityId, true);
-      else this._syncControlRoomUi();
-    }
-
-    _setControlRoomVisiblePlayers(entityIds = []) {
-      const players = this._controlRoomAllPlayers();
-      const validIds = new Set(players.map((player) => player.entity_id));
-      const next = [];
-      (Array.isArray(entityIds) ? entityIds : []).forEach((entityId) => {
-        if (entityId && validIds.has(entityId) && !next.includes(entityId)) next.push(entityId);
-      });
-      if (!next.length && players[0]?.entity_id) next.push(players[0].entity_id);
-      this._state.controlRoomVisiblePlayers = next;
-      this._state.controlRoomSelectedPlayers = this._controlRoomSelectedPlayerIds().filter((entityId) => next.includes(entityId));
-      const primaryId = this._controlRoomPrimaryPlayerId();
-      if (!next.includes(primaryId) && next[0]) this._setControlRoomPrimary(next[0], { exclusive: false, selectPlayer: true });
-      else {
-        this._syncControlRoomTransferDefaults();
-        this._syncControlRoomUi();
-      }
-    }
-
-    _toggleControlRoomVisiblePlayer(entityId) {
-      if (!entityId) return;
-      const current = this._controlRoomVisiblePlayerIds();
-      const next = current.includes(entityId)
-        ? current.filter((id) => id !== entityId)
-        : [...current, entityId];
-      this._setControlRoomVisiblePlayers(next);
-    }
-
-    _controlRoomPlayerChoiceRows(kind = "selection") {
-      const allPlayers = kind === "visible" ? this._controlRoomAllPlayers() : this._controlRoomPlayers();
-      const activeIds = new Set(
-        kind === "visible"
-          ? this._controlRoomVisiblePlayerIds()
-          : this._controlRoomSelectedPlayerIds()
-      );
-      return `
-        <div class="control-room-picker-list" data-control-room-scroll="${this._esc(kind)}">
-          ${allPlayers.map((player) => {
-            const entityId = player.entity_id;
-            const active = activeIds.has(entityId);
-            const art = this._bestArtworkUrl([player.attributes?.entity_picture_local, player.attributes?.entity_picture], {
-              size: 120,
-              cacheKey: this._currentArtworkCacheKey(player),
-            });
-            const name = player.attributes?.friendly_name || entityId;
-            const subtitle = player.attributes?.media_title || this._playerStateLabel(player);
-            const attr = kind === "visible" ? "data-room-visible-toggle" : "data-room-selection-toggle";
-            return `
-              <button class="control-room-picker-row ${active ? "active" : ""}" ${attr}="${this._esc(entityId)}">
-                <span class="control-room-picker-art">${art ? this._imgHtml(art, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
-                <span class="control-room-picker-copy">
-                  <span class="control-room-picker-title">${this._esc(name)}</span>
-                  <span class="control-room-picker-sub">${this._esc(subtitle || "")}</span>
-                </span>
-                <span class="control-room-picker-check">${this._iconSvg(active ? "check" : "plus")}</span>
-              </button>
-            `;
-          }).join("")}
-        </div>
-      `;
-    }
-
-    _syncControlRoomTransferDefaults() {
-      const players = this._controlRoomPlayers();
-      const ids = players.map((player) => player.entity_id);
-      const primaryId = this._controlRoomPrimaryPlayerId();
-      if (!ids.includes(this._state.controlRoomTransferSource)) {
-        this._state.controlRoomTransferSource = this._state.selectedPlayer && ids.includes(this._state.selectedPlayer)
-          ? this._state.selectedPlayer
-          : (ids[0] || "");
-      }
-      if (!ids.includes(this._state.controlRoomTransferTarget) || this._state.controlRoomTransferTarget === this._state.controlRoomTransferSource) {
-        this._state.controlRoomTransferTarget = primaryId && primaryId !== this._state.controlRoomTransferSource
-          ? primaryId
-          : (ids.find((id) => id !== this._state.controlRoomTransferSource) || primaryId || "");
-      }
-    }
-
-    _syncControlRoomChrome() {
-      const open = !!this._state.controlRoomOpen && this._controlRoomEnabled();
-      this.$("controlRoomBackdrop")?.classList.toggle("open", open);
-      this.shadowRoot?.querySelector(".card")?.classList.toggle("control-room-open", open);
-    }
-
-    _openControlRoom() {
-      if (!this._controlRoomEnabled()) return;
-      this._state.controlRoomOpen = true;
-      this._state.controlRoomPanel = "";
-      this._controlRoomSelectedPlayerIds();
-      this._syncControlRoomTransferDefaults();
-      this._syncControlRoomChrome();
-      this._syncControlRoomUi({ force: true });
-      this._loadControlRoomQueues(this._controlRoomPlayers().map((player) => player.entity_id)).catch(() => {});
-      this._toastSuccess(this._i18n("ui.studio_opened"));
-    }
-
-    _closeControlRoom(options = {}) {
-      this._suppressHomeShortcutNavigation();
-      this._state.controlRoomOpen = false;
-      this._state.controlRoomPanel = "";
-      this._state.controlRoomRestoreAfterMenu = false;
-      const sheet = this.$("controlRoomBackdrop");
-      sheet?.querySelectorAll(".screen-all-actions").forEach(panel => panel.remove());
-      sheet?.querySelectorAll(".immersive-fan").forEach(fan => { fan.hidden = true; });
-      sheet?.querySelectorAll("[data-screen-wheel]").forEach(button => button.setAttribute("aria-expanded", "false"));
-      this._syncControlRoomChrome();
-      if (!options.silent) this._toast(this._i18n("ui.studio_closed"));
-    }
-
-    _isScheduleFormControl(target) {
-      const el = target?.closest?.("input, select, textarea");
-      if (!el) return false;
-      const id = el.id || "";
-      if ([
-        "scheduledStartTimeInput",
-        "scheduledStartPlayerSelect",
-        "scheduledStartPlaylistSelect",
-        "scheduledStartAfterRunSelect",
-        "scheduledStartVolumeInput",
-        "mobileNightStartInput",
-        "mobileNightEndInput",
-      ].includes(id)) return true;
-      return el.dataset?.startTimerDay !== undefined || el.dataset?.settingNightDay !== undefined;
-    }
-
-    _markScheduleFormControlActive(target = null) {
-      if (!this._isScheduleFormControl(target)) return false;
-      this._state.mobileScheduleControlActiveUntil = Date.now() + 2500;
-      return true;
-    }
-
-    _isScheduleFormEditing() {
-      if (!this._state.menuOpen || this._state.menuPage !== "sleep_timer") return false;
-      const active = this.shadowRoot?.activeElement;
-      return this._isScheduleFormControl(active)
-        || Date.now() < Number(this._state.mobileScheduleControlActiveUntil || 0);
-    }
-
     _rebuildMobileUi(options = {}) {
       const reopenPage = typeof options.reopenPage === "string"
         ? options.reopenPage
@@ -3925,7 +3497,7 @@ export function createMaverickBaseMusicCard({
       const reopenStudio = typeof options.reopenStudio === "boolean"
         ? options.reopenStudio
         : !!this._state.controlRoomOpen;
-      if (!options.force && reopenPage === "sleep_timer" && this._isScheduleFormEditing()) return;
+      if (!options.force && reopenPage === "sleep_timer" && isScheduleFormEditing(this)) return;
       const previousMenuPage = this._state.menuPage || "main";
       const previousMenuScrollTop = reopenPage && reopenPage === previousMenuPage
         ? (this.$("mobileMenuBody")?.scrollTop || 0)
@@ -3933,411 +3505,10 @@ export function createMaverickBaseMusicCard({
       this._build();
       this._init();
       if (reopenPage) this._openMobileMenu(reopenPage, { scrollTop: previousMenuScrollTop });
-      if (reopenStudio && this._controlRoomEnabled()) {
+      if (reopenStudio && controlRoomEnabled(this)) {
         this._state.controlRoomOpen = true;
-        this._syncControlRoomChrome();
-        this._syncControlRoomUi({ force: true });
-      }
-    }
-
-    _openControlRoomLibrary(page = "library_playlists") {
-      this._state.controlRoomRestoreAfterMenu = true;
-      this._state.controlRoomOpen = true;
-      this._openMobileMenu(page);
-    }
-
-    _toggleControlRoomPanel(panel = "") {
-      const next = String(panel || "");
-      this._state.controlRoomPanel = this._state.controlRoomPanel === next ? "" : next;
-      this._syncControlRoomUi();
-      this._primeControlRoomPanelData(this._state.controlRoomPanel);
-    }
-
-    _primeControlRoomPanelData(panel = "") {
-      const activePanel = String(panel || "");
-      if (!activePanel) return;
-      if (activePanel === "transfer") {
-        const ids = [
-          this._state.controlRoomTransferSource,
-          this._state.controlRoomTransferTarget,
-          ...this._controlRoomSelectedPlayerIds(),
-        ].filter(Boolean);
-        this._loadControlRoomQueues(ids).catch(() => {});
-        return;
-      }
-      if (activePanel === "recent") {
-        this._loadControlRoomRecent().catch(() => {});
-        return;
-      }
-      if (activePanel === "favorites") {
-        this._loadControlRoomFavorites().catch(() => {});
-      }
-    }
-
-    _controlRoomMediaTypeIcon(mediaType = "") {
-      const type = String(mediaType || "").toLowerCase();
-      if (type === "playlist") return "playlist";
-      if (type === "artist") return "artist";
-      if (type === "track") return "tracks";
-      if (type === "radio") return "radio";
-      if (type === "podcast") return "podcast";
-      return "album";
-    }
-
-    _controlRoomMediaTypeLabel(mediaType = "") {
-      const type = String(mediaType || "").toLowerCase();
-      const labels = {
-        track: this._i18n("ui.track"),
-        album: this._i18n("ui.album"),
-        artist: this._i18n("ui.artist"),
-        playlist: this._i18n("ui.playlist"),
-        radio: this._i18n("ui.radio"),
-        podcast: this._i18n("ui.podcast"),
-      };
-      return labels[type] || this._i18n("ui.media");
-    }
-
-    _controlRoomNormalizeMediaEntry(item = {}, fallbackType = "album", options = {}) {
-      const mediaType = String(item?.media_type || item?.type || item?.media_item?.media_type || fallbackType || "album").toLowerCase();
-      const artists = Array.isArray(item?.artists)
-        ? item.artists.map((artist) => artist?.name).filter(Boolean).join(", ")
-        : "";
-      const uri = item?.uri || item?.media_item?.uri || item?.media_content_id || "";
-      return {
-        uri,
-        media_type: mediaType,
-        name: item?.name || item?.title || item?.media_item?.name || uri || this._controlRoomMediaTypeLabel(mediaType),
-        subtitle: options.subtitle || artists || item?.artist || item?.album?.name || item?.metadata?.description || item?.provider_label || this._controlRoomMediaTypeLabel(mediaType),
-        artist: artists || item?.artist || "",
-        album: item?.album?.name || item?.album || "",
-        image: this._artUrl(item) || item?.image || item?.image_url || item?.media_item?.image || item?.media_image || "",
-        favorite: !!item?.favorite,
-        favorite_scope: item?.favorite_scope || options.favorite_scope || "library",
-      };
-    }
-
-    _controlRoomEntryDataAttrs(entry = {}) {
-      return [
-        `data-room-library-uri="${this._esc(entry.uri || "")}"`,
-        `data-room-library-type="${this._esc(entry.media_type || "album")}"`,
-        `data-room-library-name="${this._esc(entry.name || "")}"`,
-        `data-room-library-subtitle="${this._esc(entry.subtitle || "")}"`,
-        `data-room-library-image="${this._esc(entry.image || "")}"`,
-        `data-room-library-favorite-scope="${this._esc(entry.favorite_scope || "library")}"`,
-      ].join(" ");
-    }
-
-    _controlRoomProtocolLabel(player = null) {
-      const attrs = player?.attributes || {};
-      return String(
-        attrs.mass_player_type
-        || attrs.player_type
-        || attrs.provider
-        || attrs.provider_name
-        || attrs.source
-        || attrs.app_name
-        || "MA"
-      ).replace(/_/g, " ").trim();
-    }
-
-    _controlRoomQueueCount(player = null, snapshot = null) {
-      const attrs = player?.attributes || {};
-      const candidates = [
-        snapshot?.state?.items,
-        attrs.queue_items,
-        attrs.queue_size,
-        attrs.queue_length,
-        attrs.media_playlist_length,
-        attrs.items_in_queue,
-        attrs.active_queue_items,
-      ];
-      const value = candidates.map((item) => Number(item)).find((item) => Number.isFinite(item) && item >= 0);
-      return Number.isFinite(value) ? Math.round(value) : 0;
-    }
-
-    _controlRoomQueueCache(entityId = "") {
-      const cache = this._state.controlRoomQueueSnapshots || {};
-      const entry = cache[String(entityId || "")];
-      return entry?.snapshot || null;
-    }
-
-    async _fetchEngineControlRoomQueueSnapshot(player = null) {
-      const queueId = this._directMaQueueId(player);
-      if (!queueId || !this._hasMusicAssistantCommandBridge()) return null;
-      let queueState = null;
-      let items = [];
-      try {
-        queueState = await this._callEngineMaCommand("player_queues/get", { queue_id: queueId });
-      } catch (_) {}
-      try {
-        const fullSnapshot = await this._callEngineMaCommand("player_queues/items", { queue_id: queueId, limit: 120, offset: 0 });
-        items = Array.isArray(fullSnapshot?.items)
-          ? fullSnapshot.items
-          : (Array.isArray(fullSnapshot) ? fullSnapshot : []);
-      } catch (_) {}
-      if (!queueState && !items.length) return null;
-      return this._normalizeQueueSnapshot({ queue_state: queueState || {}, items }, player?.entity_id || "");
-    }
-
-    async _fetchControlRoomQueueSnapshot(entityId = "") {
-      const player = this._playerByEntityId(entityId);
-      if (!player) return null;
-      if (entityId === this._state.selectedPlayer) {
-        await this._ensureQueueSnapshot(true);
-        const items = Array.isArray(this._state.queueItems) ? this._state.queueItems : [];
-        if (items.length || this._state.maQueueState) {
-          return {
-            state: this._state.maQueueState || { items: items.length, current_index: 0 },
-            items,
-          };
-        }
-      }
-      if (this._maverickEngineRequired?.()) {
-        try { return await this._fetchMusicAssistantQueueSnapshot(player); } catch (_) { return null; }
-      }
-      try { return await this._fetchMusicAssistantQueueSnapshot(player); } catch (_) { return null; }
-    }
-
-    async _loadControlRoomQueues(entityIds = []) {
-      const ids = [...new Set((Array.isArray(entityIds) ? entityIds : []).filter(Boolean))];
-      if (!ids.length) return;
-      this._state.controlRoomQueueLoading = true;
-      this._syncControlRoomUi();
-      const nextCache = { ...(this._state.controlRoomQueueSnapshots || {}) };
-      const results = await Promise.allSettled(ids.map(async (entityId) => {
-        const snapshot = await this._fetchControlRoomQueueSnapshot(entityId);
-        return { entityId, snapshot };
-      }));
-      results.forEach((result) => {
-        if (result.status !== "fulfilled") return;
-        nextCache[result.value.entityId] = {
-          ts: Date.now(),
-          snapshot: result.value.snapshot,
-        };
-      });
-      this._state.controlRoomQueueSnapshots = nextCache;
-      this._state.controlRoomQueueLoading = false;
-      this._syncControlRoomUi({ force: true });
-    }
-
-    _controlRoomQueuePreviewHtml(entityId = "") {
-      const player = this._playerByEntityId(entityId);
-      const snapshot = this._controlRoomQueueCache(entityId);
-      const items = MaverickMediaQueueFoundation.sortQueueItems(snapshot?.items || []);
-      const currentIndex = Number(snapshot?.state?.current_index);
-      const currentItem = Number.isFinite(currentIndex)
-        ? items.find((item) => Number(item?.sort_index) === currentIndex) || items[0]
-        : items[0];
-      const queueCount = this._controlRoomQueueCount(player, snapshot);
-      const previewItems = (currentItem ? [currentItem, ...items.filter((item) => item !== currentItem)] : items).slice(0, 4);
-      const title = player?.attributes?.friendly_name || entityId || this._i18n("ui.player_2");
-      return `
-        <div class="control-room-queue-preview" data-control-room-scroll="queue-${this._esc(entityId)}">
-          <div class="control-room-queue-preview-head">
-            <span class="control-room-queue-player">${this._esc(title)}</span>
-            <span class="control-room-queue-count">${this._esc(queueCount ? `${queueCount}` : this._i18n("ui.no_queue"))}</span>
-          </div>
-          ${previewItems.length ? previewItems.map((item, index) => {
-            const media = item.media_item || {};
-            const art = this._queueItemImageUrl(item, 96) || this._artUrl(media) || "";
-            const itemTitle = media.name || item.name || item.media_title || this._i18n("ui.queue_item");
-            const artist = item.media_artist || (media.artists || []).map((artistEntry) => artistEntry?.name).filter(Boolean).join(", ") || media.album?.name || "";
-            return `
-              <div class="control-room-queue-row ${index === 0 ? "current" : ""}">
-                <span class="control-room-queue-art">${art ? this._imgHtml(art, "", { fallbackIcon: "album" }) : this._iconSvg("album")}</span>
-                <span class="control-room-queue-copy">
-                  <span class="control-room-queue-title">${this._esc(itemTitle)}</span>
-                  <span class="control-room-queue-sub">${this._esc(index === 0 ? this._i18n("ui.now_playing_2") : (artist || this._i18n("ui.up_next_2")))}</span>
-                </span>
-              </div>
-            `;
-          }).join("") : `<div class="control-room-empty subtle">${this._esc(this._state.controlRoomQueueLoading ? this._i18n("ui.loading_queue") : this._i18n("ui.queue_is_unavailable_for_this_player"))}</div>`}
-        </div>
-      `;
-    }
-
-    _controlRoomMixPresets() {
-      return [
-        { id: "calm", icon: "moon", label: this._i18n("ui.calm"), subtitle: this._i18n("ui.soft_relaxed_music"), queries: ["relax chill playlist", "calm music", "acoustic chill"] },
-        { id: "party", icon: "radio", label: this._i18n("ui.party"), subtitle: this._i18n("ui.energy_and_rhythm"), queries: ["party hits playlist", "dance playlist", "upbeat music"] },
-        { id: "morning", icon: "music_note", label: this._i18n("ui.morning"), subtitle: this._i18n("ui.fresh_start"), queries: ["morning playlist", "coffee music", "feel good morning"] },
-        { id: "night", icon: "moon", label: this._i18n("ui.night"), subtitle: this._i18n("ui.lower_volume_mood"), queries: ["night chill playlist", "sleep music", "quiet jazz"] },
-        { id: "kids", icon: "speaker", label: this._i18n("ui.kids"), subtitle: this._i18n("ui.family_friendly"), queries: ["kids music playlist", "children songs", "family music"] },
-        { id: "israeli", icon: "music_note", label: this._i18n("ui.israeli"), subtitle: this._i18n("ui.local_favorites"), queries: ["israeli music playlist", "israeli music hebrew"] },
-        { id: "favorites", icon: "heart_filled", label: this._i18n("ui.liked"), subtitle: this._i18n("ui.shuffle_favorites"), favorite: true },
-        { id: "random", icon: "shuffle", label: this._i18n("ui.random"), subtitle: this._i18n("ui.library_surprise"), random: true },
-      ];
-    }
-
-    async _controlRoomFindMixEntries(presetId = "", customQuery = "") {
-      const preset = this._controlRoomMixPresets().find((item) => item.id === presetId) || null;
-      const query = String(customQuery || "").trim();
-      if (preset?.favorite) {
-        const favorites = this._useMaLikedMode() ? await this._loadMaLikedEntries(true) : this._likedEntries();
-        return favorites.filter((item) => item?.uri).slice(0, 24);
-      }
-      if (preset?.random) {
-        const nativeEntries = await this._nativeMixEntriesForPreset(presetId, query, 12);
-        const tracks = await this._fetchLibrary("track", "random", 24, false);
-        return this._controlRoomUniqueEntries([
-          ...nativeEntries,
-          ...tracks.map((item) => this._controlRoomNormalizeMediaEntry(item, "track")).filter((item) => item.uri),
-        ]).slice(0, 24);
-      }
-      const nativeEntries = await this._nativeMixEntriesForPreset(presetId, query, 12);
-      if (nativeEntries.length >= 4) return nativeEntries;
-      const queries = query ? [query] : (preset?.queries || ["music playlist"]);
-      const entries = [];
-      for (const currentQuery of queries) {
-        try {
-          const results = await this._search(currentQuery);
-          entries.push(...this._controlRoomSearchEntries(results));
-        } catch (_) {}
-        if (entries.length >= 12) break;
-      }
-      return this._controlRoomUniqueEntries(entries).slice(0, 12);
-    }
-
-    _controlRoomUniqueEntries(entries = []) {
-      const seen = new Set();
-      return (Array.isArray(entries) ? entries : []).filter((entry) => {
-        const key = String(entry?.uri || entry?.name || "").trim().toLowerCase();
-        if (!key || seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-    }
-
-    async _loadControlRoomRecent() {
-      this._state.controlRoomRecentLoading = true;
-      this._syncControlRoomUi();
-      const items = [];
-      try {
-        items.push(...(await this._fetchRecentlyPlayed(18)).map((item) => this._controlRoomNormalizeMediaEntry(item, item.media_type || "album")));
-      } catch (_) {}
-      if (this._hasMusicAssistantCommandBridge()) {
-        try {
-          const inProgress = await this._callEngineMaCommand("music/in_progress_items", { limit: 12 });
-          const rawItems = Array.isArray(inProgress?.items) ? inProgress.items : (Array.isArray(inProgress) ? inProgress : []);
-          items.push(...rawItems.map((item) => this._controlRoomNormalizeMediaEntry(item, item.media_type || "podcast", {
-            subtitle: this._i18n("ui.continue_listening"),
-          })));
-        } catch (_) {}
-      }
-      this._state.controlRoomRecentItems = this._controlRoomUniqueEntries(items).slice(0, 24);
-      this._state.controlRoomRecentLoading = false;
-      this._syncControlRoomUi({ force: true });
-    }
-
-    async _loadControlRoomFavorites() {
-      this._state.controlRoomFavoritesLoading = true;
-      this._syncControlRoomUi();
-      let items = [];
-      try {
-        items = this._useMaLikedMode() ? await this._loadMaLikedEntries(true) : this._likedEntries();
-      } catch (_) {
-        items = this._likedEntries();
-      }
-      this._state.controlRoomFavoritesItems = this._controlRoomUniqueEntries(
-        items.map((item) => this._controlRoomNormalizeMediaEntry(item, item.media_type || "track", {
-          subtitle: this._i18n("ui.favorite"),
-        }))
-      ).slice(0, 36);
-      this._state.controlRoomFavoritesLoading = false;
-      this._syncControlRoomUi({ force: true });
-    }
-
-    _controlRoomMediaGridHtml(entries = [], options = {}) {
-      const list = Array.isArray(entries) ? entries.filter((entry) => entry?.uri) : [];
-      const empty = options.empty || this._i18n("ui.no_media_found");
-      if (!list.length) return `<div class="control-room-empty subtle">${this._esc(empty)}</div>`;
-      return `
-        <div class="control-room-media-grid ${options.large ? "large" : ""}">
-          ${list.map((entry) => {
-            const liked = this._isEntryLiked(entry) || !!entry.favorite;
-            const radioSupported = this._supportsMusicAssistantRadioMode(entry.media_type);
-            const attrs = this._controlRoomEntryDataAttrs(entry);
-            return `
-              <article class="control-room-media-card ${liked ? "liked" : ""}">
-                <button class="control-room-media-main" data-room-library-action="play" ${attrs} title="${this._esc(this._i18n("ui.play_now"))}">
-                  <span class="control-room-media-art">${entry.image ? this._imgHtml(entry.image, "", { fallbackIcon: this._controlRoomMediaTypeIcon(entry.media_type) }) : this._iconSvg(this._controlRoomMediaTypeIcon(entry.media_type))}</span>
-                  <span class="control-room-media-copy">
-                    <span class="control-room-media-kicker">${this._esc(this._controlRoomMediaTypeLabel(entry.media_type))}</span>
-                    <span class="control-room-media-title">${this._esc(entry.name || this._i18n("ui.media"))}</span>
-                    <span class="control-room-media-sub">${this._esc(entry.subtitle || entry.media_type || "")}</span>
-                  </span>
-                </button>
-                <span class="control-room-media-actions">
-                  <button type="button" class="control-room-media-action primary" data-room-library-action="play" ${attrs}>${this._esc(this._i18n("ui.play"))}</button>
-                  <button type="button" class="control-room-media-action" data-room-library-action="next" ${attrs}>${this._esc(this._i18n("ui.next"))}</button>
-                  <button type="button" class="control-room-media-action" data-room-library-action="add" ${attrs}>${this._esc(this._i18n("ui.add"))}</button>
-                  ${radioSupported ? `<button type="button" class="control-room-media-action" data-room-library-action="radio_mode" ${attrs}>${this._esc(this._i18n("ui.radio"))}</button>` : ``}
-                  <button type="button" class="control-room-media-action icon ${liked ? "active" : ""}" data-room-library-action="like" ${attrs} title="${this._esc(this._i18n("ui.like_2"))}">${this._iconSvg(liked ? "heart_filled" : "heart_outline")}</button>
-                </span>
-              </article>
-            `;
-          }).join("")}
-        </div>
-      `;
-    }
-
-    async _prepareControlRoomPlaybackTargets() {
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      const primaryId = selectedIds[0] || this._controlRoomPrimaryPlayerId();
-      if (!primaryId) return "";
-      const groupMembers = selectedIds.slice(1);
-      if (groupMembers.length) {
-        await this._applySpeakerGroupFor(primaryId, groupMembers);
-      }
-      return primaryId;
-    }
-
-    async _playControlRoomEntries(entries = [], options = {}) {
-      const playable = (Array.isArray(entries) ? entries : []).filter((entry) => entry?.uri);
-      const primaryId = await this._prepareControlRoomPlaybackTargets();
-      if (!primaryId || !playable.length) return false;
-      const first = playable[0];
-      const firstOk = await this._playMediaOnPlayer(primaryId, first.uri, first.media_type || "track", options.shuffle ? "shuffle" : "play", {
-        label: first.name || "",
-        silent: true,
-        radioMode: !!options.radioMode,
-      });
-      if (!firstOk) return false;
-      for (const entry of playable.slice(1, 40)) {
-        await this._playMediaOnPlayer(primaryId, entry.uri, entry.media_type || "track", "add", {
-          label: entry.name || "",
-          silent: true,
-        });
-      }
-      if (!options.silent) {
-        this._toastSuccess(this._m(
-          `Started ${playable.length} items in Studio`
-        ));
-      }
-      this._timeout(() => this._updateNowPlayingState(), 500);
-      return true;
-    }
-
-    async _startControlRoomMix(presetId = "", sourceEl = null) {
-      const customInput = this.$("controlRoomSmartQueryInput");
-      const customQuery = customInput?.value || this._state.controlRoomSmartQuery || "";
-      if (sourceEl) this._pressUiButton(sourceEl);
-      this._toast(this._i18n("ui.building_studio_mix"));
-      try {
-        const entries = await this._controlRoomFindMixEntries(presetId, customQuery);
-        if (!entries.length) {
-          this._toastError(this._i18n("ui.no_mix_content_found"));
-          return false;
-        }
-        const ok = await this._playControlRoomEntries(entries, { shuffle: presetId === "favorites" || presetId === "random" });
-        if (ok) {
-          this._state.controlRoomPanel = "";
-          this._toastSuccess(this._i18n("ui.studio_mix_started"));
-        }
-        return ok;
-      } catch (error) {
-        this._toastError(error?.message || this._i18n("ui.could_not_build_studio_mix"));
-        return false;
+        syncControlRoomChrome(this);
+        syncControlRoomUi(this, { force: true });
       }
     }
 
@@ -4345,14 +3516,14 @@ export function createMaverickBaseMusicCard({
       const sourcePlayer = this._playerByEntityId(sourcePlayerEntityId);
       if (!sourcePlayer || !targetPlayerEntityId || sourcePlayer.entity_id === targetPlayerEntityId) return false;
       try {
-        const snapshot = await this._fetchControlRoomQueueSnapshot(sourcePlayer.entity_id);
+        const snapshot = await fetchControlRoomQueueSnapshot(this, sourcePlayer.entity_id);
         const items = MaverickMediaQueueFoundation.sortQueueItems(snapshot?.items || []);
         if (!items.length) throw new Error(this._i18n("ui.no_queue_to_clone"));
         const currentPos = sourcePlayer.entity_id === this._state.selectedPlayer ? this._getCurrentPosition() : 0;
         await this._rebuildQueue(targetPlayerEntityId, items, currentPos);
         if (options.selectTarget !== false) this._selectPlayer(targetPlayerEntityId, true);
         if (!options.silent) this._toastSuccess(this._i18n("ui.queue_cloned"));
-        this._loadControlRoomQueues([sourcePlayer.entity_id, targetPlayerEntityId]).catch(() => {});
+        loadControlRoomQueues(this, [sourcePlayer.entity_id, targetPlayerEntityId]).catch(() => {});
         return true;
       } catch (error) {
         if (!options.silent) this._toastError(error?.message || this._i18n("ui.could_not_clone_the_queue"));
@@ -4360,1114 +3531,6 @@ export function createMaverickBaseMusicCard({
       }
     }
 
-    async _sendControlRoomAnnouncement(sourceEl = null) {
-      const input = this.$("controlRoomAnnouncementText");
-      const volumeInput = this.$("controlRoomAnnouncementVolumeInput");
-      const message = String(input?.value || this._state.controlRoomAnnouncementText || "").trim();
-      if (!message) {
-        this._toastError(this._i18n("ui.enter_an_announcement_first"));
-        return false;
-      }
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      const targets = selectedIds.length ? selectedIds : [this._controlRoomPrimaryPlayerId()].filter(Boolean);
-      if (!targets.length) {
-        this._toastError(this._i18n("ui.select_at_least_one_studio_player"));
-        return false;
-      }
-      if (sourceEl) this._pressUiButton(sourceEl);
-      const previousText = this._state.mobileAnnouncementText;
-      const previousTarget = this._state.mobileAnnouncementTarget;
-      const previousVolume = this._state.mobileAnnouncementVolume;
-      this._state.mobileAnnouncementText = message;
-      this._state.mobileAnnouncementTarget = targets.length === this._announcementEligiblePlayers().length ? "all" : targets[0];
-      this._state.mobileAnnouncementVolume = Math.max(20, Math.min(50, Number(volumeInput?.value || this._state.controlRoomAnnouncementVolume || 20) || 20));
-      try {
-        if (targets.length === 1) {
-          await this._sendMobileAnnouncement();
-        } else {
-          const eligibleMap = new Map(this._announcementEligiblePlayers().map((player) => [player.entity_id, player]));
-          const volumeSnapshots = this._prepareAnnouncementVolumes(targets.map((entityId) => eligibleMap.get(entityId)).filter(Boolean));
-          for (const entityId of targets) {
-            this._state.mobileAnnouncementTarget = entityId;
-            await this._sendMobileAnnouncement();
-          }
-          this._scheduleAnnouncementVolumeRestore(volumeSnapshots, this._announcementRestoreDelayMs(message));
-        }
-        return true;
-      } finally {
-        this._state.mobileAnnouncementText = previousText;
-        this._state.mobileAnnouncementTarget = previousTarget;
-        this._state.mobileAnnouncementVolume = previousVolume;
-      }
-    }
-
-    _controlRoomScenesStorageKey() {
-      return this._lsKey("maverick_music_control_room_scenes_v1");
-    }
-
-    _normalizeControlRoomScene(scene = {}, index = 0) {
-      const rawId = String(scene?.id || `custom:${Date.now()}_${index}`).trim();
-      const id = rawId.startsWith("custom:") ? rawId : `custom:${rawId}`;
-      const playerIds = Array.isArray(scene?.playerIds)
-        ? scene.playerIds.map((entityId) => String(entityId || "").trim()).filter(Boolean)
-        : [];
-      const visibleIds = Array.isArray(scene?.visibleIds)
-        ? scene.visibleIds.map((entityId) => String(entityId || "").trim()).filter(Boolean)
-        : [];
-      const volumes = {};
-      if (scene?.volumes && typeof scene.volumes === "object") {
-        Object.entries(scene.volumes).forEach(([entityId, value]) => {
-          const pct = Math.max(0, Math.min(1, Number(value)));
-          if (entityId && Number.isFinite(pct)) volumes[String(entityId)] = pct;
-        });
-      }
-      const media = scene?.media && typeof scene.media === "object"
-        ? {
-            uri: String(scene.media.uri || "").trim(),
-            media_type: String(scene.media.media_type || scene.media.type || "track").trim() || "track",
-            name: String(scene.media.name || "").trim(),
-          }
-        : { uri: "", media_type: "track", name: "" };
-      return {
-        id,
-        name: String(scene?.name || "").trim() || this._i18n("ui.studio_scene"),
-        primaryId: String(scene?.primaryId || playerIds[0] || "").trim(),
-        playerIds: [...new Set(playerIds)],
-        visibleIds: [...new Set(visibleIds)],
-        volumes,
-        group: scene?.group !== false,
-        media,
-        createdAt: Number(scene?.createdAt || Date.now()) || Date.now(),
-      };
-    }
-
-    _loadControlRoomScenesFromStorage() {
-      try {
-        const raw = JSON.parse(localStorage.getItem(this._controlRoomScenesStorageKey()) || "[]");
-        this._state.controlRoomCustomScenes = Array.isArray(raw)
-          ? raw.map((scene, index) => this._normalizeControlRoomScene(scene, index)).filter((scene) => scene.playerIds.length).slice(0, 12)
-          : [];
-      } catch (_) {
-        this._state.controlRoomCustomScenes = [];
-      }
-    }
-
-    _persistControlRoomScenes() {
-      try {
-        localStorage.setItem(this._controlRoomScenesStorageKey(), JSON.stringify(this._controlRoomCustomScenes()));
-      } catch (_) {}
-    }
-
-    _controlRoomCustomScenes() {
-      return (Array.isArray(this._state.controlRoomCustomScenes) ? this._state.controlRoomCustomScenes : [])
-        .map((scene, index) => this._normalizeControlRoomScene(scene, index))
-        .filter((scene) => scene.playerIds.length)
-        .slice(0, 12);
-    }
-
-    _captureControlRoomScene(name = "") {
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      const primaryId = this._controlRoomPrimaryPlayerId();
-      const targets = selectedIds.length ? selectedIds : [primaryId].filter(Boolean);
-      if (!targets.length) return null;
-      const primary = this._playerByEntityId(primaryId || targets[0]);
-      const attrs = primary?.attributes || {};
-      const volumes = {};
-      targets.forEach((entityId) => {
-        const player = this._playerByEntityId(entityId);
-        const volume = Number(player?.attributes?.volume_level);
-        if (Number.isFinite(volume)) volumes[entityId] = Math.max(0, Math.min(1, volume));
-      });
-      const mediaUri = String(attrs.media_content_id || attrs.media_uri || attrs.uri || "").trim();
-      const mediaType = String(attrs.media_content_type || attrs.media_type || "track").trim() || "track";
-      return this._normalizeControlRoomScene({
-        id: `custom:${Date.now().toString(36)}`,
-        name: String(name || "").trim() || this._i18n("ui.my_studio_scene"),
-        primaryId: primaryId || targets[0],
-        playerIds: targets,
-        visibleIds: this._controlRoomVisiblePlayerIds(),
-        volumes,
-        group: targets.length > 1,
-        media: {
-          uri: mediaUri,
-          media_type: mediaType,
-          name: attrs.media_title || "",
-        },
-        createdAt: Date.now(),
-      });
-    }
-
-    _saveControlRoomSceneFromStudio(sourceEl = null) {
-      if (sourceEl) this._pressUiButton(sourceEl);
-      const input = this.$("controlRoomSceneNameInput");
-      const scene = this._captureControlRoomScene(input?.value || this._state.controlRoomSceneName || "");
-      if (!scene) {
-        this._toastError(this._i18n("ui.select_at_least_one_studio_player"));
-        return false;
-      }
-      this._state.controlRoomCustomScenes = [scene, ...this._controlRoomCustomScenes()].slice(0, 12);
-      this._state.controlRoomSceneName = "";
-      if (input) input.value = "";
-      this._persistControlRoomScenes();
-      this._syncControlRoomUi({ force: true });
-      this._toastSuccess(this._i18n("ui.studio_scene_saved"));
-      return true;
-    }
-
-    _deleteControlRoomScene(sceneId = "", sourceEl = null) {
-      if (sourceEl) this._pressUiButton(sourceEl);
-      const id = String(sceneId || "").trim();
-      if (!id) return false;
-      this._state.controlRoomCustomScenes = this._controlRoomCustomScenes().filter((scene) => scene.id !== id);
-      this._persistControlRoomScenes();
-      this._syncControlRoomUi({ force: true });
-      this._toastSuccess(this._i18n("ui.studio_scene_deleted"));
-      return true;
-    }
-
-    async _applySavedControlRoomScene(scene = null, sourceEl = null) {
-      const saved = scene ? this._normalizeControlRoomScene(scene) : null;
-      if (!saved) return false;
-      const allPlayers = this._controlRoomAllPlayers();
-      const validIds = new Set(allPlayers.map((player) => player.entity_id));
-      const selected = saved.playerIds.filter((entityId) => validIds.has(entityId));
-      if (!selected.length) {
-        this._toastError(this._i18n("ui.scene_players_are_not_available"));
-        return false;
-      }
-      const primaryId = selected.includes(saved.primaryId) ? saved.primaryId : selected[0];
-      const ordered = [primaryId, ...selected.filter((entityId) => entityId !== primaryId)];
-      const visible = [...new Set([
-        ...this._controlRoomVisiblePlayerIds(),
-        ...ordered,
-        ...saved.visibleIds.filter((entityId) => validIds.has(entityId)),
-      ])];
-      this._state.controlRoomVisiblePlayers = visible;
-      this._state.controlRoomSelectedPlayers = ordered;
-      this._syncControlRoomTransferDefaults();
-      if (sourceEl) this._pressUiButton(sourceEl);
-      if (ordered.length > 1 && saved.group) {
-        await this._applySpeakerGroupFor(primaryId, ordered.slice(1));
-      }
-      await Promise.allSettled(ordered.map((entityId) => {
-        const volume = saved.volumes?.[entityId];
-        return Number.isFinite(volume) ? this._setPlayerVolumeFor(entityId, volume) : Promise.resolve();
-      }));
-      if (saved.media?.uri) {
-        await this._playMediaOnPlayer(primaryId, saved.media.uri, saved.media.media_type || "track", "play", {
-          label: saved.media.name || saved.name,
-          silent: true,
-        });
-      }
-      this._syncControlRoomUi({ force: true });
-      this._toastSuccess(this._m(`Scene "${saved.name}" applied`));
-      this._timeout(() => this._updateNowPlayingState(), 350);
-      return true;
-    }
-
-    async _applyControlRoomScene(sceneId = "", sourceEl = null) {
-      if (sourceEl) this._pressUiButton(sourceEl);
-      const scene = String(sceneId || "home");
-      if (scene.startsWith("custom:")) {
-        const saved = this._controlRoomCustomScenes().find((item) => item.id === scene);
-        if (!saved) {
-          this._toastError(this._i18n("ui.studio_scene_was_not_found"));
-          return false;
-        }
-        return this._applySavedControlRoomScene(saved, sourceEl);
-      }
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      const primaryId = selectedIds[0] || this._controlRoomPrimaryPlayerId();
-      if (!primaryId) {
-        this._toastError(this._i18n("ui.select_at_least_one_studio_player"));
-        return false;
-      }
-      const targets = selectedIds.length ? selectedIds : [primaryId];
-      if (targets.length > 1) await this._applySpeakerGroupFor(primaryId, targets.slice(1));
-      const volume = scene === "night" ? 0.18 : scene === "party" ? 0.55 : 0.35;
-      await Promise.allSettled(targets.map((entityId) => this._setPlayerVolumeFor(entityId, volume)));
-      if (scene === "home") {
-        this._toastSuccess(this._i18n("ui.home_scene_prepared"));
-        return true;
-      }
-      const mixId = scene === "party" ? "party" : "night";
-      return this._startControlRoomMix(mixId, sourceEl);
-    }
-
-    _controlRoomSearchEntries(results = {}) {
-      const groups = [
-        ["playlists", "playlist"],
-        ["albums", "album"],
-        ["tracks", "track"],
-        ["artists", "artist"],
-        ["radio", "radio"],
-        ["podcasts", "podcast"],
-      ];
-      const entries = [];
-      groups.forEach(([bucket, mediaType]) => {
-        (Array.isArray(results?.[bucket]) ? results[bucket] : []).slice(0, 4).forEach((item) => {
-          entries.push(this._controlRoomNormalizeMediaEntry(item, mediaType));
-        });
-      });
-      return entries.filter((entry) => entry.uri).slice(0, 14);
-    }
-
-    async _searchControlRoomLibrary(query = "") {
-      const rawQuery = String(query || "");
-      const normalizedQuery = rawQuery.trim();
-      this._state.controlRoomLibraryQuery = rawQuery;
-      if (!normalizedQuery) {
-        this._state.controlRoomLibraryLoading = false;
-        this._state.controlRoomLibraryResults = [];
-        this._syncControlRoomLibraryResultsUi();
-        return;
-      }
-      const token = Date.now();
-      this._state.controlRoomLibraryToken = token;
-      this._state.controlRoomLibraryLoading = true;
-      this._syncControlRoomLibraryResultsUi();
-      try {
-        const results = await this._search(normalizedQuery);
-        if (this._state.controlRoomLibraryToken !== token) return;
-        this._state.controlRoomLibraryResults = this._controlRoomSearchEntries(results);
-      } catch (_) {
-        if (this._state.controlRoomLibraryToken !== token) return;
-        this._state.controlRoomLibraryResults = [];
-      }
-      if (this._state.controlRoomLibraryToken !== token) return;
-      this._state.controlRoomLibraryLoading = false;
-      this._syncControlRoomLibraryResultsUi();
-    }
-
-    _syncControlRoomLibraryResultsUi() {
-      const host = this.$("controlRoomLibraryResults");
-      if (host && this._state.controlRoomPanel === "library") {
-        host.innerHTML = this._controlRoomLibraryResultsHtml();
-        return;
-      }
-      this._syncControlRoomUi();
-    }
-
-    async _startControlRoomLibraryVoice() {
-      const SpeechRecognition = this._speechRecognitionCtor();
-      if (!SpeechRecognition) {
-        this._toastError(this._i18n("ui.voice_input_is_not_supported_on_this_device"));
-        return;
-      }
-      try { this._voiceRecognition?.abort?.(); } catch {}
-      const recognition = new SpeechRecognition();
-      this._voiceRecognition = recognition;
-      recognition.lang = "en-US";
-      recognition.interimResults = true;
-      recognition.continuous = false;
-      recognition.maxAlternatives = 1;
-      this._toast(this._i18n("ui.listening"));
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results || [])
-          .map((result) => result?.[0]?.transcript || "")
-          .join(" ")
-          .trim();
-        if (!transcript) return;
-        this._state.controlRoomLibraryQuery = transcript;
-        this._state.controlRoomPanel = "library";
-        this._syncControlRoomUi();
-        const input = this.$("controlRoomLibraryInput");
-        if (input) {
-          input.value = transcript;
-          input.focus({ preventScroll: true });
-          input.setSelectionRange(transcript.length, transcript.length);
-        }
-        clearTimeout(this._searchTimer);
-        this._searchTimer = setTimeout(() => this._searchControlRoomLibrary(transcript), 120);
-      };
-      recognition.onerror = () => this._toastError(this._i18n("ui.voice_input_failed"));
-      recognition.onend = () => {
-        if (this._voiceRecognition === recognition) this._voiceRecognition = null;
-      };
-      try { recognition.start(); } catch (_) { this._toastError(this._i18n("ui.voice_input_failed")); }
-    }
-
-    async _playControlRoomLibraryEntry(entry, mode = "play") {
-      const action = String(mode || "play");
-      if (!entry?.uri) return false;
-      if (action === "like") {
-        return this._toggleLikeEntry(entry);
-      }
-      const primaryId = await this._prepareControlRoomPlaybackTargets();
-      if (!primaryId) return false;
-      const mediaType = entry.media_type || "album";
-      if (action === "radio_mode" && !this._supportsMusicAssistantRadioMode(mediaType)) {
-        this._toastError(this._i18n("ui.radio_mode_is_not_available_for_this_media_type"));
-        return false;
-      }
-      const enqueue = action === "next" ? "next" : action === "add" ? "add" : action === "shuffle" ? "shuffle" : "play";
-      return this._playMediaOnPlayer(primaryId, entry.uri, mediaType, enqueue, {
-        label: entry.name || "",
-        silent: action !== "play",
-        radioMode: action === "radio_mode",
-      });
-    }
-
-    _controlRoomPlayerTileHtml(player) {
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      const primaryId = this._controlRoomPrimaryPlayerId();
-      const isSelected = selectedIds.includes(player.entity_id);
-      const isPrimary = primaryId === player.entity_id;
-      const playing = player.state === "playing";
-      const art = this._playerArtworkUrl(player, 320);
-      const name = player.attributes?.friendly_name || player.entity_id;
-      const track = player.attributes?.media_title || this._i18n("ui.idle_2");
-      const volume = Math.round((player.attributes?.volume_level || 0) * 100);
-      const groupInfo = this._controlRoomGroupInfo(player);
-      const groupCount = groupInfo.count;
-      const stateLabel = this._playerStateLabel(player);
-      const snapshot = this._controlRoomQueueCache(player.entity_id);
-      const queueCount = this._controlRoomQueueCount(player, snapshot);
-      const protocolLabel = this._controlRoomProtocolLabel(player);
-      const muted = this._isMuted(player);
-      const tileStyle = art ? `style="--control-room-tile-art:${this._esc(cssUrl(art))}"` : "";
-      return `
-        <article class="control-room-tile ${art ? "has-art" : "no-art"} ${isSelected ? "selected" : ""} ${isPrimary ? "primary" : ""} ${playing ? "is-playing" : ""} ${groupCount ? "grouped" : ""}" data-room-tile="${this._esc(player.entity_id)}" ${tileStyle}>
-          <div class="control-room-tile-bg"></div>
-          <div class="control-room-tile-shade"></div>
-          <button class="control-room-select-fab ${isSelected ? "active" : ""} ${isSelected && selectedIds.length > 1 ? "removable" : ""}" data-room-select="${this._esc(player.entity_id)}" title="${this._esc(isSelected && selectedIds.length > 1 ? this._i18n("ui.remove_from_selection") : isSelected ? this._i18n("ui.selected_player_2") : this._i18n("ui.add_to_selection"))}">
-            ${this._iconSvg(isSelected && selectedIds.length > 1 ? "close" : isSelected ? "check" : "grid")}
-            <span class="control-room-select-label">${this._esc(isSelected && selectedIds.length > 1 ? this._i18n("ui.remove") : isSelected ? this._i18n("ui.selected") : this._i18n("ui.select"))}</span>
-          </button>
-          <button class="control-room-tile-main" data-room-primary="${this._esc(player.entity_id)}" title="${this._esc(name)}">
-            <span class="control-room-tile-copy">
-              <span class="control-room-tile-pills">
-                ${isPrimary ? `<span class="control-room-primary-pill">${this._esc(this._i18n("ui.primary"))}</span>` : ``}
-                ${groupCount ? `<span class="control-room-float-pill grouped" title="${this._esc(groupInfo.label || this._i18n("ui.grouped_players"))}">${this._iconSvg("speaker")}${this._esc(this._m(`${groupCount} grouped`))}</span>` : ``}
-                ${queueCount ? `<span class="control-room-float-pill">${this._iconSvg("queue")}${this._esc(`${queueCount}`)}</span>` : ``}
-                ${protocolLabel ? `<span class="control-room-float-pill protocol">${this._esc(protocolLabel)}</span>` : ``}
-                ${playing ? `<span class="control-room-float-pill live">${this._esc(this._i18n("ui.playing"))}</span>` : ``}
-              </span>
-              <span class="control-room-tile-track">${this._esc(track)}</span>
-              <span class="control-room-tile-name">${this._esc(name)}</span>
-              <span class="control-room-tile-state">${this._esc(stateLabel)}</span>
-            </span>
-          </button>
-          <div class="control-room-tile-actions">
-            <button type="button" data-room-toggle-play="${this._esc(player.entity_id)}" title="${this._esc(this._i18n("ui.play_pause"))}">${this._iconSvg(playing ? "pause" : "play")}</button>
-            <button type="button" data-room-next="${this._esc(player.entity_id)}" title="${this._esc(this._i18n("ui.next"))}">${this._iconSvg("next")}</button>
-            <button type="button" class="${muted ? "active" : ""}" data-room-mute="${this._esc(player.entity_id)}" title="${this._esc(this._i18n("ui.mute"))}">${this._iconSvg(muted ? "volume_mute" : this._volumeIconName(player))}</button>
-          </div>
-          <label class="control-room-volume-row">
-            <input class="control-room-volume" data-room-volume="${this._esc(player.entity_id)}" type="range" min="0" max="100" value="${volume}" style="--vol-pct:${volume}%">
-            <span class="control-room-volume-value" data-room-volume-value="${this._esc(player.entity_id)}">${this._esc(String(volume))}%</span>
-          </label>
-        </article>
-      `;
-    }
-
-    _controlRoomLibraryResultsHtml() {
-      const loading = !!this._state.controlRoomLibraryLoading;
-      const results = Array.isArray(this._state.controlRoomLibraryResults) ? this._state.controlRoomLibraryResults : [];
-      const query = String(this._state.controlRoomLibraryQuery || "").trim();
-      if (loading) return `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.searching_library"))}</div>`;
-      if (!query) return `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.search_and_choose_play_next_add_radio_or_like"))}</div>`;
-      return this._controlRoomMediaGridHtml(results, {
-        empty: this._i18n("ui.no_media_found_for_this_search"),
-        large: true,
-      });
-    }
-
-    _controlRoomPanelHtml(players = []) {
-      const content = this._controlRoomPanelContentHtml(players);
-      if (!content) return content;
-      const label = this._esc(this._m("Back to studio"));
-      return content.replace(/(<div class="control-room-tray[^"]*">)/, `$1<button type="button" class="control-room-panel-close" data-room-selection-action="close_panel" aria-label="${label}" title="${label}">${this._iconSvg("close")}</button>`);
-    }
-
-    _controlRoomPanelContentHtml(players = []) {
-      const panel = String(this._state.controlRoomPanel || "");
-      if (!panel) return ``;
-      const context = this._controlRoomContextChipHtml();
-      if (panel === "selection") {
-        return `
-          <div class="control-room-tray open compact">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.connected_players_2"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.choose_which_players_stay_in_the_current_control_selection"))}</div>
-            </div>
-            ${this._controlRoomPlayerChoiceRows("selection")}
-          </div>
-        `;
-      }
-      if (panel === "visible") {
-        return `
-          <div class="control-room-tray open compact">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.visible_tiles_2"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.choose_which_players_appear_as_tiles_in_the_room"))}</div>
-            </div>
-            ${this._controlRoomPlayerChoiceRows("visible")}
-          </div>
-        `;
-      }
-      if (panel === "music") {
-        return `
-          <div class="control-room-tray open wide control-room-hub-panel">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.music_hub_2"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.choose_the_source_first_playback_will_use_the_current_target"))}</div>
-            </div>
-            ${context}
-            <div class="control-room-library-shortcuts">
-              <button data-room-selection-action="browse_library">${this._iconSvg("playlist")}<span>${this._esc(this._i18n("ui.playlists"))}</span></button>
-              <button data-room-selection-action="browse_artists">${this._iconSvg("artist")}<span>${this._esc(this._i18n("ui.artists"))}</span></button>
-              <button data-room-selection-action="browse_albums">${this._iconSvg("album")}<span>${this._esc(this._i18n("ui.albums"))}</span></button>
-              <button data-room-selection-action="browse_tracks">${this._iconSvg("tracks")}<span>${this._esc(this._i18n("ui.tracks"))}</span></button>
-              <button data-room-selection-action="browse_radio">${this._iconSvg("radio")}<span>${this._esc(this._i18n("ui.radio"))}</span></button>
-            </div>
-            <div class="control-room-hub-grid">
-              <button class="control-room-hub-card primary" data-room-selection-action="browse_library">${this._iconSvg("library_music")}<span>${this._esc(this._i18n("ui.library"))}</span><small>${this._esc(this._i18n("ui.browse_playlists_artists_albums_and_radio"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="library">${this._iconSvg("search")}<span>${this._esc(this._i18n("ui.search"))}</span><small>${this._esc(this._i18n("ui.search_tracks_albums_artists_and_playlists"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="mix">${this._iconSvg("wand")}<span>${this._esc(this._i18n("ui.flow_mix"))}</span><small>${this._esc(this._i18n("ui.mood_style_or_free_text"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="recent">${this._iconSvg("history")}<span>${this._esc(this._i18n("ui.recent"))}</span><small>${this._esc(this._i18n("ui.continue_what_was_played_recently"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="favorites">${this._iconSvg("heart_filled")}<span>${this._esc(this._i18n("ui.liked"))}</span><small>${this._esc(this._i18n("ui.favorites_and_liked_music"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="scenes">${this._iconSvg("home")}<span>${this._esc(this._i18n("ui.scenes"))}</span><small>${this._esc(this._i18n("ui.home_party_night_presets"))}</small></button>
-            </div>
-          </div>
-        `;
-      }
-      if (panel === "actions") {
-        const targetIds = this._controlRoomActionTargetIds();
-        const targetCount = targetIds.length;
-        const actionTarget = this._controlRoomFocusTarget();
-        const actionArt = actionTarget.art || "";
-        const primary = this._controlRoomPrimaryPlayer();
-        const primaryPlaying = primary?.state === "playing";
-        const primaryMuted = primary ? this._isMuted(primary) : false;
-        return `
-          <div class="control-room-tray open wide control-room-hub-panel">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.actions_2"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.only_actions_for_the_current_target_are_shown_here"))}</div>
-            </div>
-            <div class="control-room-action-console">
-              <div class="control-room-action-now">
-                <span class="control-room-action-art">${actionArt ? this._imgHtml(actionArt, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
-                <span class="control-room-action-copy">
-                  <span class="control-room-action-kicker">${this._esc(actionTarget.kicker)}</span>
-                  <span class="control-room-action-name">${this._esc(actionTarget.name)}</span>
-                  <span class="control-room-action-track">${this._esc(actionTarget.track)}</span>
-                </span>
-              </div>
-              <div class="control-room-media-controls">
-                <button class="control-room-media-control primary" data-room-selection-action="playpause" ${targetCount ? "" : "disabled"}>${this._iconSvg(primaryPlaying ? "pause" : "play")}<span>${this._esc(primaryPlaying ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span></button>
-                <button class="control-room-media-control" data-room-selection-action="next" ${targetCount ? "" : "disabled"}>${this._iconSvg("next")}<span>${this._esc(this._i18n("ui.next"))}</span></button>
-                <button class="control-room-media-control ${primaryMuted ? "active" : ""}" data-room-selection-action="mute" ${targetCount ? "" : "disabled"}>${this._iconSvg(primaryMuted ? "volume_mute" : (primary ? this._volumeIconName(primary) : "speaker"))}<span>${this._esc(this._i18n("ui.mute"))}</span></button>
-                <button class="control-room-media-control danger" data-room-selection-action="clear" ${targetCount ? "" : "disabled"}>${this._iconSvg("trash")}<span>${this._esc(this._i18n("ui.clear_queue"))}</span></button>
-              </div>
-            </div>
-            <div class="control-room-action-grid management">
-              <button class="control-room-hub-card" data-room-selection-action="selection">${this._iconSvg("grid")}<span>${this._esc(this._i18n("ui.target_players"))}</span><small>${this._esc(this._i18n("ui.choose_who_is_controlled"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="visible">${this._iconSvg("grid")}<span>${this._esc(this._i18n("ui.visible_tiles_2"))}</span><small>${this._esc(this._i18n("ui.clean_the_studio_wall"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="group" ${targetCount > 1 ? "" : "disabled"}>${this._iconSvg("speaker")}<span>${this._esc(this._i18n("ui.group"))}</span><small>${this._esc(this._i18n("ui.join_selected_players"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="ungroup" ${targetCount ? "" : "disabled"}>${this._iconSvg("close")}<span>${this._esc(this._i18n("ui.ungroup_2"))}</span><small>${this._esc(this._i18n("ui.disconnect_groups"))}</small></button>
-              <button class="control-room-hub-card danger" data-room-selection-action="stop_all">${this._iconSvg("stop")}<span>${this._esc(this._i18n("ui.stop_all"))}</span><small>${this._esc(this._i18n("ui.stop_playback_clear_queues_and_disconnect_groups"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="announce">${this._iconSvg("announcement")}<span>${this._esc(this._i18n("ui.announcement"))}</span><small>${this._esc(this._i18n("ui.speak_to_target_players"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="timers">${this._iconSvg("timer")}<span>${this._esc(this._i18n("ui.timers"))}</span><small>${this._esc(this._i18n("ui.sleep_timer_and_scheduled_playback"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="open_ma">${this._iconSvg("library_music")}<span>${this._esc(this._i18n("ui.open_ma"))}</span><small>${this._esc(this._i18n("ui.open_the_full_music_assistant_interface_2"))}</small></button>
-              <button class="control-room-hub-card" data-room-selection-action="pro">${this._iconSvg("settings")}<span>${this._esc(this._i18n("ui.pro_tools"))}</span><small>${this._esc(this._i18n("ui.sendspin_and_diagnostics"))}</small></button>
-            </div>
-          </div>
-        `;
-      }
-      if (panel === "transfer") {
-        const source = this._state.controlRoomTransferSource || "";
-        const target = this._state.controlRoomTransferTarget || "";
-        const sourcePlayer = this._playerByEntityId(source);
-        const targetPlayer = this._playerByEntityId(target);
-        const sourceName = sourcePlayer?.attributes?.friendly_name || source || this._i18n("ui.choose_source");
-        const targetName = targetPlayer?.attributes?.friendly_name || target || this._i18n("ui.choose_target");
-        const targetPlayers = players.filter((player) => player.entity_id !== source);
-        const transferChoiceRows = (role, options, selectedId) => `
-          <div class="control-room-transfer-list" data-control-room-scroll="transfer-${this._esc(role)}">
-            ${options.length ? options.map((player) => {
-              const art = this._playerArtworkUrl(player, 120);
-              const isActive = player.entity_id === selectedId;
-              return `
-                <button class="control-room-transfer-choice ${isActive ? "active" : ""}" data-room-transfer-${role}="${this._esc(player.entity_id)}">
-                  <span class="control-room-transfer-art">${art ? this._imgHtml(art, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
-                  <span class="control-room-transfer-copy">
-                    <span class="control-room-transfer-title">${this._esc(player.attributes?.friendly_name || player.entity_id)}</span>
-                    <span class="control-room-transfer-sub">${this._esc(player.attributes?.media_title || this._playerStateLabel(player))}</span>
-                  </span>
-                  <span class="control-room-transfer-check">${isActive ? this._iconSvg("check") : ""}</span>
-                </button>
-              `;
-            }).join("") : `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.no_available_players"))}</div>`}
-          </div>
-        `;
-        return `
-          <div class="control-room-tray open transfer-panel">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.queue_cockpit_2"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.transfer_clone_inspect_or_clear_queues_without_hiding_the_studio"))}</div>
-            </div>
-            <div class="control-room-queue-layout">
-              <div class="control-room-queue-lanes">
-                <section class="control-room-queue-lane source">
-                  <div class="control-room-queue-lane-head">
-                    <span>${this._esc(this._i18n("ui.from"))}</span>
-                    <strong>${this._esc(sourceName)}</strong>
-                  </div>
-                  ${transferChoiceRows("source", players, source)}
-                  <div class="control-room-transfer-label">${this._esc(this._i18n("ui.source_queue"))}</div>
-                  ${source ? this._controlRoomQueuePreviewHtml(source) : `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.choose_a_source_player"))}</div>`}
-                </section>
-                <section class="control-room-queue-lane target">
-                  <div class="control-room-queue-lane-head">
-                    <span>${this._esc(this._i18n("ui.to"))}</span>
-                    <strong>${this._esc(targetName)}</strong>
-                  </div>
-                  ${transferChoiceRows("target", targetPlayers, target)}
-                  <div class="control-room-transfer-label">${this._esc(this._i18n("ui.target_queue"))}</div>
-                  ${target ? this._controlRoomQueuePreviewHtml(target) : `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.choose_a_target_player"))}</div>`}
-                </section>
-              </div>
-              <div class="control-room-queue-actions">
-                <button class="control-room-panel-action primary" data-room-transfer ${source && target ? "" : "disabled"}>${this._iconSvg("queue")}<span>${this._esc(this._i18n("ui.transfer_queue_2"))}</span></button>
-                <button class="control-room-panel-action" data-room-clone ${source && target ? "" : "disabled"}>${this._iconSvg("repeat")}<span>${this._esc(this._i18n("ui.clone_queue"))}</span></button>
-                <button class="control-room-panel-action" data-room-refresh-queues>${this._iconSvg("sync")}<span>${this._esc(this._i18n("ui.refresh"))}</span></button>
-                <button class="control-room-panel-action danger" data-room-clear-queue="${this._esc(target || source || "")}" ${source || target ? "" : "disabled"}>${this._iconSvg("trash")}<span>${this._esc(this._i18n("ui.clear_queue"))}</span></button>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-      if (panel === "library") {
-        return `
-          <div class="control-room-tray open wide">
-            <label class="control-room-search">
-              ${this._iconSvg("search")}
-              <input id="controlRoomLibraryInput" type="search" placeholder="${this._esc(this._i18n("ui.search_the_library"))}" value="${this._esc(this._state.controlRoomLibraryQuery || "")}" autocomplete="off" spellcheck="false">
-              <button type="button" class="control-room-search-mic" data-room-library-mic title="${this._esc(this._i18n("ui.voice_search"))}">
-                ${this._iconSvg("mic")}
-              </button>
-            </label>
-            <div class="control-room-library-results" id="controlRoomLibraryResults" data-control-room-scroll="library">${this._controlRoomLibraryResultsHtml()}</div>
-          </div>
-        `;
-      }
-      if (panel === "mix") {
-        return `
-          <div class="control-room-tray open wide">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.smart_mix_builder"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.pick_a_mood_or_type_your_own_style_studio_will_search_music_assistant_an"))}</div>
-            </div>
-            <div class="control-room-mix-panel">
-              <label class="control-room-search">
-                ${this._iconSvg("wand")}
-                <input id="controlRoomSmartQueryInput" type="search" placeholder="${this._esc(this._i18n("ui.free_style_quiet_jazz_greek_music_workout"))}" value="${this._esc(this._state.controlRoomSmartQuery || "")}" autocomplete="off" spellcheck="false">
-                <button type="button" class="control-room-search-mic" data-room-smart-custom title="${this._esc(this._i18n("ui.build_custom_mix"))}">${this._iconSvg("play")}</button>
-              </label>
-              <div class="control-room-mix-grid">
-                ${this._controlRoomMixPresets().map((preset) => `
-                  <button class="control-room-mix-card" data-room-smart-mix="${this._esc(preset.id)}">
-                    <span class="control-room-mix-icon">${this._iconSvg(preset.icon || "music_note")}</span>
-                    <span class="control-room-mix-title">${this._esc(preset.label)}</span>
-                    <span class="control-room-mix-sub">${this._esc(preset.subtitle || "")}</span>
-                  </button>
-                `).join("")}
-              </div>
-            </div>
-          </div>
-        `;
-      }
-      if (panel === "recent") {
-        const loading = !!this._state.controlRoomRecentLoading;
-        const items = Array.isArray(this._state.controlRoomRecentItems) ? this._state.controlRoomRecentItems : [];
-        return `
-          <div class="control-room-tray open wide">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.recent_continue"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.continue_from_recent_music_assistant_activity"))}</div>
-            </div>
-            <div class="control-room-library-results" data-control-room-scroll="recent">
-              ${loading ? `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.loading_recent_items"))}</div>` : this._controlRoomMediaGridHtml(items, { empty: this._i18n("ui.no_recent_listening_yet"), large: true })}
-            </div>
-          </div>
-        `;
-      }
-      if (panel === "favorites") {
-        const loading = !!this._state.controlRoomFavoritesLoading;
-        const items = Array.isArray(this._state.controlRoomFavoritesItems) ? this._state.controlRoomFavoritesItems : [];
-        return `
-          <div class="control-room-tray open wide">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.favorite_center_2"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.play_queue_radio_or_remove_favorites_directly_from_studio"))}</div>
-            </div>
-            <div class="control-room-library-results" data-control-room-scroll="favorites">
-              ${loading ? `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.loading_favorites"))}</div>` : this._controlRoomMediaGridHtml(items, { empty: this._i18n("ui.no_favorites_found"), large: true })}
-            </div>
-          </div>
-        `;
-      }
-      if (panel === "scenes") {
-        const customScenes = this._controlRoomCustomScenes();
-        return `
-          <div class="control-room-tray open wide">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.scene_presets_2"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.one_tap_prepares_players_grouping_volume_and_content_save_your_own_curre"))}</div>
-            </div>
-            <div class="control-room-scenes-grid">
-              <button class="control-room-scene-card" data-room-scene="home">${this._iconSvg("home")}<span>${this._esc(this._i18n("ui.home"))}</span><small>${this._esc(this._i18n("ui.selected_players_at_comfortable_volume"))}</small></button>
-              <button class="control-room-scene-card" data-room-scene="party">${this._iconSvg("radio")}<span>${this._esc(this._i18n("ui.party"))}</span><small>${this._esc(this._i18n("ui.group_volume_up_energetic_mix"))}</small></button>
-              <button class="control-room-scene-card" data-room-scene="night">${this._iconSvg("moon")}<span>${this._esc(this._i18n("ui.night"))}</span><small>${this._esc(this._i18n("ui.low_volume_and_quiet_mix"))}</small></button>
-            </div>
-            <div class="control-room-scene-save">
-              <label class="control-room-search">
-                ${this._iconSvg("home")}
-                <input id="controlRoomSceneNameInput" type="text" placeholder="${this._esc(this._i18n("ui.name_this_studio_scene"))}" value="${this._esc(this._state.controlRoomSceneName || "")}" autocomplete="off" spellcheck="false">
-              </label>
-              <button class="control-room-panel-action primary" data-room-save-scene>${this._iconSvg("plus")}<span>${this._esc(this._i18n("ui.save_current_target"))}</span></button>
-            </div>
-            <div class="control-room-saved-scenes" data-control-room-scroll="saved-scenes">
-              ${customScenes.length ? customScenes.map((scene) => {
-                const count = scene.playerIds.length;
-                const mediaName = scene.media?.name || this._i18n("ui.volume_and_player_target");
-                return `
-                  <article class="control-room-saved-scene-card">
-                    <button class="control-room-saved-scene-main" data-room-scene="${this._esc(scene.id)}">
-                      ${this._iconSvg(count > 1 ? "speaker" : "home")}
-                      <span>
-                        <strong>${this._esc(scene.name)}</strong>
-                        <small>${this._esc(`${this._controlRoomPlayerCountLabel(count)} · ${mediaName}`)}</small>
-                      </span>
-                    </button>
-                    <button class="control-room-saved-scene-delete" data-room-delete-scene="${this._esc(scene.id)}" title="${this._esc(this._i18n("ui.delete_scene"))}">${this._iconSvg("trash")}</button>
-                  </article>
-                `;
-              }).join("") : `<div class="control-room-empty subtle">${this._esc(this._i18n("ui.no_saved_studio_scenes_yet"))}</div>`}
-            </div>
-          </div>
-        `;
-      }
-      if (panel === "announce") {
-        const volume = Math.max(20, Math.min(50, Number(this._state.controlRoomAnnouncementVolume || 20) || 20));
-        return `
-          <div class="control-room-tray open compact control-room-announcement-tray">
-            <div class="control-room-announce-hero">
-              <span class="control-room-announce-icon">${this._iconSvg("announcement")}</span>
-              <span class="control-room-announce-copy">
-                <span class="control-room-tray-title">${this._esc(this._i18n("ui.announcement_studio_2"))}</span>
-                <span class="control-room-tray-sub">${this._esc(this._i18n("ui.send_a_short_voice_message_or_announcement_url"))}</span>
-              </span>
-            </div>
-            ${context}
-            <div class="control-room-announce-panel">
-              <label class="control-room-announce-compose">
-                <span>${this._esc(this._i18n("ui.message"))}</span>
-                <textarea id="controlRoomAnnouncementText" class="announcement-textarea" rows="3" placeholder="${this._esc(this._i18n("ui.type_what_should_be_announced"))}">${this._esc(this._state.controlRoomAnnouncementText || "")}</textarea>
-              </label>
-              <div class="control-room-announce-controls">
-                <div class="control-room-announce-volume-card announcement-volume-field">
-                  <div class="control-room-announce-volume-head">
-                    <span>${this._esc(this._i18n("ui.volume_boost"))}</span>
-                    <strong class="settings-value">+${this._esc(String(volume))}%</strong>
-                  </div>
-                  <input id="controlRoomAnnouncementVolumeInput" type="range" min="20" max="50" step="1" value="${this._esc(String(volume))}">
-                </div>
-                <button class="control-room-panel-action primary wide control-room-announce-send" data-room-announce-send>
-                  ${this._iconSvg("announcement")}
-                  <span>${this._esc(this._i18n("ui.send_announcement"))}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-      if (panel === "pro") {
-        const primary = this._controlRoomPrimaryPlayer();
-        const protocol = primary ? this._controlRoomProtocolLabel(primary) : "";
-        return `
-          <div class="control-room-tray open compact">
-            <div class="control-room-tray-head">
-              <div class="control-room-tray-title">${this._esc(this._i18n("ui.studio_pro_2"))}</div>
-              <div class="control-room-tray-sub">${this._esc(this._i18n("ui.feature_detection_player_context_and_this_device_playback_tools"))}</div>
-            </div>
-            <div class="control-room-diagnostics">
-              <div class="control-room-diagnostic-row"><span>Target player</span><strong>${this._esc(primary?.attributes?.friendly_name || this._i18n("ui.none"))}</strong></div>
-              <div class="control-room-diagnostic-row"><span>Protocol</span><strong>${this._esc(protocol || this._i18n("ui.unknown"))}</strong></div>
-              <div class="control-room-diagnostic-row"><span>Music Assistant</span><strong>Maverick Music Engine</strong></div>
-              <div class="control-room-diagnostic-row"><span>Players</span><strong>${this._esc(String(players.length))}</strong></div>
-              <div class="control-room-pro-actions">
-                <button class="control-room-panel-action" data-room-selection-action="open_ma">${this._iconSvg("library_music")}<span>${this._esc(this._i18n("ui.open_music_assistant"))}</span></button>
-              </div>
-              <div class="control-room-empty subtle">${this._esc(this._i18n("ui.player_settings_and_dsp_presets_stay_read_only_until_music_assistant_exp"))}</div>
-            </div>
-          </div>
-        `;
-      }
-      return ``;
-    }
-
-    _controlRoomViewportSize() {
-      const viewportWidth = typeof window !== "undefined" ? Number(window.innerWidth || 0) : 0;
-      const viewportHeight = this._getViewportHeight(this._config?.height || 0);
-      return {
-        width: Math.max(320, Math.round(this._getCardWidth(this._lastCardWidth || viewportWidth || 1600))),
-        height: Math.max(280, Math.round(this._getAllocatedCardHeight(this._lastCardHeight || this._config?.height || viewportHeight || 760))),
-      };
-    }
-
-    _controlRoomGridStyle(playerCount = 0) {
-      const count = Math.max(1, Number(playerCount) || 0);
-      const { width, height } = this._controlRoomViewportSize();
-      const compactViewport = width <= 1280;
-      const narrowViewport = width <= 980;
-      const shortViewport = height <= 640;
-      const gap = narrowViewport ? 10 : (compactViewport ? 12 : 16);
-      const minTileWidth = narrowViewport ? 78 : (compactViewport ? 86 : 96);
-      const preferredMaxCols = width >= 1560 ? 6 : width >= 1060 ? 5 : width >= 720 ? 5 : 3;
-      const dockReserve = shortViewport ? 82 : (narrowViewport ? 92 : (compactViewport ? 104 : 116));
-      const headReserve = shortViewport ? 54 : (narrowViewport ? 64 : 74);
-      const verticalReserve = dockReserve + headReserve + (shortViewport ? 10 : 18);
-      const availableWidth = Math.max(220, width - (narrowViewport ? 20 : (compactViewport ? 34 : 56)));
-      const availableHeight = Math.max(180, height - verticalReserve);
-      const maxColsByWidth = Math.max(1, Math.floor((availableWidth + gap) / (minTileWidth + gap)));
-      const maxCols = Math.max(1, Math.min(count, Math.max(preferredMaxCols, maxColsByWidth)));
-      let best = { cols: 1, tileWidth: Math.min(availableWidth, availableHeight * 16 / 9), rows: count, score: 0 };
-      for (let cols = 1; cols <= maxCols; cols += 1) {
-        const rows = Math.ceil(count / cols);
-        const widthLimited = (availableWidth - gap * (cols - 1)) / cols;
-        const heightLimited = ((availableHeight - gap * (rows - 1)) / rows) * 16 / 9;
-        const tileWidth = Math.max(minTileWidth, Math.min(widthLimited, heightLimited));
-        const score = tileWidth * tileWidth * cols - rows * 22 + cols * 6;
-        if (score > best.score) best = { cols, tileWidth, rows, score };
-      }
-      const gridMaxWidth = Math.max(240, Math.floor((best.tileWidth * best.cols) + gap * (best.cols - 1)));
-      const gridMaxHeight = Math.max(160, Math.floor((best.tileWidth * 9 / 16 * best.rows) + gap * (best.rows - 1)));
-      const tileScale = Math.max(0.72, Math.min(1, best.tileWidth / 300));
-      return [
-        `--control-room-cols:${best.cols}`,
-        `--control-room-rows:${best.rows}`,
-        `--control-room-gap:${gap}px`,
-        `--control-room-player-count:${count}`,
-        `--control-room-grid-max-width:${gridMaxWidth}px`,
-        `--control-room-grid-max-height:${gridMaxHeight}px`,
-        `--control-room-grid-available-height:${availableHeight}px`,
-        `--control-room-dock-reserve:${dockReserve}px`,
-        `--control-room-head-reserve:${headReserve}px`,
-        `--control-room-viewport-width:${width}px`,
-        `--control-room-viewport-height:${height}px`,
-        `--control-room-tile-scale:${tileScale.toFixed(3)}`,
-      ].join(";");
-    }
-
-    _controlRoomRenderSignature() {
-      const players = this._controlRoomPlayers().map((player) => ({
-        id: player.entity_id,
-        groupCount: this._controlRoomGroupInfo(player).count,
-      }));
-      const results = Array.isArray(this._state.controlRoomLibraryResults)
-        ? this._state.controlRoomLibraryResults.slice(0, 10).map((entry) => ({
-            name: entry?.name || "",
-            subtitle: entry?.subtitle || "",
-            type: entry?.media_type || "",
-            image: entry?.image || "",
-        }))
-        : [];
-      const queueCache = this._state.controlRoomQueueSnapshots || {};
-      const queues = Object.fromEntries(Object.entries(queueCache).map(([entityId, entry]) => [
-        entityId,
-        {
-          count: Number(entry?.snapshot?.state?.items || 0) || (Array.isArray(entry?.snapshot?.items) ? entry.snapshot.items.length : 0),
-          current: entry?.snapshot?.state?.current_index ?? "",
-        },
-      ]));
-      const viewport = this._controlRoomViewportSize();
-      return JSON.stringify({
-        open: !!this._state.controlRoomOpen,
-        panel: this._state.controlRoomPanel || "",
-        viewport,
-        selected: this._controlRoomSelectedPlayerIds(),
-        visible: this._controlRoomVisiblePlayerIds(),
-        query: this._state.controlRoomLibraryQuery || "",
-        loading: !!this._state.controlRoomLibraryLoading,
-        source: this._state.controlRoomTransferSource || "",
-        target: this._state.controlRoomTransferTarget || "",
-        results,
-        queues,
-        queueLoading: !!this._state.controlRoomQueueLoading,
-        recentLoading: !!this._state.controlRoomRecentLoading,
-        recent: (this._state.controlRoomRecentItems || []).slice(0, 12).map((entry) => entry?.uri || entry?.name || ""),
-        favoritesLoading: !!this._state.controlRoomFavoritesLoading,
-        favorites: (this._state.controlRoomFavoritesItems || []).slice(0, 12).map((entry) => entry?.uri || entry?.name || ""),
-        smartQuery: this._state.controlRoomSmartQuery || "",
-        announcementText: this._state.controlRoomAnnouncementText || "",
-        announcementVolume: this._state.controlRoomAnnouncementVolume || 20,
-        sceneName: this._state.controlRoomSceneName || "",
-        customScenes: this._controlRoomCustomScenes().map((scene) => ({
-          id: scene.id,
-          name: scene.name,
-          players: scene.playerIds,
-          media: scene.media?.uri || "",
-        })),
-        players,
-      });
-    }
-
-    _controlRoomHtml() {
-      if (!this._controlRoomEnabled()) return "";
-      const players = this._controlRoomPlayers();
-      const primary = this._controlRoomPrimaryPlayer();
-      const primaryArt = this._playerArtworkUrl(primary, 320);
-      const roomStyleVars = this._controlRoomGridStyle(players.length);
-      const sceneStyle = `style="${primaryArt ? `--control-room-scene-art:${this._esc(cssUrl(primaryArt))};` : ""}${roomStyleVars}"`;
-      const focusTarget = this._controlRoomFocusTarget();
-      const focusArt = focusTarget.art || primaryArt;
-      const targetIds = this._controlRoomActionTargetIds();
-      const primaryPlaying = primary?.state === "playing";
-      const primaryMuted = primary ? this._isMuted(primary) : false;
-      const panelOpen = !!this._state.controlRoomPanel;
-      const musicPanelActive = ["music", "mix", "library", "recent", "favorites", "scenes"].includes(this._state.controlRoomPanel);
-      const actionsPanelActive = ["actions", "selection", "visible", "announce", "pro"].includes(this._state.controlRoomPanel);
-      return `
-        <div class="control-room-scene ${primaryArt ? "has-art" : ""} ${panelOpen ? "panel-open" : ""}" ${sceneStyle}>
-          <div class="control-room-scene-bg"></div>
-          <div class="control-room-scene-glow"></div>
-          <div class="control-room-layout">
-            <div class="control-room-grid-wrap">
-              ${this._controlRoomGroupSummaryHtml(players)}
-              <div class="control-room-grid">
-                ${players.map((player) => this._controlRoomPlayerTileHtml(player)).join("")}
-              </div>
-            </div>
-            ${this._controlRoomPanelHtml(players)}
-            <div class="control-room-dock focus-mode">
-              <div class="control-room-player-console">
-                <div class="control-room-now-pill focus-target">
-                  <span class="control-room-now-art">${focusArt ? this._imgHtml(focusArt, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
-                  <span class="control-room-now-copy">
-                    <span class="control-room-now-kicker">${this._esc(focusTarget.kicker)}</span>
-                    <span class="control-room-now-name">${this._esc(focusTarget.name)}</span>
-                    <span class="control-room-now-track">${this._esc(focusTarget.track)}</span>
-                  </span>
-                </div>
-                <div class="control-room-dock-section player primary-actions">
-                  <button class="control-room-dock-btn" data-room-selection-action="player_playpause" title="${this._esc(this._i18n("ui.play_pause"))}">
-                    ${this._iconSvg(primaryPlaying ? "pause" : "play")}
-                    <span class="control-room-dock-label">${this._esc(primaryPlaying ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span>
-                  </button>
-                  <button class="control-room-dock-btn" data-room-selection-action="player_next" title="${this._esc(this._i18n("ui.next"))}">
-                    ${this._iconSvg("next")}
-                    <span class="control-room-dock-label">${this._esc(this._i18n("ui.next"))}</span>
-                  </button>
-                  <button class="control-room-dock-btn ${primaryMuted ? "active" : ""}" data-room-selection-action="player_mute" title="${this._esc(this._i18n("ui.mute"))}">
-                    ${this._iconSvg(primary ? this._volumeIconName(primary) : "speaker")}
-                    <span class="control-room-dock-label">${this._esc(this._i18n("ui.mute"))}</span>
-                  </button>
-                </div>
-              </div>
-              <span class="control-room-dock-divider" aria-hidden="true"></span>
-              <div class="control-room-dock-section room focus-nav">
-                <button class="control-room-selection-pill ${this._state.controlRoomPanel === "selection" ? "active" : ""}" data-room-selection-action="selection" title="${this._esc(this._i18n("ui.connected_players_2"))}">
-                  <span class="control-room-selection-count">${this._esc(String(targetIds.length))}</span>
-                  <span class="control-room-dock-label">${this._esc(this._i18n("ui.players"))}</span>
-                </button>
-                <button class="control-room-dock-btn ${musicPanelActive ? "active" : ""}" data-room-selection-action="music" title="${this._esc(this._i18n("ui.music_hub_2"))}">
-                  ${this._iconSvg("wand")}
-                  <span class="control-room-dock-label">${this._esc(this._i18n("ui.music"))}</span>
-                </button>
-                <button class="control-room-dock-btn ${this._state.controlRoomPanel === "transfer" ? "active" : ""}" data-room-selection-action="transfer" title="${this._esc(this._i18n("ui.transfer_queue_2"))}">
-                  ${this._iconSvg("queue")}
-                  <span class="control-room-dock-label">${this._esc(this._i18n("ui.queue_2"))}</span>
-                </button>
-                <button class="control-room-dock-btn ${actionsPanelActive ? "active" : ""}" data-room-selection-action="actions" title="${this._esc(this._i18n("ui.actions_2"))}">
-                  ${this._iconSvg("settings")}
-                  <span class="control-room-dock-label">${this._esc(this._i18n("ui.actions_2"))}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    _syncControlRoomLiveFields() {
-      if (!this._state.controlRoomOpen || !this.shadowRoot) return;
-      const host = this.$("controlRoomBody");
-      if (!host) return;
-      const players = this._controlRoomPlayers();
-      const playerMap = new Map(players.map((player) => [player.entity_id, player]));
-      const selectedIds = this._controlRoomSelectedPlayerIds();
-      const primaryId = this._controlRoomPrimaryPlayerId();
-      const primary = this._controlRoomPrimaryPlayer();
-      const setText = (el, text) => {
-        if (el && el.textContent !== String(text ?? "")) el.textContent = String(text ?? "");
-      };
-      const setHtml = (el, html) => {
-        if (el && el.dataset.liveHtml !== html) {
-          el.innerHTML = html;
-          el.dataset.liveHtml = html;
-        }
-      };
-      host.querySelectorAll("[data-room-tile]").forEach((tile) => {
-        const entityId = tile.dataset.roomTile || "";
-        const player = playerMap.get(entityId);
-        if (!player) return;
-        const art = this._playerArtworkUrl(player, 320);
-        const playing = player.state === "playing";
-        const isSelected = selectedIds.includes(entityId);
-        const isPrimary = primaryId === entityId;
-        const volume = Math.round((player.attributes?.volume_level || 0) * 100);
-        const groupInfo = this._controlRoomGroupInfo(player);
-        tile.classList.toggle("has-art", !!art);
-        tile.classList.toggle("no-art", !art);
-        tile.classList.toggle("is-playing", playing);
-        tile.classList.toggle("selected", isSelected);
-        tile.classList.toggle("primary", isPrimary);
-        tile.classList.toggle("grouped", !!groupInfo.count);
-        const selectFab = tile.querySelector("[data-room-select]");
-        if (selectFab) {
-          const removable = isSelected && selectedIds.length > 1;
-          selectFab.classList.toggle("active", isSelected);
-          selectFab.classList.toggle("removable", removable);
-          selectFab.title = removable
-            ? this._i18n("ui.remove_from_selection")
-            : isSelected ? this._i18n("ui.selected_player_2") : this._i18n("ui.add_to_selection");
-          setHtml(selectFab, `${this._iconSvg(removable ? "close" : isSelected ? "check" : "grid")}<span class="control-room-select-label">${this._esc(removable ? this._i18n("ui.remove") : isSelected ? this._i18n("ui.selected") : this._i18n("ui.select"))}</span>`);
-        }
-        if (art) tile.style.setProperty("--control-room-tile-art", cssUrl(art));
-        else tile.style.removeProperty("--control-room-tile-art");
-        const pills = tile.querySelector(".control-room-tile-pills");
-        const groupCount = groupInfo.count;
-        const snapshot = this._controlRoomQueueCache(entityId);
-        const queueCount = this._controlRoomQueueCount(player, snapshot);
-        const protocolLabel = this._controlRoomProtocolLabel(player);
-        const pillsHtml = [
-          isPrimary ? `<span class="control-room-primary-pill">${this._esc(this._i18n("ui.primary"))}</span>` : ``,
-          groupCount ? `<span class="control-room-float-pill grouped" title="${this._esc(groupInfo.label || this._i18n("ui.grouped_players"))}">${this._iconSvg("speaker")}${this._esc(this._m(`${groupCount} grouped`))}</span>` : ``,
-          queueCount ? `<span class="control-room-float-pill">${this._iconSvg("queue")}${this._esc(String(queueCount))}</span>` : ``,
-          protocolLabel ? `<span class="control-room-float-pill protocol">${this._esc(protocolLabel)}</span>` : ``,
-          playing ? `<span class="control-room-float-pill live">${this._esc(this._i18n("ui.playing"))}</span>` : ``,
-        ].filter(Boolean).join("");
-        setHtml(pills, pillsHtml);
-        setText(tile.querySelector(".control-room-tile-track"), player.attributes?.media_title || this._i18n("ui.idle_2"));
-        setText(tile.querySelector(".control-room-tile-name"), player.attributes?.friendly_name || player.entity_id);
-        setText(tile.querySelector(".control-room-tile-state"), this._playerStateLabel(player));
-        setHtml(tile.querySelector("[data-room-toggle-play]"), this._iconSvg(playing ? "pause" : "play"));
-        const tileMute = tile.querySelector("[data-room-mute]");
-        if (tileMute) {
-          const muted = this._isMuted(player);
-          tileMute.classList.toggle("active", muted);
-          setHtml(tileMute, this._iconSvg(muted ? "volume_mute" : this._volumeIconName(player)));
-        }
-        const input = tile.querySelector(".control-room-volume");
-        if (input && this.shadowRoot.activeElement !== input && String(input.value) !== String(volume)) {
-          input.value = String(volume);
-          input.style.setProperty("--vol-pct", `${volume}%`);
-        }
-        setText(tile.querySelector("[data-room-volume-value]"), `${volume}%`);
-      });
-      const primaryArt = this._playerArtworkUrl(primary, 320);
-      const scene = host.querySelector(".control-room-scene");
-      if (scene) {
-        scene.classList.toggle("has-art", !!primaryArt);
-        if (primaryArt) scene.style.setProperty("--control-room-scene-art", cssUrl(primaryArt));
-        else scene.style.removeProperty("--control-room-scene-art");
-      }
-      const focusTarget = this._controlRoomFocusTarget();
-      const focusArt = focusTarget.art || primaryArt;
-      setHtml(host.querySelector(".control-room-now-art"), focusArt ? this._imgHtml(focusArt, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker"));
-      setText(host.querySelector(".control-room-now-kicker"), focusTarget.kicker);
-      setText(host.querySelector(".control-room-now-name"), focusTarget.name);
-      setText(host.querySelector(".control-room-now-track"), focusTarget.track);
-      const playPauseBtn = host.querySelector('[data-room-selection-action="player_playpause"]');
-      if (playPauseBtn) {
-        const primaryPlaying = primary?.state === "playing";
-        setHtml(playPauseBtn, `${this._iconSvg(primaryPlaying ? "pause" : "play")}<span class="control-room-dock-label">${this._esc(primaryPlaying ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span>`);
-      }
-      const actionPlayPauseBtn = host.querySelector('.control-room-action-console [data-room-selection-action="playpause"]');
-      if (actionPlayPauseBtn) {
-        const primaryPlaying = primary?.state === "playing";
-        setHtml(actionPlayPauseBtn, `${this._iconSvg(primaryPlaying ? "pause" : "play")}<span>${this._esc(primaryPlaying ? this._i18n("ui.pause") : this._i18n("ui.play"))}</span>`);
-      }
-      const muteBtn = host.querySelector('[data-room-selection-action="player_mute"]');
-      if (muteBtn) {
-        const muted = primary ? this._isMuted(primary) : false;
-        muteBtn.classList.toggle("active", muted);
-        setHtml(muteBtn, `${this._iconSvg(primary ? this._volumeIconName(primary) : "speaker")}<span class="control-room-dock-label">${this._esc(this._i18n("ui.mute"))}</span>`);
-      }
-      const actionMuteBtn = host.querySelector('.control-room-action-console [data-room-selection-action="mute"]');
-      if (actionMuteBtn) {
-        const muted = primary ? this._isMuted(primary) : false;
-        actionMuteBtn.classList.toggle("active", muted);
-        setHtml(actionMuteBtn, `${this._iconSvg(muted ? "volume_mute" : (primary ? this._volumeIconName(primary) : "speaker"))}<span>${this._esc(this._i18n("ui.mute"))}</span>`);
-      }
-    }
-
-    _syncControlRoomUi(options = {}) {
-      this._syncControlRoomChrome();
-      if (!this._controlRoomEnabled()) return;
-      const host = this.$("controlRoomBody");
-      if (!host) return;
-      const force = !!options.force;
-      if (!this._state.controlRoomOpen && !force) return;
-      const activeEl = this.shadowRoot?.activeElement;
-      const restorableInputIds = new Set(["controlRoomLibraryInput", "controlRoomSmartQueryInput", "controlRoomAnnouncementText", "controlRoomSceneNameInput"]);
-      const activeControlRoomInputId = restorableInputIds.has(activeEl?.id) ? activeEl.id : "";
-      const selectionStart = activeControlRoomInputId ? activeEl.selectionStart : null;
-      const selectionEnd = activeControlRoomInputId ? activeEl.selectionEnd : null;
-      const nextSignature = this._controlRoomRenderSignature();
-      const needsRender = force
-        || this._state.controlRoomRenderSignature !== nextSignature
-        || !host.firstElementChild;
-      if (needsRender) {
-        const nextHtml = this._controlRoomHtml();
-        const scrollSnapshot = {};
-        host.querySelectorAll?.("[data-control-room-scroll]")?.forEach((el) => {
-          const key = el.dataset.controlRoomScroll || "";
-          if (key) scrollSnapshot[key] = { top: el.scrollTop || 0, left: el.scrollLeft || 0 };
-        });
-        const restoreScroll = () => {
-          host.querySelectorAll?.("[data-control-room-scroll]")?.forEach((el) => {
-            const key = el.dataset.controlRoomScroll || "";
-            const pos = scrollSnapshot[key];
-            if (!pos) return;
-            el.scrollTop = pos.top;
-            el.scrollLeft = pos.left;
-          });
-        };
-        if (
-          this._state.controlRoomRenderedHtml !== nextHtml
-          || !host.firstElementChild
-        ) {
-          host.innerHTML = nextHtml;
-          this._state.controlRoomRenderedHtml = nextHtml;
-          restoreScroll();
-          requestAnimationFrame(() => restoreScroll());
-        }
-        this._state.controlRoomRenderSignature = nextSignature;
-      }
-      this._syncControlRoomLiveFields();
-      syncScreenDock(this, host.parentElement, "studio", () => this._closeControlRoom());
-      const input = this.$("controlRoomLibraryInput");
-      if (input) {
-        input.value = this._state.controlRoomLibraryQuery || "";
-      }
-      const smartInput = this.$("controlRoomSmartQueryInput");
-      if (smartInput) smartInput.value = this._state.controlRoomSmartQuery || "";
-      const announceInput = this.$("controlRoomAnnouncementText");
-      if (announceInput) announceInput.value = this._state.controlRoomAnnouncementText || "";
-      const sceneNameInput = this.$("controlRoomSceneNameInput");
-      if (sceneNameInput) sceneNameInput.value = this._state.controlRoomSceneName || "";
-      if (activeControlRoomInputId) {
-        const targetInput = this.$(activeControlRoomInputId);
-        targetInput?.focus?.({ preventScroll: true });
-        if (targetInput && typeof selectionStart === "number" && typeof selectionEnd === "number") {
-          try { targetInput.setSelectionRange(selectionStart, selectionEnd); } catch (_) {}
-        }
-      }
-    }
 
     _syncSourceBadgesUi(player = this._getSelectedPlayer(), queueItem = this._state.maQueueState?.current_item || null) {
       if (this._isHotelMode()) {
@@ -5505,479 +3568,6 @@ export function createMaverickBaseMusicCard({
         }
         host.hidden = false;
       });
-    }
-
-    _stripLyricsTimestamps(text = "") {
-      return MaverickMediaPresentationFoundation.stripLyricsTimestamps(text);
-    }
-
-    _coerceLyricsRawText(value) {
-      return MaverickMediaPresentationFoundation.coerceLyricsRawText(value);
-    }
-
-    _coerceLyricsText(value) {
-      return MaverickMediaPresentationFoundation.coerceLyricsText(value);
-    }
-
-    _parseLrcLyrics(text = "") {
-      return MaverickMediaPresentationFoundation.parseLrcLyrics(text);
-    }
-
-    _extractCurrentLyricsRawText() {
-      return MaverickMediaPresentationFoundation.extractCurrentLyricsRawText(this._state.maQueueState?.current_item || {});
-    }
-
-    _extractCurrentLyricsText() {
-      return MaverickMediaPresentationFoundation.extractCurrentLyricsText(this._state.maQueueState?.current_item || {});
-    }
-
-    async _fetchLyricsForCurrentTrack({ singleflight = false } = {}) {
-      const info = this._currentTrackInfo();
-      if (!info.title) return { text: "", source: "" };
-      const cacheKey = info.key || info.title;
-      const cached = this._cache.lyrics.get(cacheKey);
-      if (cached) return cached;
-      if (!singleflight) {
-        this._lyricsFetches ||= new Map();
-        if (this._lyricsFetches.has(cacheKey)) return this._lyricsFetches.get(cacheKey);
-        const task = this._fetchLyricsForCurrentTrack({ singleflight: true });
-        this._lyricsFetches.set(cacheKey, task);
-        try { return await task; }
-        finally { if (this._lyricsFetches.get(cacheKey) === task) this._lyricsFetches.delete(cacheKey); }
-      }
-
-      const embeddedRaw = this._extractCurrentLyricsRawText();
-      if (embeddedRaw) {
-        const payload = {
-          text: this._stripLyricsTimestamps(embeddedRaw),
-          rawText: embeddedRaw,
-          lrc: this._parseLrcLyrics(embeddedRaw),
-          source: "metadata",
-        };
-        this._cache.lyrics.set(cacheKey, payload);
-        return payload;
-      }
-
-      const queueItem = this._state.maQueueState?.current_item;
-      const media = queueItem?.media_item || queueItem || {};
-      const uri = String(media.uri || this._getSelectedPlayer?.()?.attributes?.media_content_id || "").trim();
-      let maLyricsError = null;
-      if (uri && (media.media_type || "track") === "track") {
-        try {
-          const track = await this._callEngineMaCommand("music/item_by_uri", { uri, allow_update_metadata: false });
-          const embedded = MaverickMediaPresentationFoundation.extractCurrentLyricsRawText({ media_item: track });
-          const result = embedded ? null : await this._callEngineMaCommand("metadata/get_track_lyrics", { track });
-          const rawText = embedded || (Array.isArray(result) ? result[1] || result[0] : this._coerceLyricsRawText(result)) || "";
-          if (rawText) {
-            const payload = { text: this._stripLyricsTimestamps(rawText), rawText, lrc: this._parseLrcLyrics(rawText), source: "music_assistant" };
-            this._cache.lyrics.set(cacheKey, payload);
-            return payload;
-          }
-        } catch (error) { maLyricsError = error; }
-      }
-
-      if (this._config?.lrclib_lyrics_enabled !== true) {
-        if (maLyricsError) throw maLyricsError;
-        const payload = { text: "", rawText: "", lrc: [], source: "disabled" };
-        return payload;
-      }
-
-      const params = new URLSearchParams();
-      params.set("track_name", info.title);
-      if (info.artist) params.set("artist_name", info.artist);
-      if (info.album) params.set("album_name", info.album);
-      if (info.duration) params.set("duration", String(Math.round(info.duration)));
-
-      const parseLyrics = async (url) => {
-        const response = await fetch(url, { headers: { Accept: "application/json" } });
-        if (!response.ok) return "";
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          return data.map((item) => this._coerceLyricsRawText(item)).find(Boolean) || "";
-        }
-        return this._coerceLyricsRawText(data);
-      };
-
-      const rawText = await parseLyrics(`https://lrclib.net/api/get?${params.toString()}`)
-        || await parseLyrics(`https://lrclib.net/api/search?${params.toString()}`);
-      const payload = {
-        text: rawText ? this._stripLyricsTimestamps(rawText) : "",
-        rawText: rawText || "",
-        lrc: this._parseLrcLyrics(rawText),
-        source: rawText ? "lrclib" : "",
-      };
-      if (rawText) this._cache.lyrics.set(cacheKey, payload);
-      return payload;
-    }
-
-    _lyricsSessionActive() {
-      return !!(this._state.lyricsOpen || this._state.screensaverLyricsOpen);
-    }
-
-    _clearLyricsState() {
-      this._state.lyricsTrackKey = "";
-      this._state.lyricsText = "";
-      this._state.lyricsLoading = false;
-      this._state.lyricsLines = [];
-      this._state.lyricsActiveIndex = -1;
-      this._lyricsRequestToken = "";
-      this._lyricsRefreshQueued = false;
-    }
-
-    _closeLyricsModal(options = {}) {
-      const backdrop = this.$("lyricsBackdrop");
-      const card = this.shadowRoot?.querySelector(".card");
-      const preserveLyrics = options.preserveLyrics === true || this._state.screensaverLyricsOpen === true;
-      if (backdrop) {
-        backdrop.classList.remove("open");
-        backdrop.onclick = null;
-        backdrop.innerHTML = "";
-      }
-      card?.classList.remove("lyrics-modal-open");
-      this._state.lyricsOpen = false;
-      if (!preserveLyrics) this._clearLyricsState();
-      if (options.sync === false) return;
-      const restoreFrame = () => {
-        const currentCard = this.shadowRoot?.querySelector(".card");
-        [currentCard, this.shadowRoot?.querySelector(".stage"), this.shadowRoot?.querySelector(".tablet-shell"), this.shadowRoot?.querySelector(".tablet-main")]
-          .filter(Boolean)
-          .forEach((el) => { try { el.scrollTop = 0; } catch (_) {} });
-        void currentCard?.offsetHeight;
-      };
-      requestAnimationFrame(() => {
-        this._syncNowPlayingUI();
-        this._syncTabletAutoFitUi();
-        if (typeof this._refreshMobileArtStack === "function") this._refreshMobileArtStack(true);
-        restoreFrame();
-        requestAnimationFrame(restoreFrame);
-      });
-    }
-
-    _renderLyricsModalShell(title, subtitle, bodyHtml) {
-      const backdrop = this.$("lyricsBackdrop");
-      if (!backdrop) return;
-      const offsetLabel = this._lyricsSyncOffsetLabel();
-      const lyricsArt = this._currentArtworkUrl(this._getSelectedPlayer(), this._state.maQueueState?.current_item || null, 920, { preferPlayerArtwork: true });
-      if (lyricsArt) {
-        backdrop.style.setProperty("--lyrics-dynamic-art", cssUrl(lyricsArt));
-        backdrop.classList.add("has-lyrics-art");
-      } else {
-        backdrop.style.removeProperty("--lyrics-dynamic-art");
-        backdrop.classList.remove("has-lyrics-art");
-      }
-      backdrop.innerHTML = `
-        <div class="lyrics-sheet" style="--lyrics-font-scale:${this._esc(this._lyricsFontScale().toFixed(2))}">
-          <div class="lyrics-head">
-            <div class="lyrics-title-wrap">
-              <div class="lyrics-title-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("lyrics-title-logo")}</div>
-              <div class="lyrics-title">${this._esc(title || this._i18n("ui.track_lyrics"))}</div>
-              <div class="lyrics-sub">${this._esc(subtitle || "")}</div>
-            </div>
-            <div class="lyrics-head-actions">
-              <button class="lyrics-sync-btn" id="lyricsRetryBtn" title="${this._esc(this._i18n("ui.refresh"))}" aria-label="${this._esc(this._i18n("ui.refresh"))}" ${this._state.lyricsLoading ? "disabled" : ""}>${actionIconSvg(this, "history")}</button>
-              <div class="lyrics-font-controls" title="${this._esc(this._i18n("ui.lyrics_font_size"))}">
-                <button class="lyrics-offset-btn" id="lyricsFontMinusBtn" title="${this._esc(this._i18n("ui.smaller_lyrics"))}">−</button>
-                <button class="lyrics-offset-label" id="lyricsFontResetBtn" title="${this._esc(this._i18n("ui.reset_lyrics_font_size"))}">${this._esc(this._lyricsFontScaleLabel())}</button>
-                <button class="lyrics-offset-btn" id="lyricsFontPlusBtn" title="${this._esc(this._i18n("ui.larger_lyrics"))}">+</button>
-              </div>
-              <div class="lyrics-offset-controls" title="${this._esc(this._i18n("ui.lyrics_timing"))}">
-                <button class="lyrics-offset-btn" id="lyricsOffsetMinusBtn" title="${this._esc(this._i18n("ui.lyrics_earlier"))}">−</button>
-                <button class="lyrics-offset-label" id="lyricsOffsetResetBtn" title="${this._esc(this._i18n("ui.reset_lyrics_timing"))}">${this._esc(offsetLabel)}</button>
-                <button class="lyrics-offset-btn" id="lyricsOffsetPlusBtn" title="${this._esc(this._i18n("ui.lyrics_later"))}">+</button>
-              </div>
-              <button class="lyrics-sync-btn ${this._state.mobileLyricsSyncEnabled !== false ? "active" : ""}" id="lyricsSyncBtn" ${this._state.lyricsLines?.length ? "" : "hidden"} aria-pressed="${this._state.mobileLyricsSyncEnabled !== false}" title="${this._esc(this._m("Karaoke · synced lines"))}">
-                ${actionIconSvg(this, "karaoke")}
-                <span>${this._esc(this._m("Karaoke"))}</span>
-              </button>
-              <button class="close-btn" id="lyricsCloseBtn" aria-label="${this._esc(this._i18n("ui.close"))}">${actionIconSvg(this, "close")}</button>
-            </div>
-          </div>
-          <div class="lyrics-body">${bodyHtml}</div>
-        </div>`;
-      syncScreenDock(this, backdrop.querySelector(".lyrics-sheet"), "lyrics", () => this._closeLyricsModal());
-      backdrop.classList.add("open");
-      this.shadowRoot?.querySelector(".card")?.classList.add("lyrics-modal-open");
-      backdrop.onclick = (e) => { if (e.target === backdrop) this._closeLyricsModal(); };
-      backdrop.querySelector("#lyricsCloseBtn")?.addEventListener("click", () => this._closeLyricsModal());
-      backdrop.querySelector("#lyricsRetryBtn")?.addEventListener("click", () => {
-        const info = this._currentTrackInfo();
-        this._cache.lyrics.delete(info.key || info.title);
-        this._openLyricsModal();
-      });
-      backdrop.querySelector("#lyricsSyncBtn")?.addEventListener("click", () => this._toggleLyricsSyncEnabled());
-      backdrop.querySelector("#lyricsOffsetMinusBtn")?.addEventListener("click", () => this._nudgeLyricsSyncOffset(-500));
-      backdrop.querySelector("#lyricsOffsetPlusBtn")?.addEventListener("click", () => this._nudgeLyricsSyncOffset(500));
-      backdrop.querySelector("#lyricsOffsetResetBtn")?.addEventListener("click", () => this._setLyricsSyncOffset(0));
-      backdrop.querySelector("#lyricsFontMinusBtn")?.addEventListener("click", () => this._nudgeLyricsFontScale(-0.08));
-      backdrop.querySelector("#lyricsFontPlusBtn")?.addEventListener("click", () => this._nudgeLyricsFontScale(0.08));
-      backdrop.querySelector("#lyricsFontResetBtn")?.addEventListener("click", () => this._setLyricsFontScale(1));
-    }
-
-    _lyricsTimelineHtml(lines = []) {
-      return `
-        <div class="lyrics-timeline" id="lyricsTimeline">
-          ${lines.map((line, index) => `
-            <div class="lyrics-line" data-lyrics-index="${index}" data-lyrics-time="${Number(line.time) || 0}">
-              ${line.words?.length ? line.words.map(word => `<span data-lyrics-word-time="${Number(word.time)}">${this._esc(word.text)}</span>`).join("") : this._esc(line.text || "")}
-            </div>
-          `).join("")}
-        </div>`;
-    }
-
-    _currentLyricsActiveIndex(lines = []) {
-      const list = Array.isArray(lines) ? lines : [];
-      if (!list.length) return -1;
-      if (this._state.mobileLyricsSyncEnabled === false) return -1;
-      const position = this._getCurrentPosition() + (this._lyricsSyncOffsetMs() / 1000);
-      let activeIndex = 0;
-      for (let i = 0; i < list.length; i += 1) {
-        if (Number(list[i]?.time || 0) <= position + 0.15) activeIndex = i;
-        else break;
-      }
-      return activeIndex;
-    }
-
-    _syncLyricsHighlight(force = false) {
-      if (!this._state.lyricsOpen) return;
-      const lines = Array.isArray(this._state.lyricsLines) ? this._state.lyricsLines : [];
-      if (!lines.length) return;
-      const timeline = this.shadowRoot?.querySelector("#lyricsTimeline");
-      if (!timeline) return;
-      timeline.classList.toggle("karaoke-active", this._state.mobileLyricsSyncEnabled !== false);
-      if (this._state.mobileLyricsSyncEnabled === false) {
-        this._state.lyricsActiveIndex = -1;
-        timeline.querySelectorAll(".lyrics-line").forEach((row) => row.classList.remove("active"));
-        timeline.querySelectorAll("[data-lyrics-word-time]").forEach(word => word.classList.remove("sung"));
-        return;
-      }
-      const activeIndex = this._currentLyricsActiveIndex(lines);
-      if (activeIndex < 0) return;
-      const wordPosition = this._getCurrentPosition() + this._lyricsSyncOffsetMs() / 1000;
-      timeline.querySelectorAll("[data-lyrics-word-time]").forEach(word => word.classList.toggle("sung", Number(word.dataset.lyricsWordTime) <= wordPosition));
-      if (!force && activeIndex === this._state.lyricsActiveIndex) return;
-      this._state.lyricsActiveIndex = activeIndex;
-      this._syncScreensaverLyricsUi?.();
-      timeline.querySelectorAll(".lyrics-line").forEach((row, index) => {
-        row.classList.toggle("active", index === activeIndex);
-      });
-      const activeRow = timeline.querySelector(`.lyrics-line[data-lyrics-index="${activeIndex}"]`);
-      const body = timeline.closest(".lyrics-body");
-      if (activeRow && body) {
-        const bodyRect = body.getBoundingClientRect();
-        const rowRect = activeRow.getBoundingClientRect();
-        const targetTop = body.scrollTop + rowRect.top - bodyRect.top - (body.clientHeight / 2) + (rowRect.height / 2);
-        const maxTop = Math.max(0, body.scrollHeight - body.clientHeight);
-        const nextTop = Math.max(0, Math.min(maxTop, targetTop));
-        try {
-          body.scrollTo({ top: nextTop, behavior: force ? "auto" : "smooth" });
-        } catch (_) {
-          body.scrollTop = nextTop;
-        }
-      }
-    }
-
-    _toggleLyricsSyncEnabled() {
-      this._state.mobileLyricsSyncEnabled = this._state.mobileLyricsSyncEnabled === false;
-      this._persistMobileAppearance();
-      const syncBtn = this.shadowRoot?.querySelector("#lyricsSyncBtn");
-      if (syncBtn) {
-        syncBtn.classList.toggle("active", this._state.mobileLyricsSyncEnabled !== false);
-        syncBtn.setAttribute("aria-pressed", String(this._state.mobileLyricsSyncEnabled !== false));
-      }
-      syncScreenDock(this, this.$("lyricsBackdrop")?.querySelector(".lyrics-sheet"), "lyrics", () => this._closeLyricsModal());
-      this._syncLyricsHighlight(true);
-    }
-
-    _lyricsSyncOffsetMs() {
-      return Math.max(-10000, Math.min(10000, Number(this._state.mobileLyricsSyncOffsetMs || 0) || 0));
-    }
-
-    _lyricsSyncOffsetLabel() {
-      const seconds = this._lyricsSyncOffsetMs() / 1000;
-      return `${seconds > 0 ? "+" : ""}${seconds.toFixed(1)}s`;
-    }
-
-    _setLyricsSyncOffset(offsetMs = 0) {
-      this._state.mobileLyricsSyncOffsetMs = Math.max(-10000, Math.min(10000, Number(offsetMs || 0) || 0));
-      this._persistMobileAppearance();
-      const label = this.shadowRoot?.querySelector("#lyricsOffsetResetBtn");
-      if (label) label.textContent = this._lyricsSyncOffsetLabel();
-      this._syncLyricsHighlight(true);
-    }
-
-    _nudgeLyricsSyncOffset(deltaMs = 0) {
-      this._setLyricsSyncOffset(this._lyricsSyncOffsetMs() + (Number(deltaMs || 0) || 0));
-    }
-
-    _lyricsFontScale() {
-      return Math.max(0.75, Math.min(1.4, Number(this._state.mobileLyricsFontScale || 1.4) || 1.4));
-    }
-
-    _lyricsFontScaleLabel() {
-      return `${Math.round(this._lyricsFontScale() * 100)}%`;
-    }
-
-    _setLyricsFontScale(value = 1) {
-      this._state.mobileLyricsFontScale = Math.max(0.75, Math.min(1.4, Number(value || 1) || 1));
-      this._persistMobileAppearance();
-      const sheet = this.shadowRoot?.querySelector(".lyrics-sheet");
-      if (sheet) sheet.style.setProperty("--lyrics-font-scale", this._lyricsFontScale().toFixed(2));
-      const label = this.shadowRoot?.querySelector("#lyricsFontResetBtn");
-      if (label) label.textContent = this._lyricsFontScaleLabel();
-      this._syncLyricsHighlight(true);
-    }
-
-    _nudgeLyricsFontScale(delta = 0) {
-      this._setLyricsFontScale(this._lyricsFontScale() + (Number(delta || 0) || 0));
-    }
-
-    async _renderLyricsModalForCurrentTrack({ force = false } = {}) {
-      if (!this._lyricsSessionActive()) return;
-      const info = this._currentTrackInfo();
-      const trackKey = this._currentLyricsTrackKey() || info.key || info.title || "";
-      if (!force && trackKey && this._state.lyricsTrackKey === trackKey) {
-        this._syncLyricsHighlight();
-        this._syncScreensaverLyricsUi?.();
-        return;
-      }
-      const subtitle = [info.artist, info.album].filter(Boolean).join(" · ");
-      this._state.lyricsTrackKey = trackKey;
-      const lyricsSubtitle = subtitle.replace(/\u00c3\u201a\u00c2\u00b7|\u00c2\u00b7/g, "\u00b7");
-      this._state.lyricsText = "";
-      this._state.lyricsLines = [];
-      this._state.lyricsActiveIndex = -1;
-      this._state.lyricsLoading = true;
-      const token = `${trackKey || Date.now()}-${Math.random()}`;
-      this._lyricsRequestToken = token;
-      if (this._state.lyricsOpen) {
-        this._renderLyricsModalShell(
-          info.title || this._i18n("ui.track_lyrics"),
-          lyricsSubtitle,
-          `<div class="lyrics-state">${this._esc(this._i18n("ui.loading_lyrics"))}</div>`,
-        );
-      }
-      this._syncScreensaverLyricsUi?.();
-      try {
-        const payload = await this._fetchLyricsForCurrentTrack();
-        if (!this._lyricsSessionActive() || this._lyricsRequestToken !== token) return;
-        const text = payload?.text || "";
-        const lines = Array.isArray(payload?.lrc) ? payload.lrc : [];
-        this._state.lyricsText = text;
-        this._state.lyricsLoading = false;
-        this._state.lyricsLines = lines;
-        this._state.lyricsActiveIndex = -1;
-        if (this._state.lyricsOpen) {
-          this._renderLyricsModalShell(
-            info.title || this._i18n("ui.track_lyrics"),
-            lyricsSubtitle,
-            lines.length
-              ? this._lyricsTimelineHtml(lines)
-              : text
-              ? `<pre class="lyrics-pre">${this._esc(text)}</pre>`
-              : `<div class="lyrics-state">${this._esc(this._i18n("ui.no_lyrics_found"))}</div>`,
-          );
-        }
-        this._syncScreensaverLyricsUi?.();
-        if (lines.length) requestAnimationFrame(() => this._syncLyricsHighlight(true));
-      } catch (_) {
-        if (!this._lyricsSessionActive() || this._lyricsRequestToken !== token) return;
-        this._state.lyricsText = "";
-        this._state.lyricsLoading = false;
-        this._state.lyricsLines = [];
-        this._state.lyricsActiveIndex = -1;
-        if (this._state.lyricsOpen) {
-          this._renderLyricsModalShell(
-            info.title || this._i18n("ui.track_lyrics"),
-            lyricsSubtitle,
-            `<div class="lyrics-state">${this._esc(this._i18n("ui.lyrics_unavailable_right_now"))}</div>`,
-          );
-        }
-        this._syncScreensaverLyricsUi?.();
-      }
-    }
-
-    async _openLyricsModal() {
-      const backdrop = this.$("lyricsBackdrop");
-      if (!backdrop) return;
-      this.shadowRoot.querySelector(".card")?.appendChild(backdrop);
-      const info = this._currentTrackInfo();
-      const trackKey = this._currentLyricsTrackKey() || info.key || info.title || "";
-      const subtitle = [info.artist, info.album].filter(Boolean).join(" · ");
-      this._state.lyricsOpen = true;
-      this._state.lyricsTrackKey = trackKey;
-      const lyricsSubtitle = subtitle.replace(/\u00c3\u201a\u00c2\u00b7|\u00c2\u00b7/g, "\u00b7");
-      this._state.lyricsText = "";
-      this._state.lyricsLines = [];
-      this._state.lyricsActiveIndex = -1;
-      this._state.lyricsLoading = true;
-      const token = `${trackKey || Date.now()}-${Math.random()}`;
-      this._lyricsRequestToken = token;
-      this._renderLyricsModalShell(
-        info.title || this._i18n("ui.track_lyrics"),
-        lyricsSubtitle,
-        `<div class="lyrics-state">${this._esc(this._i18n("ui.loading_lyrics"))}</div>`,
-      );
-      this._syncScreensaverLyricsUi?.();
-      try {
-        const payload = await this._fetchLyricsForCurrentTrack();
-        if (!this._lyricsSessionActive() || this._lyricsRequestToken !== token) return;
-        const text = payload?.text || "";
-        const lines = Array.isArray(payload?.lrc) ? payload.lrc : [];
-        this._state.lyricsText = text;
-        this._state.lyricsLoading = false;
-        this._state.lyricsLines = lines;
-        this._state.lyricsActiveIndex = -1;
-        if (this._state.lyricsOpen) {
-          this._renderLyricsModalShell(
-            info.title || this._i18n("ui.track_lyrics"),
-            lyricsSubtitle,
-            lines.length
-              ? this._lyricsTimelineHtml(lines)
-              : text
-              ? `<pre class="lyrics-pre">${this._esc(text)}</pre>`
-              : `<div class="lyrics-state">${this._esc(this._i18n("ui.no_lyrics_found"))}</div>`,
-          );
-        }
-        this._syncScreensaverLyricsUi?.();
-        if (lines.length) requestAnimationFrame(() => this._syncLyricsHighlight(true));
-      } catch (_) {
-        if (!this._lyricsSessionActive() || this._lyricsRequestToken !== token) return;
-        this._state.lyricsText = "";
-        this._state.lyricsLoading = false;
-        this._state.lyricsLines = [];
-        this._state.lyricsActiveIndex = -1;
-        if (this._state.lyricsOpen) {
-          this._renderLyricsModalShell(
-            info.title || this._i18n("ui.track_lyrics"),
-            lyricsSubtitle,
-            `<div class="lyrics-state">${this._esc(this._i18n("ui.lyrics_unavailable_right_now"))}</div>`,
-          );
-        }
-        this._syncScreensaverLyricsUi?.();
-      }
-    }
-
-    _syncLyricsForCurrentTrack({ force = false } = {}) {
-      if (!this._lyricsSessionActive()) return;
-      const trackKey = this._currentLyricsTrackKey();
-      if (!force && trackKey && this._state.lyricsTrackKey === trackKey) {
-        this._syncLyricsHighlight();
-        this._syncScreensaverLyricsUi?.();
-        return;
-      }
-      if (this._lyricsRefreshPromise) {
-        this._lyricsRefreshQueued = true;
-        return;
-      }
-      this._lyricsRefreshPromise = this._renderLyricsModalForCurrentTrack({ force: true })
-        .catch(() => {})
-        .finally(() => {
-          this._lyricsRefreshPromise = null;
-          if (this._lyricsRefreshQueued && this._lyricsSessionActive()) {
-            this._lyricsRefreshQueued = false;
-            this._syncLyricsForCurrentTrack({ force: true });
-          }
-        });
     }
 
     _likedStorageKey() {
@@ -6902,10 +4492,10 @@ export function createMaverickBaseMusicCard({
         const responsiveImmersive = (this._state?.mobilePlayerDesign ?? this._config?.player_design ?? "immersive") === "immersive";
         if ((resizeStrategy.softSync || responsiveImmersive) && !layoutModeStale) {
           this._syncTabletAutoFitUi();
-          this._syncSleepTimerChip();
+          syncSleepTimerChip(this);
           this._syncSourceBadgesUi();
           this._syncRecentHistoryUi();
-          this._syncControlRoomUi();
+          syncControlRoomUi(this);
           return;
         }
         this._build();
@@ -8736,7 +6326,7 @@ export function createMaverickBaseMusicCard({
     }
 
     async _nativeMixEntriesForPreset(presetId = "", customQuery = "", limit = 16) {
-      const preset = this._controlRoomMixPresets().find((item) => item.id === presetId) || null;
+      const preset = controlRoomMixPresets(this).find((item) => item.id === presetId) || null;
       const items = await this._loadNativeRecommendationEntries(false, 60);
       if (!items.length) return [];
       const tokens = this._recommendationPresetTokens(preset, customQuery);
@@ -8744,10 +6334,10 @@ export function createMaverickBaseMusicCard({
         .map((entry) => ({ entry, score: this._scoreNativeRecommendationEntry(entry, tokens) }))
         .filter((item) => item.score > 0 || preset?.random || customQuery)
         .sort((left, right) => right.score - left.score)
-        .map(({ entry }) => this._controlRoomNormalizeMediaEntry(entry, entry.media_type || "track", {
+        .map(({ entry }) => controlRoomNormalizeMediaEntry(this, entry, entry.media_type || "track", {
           subtitle: entry.folder_name || entry.provider_label || this._m("Music Assistant recommendations"),
         }));
-      return this._controlRoomUniqueEntries(scored).slice(0, Math.max(1, Math.min(30, Number(limit) || 16)));
+      return controlRoomUniqueEntries(this, scored).slice(0, Math.max(1, Math.min(30, Number(limit) || 16)));
     }
 
     async _getLibrary(mediaType, orderBy = "sort_name", limit = 500, favoritesOnly = false) {
@@ -10694,7 +8284,7 @@ export function createMaverickBaseMusicCard({
           this._state.knownBrowserPlayerIds = [];
           this._state.selectedPlayer = newcomer.entity_id;
           this._state.hasAutoSelectedPlayer = true;
-          this._revealControlRoomThisDevicePlayer(newcomer.entity_id, { sync: false });
+          revealControlRoomThisDevicePlayer(this, newcomer.entity_id, { sync: false });
         }
       }
       const selectedPlayer = this._playerByEntityId(this._state.selectedPlayer);
@@ -11495,7 +9085,7 @@ export function createMaverickBaseMusicCard({
       this._syncStatus();
       this._syncNowPlayingPageLive();
       this._syncGroupVolumeShortcut(player);
-      if (this._state.screensaverOpen) this._syncScreensaverUi();
+      if (this._state.screensaverOpen) syncScreensaverUi(this);
     }
 
     _syncNowPlayingPageLive() {
@@ -11572,13 +9162,13 @@ export function createMaverickBaseMusicCard({
     }
 
     _tickProgress() {
-      this._syncSleepTimerState();
-      this._syncScheduledStartState();
-      this._syncNightModeUi();
-      this._syncSleepTimerChip();
-      if (this._lyricsSessionActive()) this._syncLyricsForCurrentTrack();
+      syncSleepTimerState(this);
+      syncScheduledStartState(this);
+      syncNightModeUi(this);
+      syncSleepTimerChip(this);
+      if (lyricsSessionActive(this)) syncLyricsForCurrentTrack(this);
       if (this._state.screensaverOpen) {
-        this._syncScreensaverUi();
+        syncScreensaverUi(this);
         return;
       }
       const player = this._getSelectedPlayer();
@@ -11600,8 +9190,8 @@ export function createMaverickBaseMusicCard({
       }
       this._updateNowPlayingInFlight = true;
       try {
-        this._syncSleepTimerState();
-        this._syncScheduledStartState();
+        syncSleepTimerState(this);
+        syncScheduledStartState(this);
         const enginePlayerSnapshotExpired = this._maverickEngineRequired?.()
           && Date.now() - Number(this._state?.enginePlayersLastAttemptAt || 0) >= 5000;
         if (enginePlayerSnapshotExpired && typeof this._refreshEnginePlayers === "function") {
@@ -12461,8 +10051,8 @@ export function createMaverickBaseMusicCard({
 
     connectedCallback() {
       this._startResizeTracking();
-      this._startScreensaverVisibilityTracking();
-      this._markScreensaverPageEntry("connected");
+      startScreensaverVisibilityTracking(this);
+      markScreensaverPageEntry(this, "connected");
       this._lastCardWidth = this._getCardWidth(this._lastCardWidth);
       this._lastCardHeight = this._getAllocatedCardHeight(this._lastCardHeight || this._configuredCardHeightFallback(0));
       this._scheduleLayoutRecovery("connected");
@@ -12517,13 +10107,13 @@ export function createMaverickBaseMusicCard({
       this._screensaverClockTimer = null;
       this._state.screensaverOpen = false;
       this.classList.remove("compact-popup-open", "compact-window-popup-open", "compact-inline-popup-open", "compact-tile-open", "mobile-edge-to-edge-open", "screensaver-page-open", "volume-preset-open");
-      this._stopVoiceAssistantRecognition();
+      stopVoiceAssistantRecognition(this);
       this._state.voiceAssistantDialogOpen = false;
       this._state.voiceAssistantKeepScreensaver = false;
       this._clearManualFrontPlayer({ sync: false });
       try { this._voiceRecognition?.abort?.(); } catch {}
       this._voiceRecognition = null;
-      this._stopScreensaverVisibilityTracking();
+      stopScreensaverVisibilityTracking(this);
       clearInterval(this._mobileSmartVoiceTimer);
       this._mobileSmartVoiceTimer = null;
       if (this._imgObserver) {

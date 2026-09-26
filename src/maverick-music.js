@@ -1,7 +1,7 @@
 import { syncScreenDock } from "./core/media/screen-dock.js";
 import { playerVolumeControlsHtml, openVolumeWheel, closeVolumeWheel } from "./core/media/player-volume.js";
 import { bindQueueDrag } from "./core/media/queue-drag.js";
-import { renderListeningTools, refreshArtworkLighting, setArtworkLighting, applyInterfacePreferences, saveNightPreferences } from "./core/media/listening-tools.js";
+import { renderListeningTools, refreshArtworkLighting, setArtworkLighting, applyInterfacePreferences } from "./core/media/listening-tools.js";
 import { renderAiRadio } from "./core/media/ai-radio.js";
 import { playerChoiceHtml, bindPlayerGrouping } from "./core/media/player-choice.js";
 import { renderSavedPlaylists } from "./core/media/playlist-actions.js";
@@ -10,6 +10,48 @@ import { renderVolumeRules } from "./core/media/volume-rules.js";
 import { actionIconSvg, actionMenuHtml, mediaActionSheetHtml, handleMediaActionClick } from "./core/media/action-menu.js";
 import { immersivePlayerEnabled, immersivePlayerStage, immersivePlayerDock, bindImmersivePlayer, syncImmersivePlayer, commitImmersiveSwipe, reconcileImmersiveCovers } from "./core/media/immersive-player.js";
 import { loadQueueSettings, saveQueueSettings, updateQueueSettingVisibility } from "./core/media/queue-settings.js";
+import {
+  bindSleepTimerCorner, cycleSleepTimer, handleTimersFormChange, handleTimersMenuClick, isScheduleFormControl, isScheduleFormEditing,
+  markScheduleFormControlActive, normalizeScheduledStartSchedule, renderTimersPage, scheduledStartDays,
+  scheduledStartSchedules, sleepTimerFabHtml, sleepTimerId, sleepTimerRemainingMs, syncSleepTimerChip, syncSleepTimerState,
+} from "./core/media/timers.js";
+import {
+  announcementsPageHtml, announcementsSettingsSectionHtml, announcementVolumePct, announcementLanguageSetting, defaultAnnouncementPresets,
+  handleAnnouncementFormChange, handleAnnouncementMenuClick, isDefaultAnnouncementPresetSet, normalizeAnnouncementLanguage,
+} from "./core/media/announcements.js";
+import {
+  bindScreensaver, handleScreensaverSettingsClick, hideScreensaver, openTabletLyricsScreensaver, restoreScreensaverIfOpen, screensaverClockMode,
+  screensaverClockSize, screensaverClockX, screensaverClockY, screensaverControlButtons, screensaverMessage, screensaverOverlayHtml,
+  screensaverSettingsPillsHtml, screensaverTimeoutSeconds, syncScreensaverClockVars, syncScreensaverDynamicArtwork, syncScreensaverUi,
+} from "./core/media/screensaver.js";
+import { lyricsFontScale, lyricsSessionActive, lyricsSyncOffsetMs, openLyricsModal, syncLyricsForCurrentTrack } from "./core/media/lyrics.js";
+import {
+  bindEmptyVoiceButton,
+  bindSmartVoiceBackdrop,
+  closeSmartVoiceConfirm,
+  emptyVoiceButtonHtml,
+  flowAssistantLabel,
+  handleVoiceSettingsChange,
+  handleVoiceSettingsClick,
+  speechRecognitionCtor,
+  startMobileVoiceSearch,
+  startVoiceAssistantCommand,
+  syncVoiceAssistantDialog,
+  voiceAssistantAgentId,
+  voiceAssistantEnabled,
+  voiceAssistantFabHtml,
+  voiceAssistantMode,
+  voiceAssistantSettingsSectionHtml,
+  voiceAssistantSpeakFeedbackEnabled,
+} from "./core/media/voice.js";
+import { handleSimpleWizardChange, handleSimpleWizardClick, resetSimpleWizardState, simpleWizardHtml } from "./core/media/simple-wizard.js";
+import { bindNightQuickRow, handleNightFormChange, handleNightSettingsClick, isNightModeActive, mobileNightMode, nightModeDays, nightModeWindow, nightQuickRowHtml, syncNightModeUi } from "./core/media/night-mode.js";
+import { normalizeClockTime, normalizeNightModeDays } from "./core/state/night-mode.js";
+import {
+  activeAccentColor, activeAccentRgb, applyDynamicThemeStyles, applyMenuDetailTheme, applyMenuLibraryThemeFromItems, clearMenuDetailTheme,
+  dynamicThemePalette, dynamicThemeSettingsPillsHtml, handleDynamicThemeSettingsClick, resetDynamicThemeArtwork, syncDynamicThemeArtwork,
+} from "./core/media/dynamic-theme.js";
+import { bindControlRoom, closeControlRoom, controlRoomBackdropHtml, controlRoomEnabled, controlRoomLabel, loadControlRoomScenesFromStorage, openControlRoom, syncControlRoomChrome, syncControlRoomUi } from "./core/media/control-room.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -77,7 +119,6 @@ import * as MaverickMediaHistoryFoundationSource from "./core/media/history.js";
 import * as MaverickEngineFoundationSource from "./core/engine-client.js";
 import { ENGINE_REST_COMMAND_PATH, ENGINE_EVENT_TYPE, ENGINE_SCREENSAVER_PATH } from "./core/engine-client.js";
 import * as MaverickRevisionedSnapshotsFoundationSource from "./core/state/revisioned-snapshots.js";
-import * as MaverickVoiceMatchingFoundation from "./core/voice-assistant-matching.js";
 import {
   countryFlagEmoji as maverickCountryFlagEmoji,
   radioBrowserCountryLabel as maverickRadioBrowserCountryLabel,
@@ -419,7 +460,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._state.mobileRadioBrowseCountry = "";
     this._state.mobileRadioBrowseCountryName = "";
     this._state.mobileAnnouncementText = "";
-    this._state.mobileAnnouncementPresets = this._defaultAnnouncementPresets();
+    this._state.mobileAnnouncementPresets = defaultAnnouncementPresets();
     this._state.mobileAnnouncementVolume = 20;
     this._state.mobileAnnouncementTtsEntity = "";
     this._state.mobileAnnouncementTtsLanguage = "auto";
@@ -520,7 +561,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._boundMobileMenuScroll = this._handleMobileMenuScroll.bind(this);
     this._boundMobileMenuPointerDown = this._handleMobileMenuPointerDown.bind(this);
     this._boundMobileMediaInput = (e) => this._runDetached(this._handleMobileMediaInput(e), "mobile media input");
-    this._boundScreensaverActivity = this._handleScreensaverActivity.bind(this);
     this._loadStoredState();
   }
 
@@ -546,29 +586,29 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { this._state.frontPinnedPlayerEntity = localStorage.getItem(this._lsKey("maverick_music_front_pinned_player")) || ""; } catch (_) {}
     try { this._state.mobileFontScale = Math.max(0.5, Math.min(1.5, Number(localStorage.getItem(this._lsKey("maverick_music_mobile_font_scale")) || 1) || 1)); } catch (_) {}
     try { this._state.mobileIconScale = MaverickMobileSettingsFoundation.clampMobileIconScale(localStorage.getItem(this._lsKey("maverick_music_mobile_icon_scale")) || 1); } catch (_) {}
-    this._loadControlRoomScenesFromStorage();
+    loadControlRoomScenesFromStorage(this);
     try { this._state.mobileNightMode = localStorage.getItem(this._lsKey("maverick_music_mobile_night_mode")) || "off"; } catch (_) {}
     try { this._state.mobileNightModeStart = localStorage.getItem(this._lsKey("maverick_music_mobile_night_start")) || "22:00"; } catch (_) {}
     try { this._state.mobileNightModeEnd = localStorage.getItem(this._lsKey("maverick_music_mobile_night_end")) || "06:00"; } catch (_) {}
-    try { this._state.mobileNightModeDays = this._normalizeNightModeDays(localStorage.getItem(this._lsKey("maverick_music_mobile_night_days"))); } catch (_) {}
+    try { this._state.mobileNightModeDays = normalizeNightModeDays(localStorage.getItem(this._lsKey("maverick_music_mobile_night_days"))); } catch (_) {}
     try { this._state.mobileSleepTimerEndsAt = Number(localStorage.getItem(this._lsKey("maverick_music_mobile_sleep_timer_at")) || 0) || 0; } catch (_) {}
     try { this._state.mobileSleepTimerPlayer = localStorage.getItem(this._lsKey("maverick_music_mobile_sleep_timer_player")) || ""; } catch (_) {}
     try { this._state.mobileSleepTimerOrigin = localStorage.getItem(this._lsKey("maverick_music_mobile_sleep_timer_origin")) || ""; } catch (_) {}
     try { this._state.mobileStartTimerEnabled = JSON.parse(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_enabled")) ?? "false"); } catch (_) {}
-    try { this._state.mobileStartTimerTime = this._normalizeClockTime(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_time")) || "07:00", "07:00"); } catch (_) {}
+    try { this._state.mobileStartTimerTime = normalizeClockTime(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_time")) || "07:00", "07:00"); } catch (_) {}
     try { this._state.mobileStartTimerPlayer = localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_player")) || ""; } catch (_) {}
     try { this._state.mobileStartTimerPlaylist = localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_playlist")) || ""; } catch (_) {}
     try { this._state.mobileStartTimerPlaylistName = localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_playlist_name")) || ""; } catch (_) {}
     try { this._state.mobileStartTimerVolume = Math.max(0, Math.min(100, Number(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_volume")) || 35) || 35)); } catch (_) {}
-    try { this._state.mobileStartTimerDays = this._normalizeNightModeDays(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_days"))); } catch (_) {}
+    try { this._state.mobileStartTimerDays = normalizeNightModeDays(localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_days"))); } catch (_) {}
     try { this._state.mobileStartTimerLastRunKey = localStorage.getItem(this._lsKey("maverick_music_mobile_start_timer_last_run")) || ""; } catch (_) {}
     try { this._state.mobileSchedulesTab = localStorage.getItem(this._lsKey("maverick_music_mobile_schedules_tab")) || "timers"; } catch (_) {}
     try {
       const schedules = JSON.parse(localStorage.getItem(this._lsKey("maverick_music_mobile_start_schedules")) || "[]");
-      if (Array.isArray(schedules)) this._state.mobileStartSchedules = schedules.map((schedule, index) => this._normalizeScheduledStartSchedule(schedule, index));
+      if (Array.isArray(schedules)) this._state.mobileStartSchedules = schedules.map((schedule, index) => normalizeScheduledStartSchedule(this, schedule, index));
     } catch (_) {}
     if (!this._state.mobileStartSchedules.length && this._state.mobileStartTimerEnabled) {
-      this._state.mobileStartSchedules = [this._normalizeScheduledStartSchedule({
+      this._state.mobileStartSchedules = [normalizeScheduledStartSchedule(this, {
         id: "schedule_legacy",
         enabled: true,
         time: this._state.mobileStartTimerTime,
@@ -657,8 +697,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try {
       const presets = JSON.parse(localStorage.getItem(this._lsKey("maverick_music_mobile_announcement_presets")) || "[]");
       if (Array.isArray(presets) && presets.length) {
-        this._state.mobileAnnouncementPresets = this._isDefaultAnnouncementPresetSet(presets)
-          ? this._defaultAnnouncementPresets()
+        this._state.mobileAnnouncementPresets = isDefaultAnnouncementPresetSet(presets)
+          ? defaultAnnouncementPresets()
           : presets.slice(0, 3);
       }
     } catch (_) {}
@@ -667,7 +707,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (Number.isFinite(announcementVolume)) this._state.mobileAnnouncementVolume = Math.max(20, Math.min(50, announcementVolume));
     } catch (_) {}
     try { this._state.mobileAnnouncementTtsEntity = localStorage.getItem(this._lsKey("maverick_music_mobile_announcement_tts_entity")) || this._config?.announcement_tts_entity || ""; } catch (_) {}
-    try { this._state.mobileAnnouncementTtsLanguage = this._normalizeAnnouncementLanguage(localStorage.getItem(this._lsKey("maverick_music_mobile_announcement_tts_language")) || this._config?.announcement_tts_language || "auto"); } catch (_) {}
+    try { this._state.mobileAnnouncementTtsLanguage = normalizeAnnouncementLanguage(localStorage.getItem(this._lsKey("maverick_music_mobile_announcement_tts_language")) || this._config?.announcement_tts_language || "auto"); } catch (_) {}
     try { this._state.ambientLightEnabled = JSON.parse(localStorage.getItem(this._lsKey("maverick_music_ambient_light_enabled")) ?? "false"); } catch {}
     try { this._state.ambientLightEntities = MaverickMobileSettingsFoundation.normalizeEntityList(JSON.parse(localStorage.getItem(this._lsKey("maverick_music_ambient_light_entities")) || "[]")); } catch {}
     try { this._state.ambientLightPlayerMap = MaverickMobileSettingsFoundation.normalizeStringArray(JSON.parse(localStorage.getItem(this._lsKey("maverick_music_ambient_light_player_map")) || "[]")); } catch {}
@@ -854,8 +894,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     // therefore used the unsuffixed keys.
     this._loadStoredState();
     this._applyConfiguredMobileSettings();
-    this._syncScreensaverClockVars();
-    if (this._state.screensaverOpen) this._syncScreensaverUi();
+    syncScreensaverClockVars(this);
+    if (this._state.screensaverOpen) syncScreensaverUi(this);
     this._hydrateSystemMobileState().catch(() => {});
   }
 
@@ -868,7 +908,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.shadowRoot?.querySelector?.(".card")?.classList?.remove("mobile-edge-to-edge");
     clearTimeout(this._screensaverTimer);
     this._screensaverTimer = null;
-    this._hideScreensaver?.();
+    hideScreensaver(this);
   }
 
   get editMode() {
@@ -952,8 +992,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._closeMobileMenu?.();
     this._closeMobileQueueActionMenu?.();
     this._closeMobileVolumePresets?.();
-    this._closeSmartVoiceConfirm?.();
-    this._closeControlRoom?.({ silent: true });
+    closeSmartVoiceConfirm(this);
+    closeControlRoom(this, { silent: true });
     this._state.mobileLayoutMode = "full";
     this._state.mobileEdgeToEdge = false;
     this._state.mobileEdgeReturnAvailable = true;
@@ -968,8 +1008,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._closeMobileMenu?.();
     this._closeMobileQueueActionMenu?.();
     this._closeMobileVolumePresets?.();
-    this._closeSmartVoiceConfirm?.();
-    this._closeControlRoom?.({ silent: true });
+    closeSmartVoiceConfirm(this);
+    closeControlRoom(this, { silent: true });
     this._state.mobileLayoutMode = "edge_to_edge";
     this._state.mobileEdgeToEdge = false;
     this._state.mobileEdgeReturnAvailable = false;
@@ -1012,11 +1052,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _mobileShowUpNextEnabled() {
     return MaverickStateFoundation.mobileShowUpNextEnabled(this._state);
-  }
-
-  _mobileDynamicThemeMode() {
-    if (this._performanceModeEnabled()) return "off";
-    return MaverickStateFoundation.mobileDynamicThemeMode(this._state);
   }
 
   _mobileBackgroundMotionMode() {
@@ -1065,7 +1100,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.controlRoomOpen = false;
       this._state.controlRoomPanel = "";
       this._state.controlRoomRestoreAfterMenu = false;
-      this._syncControlRoomChrome();
+      syncControlRoomChrome(this);
     }
     this._build();
     this._init();
@@ -1082,19 +1117,19 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!this._config) return;
     const cfg = this._config;
     if (this._usesVisualSettings()) {
-      const visualCfg = this._isDefaultAnnouncementPresetSet(cfg.mobile_announcement_presets)
+      const visualCfg = isDefaultAnnouncementPresetSet(cfg.mobile_announcement_presets)
         ? { ...cfg, mobile_announcement_presets: [] }
         : cfg;
       const previousLibraryDefaultLayout = this._state.mobileLibraryDefaultLayout || this._defaultMobileMediaLayout();
       const previousLibraryManual = this._state.mobileMediaLayoutManual === true;
       const previousEdgeReturnAvailable = this._state.mobileEdgeReturnAvailable === true;
       Object.assign(this._state, MaverickMobileSettingsFoundation.normalizeVisualMobileState(visualCfg, {
-        normalizeClockTime: (value, fallback) => this._normalizeClockTime(value, fallback),
-        normalizeNightModeDays: (value) => this._normalizeNightModeDays(value),
+        normalizeClockTime,
+        normalizeNightModeDays,
         defaultLibraryTabs: this._defaultMobileLibraryTabs(),
         defaultMainBarItems: this._defaultMobileMainBarItems(),
         defaultQuickActions: this._defaultMobileQuickActions(),
-        defaultAnnouncementPresets: this._defaultAnnouncementPresets(),
+        defaultAnnouncementPresets: defaultAnnouncementPresets(),
       }));
       if (previousEdgeReturnAvailable && this._state.mobileLayoutMode === "edge_to_edge") {
         this._state.mobileLayoutMode = "full";
@@ -1111,7 +1146,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.mobileAnnouncementTtsEntity = String(cfg.announcement_tts_entity || "").trim();
     }
     if (!this._usesVisualSettings() && String(cfg.announcement_tts_language || "").trim()) {
-      this._state.mobileAnnouncementTtsLanguage = this._normalizeAnnouncementLanguage(cfg.announcement_tts_language);
+      this._state.mobileAnnouncementTtsLanguage = normalizeAnnouncementLanguage(cfg.announcement_tts_language);
     }
     if (!this._usesVisualSettings() && !this._state.performanceModeLocalOverride) {
       const performanceProfile = MaverickMobileSettingsFoundation.normalizePerformanceProfile(cfg.performance_profile, cfg.performance_mode);
@@ -1150,14 +1185,14 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _effectiveTheme() {
-    if (this._isNightModeActive()) return "dark";
+    if (isNightModeActive(this)) return "dark";
     if (this._state.cardTheme === "dark" || this._state.cardTheme === "light") return this._state.cardTheme;
     if (this._state.cardTheme === "custom") return this._customIsDark() ? "dark" : "light";
     return super._effectiveTheme();
   }
 
   _visualTheme() {
-    if (this._isNightModeActive()) return "dark";
+    if (isNightModeActive(this)) return "dark";
     if (this._state.cardTheme === "custom") return "custom";
     return this._effectiveTheme();
   }
@@ -1179,156 +1214,19 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     );
   }
 
-  _clampByte(value) {
-    return MaverickPaletteFoundation.clampRgbByte(value);
-  }
-
-  _normalizeRgbTuple(value, fallback = [245, 166, 35]) {
-    return MaverickPaletteFoundation.normalizeRgbTuple(value, fallback);
-  }
-
-  _rgbTupleToString(tuple = [245, 166, 35]) {
-    return MaverickPaletteFoundation.rgbTupleToString(tuple);
-  }
-
-  _rgbTupleToHex(tuple = [245, 166, 35]) {
-    return MaverickPaletteFoundation.rgbTupleToHex(tuple);
-  }
-
-  _mixRgb(left = [245, 166, 35], right = [255, 255, 255], ratio = 0.5) {
-    return MaverickPaletteFoundation.mixRgb(left, right, ratio);
-  }
-
-  _rgbToHsl(tuple = [245, 166, 35]) {
-    return MaverickPaletteFoundation.rgbToHsl(tuple);
-  }
-
-  _hslToRgb(hue = 0, saturation = 0, lightness = 0.5) {
-    return MaverickPaletteFoundation.hslToRgb(hue, saturation, lightness);
-  }
-
-  _tunePaletteColor(tuple = [245, 166, 35], options = {}) {
-    return MaverickPaletteFoundation.tunePaletteColor(tuple, options);
-  }
-
-  _dynamicThemePalette() {
-    return this._mobileDynamicThemeMode() === "off" ? null : (this._state.mobileDynamicThemePalette || null);
-  }
-
-  _dynamicThemeActive() {
-    return !!this._dynamicThemePalette()?.accent;
-  }
-
-  _activeAccentColor() {
-    return MaverickPaletteFoundation.resolveActiveAccentColor(
-      this._dynamicThemePalette(),
-      this._state.mobileCustomColor || "#f5a623",
-    );
-  }
-
-  _activeAccentRgb() {
-    return MaverickPaletteFoundation.resolveActiveAccentRgb(
-      this._dynamicThemePalette(),
-      this._state.mobileCustomColor || "#f5a623",
-    );
-  }
-
-  _dynamicThemeStrengthValue() {
-    return MaverickPaletteFoundation.dynamicThemeStrengthValue(this._mobileDynamicThemeMode());
-  }
-
-  _dynamicThemeStyleSignature(artworkKey = "", artUrl = "") {
-    const palette = this._dynamicThemePalette();
-    const paletteKey = palette
-      ? [
-          palette.accent || "",
-          palette.accent_rgb || "",
-          palette.surface || "",
-          palette.surface_rgb || "",
-          palette.glow || "",
-          palette.glow_rgb || "",
-          palette.text || "",
-        ].join(",")
-      : "";
-    return [
-      artworkKey,
-      artUrl,
-      this._mobileDynamicThemeMode(),
-      this._effectiveTheme(),
-      this._activeAccentColor(),
-      this._dynamicThemeStrengthValue(),
-      this._isHotelMode() ? "hotel" : "normal",
-      paletteKey,
-    ].join("||");
-  }
-
-  _applyDynamicThemeRenderState(artworkKey = "", artUrl = "") {
-    const signature = this._dynamicThemeStyleSignature(artworkKey, artUrl);
-    if (signature === this._mobileDynamicThemeAppliedSignature) return false;
-    this._mobileDynamicThemeAppliedSignature = signature;
-    this._applyDynamicThemeStyles();
-    this._applyBackgroundMotionStyles();
-    this._syncCurrentArtworkBackgrounds(artUrl);
-    return true;
-  }
-
   _mobileBackdropOverlay(theme = this._effectiveTheme()) {
-    const palette = this._dynamicThemePalette();
+    const palette = dynamicThemePalette(this);
     if (!palette) {
       return theme === "light"
         ? `radial-gradient(circle at 18% 18%, rgba(255,187,88,.16), transparent 26%), radial-gradient(circle at 82% 14%, rgba(255,150,108,.1), transparent 18%), linear-gradient(180deg, rgba(255,255,255,.08), rgba(224,232,242,.3) 22%, rgba(197,208,222,.58) 62%, rgba(183,195,210,.74))`
         : `radial-gradient(circle at 18% 20%, rgba(255,181,64,.24), transparent 32%), radial-gradient(circle at 82% 16%, rgba(255,128,76,.12), transparent 20%), linear-gradient(180deg, rgba(9,12,19,.26), rgba(9,12,19,.82), rgba(9,12,19,.98))`;
     }
-    const accent = palette.accent_rgb || this._activeAccentRgb();
+    const accent = palette.accent_rgb || activeAccentRgb(this);
     const surface = palette.surface_rgb || accent;
     const glow = palette.glow_rgb || accent;
     return theme === "light"
       ? `radial-gradient(circle at 18% 18%, rgba(${accent} / .16), transparent 28%), radial-gradient(circle at 82% 14%, rgba(${glow} / .1), transparent 20%), linear-gradient(180deg, rgba(255,255,255,.08), rgba(${surface} / .24) 22%, rgba(${surface} / .42) 60%, rgba(${surface} / .54))`
       : `radial-gradient(circle at 18% 20%, rgba(${accent} / .24), transparent 32%), radial-gradient(circle at 82% 16%, rgba(${glow} / .14), transparent 20%), linear-gradient(180deg, rgba(${surface} / .18), rgba(9,12,19,.82), rgba(9,12,19,.98))`;
-  }
-
-  _applyDynamicThemeStyles() {
-    const host = this;
-    const card = this.shadowRoot?.querySelector(".card");
-    const accent = this._activeAccentColor();
-    const palette = this._dynamicThemePalette();
-    const artworkUrl = String(this._state.mobileDynamicThemeArtworkUrl || "").trim();
-    const artworkCssUrl = artworkUrl ? cssUrl(artworkUrl) : "";
-    host.style?.setProperty("--accent-color", accent);
-    host.style?.setProperty("--ma-accent", accent);
-    if (artworkCssUrl) {
-      host.style?.setProperty("--dynamic-art-url", artworkCssUrl);
-      card?.style?.setProperty("--dynamic-art-url", artworkCssUrl);
-    } else {
-      host.style?.removeProperty("--dynamic-art-url");
-      card?.style?.removeProperty("--dynamic-art-url");
-    }
-    if (card) {
-      card.style?.setProperty("--accent-color", accent);
-      card.style?.setProperty("--ma-accent", accent);
-      card.classList.toggle("dynamic-theme", !!palette);
-    }
-    if (!palette) {
-      host.style?.removeProperty("--dynamic-accent-rgb");
-      host.style?.removeProperty("--dynamic-surface-rgb");
-      host.style?.removeProperty("--dynamic-glow-rgb");
-      host.style?.removeProperty("--dynamic-theme-strength");
-      card?.style?.removeProperty("--dynamic-accent-rgb");
-      card?.style?.removeProperty("--dynamic-surface-rgb");
-      card?.style?.removeProperty("--dynamic-glow-rgb");
-      card?.style?.removeProperty("--dynamic-theme-strength");
-      return;
-    }
-    const pairs = {
-      "--dynamic-accent-rgb": palette.accent_rgb || this._activeAccentRgb(),
-      "--dynamic-surface-rgb": palette.surface_rgb || this._activeAccentRgb(),
-      "--dynamic-glow-rgb": palette.glow_rgb || this._activeAccentRgb(),
-      "--dynamic-theme-strength": this._dynamicThemeStrengthValue(),
-    };
-    Object.entries(pairs).forEach(([key, value]) => {
-      host.style?.setProperty(key, value);
-      card?.style?.setProperty(key, value);
-    });
   }
 
   _applyBackgroundMotionStyles() {
@@ -1374,31 +1272,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     card?.classList.toggle("motion-extreme", mode === "extreme");
   }
 
-  _currentServerDynamicThemePalette() {
-    const player = this._getSelectedPlayer?.() || null;
-    const attrs = player?.attributes || {};
-    const currentQueueItem = this._state.maQueueState?.current_item || null;
-    const currentMedia = currentQueueItem?.media_item || {};
-    const rawCurrentMedia = player?.__maverickRawPlayer?.current_media || attrs.current_media || attrs.currentMedia || {};
-    const candidates = [
-      attrs.media_palette,
-      attrs.current_media_palette,
-      rawCurrentMedia?.palette,
-      currentQueueItem?.palette,
-      currentQueueItem?.media_palette,
-      currentQueueItem?.streamdetails?.stream_metadata?.palette,
-      currentMedia?.palette,
-      currentMedia?.metadata?.palette,
-    ];
-    for (const candidate of candidates) {
-      const palette = MaverickPaletteFoundation.normalizeMaPalette(candidate, {
-        mode: this._mobileDynamicThemeMode(),
-      });
-      if (palette) return palette;
-    }
-    return null;
-  }
-
   _libraryDetailArtworkUrl(detail = {}, size = 960) {
     const mediaType = String(detail?.media_type || detail?.type || "").toLowerCase();
     const artistInfo = detail?.artistInfo || null;
@@ -1412,803 +1285,17 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return "";
   }
 
-  _libraryDetailServerPalette(detail = {}) {
-    if (this._mobileDynamicThemeMode() === "off") return null;
-    const mediaType = String(detail?.media_type || detail?.type || "").toLowerCase();
-    const browse = mediaType === "album" ? this._albumBrowseState(detail) : null;
-    const selectedAlbum = browse?.albums?.[browse.index] || null;
-    const artistInfo = detail?.artistInfo || null;
-    const candidates = [
-      detail?.palette,
-      detail?.media_palette,
-      detail?.image_palette,
-      detail?.color_palette,
-      detail?.metadata?.palette,
-      detail?.metadata?.media_palette,
-      detail?.metadata?.image_palette,
-      detail?.media_item?.palette,
-      detail?.media_item?.media_palette,
-      detail?.media_item?.metadata?.palette,
-      detail?.album?.palette,
-      detail?.album?.metadata?.palette,
-      selectedAlbum?.palette,
-      selectedAlbum?.media_palette,
-      selectedAlbum?.metadata?.palette,
-      artistInfo?.palette,
-      artistInfo?.media_palette,
-      artistInfo?.metadata?.palette,
-    ];
-    for (const candidate of candidates) {
-      const palette = MaverickPaletteFoundation.normalizeMaPalette(candidate, {
-        mode: this._mobileDynamicThemeMode(),
-      });
-      if (palette) return palette;
-    }
-    return null;
-  }
-
-  _setMenuDetailPalette(menu = null, palette = null) {
-    if (!menu) return;
-    const keys = [
-      "--menu-detail-accent-rgb",
-      "--menu-detail-surface-rgb",
-      "--menu-detail-glow-rgb",
-      "--ma-accent",
-      "--accent-color",
-    ];
-    if (!palette) {
-      keys.forEach((key) => menu.style.removeProperty(key));
-      menu.classList.remove("has-menu-detail-palette");
-      return;
-    }
-    const accentRgb = palette.accent_rgb || this._activeAccentRgb();
-    const pairs = {
-      "--menu-detail-accent-rgb": accentRgb,
-      "--menu-detail-surface-rgb": palette.surface_rgb || accentRgb,
-      "--menu-detail-glow-rgb": palette.glow_rgb || accentRgb,
-      "--ma-accent": palette.accent || this._activeAccentColor(),
-      "--accent-color": palette.accent || this._activeAccentColor(),
-    };
-    Object.entries(pairs).forEach(([key, value]) => menu.style.setProperty(key, value));
-    menu.classList.add("has-menu-detail-palette");
-  }
-
-  _clearMenuDetailTheme(menu = null) {
-    if (!menu) return;
-    this._menuDetailThemeToken += 1;
-    menu.classList.remove("has-menu-detail-theme");
-    this._setMenuDetailPalette(menu, null);
-  }
-
-  _applyMenuDetailTheme(menu = null, detailArt = "", detail = {}) {
-    if (!menu) return;
-    const serverPalette = this._libraryDetailServerPalette(detail);
-    menu.classList.toggle("has-menu-detail-theme", !!(detailArt || serverPalette));
-    this._setMenuDetailPalette(menu, serverPalette);
-    const token = ++this._menuDetailThemeToken;
-    if (serverPalette || this._mobileDynamicThemeMode() === "off" || !detailArt) return;
-    this._extractDynamicThemePalette(detailArt).then((palette) => {
-      if (!palette || token !== this._menuDetailThemeToken) return;
-      const currentMenu = this.$("mobileMenu");
-      if (currentMenu !== menu || this._state.menuPage !== "media_detail") return;
-      this._setMenuDetailPalette(menu, palette);
-    }).catch(() => {});
-  }
-
-  _applyMenuLibraryThemeFromItems(menu = null, items = [], mediaType = "") {
-    if (!menu) return;
-    const playingArt = this._currentArtworkUrl(this._getSelectedPlayer(), this._state.maQueueState?.current_item || null, 960);
-    if (playingArt) {
-      menu.style.setProperty("--menu-dynamic-art", cssUrl(playingArt));
-      menu.classList.add("has-menu-art");
-      this._clearMenuDetailTheme(menu);
-      return;
-    }
-    const item = (Array.isArray(items) ? items : []).find((entry) => this._artUrl(entry, { size: 960 }));
-    const art = item ? this._artUrl(item, { size: 960 }) : "";
-    if (!item || !art) return;
-    menu.style.setProperty("--menu-dynamic-art", cssUrl(art));
-    menu.classList.add("has-menu-art");
-    this._applyMenuDetailTheme(menu, art, { ...item, media_type: item.media_type || item.type || mediaType });
-  }
-
-  async _extractDynamicThemePalette(artUrl = "") {
-    const normalizedArt = String(artUrl || "").trim();
-    const cacheKey = `${this._mobileDynamicThemeMode()}:${normalizedArt}`;
-    if (!normalizedArt) return null;
-    if (this._mobileDynamicThemePaletteCache.has(cacheKey)) {
-      return this._mobileDynamicThemePaletteCache.get(cacheKey);
-    }
-    const promise = new Promise((resolve) => {
-      try {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.referrerPolicy = "no-referrer";
-        img.decoding = "async";
-        img.onload = () => {
-          try {
-            const canvas = document.createElement("canvas");
-            const size = 40;
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext("2d", { willReadFrequently: true });
-            if (!ctx) {
-              resolve(null);
-              return;
-            }
-            ctx.drawImage(img, 0, 0, size, size);
-            const { data } = ctx.getImageData(0, 0, size, size);
-            let sum = [0, 0, 0];
-            let sumWeight = 0;
-            let vivid = [0, 0, 0];
-            let vividWeight = 0;
-            for (let index = 0; index < data.length; index += 16) {
-              const alpha = (data[index + 3] || 0) / 255;
-              if (alpha < 0.08) continue;
-              const rgb = [data[index], data[index + 1], data[index + 2]];
-              const [hue, saturation, lightness] = this._rgbToHsl(rgb);
-              const balancedLight = 1 - Math.abs(lightness - 0.52);
-              const weight = alpha * (0.35 + (saturation * 0.9) + (balancedLight * 0.55));
-              sum = sum.map((entry, rgbIndex) => entry + (rgb[rgbIndex] * weight));
-              sumWeight += weight;
-              const vividSample = this._tunePaletteColor(rgb, { minSaturation: 0.48, minLightness: 0.4, maxLightness: 0.58 });
-              const vividSampleWeight = alpha * (0.2 + (saturation * 1.9) + (balancedLight * 0.85) + (hue * 0.05));
-              vivid = vivid.map((entry, rgbIndex) => entry + (vividSample[rgbIndex] * vividSampleWeight));
-              vividWeight += vividSampleWeight;
-            }
-            if (!sumWeight || !vividWeight) {
-              resolve(null);
-              return;
-            }
-            const base = sum.map((entry) => this._clampByte(entry / sumWeight));
-            const vividTuple = vivid.map((entry) => this._clampByte(entry / vividWeight));
-            resolve(MaverickPaletteFoundation.buildDynamicThemePalette({
-              baseTuple: base,
-              vividTuple,
-              mode: this._mobileDynamicThemeMode(),
-            }));
-          } catch (_) {
-            resolve(null);
-          }
-        };
-        img.onerror = () => resolve(null);
-        img.src = normalizedArt;
-      } catch (_) {
-        resolve(null);
-      }
-    });
-    this._mobileDynamicThemePaletteCache.set(cacheKey, promise);
-    const resolved = await promise;
-    this._mobileDynamicThemePaletteCache.set(cacheKey, resolved);
-    return resolved;
-  }
-
-  async _syncDynamicThemeArtwork(artUrl = "") {
-    const normalizedArt = String(artUrl || "").trim();
-    const mode = this._mobileDynamicThemeMode();
-    const artworkKey = normalizedArt ? `${mode}:${normalizedArt}` : "";
-    if (mode === "off" || !normalizedArt) {
-      this._mobileDynamicThemeToken += 1;
-      this._state.mobileDynamicThemeArtwork = "";
-      this._state.mobileDynamicThemeArtworkUrl = "";
-      this._state.mobileDynamicThemePalette = null;
-      this._applyDynamicThemeRenderState(`off:${normalizedArt}`, normalizedArt);
-      this._syncAmbientLightForCurrentMedia("theme-off");
-      return;
-    }
-    if (this._state.mobileDynamicThemeArtwork === artworkKey) {
-      this._state.mobileDynamicThemeArtworkUrl = normalizedArt;
-      const serverPalette = this._currentServerDynamicThemePalette();
-      if (serverPalette) {
-        this._state.mobileDynamicThemePalette = serverPalette;
-        this._state.controlRoomRenderedHtml = "";
-        this._state.controlRoomRenderSignature = "";
-      }
-      this._applyDynamicThemeRenderState(artworkKey, normalizedArt);
-      this._syncAmbientLightForCurrentMedia("theme-cache");
-      return;
-    }
-    this._state.mobileDynamicThemeArtwork = artworkKey;
-    this._state.mobileDynamicThemeArtworkUrl = normalizedArt;
-    const token = ++this._mobileDynamicThemeToken;
-    const serverPalette = this._currentServerDynamicThemePalette();
-    const palette = serverPalette || await this._extractDynamicThemePalette(normalizedArt);
-    if (token !== this._mobileDynamicThemeToken) return;
-    this._state.mobileDynamicThemePalette = palette;
-    this._state.controlRoomRenderedHtml = "";
-    this._state.controlRoomRenderSignature = "";
-    this._applyDynamicThemeRenderState(artworkKey, normalizedArt);
-    this._syncAmbientLightForCurrentMedia("theme-palette");
-    if (this._state.controlRoomOpen) this._syncControlRoomUi();
-  }
-
-  _mobileNightMode() {
-    return MaverickNightFoundation.normalizeNightMode(this._state.mobileNightMode);
-  }
-
-  _normalizeClockTime(value, fallback = "22:00") {
-    return MaverickNightFoundation.normalizeClockTime(value, fallback);
-  }
-
-  _clockMinutesOfDay(value, fallback = "22:00") {
-    return MaverickNightFoundation.clockMinutesOfDay(value, fallback);
-  }
-
-  _defaultNightModeDays() {
-    return MaverickNightFoundation.defaultNightModeDays();
-  }
-
-  _normalizeNightModeDays(value) {
-    return MaverickNightFoundation.normalizeNightModeDays(value, this._defaultNightModeDays());
-  }
-
-  _nightModeDays() {
-    return this._normalizeNightModeDays(this._state.mobileNightModeDays);
-  }
-
-  _nightModeDayOptions() {
-    return [
-      [0, this._i18n("ui.sun")],
-      [1, this._i18n("ui.mon")],
-      [2, this._i18n("ui.tue")],
-      [3, this._i18n("ui.wed")],
-      [4, this._i18n("ui.thu")],
-      [5, this._i18n("ui.fri")],
-      [6, this._i18n("ui.sat")],
-    ];
-  }
-
-  _nightModeWindow() {
-    return MaverickNightFoundation.resolveNightModeWindow(
-      this._state.mobileNightModeStart || "22:00",
-      this._state.mobileNightModeEnd || "06:00",
-      { start: "22:00", end: "06:00" },
-    );
-  }
-
-  _isMinutesInsideWindow(minutes, startMinutes, endMinutes) {
-    return MaverickNightFoundation.isMinutesInsideWindow(minutes, startMinutes, endMinutes);
-  }
-
-  _isNightModeActive(date = new Date()) {
-    const windowRange = this._nightModeWindow();
-    return MaverickNightFoundation.isNightModeActive({
-      mode: this._mobileNightMode(),
-      start: windowRange.start,
-      end: windowRange.end,
-      days: this._nightModeDays(),
-      date,
-    });
-  }
-
-  _sleepTimerRemainingMs(now = Date.now()) {
-    return MaverickNightFoundation.sleepTimerRemainingMs(this._state.mobileSleepTimerEndsAt || 0, now);
-  }
-
-  _sleepTimerRemainingLabel() {
-    return MaverickNightFoundation.sleepTimerRemainingLabel(this._sleepTimerRemainingMs());
-  }
-
-  _sleepTimerFooterLabel() {
-    return MaverickNightFoundation.sleepTimerFooterLabel(this._sleepTimerRemainingMs());
-  }
-
-  _sleepTimerStartedFromNightMode() {
-    return MaverickNightFoundation.sleepTimerStartedFromNightMode(
-      this._sleepTimerRemainingMs(),
-      this._state.mobileSleepTimerOrigin || "",
-    );
-  }
-
-  _sleepTimerChipVisible() {
-    return MaverickNightFoundation.sleepTimerChipVisible(
-      this._sleepTimerRemainingMs(),
-      this._state.mobileSleepTimerOrigin || "",
-    );
-  }
-
-  _sleepTimerCornerInnerHtml() {
-    const label = this._sleepTimerFooterLabel();
-    const active = !!label && this._sleepTimerChipVisible();
-    if (!active) return "";
-    const menuOpen = !!this._state.mobileSleepTimerMenuOpen;
-    return `
-      <div class="sleep-timer-menu" id="sleepTimerMenu"${menuOpen ? `` : ` hidden`}>
-        <button class="sleep-timer-menu-btn" data-sleep-timer-add="15">+15</button>
-        <button class="sleep-timer-menu-btn" data-sleep-timer-add="30">+30</button>
-        <button class="sleep-timer-menu-btn" data-sleep-timer-add="60">+60</button>
-        <button class="sleep-timer-menu-btn danger" data-sleep-timer-clear>${this._esc(this._i18n("ui.cancel_2"))}</button>
-        <button class="sleep-timer-menu-btn ghost" data-sleep-timer-close>${this._esc(this._i18n("ui.close"))}</button>
-      </div>
-      <button class="sleep-timer-chip active" id="sleepTimerChip" title="${this._esc(this._i18n("ui.sleep_timer"))}">
-        ${this._iconSvg("timer")}
-        <span id="sleepTimerChipLabel">${this._esc(label)}</span>
-      </button>
-    `;
-  }
-
-  _scheduledStartDays() {
-    return this._normalizeNightModeDays(this._state.mobileStartTimerDays);
-  }
-
-  _newScheduledStartId() {
-    return `schedule_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-  }
-
-  _normalizeScheduledStartSchedule(schedule = {}, index = 0) {
-    const id = String(schedule?.id || "").trim() || `schedule_${index + 1}`;
-    const volume = Math.max(0, Math.min(100, Number(schedule?.volume ?? schedule?.mobileStartTimerVolume ?? 35) || 35));
-    const afterRun = ["disable", "off"].includes(String(schedule?.afterRun || schedule?.after_run || "").trim())
-      ? "disable"
-      : "keep";
-    return {
-      id,
-      enabled: schedule?.enabled !== false,
-      time: this._normalizeClockTime(schedule?.time || "07:00", "07:00"),
-      player: String(schedule?.player || "").trim(),
-      playlist: String(schedule?.playlist || "").trim(),
-      playlistName: String(schedule?.playlistName || "").trim(),
-      volume,
-      days: this._normalizeNightModeDays(schedule?.days),
-      lastRunKey: String(schedule?.lastRunKey || "").trim(),
-      afterRun,
-    };
-  }
-
-  _scheduledStartSchedules() {
-    const raw = Array.isArray(this._state.mobileStartSchedules) ? this._state.mobileStartSchedules : [];
-    const schedules = raw
-      .map((schedule, index) => this._normalizeScheduledStartSchedule(schedule, index))
-      .filter((schedule, index, list) => schedule.id && list.findIndex((candidate) => candidate.id === schedule.id) === index);
-    this._state.mobileStartSchedules = schedules;
-    return schedules;
-  }
-
-  _engineScheduleToScheduledStartSchedule(schedule = {}, index = 0) {
-    const mediaId = String(schedule?.media_id || schedule?.media_content_id || schedule?.playlist || "").trim();
-    return this._normalizeScheduledStartSchedule({
-      id: schedule?.id || schedule?.schedule_id || `engine_schedule_${index + 1}`,
-      enabled: schedule?.enabled !== false,
-      time: schedule?.time || "07:00",
-      player: schedule?.player || schedule?.entity_id || "",
-      playlist: mediaId,
-      playlistName: schedule?.playlistName || schedule?.playlist_name || schedule?.media_name || schedule?.name || "",
-      volume: schedule?.volume ?? 35,
-      days: schedule?.days,
-      lastRunKey: schedule?.lastRunKey || schedule?.last_run_key || "",
-      afterRun: schedule?.afterRun || schedule?.after_run || "keep",
-    }, index);
-  }
-
-  _scheduledStartEnginePayload(schedule = {}) {
-    const normalized = this._normalizeScheduledStartSchedule(schedule);
-    const playlistLabel = normalized.playlistName || this._scheduledStartPlaylistLabel(normalized) || "";
-    const mediaMode = normalized.playlist ? "selected" : "random_playlist";
-    return {
-      kind: "wake_playback",
-      action: "wake_playback",
-      schedule_id: String(normalized.id || "").trim(),
-      name: playlistLabel || this._i18n("ui.scheduled_start"),
-      player: this._scheduledStartPlayerId(normalized),
-      media_id: normalized.playlist,
-      playlist: normalized.playlist,
-      media_type: "playlist",
-      media_name: playlistLabel,
-      playlist_name: playlistLabel,
-      media_mode: mediaMode,
-      selection_mode: mediaMode,
-      enqueue: "play",
-      time: normalized.time,
-      days: this._normalizeNightModeDays(normalized.days),
-      volume: Math.max(0, Math.min(100, Number(normalized.volume || 35) || 35)),
-      enabled: normalized.enabled !== false,
-      after_run: normalized.afterRun || "keep",
-    };
-  }
-
-  _strictSchedulePlayers() {
-    const seen = new Set();
-    const players = [
-      ...(Array.isArray(this._state.configurableMusicAssistantPlayers) ? this._state.configurableMusicAssistantPlayers : []),
-      ...(Array.isArray(this._state.players) ? this._state.players : []),
-    ];
-    return players.filter((player) => {
-      const entityId = String(player?.entity_id || "").trim();
-      if (!entityId || seen.has(entityId) || !MaverickPlayersFoundation.isPlayerAvailable(player)) return false;
-      const strict = this._isDirectMaPlayer?.(player)
-        || MaverickPlayersFoundation.isMusicAssistantPlayer(player, this._hass?.entities?.[entityId]);
-      if (!strict) return false;
-      seen.add(entityId);
-      return true;
-    });
-  }
-
   async _maverickEngineReadyForPersistence() {
     if (!this._maverickEngineEnabled()) return false;
     const context = await this._refreshMaverickEngineContext({ force: true }).catch(() => null);
     return !!(context?.available || this._state.engineAvailable);
   }
 
-  async _syncScheduleToMaverickEngine(schedule = {}, options = {}) {
-    if (!this._maverickEngineEnabled()) return false;
-    const payload = this._scheduledStartEnginePayload(schedule);
-    if (!payload.player) return false;
-    const ready = await this._maverickEngineReadyForPersistence();
-    if (!ready) {
-      if (this._maverickEngineRequired() || options.toast) {
-        this._toastError(this._m("Saved locally, but Maverick Music Engine did not confirm the schedule."));
-      }
-      return false;
-    }
-    try {
-      const result = await this._maverickEngineSetSchedule(payload, { required: true });
-      if (!result) return false;
-      const confirmed = await this._confirmScheduleInMaverickEngine(payload.schedule_id);
-      if (!confirmed && (this._maverickEngineRequired() || options.toast)) {
-        this._toastError("Maverick Music Engine accepted the schedule write, but it was not found when reading it back.");
-      }
-      return confirmed;
-    } catch (error) {
-      if (this._maverickEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine schedule sync failed");
-      return false;
-    }
-  }
-
-  async _confirmScheduleInMaverickEngine(scheduleId = "") {
-    const id = String(scheduleId || "").trim();
-    if (!id || !this._maverickEngineEnabled()) return false;
-    try {
-      const result = await this._maverickEngineGetSchedules({}, { required: true, timeoutMs: this._maverickEngineTimeoutMs() });
-      const schedules = Array.isArray(result?.schedules) ? result.schedules : [];
-      return schedules.some((schedule) => String(schedule?.id || schedule?.schedule_id || "").trim() === id);
-    } catch (_) {
-      return false;
-    }
-  }
-
-  async _deleteScheduleFromMaverickEngine(id = "", options = {}) {
-    const scheduleId = String(id || "").trim();
-    if (!scheduleId || !this._maverickEngineEnabled()) return false;
-    const ready = await this._maverickEngineReadyForPersistence();
-    if (!ready) return false;
-    try {
-      const result = await this._maverickEngineDeleteSchedule({ schedule_id: scheduleId }, { required: true });
-      return !!result;
-    } catch (error) {
-      if (this._maverickEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine schedule delete failed");
-      return false;
-    }
-  }
-
-  async _hydrateSchedulesFromMaverickEngine() {
-    if (!this._maverickEngineEnabled()) return false;
-    const result = await this._maverickEngineGetSchedules();
-    const engineSchedules = Array.isArray(result?.schedules) ? result.schedules : [];
-    if (!engineSchedules.length) {
-      this._scheduledStartSchedules().forEach((schedule) => this._syncScheduleToMaverickEngine(schedule).catch(() => {}));
-      return false;
-    }
-    const schedules = engineSchedules.map((schedule, index) => this._engineScheduleToScheduledStartSchedule(schedule, index));
-    this._state.mobileStartSchedules = schedules;
-    this._state.mobileStartTimerEnabled = schedules.some((schedule) => schedule.enabled !== false);
-    const editId = String(this._state.mobileStartScheduleEditId || "").trim();
-    if (editId && !schedules.some((schedule) => schedule.id === editId)) this._state.mobileStartScheduleEditId = "";
-    this._writeSchedulesToLocalStorage();
-    return true;
-  }
-
-  _activeScheduledStartSchedules() {
-    return this._scheduledStartSchedules().filter((schedule) => schedule.enabled !== false);
-  }
-
-  _scheduledStartPlayerId(schedule = null) {
-    const configured = String(schedule?.player || this._state.mobileStartTimerPlayer || "").trim();
-    if (configured && this._playerByEntityId(configured)) return configured;
-    return String(this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-  }
-
-  _scheduledStartMorningKeywords() {
-    return [
-      "morning", "sunrise", "coffee", "breakfast", "wake", "wakeup", "wake up",
-      "calm", "soft", "easy", "acoustic", "chill", "lofi", "lo-fi", "pleasant",
-    ];
-  }
-
-  async _loadScheduledStartPlaylists(force = false) {
-    const now = Date.now();
-    const cached = Array.isArray(this._state.mobileStartTimerPlaylists)
-      ? this._state.mobileStartTimerPlaylists
-      : [];
-    const fresh = cached.length && !force && (now - Number(this._state.mobileStartTimerPlaylistsFetchedAt || 0) < 10 * 60 * 1000);
-    if (fresh || this._state.mobileStartTimerPlaylistsLoading) return cached;
-    this._state.mobileStartTimerPlaylistsLoading = true;
-    try {
-      const [allPlaylists, likedPlaylists, randomPlaylists] = await Promise.allSettled([
-        this._fetchLibrary("playlist", "sort_name", 500, false),
-        this._fetchLibrary("playlist", "sort_name", 220, true),
-        this._fetchLibrary("playlist", "random", 80, false),
-      ]);
-      const playlists = [
-        ...(Array.isArray(allPlaylists.value) ? allPlaylists.value : []),
-        ...(Array.isArray(likedPlaylists.value) ? likedPlaylists.value : []),
-        ...(Array.isArray(randomPlaylists.value) ? randomPlaylists.value : []),
-      ]
-        .map((item) => this._normalizeMediaItem(item))
-        .filter((item) => String(item?.uri || "").trim())
-        .filter((item) => String(item?.media_type || "playlist").toLowerCase() === "playlist")
-        .filter((item, index, list) => list.findIndex((candidate) => String(candidate?.uri || "").trim() === String(item?.uri || "").trim()) === index);
-      this._state.mobileStartTimerPlaylists = playlists;
-      this._state.mobileStartTimerPlaylistsFetchedAt = Date.now();
-      if (!Array.isArray(this._state.mobileRecommendationPlaylists) || !this._state.mobileRecommendationPlaylists.length) {
-        this._state.mobileRecommendationPlaylists = playlists.slice(0, 24);
-        this._state.mobileRecommendationPlaylistsFetchedAt = Date.now();
-      }
-      return playlists;
-    } catch (_) {
-      return cached;
-    } finally {
-      this._state.mobileStartTimerPlaylistsLoading = false;
-    }
-  }
-
-  _scheduledStartPlaylistLabel(schedule = null) {
-    const selected = String(schedule?.playlist || this._state.mobileStartTimerPlaylist || "").trim();
-    if (!selected) return this._i18n("ui.random_gentle_morning_mix");
-    const playlists = Array.isArray(this._state.mobileStartTimerPlaylists) ? this._state.mobileStartTimerPlaylists : [];
-    const match = playlists.find((item) => String(item?.uri || "").trim() === selected);
-    return match?.name || match?.title || schedule?.playlistName || this._state.mobileStartTimerPlaylistName || this._i18n("ui.selected_playlist");
-  }
-
-  _scheduledStartPlaylistOptionsHtml(schedule = null) {
-    const selected = String(schedule?.playlist || this._state.mobileStartTimerPlaylist || "").trim();
-    const playlists = Array.isArray(this._state.mobileStartTimerPlaylists) ? this._state.mobileStartTimerPlaylists : [];
-    const selectedKnown = selected && playlists.some((item) => String(item?.uri || "").trim() === selected);
-    const options = [
-      `<option value="" ${selected ? "" : "selected"}>${this._esc(this._i18n("ui.random_gentle_morning_mix"))}</option>`,
-    ];
-    if (selected && !selectedKnown) {
-      options.push(`<option value="${this._esc(selected)}" selected>${this._esc(schedule?.playlistName || this._state.mobileStartTimerPlaylistName || this._i18n("ui.selected_playlist"))}</option>`);
-    }
-    playlists.forEach((item) => {
-      const uri = String(item?.uri || "").trim();
-      if (!uri) return;
-      const name = item.name || item.title || uri;
-      options.push(`<option value="${this._esc(uri)}" ${uri === selected ? "selected" : ""}>${this._esc(name)}</option>`);
-    });
-    return options.join("");
-  }
-
-  _pickScheduledStartPlaylist(playlists = [], schedule = null) {
-    const selected = String(schedule?.playlist || this._state.mobileStartTimerPlaylist || "").trim();
-    const candidates = (Array.isArray(playlists) ? playlists : [])
-      .map((item) => this._normalizeMediaItem(item))
-      .filter((item) => String(item?.uri || "").trim())
-      .filter((item) => String(item?.media_type || "playlist").toLowerCase() === "playlist");
-    if (!candidates.length) return null;
-    if (selected) {
-      const match = candidates.find((item) => String(item?.uri || "").trim() === selected);
-      if (match) return match;
-    }
-    const keywords = this._scheduledStartMorningKeywords();
-    const morningMatches = candidates.filter((item) => {
-      const haystack = [
-        item?.name,
-        item?.title,
-        item?.metadata?.description,
-        item?.description,
-        item?.provider_label,
-      ].filter(Boolean).join(" ").toLowerCase();
-      return keywords.some((keyword) => haystack.includes(keyword));
-    });
-    const pool = morningMatches.length ? morningMatches : candidates;
-    return pool[Math.floor(Math.random() * pool.length)] || null;
-  }
-
-  _scheduledStartStatusLabel() {
-    const schedules = this._scheduledStartSchedules();
-    const activeSchedules = schedules.filter((schedule) => schedule.enabled !== false);
-    if (!activeSchedules.length) {
-      return this._i18n("ui.no_scheduled_start_is_active");
-    }
-    if (activeSchedules.length > 1) {
-      return this._i18n("ui.scheduled_starts_active_count", { count: activeSchedules.length });
-    }
-    const schedule = activeSchedules[0];
-    const player = this._playerByEntityId(this._scheduledStartPlayerId(schedule));
-    const playerName = player?.attributes?.friendly_name || this._i18n("ui.selected_player_3");
-    const dayLabels = this._nightModeDayOptions()
-      .filter(([value]) => this._normalizeNightModeDays(schedule.days).includes(value))
-      .map(([, label]) => label)
-      .join(" ");
-    const time = this._normalizeClockTime(schedule.time || "07:00", "07:00");
-    const volume = Math.max(0, Math.min(100, Number(schedule.volume || 35) || 35));
-    const playlist = this._scheduledStartPlaylistLabel(schedule);
-    return `${time} · ${playerName} · ${playlist} · ${volume}% · ${dayLabels}`;
-  }
-
-  async _setScheduledStartFromMenu() {
-    const timeInput = this.$("scheduledStartTimeInput");
-    const playerSelect = this.$("scheduledStartPlayerSelect");
-    const playlistSelect = this.$("scheduledStartPlaylistSelect");
-    const volumeInput = this.$("scheduledStartVolumeInput");
-    const afterRunSelect = this.$("scheduledStartAfterRunSelect");
-    const checkedDays = Array.from(this.shadowRoot?.querySelectorAll("input[data-start-timer-day]:checked") || [])
-      .map((input) => Number(input.dataset.startTimerDay))
-      .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6);
-    const playerId = String(playerSelect?.value || this._state.selectedPlayer || "").trim();
-    if (!playerId) {
-      this._toastError(this._i18n("ui.select_a_player_first"));
-      return false;
-    }
-    const editId = String(this._state.mobileStartScheduleEditId || "").trim();
-    const schedule = this._normalizeScheduledStartSchedule({
-      id: editId && editId !== "__new__" ? editId : this._newScheduledStartId(),
-      enabled: true,
-      time: this._normalizeClockTime(timeInput?.value || "07:00", "07:00"),
-      player: playerId,
-      playlist: String(playlistSelect?.value || "").trim(),
-      playlistName: String(playlistSelect?.value || "").trim()
-      ? String(playlistSelect?.selectedOptions?.[0]?.textContent || "").trim()
-      : "",
-      volume: Math.max(0, Math.min(100, Number(volumeInput?.value || 35) || 35)),
-      days: this._normalizeNightModeDays(checkedDays),
-      lastRunKey: "",
-      afterRun: String(afterRunSelect?.value || "keep") === "disable" ? "disable" : "keep",
-    });
-    const schedules = this._scheduledStartSchedules();
-    const existingIndex = schedules.findIndex((item) => item.id === schedule.id);
-    if (existingIndex >= 0) schedules[existingIndex] = schedule;
-    else schedules.push(schedule);
-    this._state.mobileStartSchedules = schedules;
-    this._state.mobileStartScheduleEditId = "";
-    this._state.mobileStartTimerEnabled = schedules.some((item) => item.enabled !== false);
-    this._state.mobileStartTimerTime = schedule.time;
-    this._state.mobileStartTimerPlayer = schedule.player;
-    this._state.mobileStartTimerPlaylist = schedule.playlist;
-    this._state.mobileStartTimerPlaylistName = schedule.playlistName;
-    this._state.mobileStartTimerVolume = schedule.volume;
-    this._state.mobileStartTimerDays = schedule.days;
-    this._state.mobileStartTimerLastRunKey = schedule.lastRunKey;
-    this._state.mobileStartTimerAfterRun = schedule.afterRun || "keep";
-    this._persistMobileAppearance();
-    const engineSaved = await this._syncScheduleToMaverickEngine(schedule, { toast: true });
-    this._toastSuccess(engineSaved
-      ? this._m("Schedule saved to Maverick Music Engine")
-      : this._i18n("ui.scheduled_start_saved"));
-    return true;
-  }
-
-  async _clearScheduledStart(showToast = false) {
-    const editId = String(this._state.mobileStartScheduleEditId || "").trim();
-    if (editId && editId !== "__new__") {
-      this._state.mobileStartSchedules = this._scheduledStartSchedules().filter((schedule) => schedule.id !== editId);
-      await this._deleteScheduleFromMaverickEngine(editId, { toast: showToast });
-    } else if (!editId) {
-      await Promise.allSettled(this._scheduledStartSchedules().map((schedule) => this._deleteScheduleFromMaverickEngine(schedule.id, { toast: false })));
-      this._state.mobileStartSchedules = [];
-    }
-    this._state.mobileStartScheduleEditId = "";
-    this._state.mobileStartTimerEnabled = this._activeScheduledStartSchedules().length > 0;
-    this._state.mobileStartTimerLastRunKey = "";
-    this._persistMobileAppearance();
-    if (showToast) this._toast(this._i18n("ui.scheduled_start_cleared"));
-  }
-
-  _editScheduledStart(id = "") {
-    const schedule = this._scheduledStartSchedules().find((item) => item.id === id);
-    if (!schedule) return false;
-    this._state.mobileStartScheduleEditId = schedule.id;
-    this._state.mobileStartTimerEnabled = schedule.enabled !== false;
-    this._state.mobileStartTimerTime = schedule.time;
-    this._state.mobileStartTimerPlayer = schedule.player;
-    this._state.mobileStartTimerPlaylist = schedule.playlist;
-    this._state.mobileStartTimerPlaylistName = schedule.playlistName;
-    this._state.mobileStartTimerVolume = schedule.volume;
-    this._state.mobileStartTimerDays = schedule.days;
-    this._state.mobileStartTimerLastRunKey = schedule.lastRunKey || "";
-    this._state.mobileStartTimerAfterRun = schedule.afterRun || "keep";
-    return true;
-  }
-
-  _newScheduledStartDraft() {
-    this._state.mobileStartScheduleEditId = "__new__";
-    this._state.mobileStartTimerEnabled = false;
-    this._state.mobileStartTimerTime = "07:00";
-    this._state.mobileStartTimerPlayer = this._state.selectedPlayer || "";
-    this._state.mobileStartTimerPlaylist = "";
-    this._state.mobileStartTimerPlaylistName = "";
-    this._state.mobileStartTimerVolume = 35;
-    this._state.mobileStartTimerDays = [0, 1, 2, 3, 4, 5, 6];
-    this._state.mobileStartTimerLastRunKey = "";
-    this._state.mobileStartTimerAfterRun = "keep";
-  }
-
-  async _toggleScheduledStart(id = "") {
-    const schedules = this._scheduledStartSchedules();
-    const index = schedules.findIndex((schedule) => schedule.id === id);
-    if (index < 0) return false;
-    schedules[index] = { ...schedules[index], enabled: schedules[index].enabled === false };
-    this._state.mobileStartSchedules = schedules;
-    this._state.mobileStartTimerEnabled = schedules.some((item) => item.enabled !== false);
-    this._persistMobileAppearance();
-    await this._syncScheduleToMaverickEngine(schedules[index], { toast: true });
-    return true;
-  }
-
-  async _deleteScheduledStart(id = "") {
-    const schedules = this._scheduledStartSchedules().filter((schedule) => schedule.id !== id);
-    this._state.mobileStartSchedules = schedules;
-    if (this._state.mobileStartScheduleEditId === id) this._state.mobileStartScheduleEditId = "";
-    this._state.mobileStartTimerEnabled = schedules.some((item) => item.enabled !== false);
-    this._persistMobileAppearance();
-    await this._deleteScheduleFromMaverickEngine(id, { toast: true });
-    return true;
-  }
-
-  async _runScheduledStart(entityId, schedule = null) {
-    if (!entityId || this._state.mobileStartTimerRunPending) return;
-    this._state.mobileStartTimerRunPending = true;
-    try {
-      const activeSchedule = schedule ? this._normalizeScheduledStartSchedule(schedule) : null;
-      const volume = Math.max(0, Math.min(100, Number(activeSchedule?.volume ?? this._state.mobileStartTimerVolume ?? 35) || 35));
-      await this._setPlayerVolumeFor(entityId, volume / 100);
-      const playlists = await this._loadScheduledStartPlaylists();
-      const pick = this._pickScheduledStartPlaylist(playlists, activeSchedule);
-      let ok = false;
-      if (pick?.uri) {
-        ok = await this._playMediaOnPlayer(entityId, pick.uri, pick.media_type || "playlist", "play", {
-          label: pick.name || pick.title || this._i18n("ui.morning_mix"),
-          silent: true,
-        });
-      }
-      if (!ok) {
-        await this._callMaverickEnginePlayerCommand(entityId, "play");
-      }
-      const label = pick?.name || pick?.title || this._i18n("ui.scheduled_start");
-      this._toastSuccess(this._i18n("ui.scheduled_start_activated_label", { label }));
-    } catch (error) {
-      this._toastError(error?.message || this._i18n("ui.scheduled_start_failed"));
-    } finally {
-      this._state.mobileStartTimerRunPending = false;
-    }
-  }
-
-  _syncScheduledStartState(date = new Date()) {
-    const schedules = this._activeScheduledStartSchedules();
-    if (!schedules.length) return;
-    if (this._maverickEngineEnabled() && this._state.engineAvailable) return;
-    let changed = false;
-    schedules.forEach((schedule) => {
-      const time = this._normalizeClockTime(schedule.time || "07:00", "07:00");
-      const [hours, minutes] = time.split(":").map((part) => Number(part) || 0);
-      if (date.getHours() !== hours || date.getMinutes() !== minutes) return;
-      const enabledDays = new Set(this._normalizeNightModeDays(schedule.days));
-      if (!enabledDays.has(Number(date.getDay()))) return;
-      const runKey = `${schedule.id}-${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${time}`;
-      if (schedule.lastRunKey === runKey) return;
-      const entityId = this._scheduledStartPlayerId(schedule);
-      if (!entityId) return;
-      schedule.lastRunKey = runKey;
-      if (schedule.afterRun === "disable") schedule.enabled = false;
-      changed = true;
-      this._runScheduledStart(entityId, schedule).catch((error) => {
-        this._toastError(error?.message || this._i18n("ui.scheduled_start_failed"));
-      });
-    });
-    if (changed) {
-      const byId = new Map(this._state.mobileStartSchedules.map((schedule) => [schedule.id, schedule]));
-      schedules.forEach((schedule) => byId.set(schedule.id, schedule));
-      this._state.mobileStartSchedules = Array.from(byId.values());
-      this._state.mobileStartTimerEnabled = this._state.mobileStartSchedules.some((schedule) => schedule.enabled !== false);
-      this._persistMobileAppearance();
-    }
-  }
-
   _tabletAutoFitEnabled() {
     return MaverickResponsiveFoundation.tabletAutoFitEnabled(this._layoutModeConfig());
   }
 
-  _tabletAutoFitDense(showNightRow = this._mobileNightMode() !== "off", showUpNext = false) {
+  _tabletAutoFitDense(showNightRow = mobileNightMode(this) !== "off", showUpNext = false) {
     return MaverickResponsiveFoundation.tabletAutoFitDense(this._layoutModeConfig(), {
       showNightRow,
       showUpNext,
@@ -2222,7 +1309,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const height = Number(profile?.height || this._lastCardHeight || 0);
     const showNightRow = typeof options.showNightRow === "boolean"
       ? options.showNightRow
-      : this._mobileNightMode() !== "off";
+      : mobileNightMode(this) !== "off";
     const showUpNextInline = typeof options.showUpNextInline === "boolean"
       ? options.showUpNextInline
       : (this._mobileShowUpNextEnabled() && !!this._mobileUpNextItem());
@@ -2236,7 +1323,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _syncTabletAutoFitUi(hasUpNext = null) {
     const card = this.shadowRoot?.querySelector(".card");
     if (!card) return;
-    const showNightRow = this._mobileNightMode() !== "off";
+    const showNightRow = mobileNightMode(this) !== "off";
     const upNextVisible = typeof hasUpNext === "boolean"
       ? hasUpNext
       : (this._mobileShowUpNextEnabled() && !!this._mobileUpNextItem());
@@ -2254,276 +1341,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       showNightRow,
       showUpNextInline: upNextVisible,
     }));
-  }
-
-  _maverickSleepTimerId(playerId = "") {
-    const safePlayer = String(playerId || "player").trim().toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "") || "player";
-    return `sleep_${safePlayer}`;
-  }
-
-  async _syncSleepTimerToMaverickEngine(minutes = 15, source = "general", options = {}) {
-    if (!this._maverickEngineEnabled()) return false;
-    const playerId = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-    const target = Number(this._state.mobileSleepTimerEndsAt || 0);
-    if (!playerId || !target) return false;
-    const ready = await this._maverickEngineReadyForPersistence();
-    if (!ready) {
-      if (this._maverickEngineRequired() || options.toast) {
-        this._toastError(this._m("The Engine did not confirm the sleep timer."));
-      }
-      return false;
-    }
-    try {
-      const result = await this._maverickEngineSetTimer({
-        timer_id: this._maverickSleepTimerId(playerId),
-        timer_type: "sleep",
-        player: playerId,
-        action: "pause",
-        minutes: Math.max(1, Number(minutes) || Math.ceil(this._sleepTimerRemainingMs() / 60000) || 1),
-        ends_at: new Date(target).toISOString(),
-        origin: MaverickNightFoundation.normalizeSleepTimerOrigin(source),
-        enabled: true,
-      }, { required: true });
-      if (!result) {
-        this._toastError(this._m("The Engine did not confirm the sleep timer."));
-        return false;
-      }
-      const confirmed = await this._confirmSleepTimerInMaverickEngine(this._maverickSleepTimerId(playerId), playerId, target);
-      if (!confirmed && (this._maverickEngineRequired() || options.toast)) {
-        this._toastError("Maverick Music Engine accepted the timer write, but it was not found when reading it back.");
-      }
-      return confirmed;
-    } catch (error) {
-      if (this._maverickEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine timer sync failed");
-      return false;
-    }
-  }
-
-  async _confirmSleepTimerInMaverickEngine(timerId = "", playerId = "", expectedTarget = 0) {
-    const id = String(timerId || "").trim();
-    const player = String(playerId || "").trim();
-    if ((!id && !player) || !this._maverickEngineEnabled()) return false;
-    try {
-      const result = await this._maverickEngineGetTimers({}, { required: true, timeoutMs: this._maverickEngineTimeoutMs() });
-      const timers = Array.isArray(result?.timers) ? result.timers : [];
-      const now = Date.now();
-      return timers.some((timer) => {
-        const timerType = String(timer?.type || timer?.timer_type || "sleep");
-        const targetMs = Date.parse(timer?.ends_at || timer?.target_at || "");
-        const matchesId = id && String(timer?.id || timer?.timer_id || "").trim() === id;
-        const matchesPlayer = player && String(timer?.player || timer?.entity_id || "").trim() === player;
-        return timerType === "sleep" && timer.enabled !== false && (matchesId || matchesPlayer)
-          && Number.isFinite(targetMs) && targetMs > now
-          && (!expectedTarget || Math.abs(targetMs - expectedTarget) < 1000);
-      });
-    } catch (_) {
-      return false;
-    }
-  }
-
-  async _deleteSleepTimerFromMaverickEngine(playerId = "", options = {}) {
-    if (!this._maverickEngineEnabled()) return false;
-    const player = String(playerId || this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-    if (!player) return false;
-    const ready = await this._maverickEngineReadyForPersistence();
-    if (!ready) {
-      if (options.toast) this._toastError(this._m("The Engine could not confirm timer cancellation."));
-      return false;
-    }
-    try {
-      const result = await this._maverickEngineDeleteTimer({
-        timer_id: this._maverickSleepTimerId(player),
-        player,
-      }, { required: true });
-      if (!result) return false;
-      const confirmation = await this._maverickEngineGetTimers({}, { required: true, timeoutMs: this._maverickEngineTimeoutMs() });
-      if (!Array.isArray(confirmation?.timers)) throw new Error("Unable to confirm timer cancellation");
-      const remains = confirmation.timers.some((timer) => String(timer.id || timer.timer_id || "") === this._maverickSleepTimerId(player));
-      if (remains) throw new Error("The timer is still present in the Engine");
-      return true;
-    } catch (error) {
-      if (this._maverickEngineRequired() || options.toast) this._toastError(error?.message || "Maverick Music Engine timer delete failed");
-      return false;
-    }
-  }
-
-  async _hydrateSleepTimerFromMaverickEngine() {
-    if (!this._maverickEngineEnabled()) return false;
-    const result = await this._maverickEngineGetTimers();
-    if (!Array.isArray(result?.timers)) return false;
-    const timers = result.timers;
-    const now = Date.now();
-    const selectedPlayer = String(this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-    const activeSleepTimers = timers
-      .filter((timer) => String(timer?.type || timer?.timer_type || "sleep") === "sleep")
-      .map((timer) => ({ ...timer, targetMs: Date.parse(timer?.ends_at || "") }))
-      .filter((timer) => timer.enabled !== false && Number.isFinite(timer.targetMs) && timer.targetMs > now)
-      .sort((a, b) => a.targetMs - b.targetMs);
-    const timer = (selectedPlayer ? activeSleepTimers.find((item) => String(item?.player || "") === selectedPlayer) : activeSleepTimers[0]) || null;
-    if (!timer) {
-      this._state.mobileSleepTimerEndsAt = 0;
-      this._state.mobileSleepTimerPlayer = "";
-      this._state.mobileSleepTimerOrigin = "";
-      this._persistMobileAppearance();
-      this._syncSleepTimerChip();
-      return false;
-    }
-    this._state.mobileSleepTimerEndsAt = timer.targetMs;
-    this._state.mobileSleepTimerPlayer = String(timer.player || selectedPlayer || "").trim();
-    this._state.mobileSleepTimerOrigin = MaverickNightFoundation.normalizeSleepTimerOrigin(timer.origin || "general");
-    this._persistMobileAppearance();
-    this._syncSleepTimerChip();
-    return true;
-  }
-
-  async _setSleepTimerMinutes(minutes = 15, source = "general") {
-    const amount = Math.max(1, Number(minutes) || 0);
-    const player = this._getSelectedPlayer();
-    if (!player?.entity_id) {
-      this._toastError(this._i18n("ui.select_a_player_first"));
-      return false;
-    }
-    const saved = await this._saveSleepTimerState({
-      mobileSleepTimerEndsAt: MaverickNightFoundation.createSleepTimerTargetAt(amount, Date.now()),
-      mobileSleepTimerPlayer: player.entity_id,
-      mobileSleepTimerOrigin: MaverickNightFoundation.normalizeSleepTimerOrigin(source),
-      mobileSleepTimerMenuOpen: false,
-    }, amount, source);
-    if (!saved) return false;
-    this._toastSuccess(this._i18n("ui.sleep_timer_set_minutes", { minutes: amount }));
-    return saved;
-  }
-
-  async _saveSleepTimerState(nextState, minutes, source) {
-    if (this._sleepTimerSavePending) {
-      this._toastError(this._m("A timer update is still in progress."));
-      return false;
-    }
-    this._sleepTimerSavePending = true;
-    const previous = Object.fromEntries(Object.keys(nextState).map((key) => [key, this._state[key]]));
-    Object.assign(this._state, nextState);
-    try {
-      const engineSaved = await this._syncSleepTimerToMaverickEngine(minutes, source, { toast: true });
-      if (!engineSaved && this._maverickEngineRequired()) {
-        Object.assign(this._state, previous);
-        return false;
-      }
-      this._persistMobileAppearance();
-      return { ok: true, engineSaved };
-    } catch (error) {
-      Object.assign(this._state, previous);
-      this._toastError(error?.message || this._m("Timer update failed."));
-      return false;
-    } finally {
-      this._sleepTimerSavePending = false;
-      this._syncNightModeUi();
-      this._syncSleepTimerChip();
-    }
-  }
-
-  async _addSleepTimerMinutes(minutes = 15) {
-    const amount = Math.max(1, Number(minutes) || 0);
-    const player = this._getSelectedPlayer();
-    const target = MaverickNightFoundation.extendSleepTimerTargetAt(
-      this._state.mobileSleepTimerEndsAt || 0,
-      amount,
-      Date.now(),
-    );
-    const saved = await this._saveSleepTimerState({
-      mobileSleepTimerEndsAt: target,
-      mobileSleepTimerPlayer: player?.entity_id || this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || "",
-    }, Math.ceil((target - Date.now()) / 60000), this._state.mobileSleepTimerOrigin || "general");
-    if (!saved) return false;
-    this._toastSuccess(this._i18n("ui.sleep_timer_added_minutes", { minutes: amount }));
-  }
-
-  _toggleSleepTimerMenu(force = null) {
-    const next = typeof force === "boolean" ? force : !this._state.mobileSleepTimerMenuOpen;
-    this._state.mobileSleepTimerMenuOpen = !!next && this._sleepTimerChipVisible();
-    this._syncSleepTimerChip();
-  }
-
-  _cycleNightMode() {
-    const order = ["auto", "on", "off"];
-    const current = this._mobileNightMode();
-    const next = order[(order.indexOf(current) + 1) % order.length];
-    this._state.mobileNightMode = next;
-    this._persistMobileAppearance();
-    this._rebuildMobileUi({ reopenPage: this._state.menuOpen ? (this._state.menuPage || "settings") : "", reopenStudio: this._state.controlRoomOpen });
-  }
-
-  async _clearSleepTimer(showToast = false) {
-    if (this._sleepTimerSavePending) {
-      if (showToast) this._toastError(this._m("A timer update is still in progress."));
-      return false;
-    }
-    const timerPlayer = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-    const deleted = await this._deleteSleepTimerFromMaverickEngine(timerPlayer, { toast: showToast });
-    if (!deleted && this._maverickEngineRequired()) return false;
-    this._state.mobileSleepTimerEndsAt = 0;
-    this._state.mobileSleepTimerPlayer = "";
-    this._state.mobileSleepTimerOrigin = "";
-    this._state.mobileSleepTimerMenuOpen = false;
-    this._persistMobileAppearance();
-    this._syncNightModeUi();
-    this._syncSleepTimerChip();
-    if (showToast) {
-      this._toast(this._i18n("ui.sleep_timer_cleared"));
-    }
-  }
-
-  async _cycleSleepTimer(source = "general") {
-    const currentRemaining = this._sleepTimerRemainingMs();
-    const steps = [15, 30, 45, 60, 0];
-    const normalizedSource = MaverickNightFoundation.normalizeSleepTimerOrigin(source);
-    if (!currentRemaining) {
-      return this._setSleepTimerMinutes(steps[0], normalizedSource);
-    }
-    const nextStep = MaverickNightFoundation.nextSleepTimerStep(currentRemaining, steps);
-    if (!nextStep) {
-      await this._clearSleepTimer(true);
-      return;
-    }
-    return this._setSleepTimerMinutes(nextStep, normalizedSource === "night" ? normalizedSource : this._state.mobileSleepTimerOrigin || normalizedSource);
-  }
-
-  async _playNightMix() {
-    try {
-      const [allPlaylists, likedPlaylists] = await Promise.allSettled([
-        this._fetchLibrary("playlist", "sort_name", 500, false),
-        this._fetchLibrary("playlist", "sort_name", 220, true),
-      ]);
-      const playlists = [
-        ...(Array.isArray(allPlaylists.value) ? allPlaylists.value : []),
-        ...(Array.isArray(likedPlaylists.value) ? likedPlaylists.value : []),
-      ]
-        .filter((item) => item?.uri)
-        .filter((item, index, list) => list.findIndex((candidate) => candidate?.uri === item?.uri) === index);
-      if (!playlists.length) {
-        await this._playRandomFromPlaylists();
-        return;
-      }
-      const keywords = ["sleep", "night", "chill", "calm", "relax", "ambient", "meditation", "dream", "lofi", "lo-fi", "soft"];
-      const matches = playlists.filter((item) => {
-        const haystack = [
-          item?.name,
-          item?.metadata?.description,
-          item?.description,
-        ].filter(Boolean).join(" ").toLowerCase();
-        return keywords.some((keyword) => haystack.includes(keyword));
-      });
-      const pool = matches.length ? matches : playlists;
-      const pick = pool[Math.floor(Math.random() * pool.length)];
-      const ok = await this._playMedia(pick.uri, pick.media_type || "playlist", "play", {
-        label: pick.name || this._i18n("ui.chill_mix"),
-        silent: true,
-      });
-      if (ok) {
-        this._toastSuccess(this._i18n("ui.starting_a_chill_mix"));
-      }
-    } catch (error) {
-      this._toastError(error?.message || this._i18n("ui.could_not_start_chill_mix"));
-    }
   }
 
   async _resolveQuickMixEntry() {
@@ -2672,106 +1489,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.quickMixPendingUntil = 0;
       this._state.quickMixPendingEntry = null;
       this._toastError(error?.message || this._i18n("ui.could_not_start_quick_mix"));
-    }
-  }
-
-  _syncSleepTimerState() {
-    const target = Number(this._state.mobileSleepTimerEndsAt || 0);
-    if (!target) return;
-    if (target > Date.now()) return;
-    const entityId = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || "").trim();
-    this._state.mobileSleepTimerEndsAt = 0;
-    this._state.mobileSleepTimerPlayer = "";
-    this._state.mobileSleepTimerOrigin = "";
-    this._state.mobileSleepTimerMenuOpen = false;
-    this._persistMobileAppearance();
-    this._syncSleepTimerChip();
-    this._syncNightModeUi();
-    if (entityId) {
-      this._callMaverickEnginePlayerCommand(entityId, "pause").catch(() => {});
-    }
-    this._toastSuccess(this._i18n("ui.sleep_timer_finished"));
-  }
-
-  _syncNightModeUi() {
-    const card = this.shadowRoot?.querySelector(".card");
-    const active = this._isNightModeActive();
-    const mode = this._mobileNightMode();
-    const sleepActive = this._sleepTimerRemainingMs() > 0;
-    if (this._state.mobileNightRenderedActive !== active || this._state.mobileNightRenderedMode !== mode) {
-      this._state.mobileNightRenderedActive = active;
-      this._state.mobileNightRenderedMode = mode;
-      if (this._isScheduleFormEditing()) {
-        if (card) {
-          card.classList.toggle("night-mode", active);
-          card.classList.toggle("night-mode-enabled", mode !== "off");
-        }
-        return;
-      }
-      const reopenMenu = this._state.menuOpen ? (this._state.menuPage || "settings") : "";
-      this._rebuildMobileUi({ reopenPage: reopenMenu, reopenStudio: this._state.controlRoomOpen });
-      return;
-    }
-    if (card) {
-      card.classList.toggle("night-mode", active);
-      card.classList.toggle("night-mode-enabled", mode !== "off");
-    }
-    this._syncTabletAutoFitUi();
-    const row = this.$("nightQuickRow");
-    if (row) {
-      row.hidden = mode === "off";
-      row.classList.toggle("auto-mode", mode === "auto");
-      row.classList.toggle("on-mode", mode === "on");
-    }
-    const modeBtn = this.$("nightModeQuickBtn");
-    if (modeBtn) {
-      modeBtn.hidden = mode === "off";
-      modeBtn.classList.toggle("active", active || mode === "on");
-      modeBtn.classList.toggle("soft", mode === "auto" && !active);
-      modeBtn.title = mode === "auto"
-        ? this._i18n("ui.night_mode_auto_window", {
-          start: this._nightModeWindow().start,
-          end: this._nightModeWindow().end,
-        })
-        : mode === "on"
-          ? this._i18n("ui.night_mode_is_always_on")
-          : this._i18n("ui.night_mode_is_off");
-    }
-    const sleepBtn = this.$("nightSleepBtn");
-    if (sleepBtn) {
-      sleepBtn.hidden = mode !== "on";
-      sleepBtn.classList.toggle("active", sleepActive);
-      sleepBtn.title = sleepActive
-        ? this._i18n("ui.sleep_timer_active_remaining", { remaining: this._sleepTimerRemainingLabel() })
-        : this._i18n("ui.tap_to_start_a_sleep_timer");
-    }
-    const chillBtn = this.$("nightChillBtn");
-    if (chillBtn) {
-      chillBtn.hidden = mode !== "on";
-    }
-  }
-
-  _syncMobileTimerAction() {
-    const btn = this.$("mobileTimerBtn");
-    if (!btn) return;
-    const remainingLabel = this._sleepTimerFooterLabel();
-    const active = !!remainingLabel && this._sleepTimerChipVisible();
-    const configured = this._mobileQuickActions().includes("timer");
-    if (!active && !configured) {
-      btn.hidden = true;
-      btn.classList.add("hidden");
-      return;
-    }
-    const label = btn.querySelector(".mobile-timer-label");
-    btn.hidden = false;
-    btn.classList.remove("hidden");
-    btn.classList.toggle("active", active);
-    btn.title = active
-      ? this._i18n("ui.timer_active_remaining", { remaining: remainingLabel })
-      : this._i18n("ui.schedules");
-    if (label) {
-      label.hidden = !active;
-      label.textContent = active ? remainingLabel : "";
     }
   }
 
@@ -3465,10 +2182,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
   }
 
-  async _syncMaverickEngineScreensaverConnection() {
-    return false;
-  }
-
   _maverickEngineGetQueue(payload = {}) {
     return this._maverickEngineCommand("queue/get", payload, { timeoutMs: Math.max(12000, this._maverickEngineTimeoutMs()) });
   }
@@ -3613,8 +2326,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _systemMobileStatePayload() {
-    const schedules = this._scheduledStartSchedules();
-    const nightWindow = this._nightModeWindow();
+    const schedules = scheduledStartSchedules(this);
+    const nightWindow = nightModeWindow(this);
     const sleepTimerEndsAt = Number(this._state.mobileSleepTimerEndsAt || 0) || 0;
     const payload = {
       version: 1,
@@ -3624,10 +2337,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       startSchedules: schedules,
       startTimerEnabled: schedules.some((schedule) => schedule.enabled !== false),
       startTimerLastRunKey: this._state.mobileStartTimerLastRunKey || "",
-      nightMode: this._mobileNightMode(),
+      nightMode: mobileNightMode(this),
       nightModeStart: nightWindow.start,
       nightModeEnd: nightWindow.end,
-      nightModeDays: this._nightModeDays(),
+      nightModeDays: nightModeDays(this),
     };
     if (sleepTimerEndsAt > Date.now()) {
       payload.sleepTimerEndsAt = sleepTimerEndsAt;
@@ -3656,7 +2369,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       || Object.prototype.hasOwnProperty.call(payload, "mobileSleepTimerEndsAt");
     if (!rawSchedules && !hasNightPayload && !hasSleepTimerPayload) return false;
     if (rawSchedules) {
-      const schedules = rawSchedules.map((schedule, index) => this._normalizeScheduledStartSchedule(schedule, index));
+      const schedules = rawSchedules.map((schedule, index) => normalizeScheduledStartSchedule(this, schedule, index));
       this._state.mobileStartSchedules = schedules;
       this._state.mobileStartTimerEnabled = schedules.some((schedule) => schedule.enabled !== false);
       const editId = String(payload.startScheduleEditId || "").trim();
@@ -3679,10 +2392,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       }
     }
     if (hasNightPayload) {
-      this._state.mobileNightMode = ["off", "auto", "on"].includes(rawNightMode) ? rawNightMode : this._mobileNightMode();
-      this._state.mobileNightModeStart = this._normalizeClockTime(payload.nightModeStart || payload.mobileNightModeStart || this._state.mobileNightModeStart || "22:00", "22:00");
-      this._state.mobileNightModeEnd = this._normalizeClockTime(payload.nightModeEnd || payload.mobileNightModeEnd || this._state.mobileNightModeEnd || "06:00", "06:00");
-      this._state.mobileNightModeDays = this._normalizeNightModeDays(payload.nightModeDays || payload.mobileNightModeDays || this._state.mobileNightModeDays);
+      this._state.mobileNightMode = ["off", "auto", "on"].includes(rawNightMode) ? rawNightMode : mobileNightMode(this);
+      this._state.mobileNightModeStart = normalizeClockTime(payload.nightModeStart || payload.mobileNightModeStart || this._state.mobileNightModeStart || "22:00", "22:00");
+      this._state.mobileNightModeEnd = normalizeClockTime(payload.nightModeEnd || payload.mobileNightModeEnd || this._state.mobileNightModeEnd || "06:00", "06:00");
+      this._state.mobileNightModeDays = normalizeNightModeDays(payload.nightModeDays || payload.mobileNightModeDays || this._state.mobileNightModeDays);
     }
     if (hasSleepTimerPayload) {
       const sleepTimerEndsAt = Number(payload.sleepTimerEndsAt ?? payload.mobileSleepTimerEndsAt ?? 0) || 0;
@@ -3710,11 +2423,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           this._writeSchedulesToLocalStorage();
           if (this._built) {
             if (this._state.menuOpen && this._state.menuPage === "sleep_timer") await this._renderMobileMenu();
-            this._syncSleepTimerChip();
+            syncSleepTimerChip(this);
           }
           return true;
         }
-        if (this._scheduledStartSchedules().length) this._scheduleSystemMobileStatePersist(250);
+        if (scheduledStartSchedules(this).length) this._scheduleSystemMobileStatePersist(250);
       } catch (_) {
         return false;
       }
@@ -3725,19 +2438,19 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _writeSchedulesToLocalStorage() {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_enabled"), JSON.stringify(!!this._state.mobileStartTimerEnabled)); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_time"), this._normalizeClockTime(this._state.mobileStartTimerTime || "07:00", "07:00")); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_time"), normalizeClockTime(this._state.mobileStartTimerTime || "07:00", "07:00")); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_player"), this._state.mobileStartTimerPlayer || ""); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_playlist"), this._state.mobileStartTimerPlaylist || ""); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_playlist_name"), this._state.mobileStartTimerPlaylistName || ""); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_volume"), String(Math.max(0, Math.min(100, Number(this._state.mobileStartTimerVolume || 35) || 35)))); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_days"), JSON.stringify(this._scheduledStartDays())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_days"), JSON.stringify(scheduledStartDays(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_timer_last_run"), this._state.mobileStartTimerLastRunKey || ""); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_schedules"), JSON.stringify(this._scheduledStartSchedules())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_start_schedules"), JSON.stringify(scheduledStartSchedules(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_schedules_tab"), this._state.mobileSchedulesTab || "timers"); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_mode"), this._mobileNightMode()); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_start"), this._normalizeClockTime(this._state.mobileNightModeStart || "22:00", "22:00")); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_end"), this._normalizeClockTime(this._state.mobileNightModeEnd || "06:00", "06:00")); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_days"), JSON.stringify(this._nightModeDays())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_mode"), mobileNightMode(this)); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_start"), normalizeClockTime(this._state.mobileNightModeStart || "22:00", "22:00")); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_end"), normalizeClockTime(this._state.mobileNightModeEnd || "06:00", "06:00")); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_night_days"), JSON.stringify(nightModeDays(this))); } catch (_) {}
   }
 
   _writeSleepTimerToLocalStorage() {
@@ -3766,35 +2479,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return true;
   }
 
-  _syncSleepTimerChip() {
-    const card = this.shadowRoot?.querySelector(".card");
-    const remainingLabel = this._sleepTimerFooterLabel();
-    const active = !!remainingLabel && this._sleepTimerChipVisible();
-    const timerConfigured = this._mobileQuickActions().includes("timer");
-    const needsTemporaryTimerUi = !immersivePlayerEnabled(this) && active && !timerConfigured && (
-      (card?.classList.contains("layout-tablet") && !this.$("sleepTimerCorner"))
-      || (!card?.classList.contains("layout-tablet") && !this.$("mobileTimerBtn"))
-    );
-    if (needsTemporaryTimerUi) {
-      const reopenPage = this._state.menuOpen ? (this._state.menuPage || "sleep_timer") : "";
-      this._rebuildMobileUi({ reopenPage, reopenStudio: this._state.controlRoomOpen });
-      return;
-    }
-    card?.classList.toggle("has-sleep-timer", active);
-    this._syncMobileTimerAction();
-    const corner = this.$("sleepTimerCorner");
-    if (!corner) return;
-    if (!active) {
-      this._state.mobileSleepTimerMenuOpen = false;
-      if (corner.innerHTML !== "") corner.innerHTML = "";
-      corner.hidden = true;
-      return;
-    }
-    const nextHtml = this._sleepTimerCornerInnerHtml();
-    if (corner.innerHTML !== nextHtml) corner.innerHTML = nextHtml;
-    corner.hidden = false;
-  }
-
   _persistMobileAppearance() {
     this._writeOperationalMobileStateToLocalStorage();
     this._scheduleSystemMobileStatePersist();
@@ -3815,8 +2499,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_font_scale"), String(this._state.mobileFontScale || 1)); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_icon_scale"), String(this._mobileIconScale())); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_sync"), JSON.stringify(this._state.mobileLyricsSyncEnabled !== false)); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_offset_ms"), String(this._lyricsSyncOffsetMs())); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_font_scale"), String(this._lyricsFontScale())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_offset_ms"), String(lyricsSyncOffsetMs(this))); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_lyrics_font_scale"), String(lyricsFontScale(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_compact_mode"), JSON.stringify(!!this._state.mobileCompactMode)); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_compact_widget_mode"), this._mobileCompactWidgetMode()); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_compact_edge_to_edge"), JSON.stringify(this._mobileCompactEdgeToEdgeEnabled())); } catch (_) {}
@@ -3836,10 +2520,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_volume_step_buttons"), JSON.stringify(this._mobileVolumeStepButtonsEnabled())); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_volume_step_percent"), String(this._mobileVolumeStepPercent())); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_mic_mode"), this._mobileMicMode()); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_enabled"), JSON.stringify(this._voiceAssistantEnabled())); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_mode"), this._voiceAssistantMode()); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_agent_id"), this._voiceAssistantAgentId()); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_speak_feedback"), JSON.stringify(this._voiceAssistantSpeakFeedbackEnabled())); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_enabled"), JSON.stringify(voiceAssistantEnabled(this))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_mode"), voiceAssistantMode(this)); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_agent_id"), voiceAssistantAgentId(this)); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_voice_assistant_speak_feedback"), JSON.stringify(voiceAssistantSpeakFeedbackEnabled(this))); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_library_tabs"), JSON.stringify(this._mobileLibraryTabs())); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_library_favorites_tabs"), JSON.stringify(this._libraryFavoritesOnlyTabs())); } catch (_) {}
     try {
@@ -3856,9 +2540,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_radio_source_mode"), this._mobileRadioSourceMode()); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_radio_country"), this._mobileRadioBrowserCountry()); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_presets"), JSON.stringify(this._state.mobileAnnouncementPresets || [])); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_volume"), String(this._announcementVolumePct())); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_volume"), String(announcementVolumePct(this))); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_tts_entity"), this._state.mobileAnnouncementTtsEntity || ""); } catch (_) {}
-    try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_tts_language"), this._announcementLanguageSetting()); } catch (_) {}
+    try { localStorage.setItem(this._lsKey("maverick_music_mobile_announcement_tts_language"), announcementLanguageSetting(this)); } catch (_) {}
     try { localStorage.setItem(this._lsKey("maverick_music_ambient_light_enabled"), JSON.stringify(!!this._state.ambientLightEnabled)); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_ambient_light_entities"), JSON.stringify(this._ambientLightEntities())); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_ambient_light_player_map"), JSON.stringify(this._ambientLightPlayerMap())); } catch {}
@@ -3867,13 +2551,13 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { localStorage.setItem(this._lsKey("maverick_music_ambient_light_cooldown"), String(this._ambientLightCooldown())); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_screensaver_enabled"), JSON.stringify(!!this._state.screensaverEnabled)); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_screensaver_auto_lyrics_when_playing"), JSON.stringify(!!this._state.screensaverAutoLyricsWhenPlaying)); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_control_buttons"), JSON.stringify(this._screensaverControlButtons({ includeDisabled: true }))); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_mode"), this._screensaverClockMode()); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_timeout_seconds"), String(this._screensaverTimeoutSeconds())); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_message"), this._screensaverMessage()); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_size"), String(this._screensaverClockSize())); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_x"), String(this._screensaverClockX())); } catch {}
-    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_y"), String(this._screensaverClockY())); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_control_buttons"), JSON.stringify(screensaverControlButtons(this, { includeDisabled: true }))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_mode"), screensaverClockMode(this)); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_timeout_seconds"), String(screensaverTimeoutSeconds(this))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_message"), screensaverMessage(this)); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_size"), String(screensaverClockSize(this))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_x"), String(screensaverClockX(this))); } catch {}
+    try { localStorage.setItem(this._lsKey("maverick_music_screensaver_clock_y"), String(screensaverClockY(this))); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_power_button_enabled"), JSON.stringify(!!this._state.powerButtonEnabled)); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_power_button_name"), this._state.powerButtonName || ""); } catch {}
     try { localStorage.setItem(this._lsKey("maverick_music_power_button_icon"), this._powerButtonIcon()); } catch {}
@@ -3902,17 +2586,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return ["timer", "like", "lyrics", "queue", "queue_flow", "radio", "history"];
   }
 
-  _defaultAnnouncementPresets() {
-    return ["Dinner is ready", "Please come to the living room", "Leaving in five minutes"];
-  }
-
-  _isDefaultAnnouncementPresetSet(presets = []) {
-    if (!Array.isArray(presets) || !presets.length) return false;
-    const normalize = (items) => items.slice(0, 3).map((item) => String(item || "").trim()).join("\n");
-    const current = normalize(presets);
-    return current === normalize(this._defaultAnnouncementPresets());
-  }
-
   _mobileHomeShortcutEnabled() {
     return !!this._state.mobileHomeShortcutEnabled;
   }
@@ -3921,42 +2594,27 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return MaverickMobileSettingsFoundation.normalizeHomeShortcutPath(this._state.mobileHomeShortcutPath, { leadingSlash: true });
   }
 
+  // Voice facade: screensaver.js and announcements.js reach voice through
+  // the card so that voice.js stays the only one of those modules importing
+  // the other. Everything else calls core/media/voice.js directly.
+  _speechRecognitionCtor() {
+    return speechRecognitionCtor();
+  }
+
   _voiceAssistantEnabled() {
-    return this._state.voiceAssistantEnabled === true;
+    return voiceAssistantEnabled(this);
   }
 
-  _voiceAssistantMode() {
-    return MaverickMobileSettingsFoundation.normalizeVoiceAssistantMode(this._state.voiceAssistantMode);
+  _flowAssistantLabel() {
+    return flowAssistantLabel(this);
   }
 
-  _voiceAssistantAgentId() {
-    return String(this._state.voiceAssistantAgentId || "").trim();
+  _startVoiceAssistantCommand(options = {}) {
+    return startVoiceAssistantCommand(this, options);
   }
 
-  _voiceAssistantSpeakFeedbackEnabled() {
-    return this._state.voiceAssistantSpeakFeedback === true;
-  }
-
-  _voiceAssistantAgentOptions() {
-    const options = [{
-      value: "",
-      label: this._i18n("ui.default_assist_agent"),
-    }];
-    const current = this._voiceAssistantAgentId();
-    const states = Object.values(this._hass?.states || {})
-      .filter((entity) => entity?.entity_id?.startsWith?.("conversation."))
-      .map((entity) => ({
-        value: entity.entity_id,
-        label: entity.attributes?.friendly_name || entity.entity_id,
-      }))
-      .sort((left, right) => String(left.label).localeCompare(String(right.label), undefined, { sensitivity: "base" }));
-    states.forEach((option) => {
-      if (!options.some((item) => item.value === option.value)) options.push(option);
-    });
-    if (current && !options.some((item) => item.value === current)) {
-      options.push({ value: current, label: current });
-    }
-    return options;
+  _syncVoiceAssistantDialog() {
+    return syncVoiceAssistantDialog(this);
   }
 
   _ambientLightEnabled() {
@@ -4044,137 +2702,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return false;
   }
 
-  _screensaverSuppressedByEditor() {
-    return this._isVisualEditorContext();
-  }
-
-  _screensaverEnabled() {
-    if (this._state.screensaverEnabled !== true) return false;
-    const rect = this.getBoundingClientRect?.();
-    const width = Math.max(
-      Number(rect?.width || 0),
-      Number(this.offsetWidth || 0),
-      typeof window !== "undefined" ? Number(window.innerWidth || 0) : 0,
-    );
-    const height = Math.max(
-      Number(rect?.height || 0),
-      typeof window !== "undefined" ? Number(window.innerHeight || 0) : 0,
-    );
-    return width >= 760 && height >= 620;
-  }
-
-  _screensaverControlsEnabled() {
-    return this._state.screensaverControlsEnabled === true;
-  }
-
-  _screensaverAutoLyricsWhenPlaying() {
-    return this._state.screensaverAutoLyricsWhenPlaying === true;
-  }
-
-  _maybeOpenScreensaverLyricsForPlayback(player = this._getSelectedPlayer()) {
-    if (!this._screensaverAutoLyricsWhenPlaying()) return false;
-    if (this._state.lyricsOpen || this._state.screensaverLyricsOpen) return false;
-    if (player?.state !== "playing") return false;
-    this._state.screensaverLyricsOpen = true;
-    return true;
-  }
-
-  _defaultScreensaverControlButtons() {
-    return ["previous", "next"];
-  }
-
-  _screensaverControlButtons(options = {}) {
-    const buttons = MaverickMobileSettingsFoundation.normalizeScreensaverControlButtons(
-      this._state.screensaverControlButtons,
-      this._defaultScreensaverControlButtons(),
-    );
-    this._state.screensaverControlButtons = buttons;
-    if (options.includeDisabled === true) return buttons;
-    return this._screensaverControlsEnabled() ? buttons : [];
-  }
-
-  _screensaverControlButtonOptions() {
-    return [
-      { value: "previous", icon: "previous", label: this._i18n("ui.previous") },
-      { value: "play_pause", icon: this._playPauseIconName(this._getSelectedPlayer()), label: this._i18n("ui.play_pause") },
-      { value: "next", icon: "next", label: this._i18n("ui.next") },
-      { value: "mute", icon: this._volumeIconName(this._getSelectedPlayer()), label: this._i18n("ui.mute") },
-      { value: "power", icon: this._powerButtonIcon(), label: this._i18n("ui.auxiliary_button") },
-      { value: "like", icon: this._currentMediaFavoriteState() ? "heart_filled" : "heart_outline", label: this._i18n("ui.like_2") },
-      { value: "lyrics", icon: "lyrics", label: this._i18n("ui.lyrics") },
-      { value: "lyrics_sync", icon: "sync", label: this._i18n("ui.sync_lyrics") },
-      { value: "lyrics_font_minus", icon: "minus", label: this._i18n("ui.smaller_lyrics") },
-      { value: "lyrics_font_plus", icon: "plus", label: this._i18n("ui.larger_lyrics") },
-      { value: "voice", icon: "mic", label: this._flowAssistantLabel() },
-    ];
-  }
-
-  _screensaverControlButtonHtml(value = "") {
-    const option = this._screensaverControlButtonOptions().find((item) => item.value === value);
-    if (!option) return "";
-    if (value === "voice" && !this._voiceAssistantEnabled()) return "";
-    const idMap = {
-      previous: "screensaverPrevBtn",
-      play_pause: "screensaverPlayPauseBtn",
-      next: "screensaverNextBtn",
-      mute: "screensaverMuteBtn",
-      power: "screensaverPowerBtn",
-      lyrics: "screensaverLyricsBtn",
-      lyrics_sync: "screensaverLyricsSyncBtn",
-      lyrics_font_minus: "screensaverLyricsFontMinusBtn",
-      lyrics_font_plus: "screensaverLyricsFontPlusBtn",
-      voice: "screensaverVoiceBtn",
-    };
-    const id = idMap[value];
-    if (!id) return "";
-    const voiceAttrs = value === "voice" ? " data-screensaver-voice" : "";
-    const pressedClass = value === "voice" && this._state.voiceAssistantListening ? " listening" : "";
-    const activeClass = value === "lyrics_sync" && this._state.mobileLyricsSyncEnabled !== false ? " active" : "";
-    const primaryClass = value === "play_pause" ? " primary" : "";
-    return `<button class="screensaver-voice-btn screensaver-control-btn${primaryClass}${pressedClass}${activeClass}" id="${id}" data-screensaver-control="${this._esc(value)}"${voiceAttrs} title="${this._esc(option.label)}" aria-label="${this._esc(option.label)}">${this._iconSvg(option.icon)}</button>`;
-  }
-
-  _screensaverClockMode() {
-    const mode = MaverickMobileSettingsFoundation.normalizeScreensaverClockMode(this._state.screensaverClockMode);
-    this._state.screensaverClockMode = mode;
-    return mode;
-  }
-
-  _screensaverClockSize() {
-    const size = MaverickMobileSettingsFoundation.clampNumber(this._state.screensaverClockSize, 1, { min: 0.75, max: 1.45 });
-    this._state.screensaverClockSize = size;
-    return size;
-  }
-
-  _screensaverClockX() {
-    const x = MaverickMobileSettingsFoundation.clampNumber(this._state.screensaverClockX, 82, { min: 8, max: 92 });
-    this._state.screensaverClockX = x;
-    return x;
-  }
-
-  _screensaverClockY() {
-    const y = MaverickMobileSettingsFoundation.clampNumber(this._state.screensaverClockY, 24, { min: 8, max: 70 });
-    this._state.screensaverClockY = y;
-    return y;
-  }
-
-  _syncScreensaverClockVars() {
-    const card = this.shadowRoot?.querySelector?.(".card");
-    if (!card) return;
-    card.style.setProperty("--screensaver-clock-scale", this._screensaverClockSize().toFixed(2));
-    card.style.setProperty("--screensaver-clock-x", `${this._screensaverClockX().toFixed(1)}%`);
-    card.style.setProperty("--screensaver-clock-y", `${this._screensaverClockY().toFixed(1)}%`);
-  }
-
-  _screensaverTimeoutSeconds() {
-    const seconds = MaverickMobileSettingsFoundation.clampSeconds(this._state.screensaverTimeoutSeconds, 90, { min: 15, max: 3600 });
-    this._state.screensaverTimeoutSeconds = seconds;
-    return seconds;
-  }
-
-  _screensaverMessage() {
-    return String(this._state.screensaverMessage || "").trim();
-  }
   _powerButtonEnabled() {
     return this._state.powerButtonEnabled === true;
   }
@@ -4235,12 +2762,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _activeAccentRgbTuple() {
-    const parts = String(this._activeAccentRgb() || "")
+    const parts = String(activeAccentRgb(this) || "")
       .split(/[\s,]+/)
       .map((value) => Number(value))
       .filter((value) => Number.isFinite(value));
-    if (parts.length >= 3) return parts.slice(0, 3).map((value) => this._clampByte(value));
-    return MaverickPaletteFoundation.hexToRgbTuple(this._activeAccentColor() || "#f5a623");
+    if (parts.length >= 3) return parts.slice(0, 3).map((value) => MaverickPaletteFoundation.clampRgbByte(value));
+    return MaverickPaletteFoundation.hexToRgbTuple(activeAccentColor(this) || "#f5a623");
   }
 
   _ambientLightTrackSignature(player = this._getSelectedPlayer()) {
@@ -4331,423 +2858,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     await this._runAuxiliaryButtonAction(0);
   }
 
-  _handleScreensaverActivity(event = null) {
-    if (event && event.isTrusted === false) return;
-    if (event?.target?.closest?.("[data-screensaver-control], [data-screensaver-voice]")) return;
-    if (
-      this._state.voiceAssistantKeepScreensaver === true
-      && event?.target?.closest?.("#voiceAssistantDialog, .voice-assistant-panel")
-    ) {
-      return;
-    }
-    if (event?.target?.closest?.("#screensaverBackdrop")) {
-      event.preventDefault?.();
-      event.stopPropagation?.();
-    }
-    this._resetScreensaverTimer({ hide: true, activity: true });
-  }
-
-  _startScreensaverVisibilityTracking() {
-    if (this._screensaverVisibilityObserver || typeof IntersectionObserver === "undefined") {
-      this._markScreensaverPageEntry("connected");
-      return;
-    }
-    this._screensaverVisibilityObserver = new IntersectionObserver((entries = []) => {
-      const visible = entries.some((entry) => entry.isIntersecting && Number(entry.intersectionRatio || 0) > 0);
-      const wasVisible = this._screensaverVisible !== false;
-      this._screensaverVisibilityKnown = true;
-      this._screensaverVisible = visible;
-      if (visible && !wasVisible) {
-        this._markScreensaverPageEntry("visible");
-      } else if (!visible && wasVisible) {
-        this._pauseScreensaverWhileHidden();
-      } else if (visible && this._screensaverPageEntryPending) {
-        this._markScreensaverPageEntry("visible");
-      }
-    }, { threshold: 0.01 });
-    this._screensaverVisibilityObserver.observe(this);
-  }
-
-  _stopScreensaverVisibilityTracking() {
-    if (this._screensaverVisibilityObserver) {
-      this._screensaverVisibilityObserver.disconnect();
-      this._screensaverVisibilityObserver = null;
-    }
-    this._screensaverVisibilityKnown = false;
-    this._screensaverVisible = true;
-  }
-
-  _pauseScreensaverWhileHidden() {
-    clearTimeout(this._screensaverTimer);
-    this._screensaverTimer = null;
-    this._hideScreensaver();
-  }
-
-  _markScreensaverPageEntry(reason = "entry") {
-    this._screensaverPageEntryPending = true;
-    this._screensaverPageEntryReason = reason;
-    this._screensaverSuppressUntil = Date.now() + (this._screensaverTimeoutSeconds() * 1000);
-    this._resetScreensaverTimer({ hide: true, activity: true });
-  }
-
-  _resetScreensaverTimer({ hide = false, delayMs = null, activity = false } = {}) {
-    clearTimeout(this._screensaverTimer);
-    this._screensaverTimer = null;
-    if (hide) this._hideScreensaver();
-    if (this._screensaverSuppressedByEditor()) {
-      this._hideScreensaver();
-      return;
-    }
-    if (!this._screensaverEnabled() || !this.isConnected) return;
-    if (this._screensaverVisibilityKnown && this._screensaverVisible === false) return;
-    const defaultDelayMs = this._screensaverTimeoutSeconds() * 1000;
-    if (activity || hide) {
-      this._screensaverSuppressUntil = Date.now() + defaultDelayMs;
-    }
-    const timeoutMs = delayMs !== null && Number.isFinite(Number(delayMs))
-      ? Math.max(500, Number(delayMs))
-      : defaultDelayMs;
-    this._screensaverTimer = setTimeout(() => {
-      this._showScreensaver();
-    }, timeoutMs);
-  }
-
-  _screensaverBlocked() {
-    return !!(
-      this._screensaverSuppressedByEditor()
-      || this._state.menuOpen
-      || this._state.lyricsOpen
-      || this.shadowRoot?.querySelector(".fan-catalogue,.volume-wheel-popover,.player-picker-fan:not([hidden])")
-      || this.$("immersiveActionsToggle")?.getAttribute("aria-expanded") === "true"
-      || this._state.controlRoomOpen
-      || this._state.mobileHistoryDrawerOpen
-      || (this._state.voiceAssistantDialogOpen && this._state.voiceAssistantKeepScreensaver !== true)
-      || this.$("mobileQueueActionModal")?.classList?.contains("open")
-      || this.$("mobileVolumePresetModal")?.classList?.contains("open")
-      || this.$("mobileSmartVoiceModal")?.classList?.contains("open")
-    );
-  }
-
-  _showScreensaver(options = {}) {
-    const force = options?.force === true;
-    if (this._screensaverSuppressedByEditor()) {
-      this._hideScreensaver();
-      return;
-    }
-    if (!force && !this._screensaverEnabled()) return;
-    const now = Date.now();
-    const suppressUntil = Number(this._screensaverSuppressUntil || 0);
-    if (!force && suppressUntil > now) {
-      this._resetScreensaverTimer({ delayMs: suppressUntil - now });
-      return;
-    }
-    if (!force && this._screensaverBlocked()) {
-      this._resetScreensaverTimer({ delayMs: 2000 });
-      return;
-    }
-    this._state.screensaverOpen = true;
-    const overlay = this.$("screensaverBackdrop");
-    if (!overlay) return;
-    clearTimeout(this._screensaverExitTimer);
-    this._screensaverExitTimer = null;
-    this.classList.add("screensaver-page-open");
-    this.shadowRoot?.querySelector?.(".card")?.classList?.add("screensaver-active");
-    overlay.classList.remove("closing");
-    overlay.classList.add("open");
-    overlay.setAttribute("aria-hidden", "false");
-    if (this._state.lyricsOpen) {
-      this._state.screensaverLyricsOpen = true;
-      this._closeLyricsModal?.({ preserveLyrics: true, sync: false });
-    } else {
-      this._maybeOpenScreensaverLyricsForPlayback(this._getSelectedPlayer());
-    }
-    if (this._lyricsSessionActive?.()) this._syncLyricsForCurrentTrack();
-    this._ensureQueueSnapshot(true)
-      .then(() => { if (this._state.screensaverOpen) this._syncScreensaverUi(); })
-      .catch(() => {});
-    this._syncScreensaverUi();
-    clearInterval(this._screensaverClockTimer);
-    this._screensaverClockTimer = setInterval(() => this._syncScreensaverUi(), 1000);
-  }
-
-  _hideScreensaver() {
-    const overlay = this.$("screensaverBackdrop");
-    const wasVisible = !!(this._state.screensaverOpen || overlay?.classList?.contains("open") || overlay?.classList?.contains("closing"));
-    if (!wasVisible) {
-      this.classList.remove("screensaver-page-open");
-      this.shadowRoot?.querySelector?.(".card")?.classList?.remove("screensaver-active");
-      return;
-    }
-    this._state.screensaverOpen = false;
-    this._screensaverLyricsInactiveSince = 0;
-    this._state.screensaverLyricsOpen = false;
-    if (!this._state.lyricsOpen) this._clearLyricsState?.();
-    overlay?.classList.remove("open");
-    overlay?.classList.add("closing");
-    overlay?.setAttribute("aria-hidden", "true");
-    if (this._state.voiceAssistantKeepScreensaver) {
-      this._state.voiceAssistantKeepScreensaver = false;
-      this._syncVoiceAssistantDialog();
-    }
-    clearInterval(this._screensaverClockTimer);
-    this._screensaverClockTimer = null;
-    clearTimeout(this._screensaverExitTimer);
-    const finishHide = () => {
-      if (this._state.screensaverOpen) return;
-      overlay?.classList.remove("closing");
-      this.classList.remove("screensaver-page-open");
-      this.shadowRoot?.querySelector?.(".card")?.classList?.remove("screensaver-active");
-      this._screensaverExitTimer = null;
-      this._syncNowPlayingUI();
-    };
-    const reduceMotion = (() => {
-      try { return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true; } catch { return false; }
-    })();
-    this._screensaverExitTimer = setTimeout(finishHide, reduceMotion ? 0 : 520);
-  }
-
-  _restoreScreensaverIfOpen() {
-    if (!this._state.screensaverOpen) return;
-    const overlay = this.$("screensaverBackdrop");
-    if (!overlay) return;
-    clearTimeout(this._screensaverExitTimer);
-    this._screensaverExitTimer = null;
-    this.classList.add("screensaver-page-open");
-    this.shadowRoot?.querySelector?.(".card")?.classList?.add("screensaver-active");
-    overlay.classList.remove("closing");
-    overlay.classList.add("open");
-    overlay.setAttribute("aria-hidden", "false");
-    this._syncScreensaverUi();
-    if (!this._screensaverClockTimer) {
-      this._screensaverClockTimer = setInterval(() => this._syncScreensaverUi(), 1000);
-    }
-  }
-
-  _setScreensaverImageHost(host, url = "", fallbackHtml = "") {
-    if (!host) return;
-    const nextUrl = String(url || "").trim();
-    if (host.dataset.artUrl === nextUrl) return;
-    host.dataset.artUrl = nextUrl;
-    host.dataset.artReady = nextUrl ? "0" : "1";
-    if (!nextUrl) {
-      host.innerHTML = fallbackHtml;
-      return;
-    }
-    const img = document.createElement("img");
-    img.alt = "";
-    img.decoding = "async";
-    img.loading = "eager";
-    const applyImage = () => {
-      if (!host.isConnected || host.dataset.artUrl !== nextUrl) return;
-      host.dataset.artReady = "1";
-      host.replaceChildren(img);
-    };
-    img.addEventListener("load", applyImage, { once: true });
-    img.addEventListener("error", () => {
-      if (!host.isConnected || host.dataset.artUrl !== nextUrl) return;
-      host.dataset.artReady = "1";
-      host.innerHTML = fallbackHtml;
-    }, { once: true });
-    img.src = nextUrl;
-    if (img.complete) applyImage();
-  }
-
-  _setScreensaverBackgroundArt(overlay, url = "") {
-    if (!overlay) return;
-    const nextUrl = String(url || "").trim();
-    if (overlay.dataset.bgArtUrl === nextUrl) return;
-    overlay.dataset.bgArtUrl = nextUrl;
-    if (!nextUrl) {
-      overlay.style.setProperty("--screensaver-art-url", "none");
-      return;
-    }
-    const img = new Image();
-    img.decoding = "async";
-    const applyImage = () => {
-      if (!overlay.isConnected || overlay.dataset.bgArtUrl !== nextUrl) return;
-      overlay.style.setProperty("--screensaver-art-url", cssUrl(nextUrl));
-    };
-    img.addEventListener("load", applyImage, { once: true });
-    img.addEventListener("error", () => {
-      if (!overlay.isConnected || overlay.dataset.bgArtUrl !== nextUrl) return;
-      if (!overlay.style.getPropertyValue("--screensaver-art-url")) {
-        overlay.style.setProperty("--screensaver-art-url", "none");
-      }
-    }, { once: true });
-    img.src = nextUrl;
-    if (img.complete) applyImage();
-  }
-
-  _screensaverLyricsModeActive(player = null) {
-    if (!(this._state.lyricsOpen || this._state.screensaverLyricsOpen) || !this._state.screensaverOpen) {
-      this._screensaverLyricsInactiveSince = 0;
-      return false;
-    }
-    if (player?.state === "playing") {
-      this._screensaverLyricsInactiveSince = 0;
-      return true;
-    }
-    const now = Date.now();
-    if (!this._screensaverLyricsInactiveSince) this._screensaverLyricsInactiveSince = now;
-    const active = now - this._screensaverLyricsInactiveSince < 30000;
-    if (!active) {
-      this._state.screensaverLyricsOpen = false;
-      if (!this._state.lyricsOpen) this._clearLyricsState?.();
-    }
-    return active;
-  }
-
-  _screensaverLyricsRows() {
-    const lines = Array.isArray(this._state.lyricsLines) ? this._state.lyricsLines : [];
-    if (lines.length) {
-      const activeIndex = Math.max(0, this._currentLyricsActiveIndex(lines));
-      return [
-        { kind: "muted", text: lines[activeIndex - 1]?.text || "" },
-        { kind: "current", text: lines[activeIndex]?.text || "" },
-        { kind: "muted", text: lines[activeIndex + 1]?.text || "" },
-      ].filter((row) => String(row.text || "").trim());
-    }
-    if (this._state.lyricsLoading) {
-      return [{ kind: "current", text: this._i18n("ui.loading_lyrics") }];
-    }
-    const textRows = String(this._state.lyricsText || "")
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .slice(0, 4);
-    if (textRows.length) {
-      return textRows.map((text, index) => ({ kind: index === 0 ? "current" : "muted", text }));
-    }
-    return [{ kind: "current", text: this._i18n("ui.no_lyrics_found") }];
-  }
-
-  _syncScreensaverLyricsUi(player = null) {
-    const overlay = this.$("screensaverBackdrop");
-    const host = this.$("screensaverLyrics");
-    if (!overlay || !host) return;
-    host.style?.setProperty("--lyrics-font-scale", this._lyricsFontScale().toFixed(2));
-    const active = this._screensaverLyricsModeActive(player);
-    overlay.classList.toggle("lyrics-mode", active);
-    if (!active) {
-      host.dataset.lyricsSignature = "";
-      host.innerHTML = "";
-      return;
-    }
-    const rows = this._screensaverLyricsRows();
-    const signature = rows.map((row) => `${row.kind}:${row.text}`).join("\n");
-    if (host.dataset.lyricsSignature === signature) return;
-    host.dataset.lyricsSignature = signature;
-    host.innerHTML = rows.map((row) => `
-      <div class="screensaver-lyric-line ${this._esc(row.kind)}">${this._esc(row.text)}</div>
-    `).join("");
-  }
-  _openTabletLyricsScreensaver() {
-    if (this._layoutModeConfig() !== "tablet") return false;
-    if (!this._getSelectedPlayer()) return false;
-    if (this._screensaverSuppressedByEditor()) return false;
-    this._screensaverSuppressUntil = 0;
-    this._state.lyricsOpen = false;
-    this._state.screensaverLyricsOpen = true;
-    this._closeLyricsModal?.({ preserveLyrics: true, sync: false });
-    this._showScreensaver({ force: true });
-    this._syncScreensaverUi();
-    return true;
-  }
-
-  _syncScreensaverUi() {
-    const overlay = this.$("screensaverBackdrop");
-    if (!overlay) return;
-    const mode = this._screensaverClockMode();
-    const now = new Date();
-    const player = this._getSelectedPlayer();
-    const queueItem = this._state.maQueueState?.current_item || null;
-    this._syncLocalSendspinMediaSession(player, queueItem);
-    const art = this._currentArtworkUrl(player, queueItem, 720, { preferPlayerArtwork: true });
-    const mediaTitle = player?.attributes?.media_title || queueItem?.media_item?.name || "";
-    const mediaArtist = player?.attributes?.media_artist || (queueItem?.media_item?.artists || []).map((artistEntry) => artistEntry?.name).filter(Boolean).join(", ") || "";
-    const hasMedia = !!(mediaTitle || mediaArtist || art);
-    ["screensaverPrevBtn", "screensaverPlayPauseBtn", "screensaverNextBtn", "screensaverMuteBtn", "screensaverPowerBtn", "screensaverLyricsBtn", "screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((id) => {
-      const btn = this.$(id);
-      if (!btn) return;
-      const available = id === "screensaverPowerBtn" ? !!this._hass : !!player;
-      btn.disabled = !available;
-      btn.setAttribute("aria-disabled", available ? "false" : "true");
-    });
-    this._setButtonIcon(this.$("screensaverPlayPauseBtn"), this._playPauseIconName(player));
-    this._setButtonIcon(this.$("screensaverMuteBtn"), this._volumeIconName(player));
-    const muteBtn = this.$("screensaverMuteBtn");
-    if (muteBtn) muteBtn.classList.toggle("active", this._isMuted(player));
-    const likeBtn = this.$("screensaverLikeBtn");
-    if (likeBtn) {
-      likeBtn.hidden = !hasMedia;
-      likeBtn.disabled = !hasMedia;
-      likeBtn.setAttribute("aria-disabled", hasMedia ? "false" : "true");
-      const liked = this._currentMediaFavoriteState();
-      likeBtn.classList.toggle("active", liked);
-      this._setButtonIcon(likeBtn, liked ? "heart_filled" : "heart_outline");
-    }
-    const title = mediaTitle || this._i18n("ui.nothing_playing");
-    const nextItem = this._mobileUpNextItem();
-    const nextTitle = nextItem ? this._queueItemPrimaryTitle(nextItem) : "";
-    const nextArtist = nextItem ? this._queueItemPrimaryArtist(nextItem) : "";
-    const nextArt = nextItem ? this._queueItemImageUrl(nextItem, 96) : "";
-    const message = this._screensaverMessage();
-    overlay.classList.toggle("analog-mode", mode === "analog");
-    overlay.classList.toggle("digital-mode", mode !== "analog");
-    overlay.classList.toggle("empty-mode", !hasMedia);
-    this._setScreensaverBackgroundArt(overlay, art);
-    this._syncScreensaverLyricsUi(player);
-    const lyricsBtn = this.$("screensaverLyricsBtn");
-    const lyricsActive = overlay.classList.contains("lyrics-mode");
-    if (lyricsBtn) {
-      lyricsBtn.classList.toggle("active", lyricsActive);
-      lyricsBtn.setAttribute("aria-pressed", lyricsActive ? "true" : "false");
-    }
-    ["screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((id) => {
-      const btn = this.$(id);
-      if (!btn) return;
-      btn.disabled = !lyricsActive;
-      btn.setAttribute("aria-disabled", lyricsActive ? "false" : "true");
-    });
-    const lyricsSyncBtn = this.$("screensaverLyricsSyncBtn");
-    if (lyricsSyncBtn) {
-      const syncActive = lyricsActive && this._state.mobileLyricsSyncEnabled !== false;
-      lyricsSyncBtn.classList.toggle("active", syncActive);
-      lyricsSyncBtn.setAttribute("aria-pressed", syncActive ? "true" : "false");
-    }
-    const clock = this.$("screensaverClock");
-    if (clock) {
-      clock.textContent = new Intl.DateTimeFormat(this._language(), {
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(now);
-    }
-    this._setScreensaverImageHost(this.$("screensaverArt"), art, this._tabletBrandSignatureHtml("screensaver-empty-logo"));
-    if (this.$("screensaverTitle")) this.$("screensaverTitle").textContent = title;
-    if (this.$("screensaverArtist")) this.$("screensaverArtist").textContent = hasMedia ? (mediaArtist || this._selectedPlayerName()) : "";
-    const messageEl = this.$("screensaverMessage");
-    if (messageEl) {
-      messageEl.hidden = !message;
-      messageEl.textContent = message;
-    }
-    const nextEl = this.$("screensaverNext");
-    if (nextEl) {
-      nextEl.hidden = !nextTitle;
-      if (nextTitle) {
-        this._setScreensaverImageHost(this.$("screensaverNextArt"), nextArt, this._iconSvg("tracks"));
-        if (this.$("screensaverNextLabel")) this.$("screensaverNextLabel").textContent = this._i18n("ui.up_next_2");
-        if (this.$("screensaverNextTitle")) this.$("screensaverNextTitle").textContent = nextTitle;
-        if (this.$("screensaverNextArtist")) this.$("screensaverNextArtist").textContent = nextArtist;
-      }
-    }
-    const seconds = now.getSeconds();
-    const minutes = now.getMinutes() + (seconds / 60);
-    const hours = (now.getHours() % 12) + (minutes / 60);
-    this.$("screensaverHour")?.style?.setProperty("--hand-rotation", `${hours * 30}deg`);
-    this.$("screensaverMinute")?.style?.setProperty("--hand-rotation", `${minutes * 6}deg`);
-    this.$("screensaverSecond")?.style?.setProperty("--hand-rotation", `${seconds * 6}deg`);
-  }
-
   _mobileStudioShortcutEnabled() {
     return this._state.mobileStudioShortcutEnabled !== false;
   }
@@ -4782,8 +2892,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     };
     bindButton("mobileLyricsBtn", (e) => {
       this._pressUiButton(e.currentTarget);
-      if (this._openTabletLyricsScreensaver()) return;
-      this._openLyricsModal();
+      if (openTabletLyricsScreensaver(this)) return;
+      openLyricsModal(this);
     });
     bindButton("mobileLikeBtn", (e) => {
       if (!this._pressUiButton(e.currentTarget)) return;
@@ -4821,7 +2931,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     });
     bindButton("mobileVoiceAssistantBtn", (e) => {
       if (!this._pressUiButton(e.currentTarget, [8, 18, 8])) return;
-      this._startVoiceAssistantCommand();
+      startVoiceAssistantCommand(this);
     });
     bindButton("mobileDisconnectAllBtn", (e) => {
       if (!this._pressUiButton(e.currentTarget, [12, 18])) return;
@@ -5427,23 +3537,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
   }
 
-  _announcementEligiblePlayers() {
-    return MaverickPlayersFoundation.announcementEligiblePlayers(this._state.players || []);
-  }
-
-  _announcementTargetValue() {
-    const raw = String(this._state.mobileAnnouncementTarget || "").trim();
-    if (raw === "all") return "all";
-    const eligible = this._announcementEligiblePlayers();
-    if (eligible.some((player) => player.entity_id === raw)) return raw;
-    return eligible.find((player) => player.entity_id === this._state.selectedPlayer)?.entity_id || eligible[0]?.entity_id || "";
-  }
-
-  _announcementVolumePct() {
-    const raw = Number(this._state.mobileAnnouncementVolume ?? this._config?.mobile_announcement_volume ?? 20);
-    return Number.isFinite(raw) ? Math.max(20, Math.min(50, raw)) : 20;
-  }
-
   _mobileNavigableActivePlayers() {
     return MaverickPlayersFoundation.mobileNavigableActivePlayers(
       this._state.players || [],
@@ -5487,7 +3580,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       { value: "queue", icon: "queue", label: this._i18n("ui.queue_2") },
       { value: "queue_flow", icon: "queue_flow", label: this._queueFlowLabel() },
       { value: "radio", icon: "radio", label: this._i18n("ui.quick_mix") },
-      { value: "voice", icon: "mic", label: this._flowAssistantLabel() },
+      { value: "voice", icon: "mic", label: flowAssistantLabel(this) },
       { value: "history", icon: "history", label: this._i18n("ui.history") },
       { value: "info", icon: "info", label: this._i18n("ui.info") },
       { value: "disconnect_all", icon: "close", label: this._cleanAllLabel(), tone: "danger" },
@@ -5505,16 +3598,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       return `<button class="mobile-art-fab power-fab auxiliary-fab" data-auxiliary-index="${this._esc(index)}" title="${this._esc(label)}" aria-label="${this._esc(label)}">${this._iconSvg(icon)}</button>`;
     }
     switch (action) {
-      case "timer": {
-        const label = this._sleepTimerFooterLabel();
-        const active = !!label && this._sleepTimerChipVisible();
-        return `
-          <button class="mobile-art-fab mobile-timer-fab ${active ? "active" : ""}" id="mobileTimerBtn" title="${this._esc(this._i18n("ui.schedules"))}">
-            ${this._iconSvg("timer")}
-            <span class="mobile-timer-label" ${active ? "" : "hidden"}>${this._esc(active ? label : "")}</span>
-          </button>
-        `;
-      }
+      case "timer":
+        return sleepTimerFabHtml(this);
       case "home":
         return `<button class="mobile-art-fab" id="mobileHomeQuickBtn" title="${this._i18n("ui.home")}">${this._iconSvg("home")}</button>`;
       case "search":
@@ -5530,7 +3615,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       case "radio":
         return `<button class="mobile-art-fab" id="mobileRandomBtn" title="${this._i18n("ui.quick_mix")}">${this._iconSvg("radio")}</button>`;
       case "voice":
-        return `<button class="mobile-art-fab voice-assistant-fab ${this._state.voiceAssistantListening ? "listening" : ""}" id="mobileVoiceAssistantBtn" title="${this._esc(this._flowAssistantLabel())}" aria-label="${this._esc(this._flowAssistantLabel())}">${this._iconSvg("mic")}</button>`;
+        return voiceAssistantFabHtml(this);
       case "history":
         return historyToggleButtonHtml || `<button class="mobile-art-fab history-toggle-fab empty-history-fab" id="historyToggleFab" title="${this._i18n("ui.recently_played_2")}" aria-expanded="false">${this._iconSvg("history")}</button>`;
       case "info":
@@ -5558,7 +3643,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (this._isHotelMode()) return ["search"];
     const blocked = this._isLocalSendspinPlayer(player) ? new Set(["like", "radio"]) : null;
     return (Array.isArray(actions) ? actions : this._mobileQuickActions())
-      .filter((action) => action !== "voice" || this._voiceAssistantEnabled())
+      .filter((action) => action !== "voice" || voiceAssistantEnabled(this))
       .filter((action) => action !== "queue_flow" || this._mobileQueueFlowEnabled())
       .filter((action) => !blocked?.has(action));
   }
@@ -5602,7 +3687,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       rowActions.join(","),
       historyToggleButtonHtml ? "history-inline" : "history-floating",
       this._enabledAuxiliaryButtons().map((button) => `${button.index}:${button.icon}:${button.name}`).join("|"),
-      this._voiceAssistantEnabled() ? "voice-on" : "voice-off",
+      voiceAssistantEnabled(this) ? "voice-on" : "voice-off",
     ].join(";");
     const needsRefresh = options.force === true
       || host.dataset.maverickActionSignature !== signature
@@ -5918,7 +4003,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       : this._i18n("ui.stopped_all_players_cleared_playlists_and_disconnected_groups"));
     this._syncNowPlayingUI();
     if (this._state.menuOpen) this._renderMobileMenu();
-    if (this._state.controlRoomOpen) this._syncControlRoomUi({ force: true });
+    if (this._state.controlRoomOpen) syncControlRoomUi(this, { force: true });
     this._timeout(() => this._updateNowPlayingState(), 500);
   }
 
@@ -6001,13 +4086,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       : playerOrEntityId;
     const value = Number(player?.attributes?.volume_level);
     return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
-  }
-
-  async _setPlayerVolumeForAnnouncement(entityId, level) {
-    const normalized = Math.max(0, Math.min(1, Number(level) || 0));
-    if (!entityId) return false;
-    await this._callMaverickEnginePlayerCommand(entityId, "volume", { volume_level: normalized });
-    return true;
   }
 
   _playerVolumeLevel(entityId) {
@@ -7339,9 +5417,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.classList.remove("compact-inline-popup-open");
     this.classList.toggle("compact-tile-open", compactMode && compactTileMode);
     this.classList.toggle("compact-menu-open", this._compactMenuOverlayOpen());
-    const nightMode = this._mobileNightMode();
-    const nightActive = this._isNightModeActive();
-    const sleepTimerActive = this._sleepTimerRemainingMs() > 0;
+    const nightMode = mobileNightMode(this);
+    const nightActive = isNightModeActive(this);
+    const sleepTimerActive = sleepTimerRemainingMs(this) > 0;
     const showUpNext = this._mobileShowUpNextEnabled();
     const hasUpNextItem = !!this._mobileUpNextItem();
     const showUpNextInline = showUpNext && hasUpNextItem;
@@ -7357,18 +5435,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const height = Math.max(280, Math.min(2200, Math.round(allocatedHeight || (mobileLayoutMode === "full" ? fullInlineTargetHeight : fallbackHeight))));
     const minCardHeight = layoutProfile.heightSize === "short" ? 280 : (layoutMode === "tablet" ? 420 : 360);
     const hostMinWidth = layoutMode === "tablet" && !immersiveDesign ? "min(calc(100vw - 32px), 720px)" : "0px";
-    const screensaverClockSize = this._screensaverClockSize();
-    const screensaverClockX = this._screensaverClockX();
-    const screensaverClockY = this._screensaverClockY();
-    const screensaverControlButtons = this._screensaverControlButtons();
-    const screensaverActionButtonsHtml = screensaverControlButtons
-      .filter((value) => value !== "like")
-      .map((value) => this._screensaverControlButtonHtml(value))
-      .filter(Boolean)
-      .join("");
-    const screensaverLikeButtonHtml = screensaverControlButtons.includes("like")
-      ? `<button class="screensaver-voice-btn screensaver-control-btn screensaver-like-btn ${this._currentMediaFavoriteState() ? "active" : ""}" id="screensaverLikeBtn" data-screensaver-control="like" title="${this._esc(this._i18n("ui.like_2"))}" aria-label="${this._esc(this._i18n("ui.like_2"))}">${this._iconSvg(this._currentMediaFavoriteState() ? "heart_filled" : "heart_outline")}</button>`
-      : "";
+    const clockScale = screensaverClockSize(this);
+    const clockX = screensaverClockX(this);
+    const clockY = screensaverClockY(this);
     const compactTransition = String(this._state.mobileCompactTransition || "");
     const compactTransitionClass = compactTransition === "expand"
       ? " compact-transition-expand"
@@ -7380,18 +5449,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._lastCardHeight = Math.max(0, Math.round(height || this._lastCardHeight || 0));
     this._state.mobileNightRenderedActive = nightActive;
     this._state.mobileNightRenderedMode = nightMode;
-    const nightQuickRowHtml = showNightRow ? `
-      <div class="night-quick-row ${nightMode === "auto" ? "auto-mode" : "on-mode"}" id="nightQuickRow" ${showNightRow ? "" : "hidden"}>
-        <button class="night-quick-btn icon-only ${nightActive || nightMode === "on" ? "active" : "soft"}" id="nightModeQuickBtn" title="${this._esc(this._i18n("ui.night_mode"))}">
-          ${this._iconSvg("moon")}
-        </button>
-        <button class="night-quick-btn icon-only ${sleepTimerActive ? "active" : ""}" id="nightSleepBtn" title="${this._esc(this._i18n("ui.sleep_timer"))}" ${nightMode === "on" ? "" : "hidden"}>
-          ${this._iconSvg("timer")}
-        </button>
-        <button class="night-quick-btn icon-only soft" id="nightChillBtn" title="${this._esc(this._i18n("ui.chill_mix"))}" ${nightMode === "on" ? "" : "hidden"}>
-          ${this._iconSvg("wand")}
-        </button>
-      </div>` : ``;
+    const nightRowHtml = nightQuickRowHtml(this);
     const playerFocusCoreHtml = `
         <button class="player-focus" id="activePlayerChip" title="${this._i18n("ui.choose_player")}">
           ${immersiveDesign ? `<span class="immersive-player-symbol" aria-hidden="true">${this._iconSvg("speaker")}</span>` : ""}
@@ -7414,11 +5472,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const quickActionsWithVoice = quickActions;
     const quickActionsWithHome = quickActionsWithVoice;
     const quickActionsWithPower = this._mobileActionsWithAuxiliary(quickActionsWithHome);
-    const controlRoomEnabled = this._controlRoomEnabled();
+    const studioEnabled = controlRoomEnabled(this);
     const studioShortcutEnabled = this._mobileStudioShortcutEnabled();
     const mainBarButtons = [];
-    if (!hotelMode && controlRoomEnabled && studioShortcutEnabled) {
-      mainBarButtons.push(`<button class="footer-btn control-room-entry" data-mainbar-action="control_room" title="${this._controlRoomLabel()}">${this._mobileFooterButtonInner("grid", this._controlRoomLabel())}</button>`);
+    if (!hotelMode && studioEnabled && studioShortcutEnabled) {
+      mainBarButtons.push(`<button class="footer-btn control-room-entry" data-mainbar-action="control_room" title="${controlRoomLabel(this)}">${this._mobileFooterButtonInner("grid", controlRoomLabel(this))}</button>`);
     }
     if (mainBarItems.includes("actions")) {
       mainBarButtons.push(`<button class="footer-btn" data-mainbar-action="actions" title="${this._i18n("ui.actions_2")}">${this._mobileFooterButtonInner("menu", this._i18n("ui.actions_2"))}</button>`);
@@ -7503,17 +5561,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ? quickActionsWithPower.filter((action) => action !== "history" && action !== "timer")
       : quickActionsWithPower;
     const mobileQuickActionsHtml = this._mobileQuickActionButtonsHtml(mobileHistoryToggleButtonHtml, quickActionsInArtRow);
-    const controlRoomBackdropHtml = !hotelMode && controlRoomEnabled ? `
-      <div class="control-room-backdrop" id="controlRoomBackdrop">
-        <div class="control-room-shell">
-          <div class="control-room-head">
-            <div class="control-room-head-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("control-room-head-logo")}</div>
-            <button class="control-room-close" id="controlRoomCloseBtn" title="${this._esc(this._i18n("ui.close"))}">${this._iconSvg("close")}</button>
-          </div>
-          <div class="control-room-body-host" id="controlRoomBody"></div>
-        </div>
-      </div>
-    ` : ``;
+    const studioShellHtml = controlRoomBackdropHtml(this);
     const compactTileHtml = `
       <div class="compact-shell premium-player-tile">
         <div class="compact-backdrop-art" id="compactBackdropArt"></div>
@@ -7541,7 +5589,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
                     <span class="up-next-title"></span>
                   </span>
                 </button>
-                ${nightQuickRowHtml}
+                ${nightRowHtml}
               </div>
             </div>
           </div>
@@ -7591,7 +5639,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
                 ${mobileQuickActionsHtml}
               </div>
             </div>
-            ${nightQuickRowHtml}
+            ${nightRowHtml}
           </div>
         </div>
       </div>`;
@@ -7619,7 +5667,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
     this.shadowRoot.innerHTML = `
       <style>${buildCardStyles({ hostMinWidth, height, minCardHeight, fontScale: this._state.mobileFontScale || 1, iconScale: mobileIconScale.toFixed(2), customRgb: this._customRgb(), customText: this._customTextColor(), customColor: this._state.mobileCustomColor || "#e0a11b", fullInlineTargetHeight })}</style>
-      <div class="card theme-${visualTheme} layout-${layoutMode}${layoutProfileClass ? ` ${layoutProfileClass}` : ""} mobile-layout-${mobileLayoutMode}${mobileLayoutMode === "full" ? " mobile-layout-forced-full" : ""}${mobileLayoutMode === "compact" ? " mobile-layout-forced-compact" : ""}${mobileEdgeToEdgeMode ? " mobile-edge-to-edge" : ""} performance-profile-${performanceProfile}${performanceMode ? " performance-lite" : ""}${performanceUltraLite ? " performance-ultra-lite" : ""}${hotelMode ? " hotel-mode" : ""}${compactTileMode ? " compact-mode compact-collapsed" : compactMode ? " compact-expanded" : ""}${compactMiniWidget ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${compactTransitionClass}${nightActive ? " night-mode" : ""}${showNightRow ? " night-mode-enabled" : ""}${tabletAutoFit ? " tablet-auto-fit" : ""}${tabletDenseUi ? " tablet-fit-dense" : ""}${showNightRow ? " tablet-fit-night" : ""}${showUpNextInline ? " tablet-fit-up-next" : ""}${mobileDenseContent ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!hotelMode && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${layoutProfileStyle}--screensaver-clock-scale:${this._esc(screensaverClockSize.toFixed(2))};--screensaver-clock-x:${this._esc(screensaverClockX.toFixed(1))}%;--screensaver-clock-y:${this._esc(screensaverClockY.toFixed(1))}%;">
+      <div class="card theme-${visualTheme} layout-${layoutMode}${layoutProfileClass ? ` ${layoutProfileClass}` : ""} mobile-layout-${mobileLayoutMode}${mobileLayoutMode === "full" ? " mobile-layout-forced-full" : ""}${mobileLayoutMode === "compact" ? " mobile-layout-forced-compact" : ""}${mobileEdgeToEdgeMode ? " mobile-edge-to-edge" : ""} performance-profile-${performanceProfile}${performanceMode ? " performance-lite" : ""}${performanceUltraLite ? " performance-ultra-lite" : ""}${hotelMode ? " hotel-mode" : ""}${compactTileMode ? " compact-mode compact-collapsed" : compactMode ? " compact-expanded" : ""}${compactMiniWidget ? " compact-mini-widget" : ""}${this._compactMenuOverlayOpen() ? " compact-menu-open" : ""}${compactTransitionClass}${nightActive ? " night-mode" : ""}${showNightRow ? " night-mode-enabled" : ""}${tabletAutoFit ? " tablet-auto-fit" : ""}${tabletDenseUi ? " tablet-fit-dense" : ""}${showNightRow ? " tablet-fit-night" : ""}${showUpNextInline ? " tablet-fit-up-next" : ""}${mobileDenseContent ? " mobile-content-dense" : ""}${this._tabletStabilityModeEnabled() ? " tablet-stable" : ""}${!hotelMode && this._state.controlRoomOpen ? " control-room-open" : ""}${this._state.screensaverOpen ? " screensaver-active" : ""}" style="${layoutProfileStyle}--screensaver-clock-scale:${this._esc(clockScale.toFixed(2))};--screensaver-clock-x:${this._esc(clockX.toFixed(1))}%;--screensaver-clock-y:${this._esc(clockY.toFixed(1))}%;">
         <div class="bg" id="mobileBg"></div><div class="shade"></div><div class="glow"></div>
         ${compactCollapseFabHtml}
         ${homeShortcutFabHtml}
@@ -7646,7 +5694,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           </div>
           <div class="history-drawer-body" id="historyDrawerBody"></div>
         </aside>
-        ${controlRoomBackdropHtml}
+        ${studioShellHtml}
         <div class="menu-backdrop${this._state.menuOpen ? " open" : ""}" id="mobileMenu">
           <div class="menu-sheet">
             <div class="menu-head">
@@ -7702,155 +5750,21 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         <div class="hidden-tools"><select id="playerSel"></select><button id="themeToggleBtn"></button><button id="langBtn"></button><button id="maOpenBtn"></button><div id="content"></div></div>
         <audio id="maverickLocalAudio" class="maverick-local-audio" playsinline aria-hidden="true"></audio>
         <div class="lyrics-backdrop" id="lyricsBackdrop"></div>
-        <div class="screensaver-backdrop digital-mode" id="screensaverBackdrop" aria-hidden="true">
-          <div class="screensaver-bg"></div>
-          <div class="screensaver-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("screensaver-brand-logo")}</div>
-          ${screensaverActionButtonsHtml ? `<div class="screensaver-action-cluster" aria-hidden="false">${screensaverActionButtonsHtml}</div>` : ""}
-          <div class="screensaver-shell">
-            <div class="screensaver-art-wrap">
-              <div class="screensaver-art" id="screensaverArt"></div>
-              ${screensaverLikeButtonHtml}
-            </div>
-            <div class="screensaver-info">
-              <div class="screensaver-clock" id="screensaverClock">00:00</div>
-              <div class="screensaver-analog-clock" aria-hidden="true">
-                <span class="screensaver-hand hour" id="screensaverHour"></span>
-                <span class="screensaver-hand minute" id="screensaverMinute"></span>
-                <span class="screensaver-hand second" id="screensaverSecond"></span>
-                <span class="screensaver-pin"></span>
-              </div>
-              <div class="screensaver-track">
-                <div class="screensaver-title" id="screensaverTitle">${this._esc(this._i18n("ui.nothing_playing"))}</div>
-                <div class="screensaver-artist" id="screensaverArtist"></div>
-              </div>
-              <div class="screensaver-lyrics" id="screensaverLyrics" aria-live="polite"></div>
-              <div class="screensaver-next" id="screensaverNext" hidden>
-                <span class="screensaver-next-label" id="screensaverNextLabel">${this._esc(this._i18n("ui.up_next_2"))}</span>
-                <span class="screensaver-next-main">
-                  <span class="screensaver-next-art" id="screensaverNextArt"></span>
-                  <span class="screensaver-next-copy">
-                    <span class="screensaver-next-title" id="screensaverNextTitle"></span>
-                    <span class="screensaver-next-artist" id="screensaverNextArtist"></span>
-                  </span>
-                </span>
-              </div>
-              <div class="screensaver-message" id="screensaverMessage" hidden></div>
-            </div>
-          </div>
-        </div>
+        ${screensaverOverlayHtml(this)}
         <div class="toast-wrap" id="toastWrap"></div>
         <div class="surprise-popup" id="surprisePopup"></div>
       </div>
     `;
 
-    this._applyDynamicThemeStyles();
+    applyDynamicThemeStyles(this);
     this._applyBackgroundMotionStyles();
     this._setHistoryDrawerOpen(this._state.mobileHistoryDrawerOpen);
     this._syncRecentHistoryUi(true);
-    this._syncSleepTimerChip();
-    this._syncControlRoomUi();
-    this._syncVoiceAssistantDialog();
+    syncSleepTimerChip(this);
+    syncControlRoomUi(this);
+    syncVoiceAssistantDialog(this);
     this._restoreMobileMenuAfterBuild("build");
-    const cardEl = this.shadowRoot.querySelector(".card");
-    cardEl?.addEventListener("pointerdown", this._boundScreensaverActivity, { passive: false });
-    cardEl?.addEventListener("keydown", this._boundScreensaverActivity);
-    this.$("screensaverBackdrop")?.addEventListener("click", this._boundScreensaverActivity);
-    this.$("screensaverVoiceBtn")?.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-    }, { passive: false });
-    this.$("screensaverVoiceBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget, [8, 18, 8])) return;
-      this._startVoiceAssistantCommand({ keepScreensaver: true, ignoreWhenListening: true });
-    });
-    ["screensaverPrevBtn", "screensaverPlayPauseBtn", "screensaverNextBtn", "screensaverMuteBtn", "screensaverPowerBtn", "screensaverLikeBtn", "screensaverLyricsBtn", "screensaverLyricsSyncBtn", "screensaverLyricsFontMinusBtn", "screensaverLyricsFontPlusBtn"].forEach((id) => {
-      this.$(id)?.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }, { passive: false });
-    });
-    this.$("screensaverPrevBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._playerCmd("previous");
-    });
-    this.$("screensaverPlayPauseBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._togglePlay();
-    });
-    this.$("screensaverNextBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._playerCmd("next");
-    });
-    this.$("screensaverMuteBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._toggleMute();
-    });
-    this.$("screensaverPowerBtn")?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget, [12, 18])) return;
-      await this._runAuxiliaryButtonAction(0, { force: true });
-    });
-    this.$("screensaverLyricsBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      const overlay = this.$("screensaverBackdrop");
-      if (overlay?.classList?.contains("lyrics-mode")) {
-        this._state.screensaverLyricsOpen = false;
-        if (!this._state.lyricsOpen) this._clearLyricsState?.();
-        this._syncScreensaverUi();
-        return;
-      }
-      if (!this._getSelectedPlayer()) return;
-      this._state.screensaverLyricsOpen = true;
-      this._syncLyricsForCurrentTrack?.();
-      this._syncScreensaverUi();
-    });
-    this.$("screensaverLyricsSyncBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._toggleLyricsSyncEnabled();
-      this._syncScreensaverUi();
-    });
-    this.$("screensaverLyricsFontMinusBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._nudgeLyricsFontScale(-0.08);
-      this._syncScreensaverUi();
-    });
-    this.$("screensaverLyricsFontPlusBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._nudgeLyricsFontScale(0.08);
-      this._syncScreensaverUi();
-    });
-    this.$("screensaverLikeBtn")?.addEventListener("click", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      await this._toggleLikeCurrentMedia(e.currentTarget);
-    });
-    if (this._screensaverPageEntryPending) {
-      this._screensaverPageEntryPending = false;
-      this._resetScreensaverTimer({ hide: true, activity: true });
-    } else {
-      this._resetScreensaverTimer();
-      this._restoreScreensaverIfOpen();
-    }
+    bindScreensaver(this);
     this.$("btnPlay")?.addEventListener("click", () => this._togglePlay());
     this.$("btnPrev")?.addEventListener("click", () => this._playerCmd("previous"));
     this.$("btnNext")?.addEventListener("click", () => this._playerCmd("next"));
@@ -7899,17 +5813,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (!this._pressUiButton(e.currentTarget)) return;
       await this._playMobileUpNext();
     }));
-    this.$("nightModeQuickBtn")?.addEventListener("click", (e) => {
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._cycleNightMode();
-    });
+    bindNightQuickRow(this);
     this.$("nightSleepBtn")?.addEventListener("click", async (e) => {
       if (!this._pressUiButton(e.currentTarget)) return;
-      await this._cycleSleepTimer("night");
-    });
-    this.$("nightChillBtn")?.addEventListener("click", async (e) => {
-      if (!this._pressUiButton(e.currentTarget)) return;
-      await this._playNightMix();
+      await cycleSleepTimer(this, "night");
     });
     this.$("homeShortcutFab")?.addEventListener("click", (e) => {
       e.preventDefault();
@@ -7950,599 +5857,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.mobileHistoryRenderedHtml = "";
       this._syncRecentHistoryUi();
     });
-    this.$("sleepTimerCorner")?.addEventListener("click", async (e) => {
-      const chipBtn = e.target.closest("#sleepTimerChip");
-      if (chipBtn) {
-        if (!this._pressUiButton(chipBtn)) return;
-        this._toggleSleepTimerMenu();
-        return;
-      }
-      const addBtn = e.target.closest("[data-sleep-timer-add]");
-      if (addBtn) {
-        await this._addSleepTimerMinutes(Number(addBtn.dataset.sleepTimerAdd || 15));
-        this._toggleSleepTimerMenu(false);
-        return;
-      }
-      const clearBtn = e.target.closest("[data-sleep-timer-clear]");
-      if (clearBtn) {
-        await this._clearSleepTimer(true);
-        return;
-      }
-      const closeBtn = e.target.closest("[data-sleep-timer-close]");
-      if (closeBtn) {
-        this._toggleSleepTimerMenu(false);
-      }
-    });
-    this.$("controlRoomCloseBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation?.();
-      e.stopPropagation();
-      this._suppressHomeShortcutNavigation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._closeControlRoom();
-    });
-    const keepControlRoomScroll = (e) => {
-      if (e.target?.closest?.("[data-control-room-scroll]")) e.stopPropagation();
-    };
-    this.$("controlRoomBackdrop")?.addEventListener("wheel", keepControlRoomScroll, { passive: true });
-    this.$("controlRoomBackdrop")?.addEventListener("touchmove", keepControlRoomScroll, { passive: true });
-    this.$("controlRoomBackdrop")?.addEventListener("click", async (e) => {
-      if (e.target?.id === "controlRoomBackdrop") {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!this._state.controlRoomOpen) {
-          this._syncControlRoomChrome();
-          return;
-        }
-        this._closeControlRoom();
-        return;
-      }
-      const selectBtn = e.target.closest("[data-room-select]");
-      if (selectBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(selectBtn);
-        const entityId = selectBtn.dataset.roomSelect;
-        const result = this._toggleControlRoomPlayerSelection(entityId);
-        const name = this._controlRoomPlayerName(entityId);
-        if (result === "kept") {
-          this._toast(this._i18n("ui.at_least_one_player_must_stay_selected"));
-        } else {
-          this._toastSuccess(result === "removed"
-            ? this._m(`${name} removed from studio selection`)
-            : this._m(`${name} added to studio selection`));
-        }
-        return;
-      }
-      const primaryBtn = e.target.closest("[data-room-primary]");
-      if (primaryBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(primaryBtn);
-        const entityId = primaryBtn.dataset.roomPrimary;
-        this._setControlRoomPrimary(entityId);
-        this._toastSuccess(this._m(
-          `Studio is now controlling ${this._controlRoomPlayerName(entityId)}`
-        ));
-        return;
-      }
-      const playBtn = e.target.closest("[data-room-toggle-play]");
-      if (playBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(playBtn);
-        const entityId = playBtn.dataset.roomTogglePlay;
-        const player = this._playerByEntityId(entityId);
-        try {
-          await this._togglePlayFor(entityId);
-          this._toastSuccess(player?.state === "playing"
-            ? this._m(`${this._controlRoomPlayerName(entityId)} paused`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} started playing`));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-        } catch (error) {
-          this._toastError(error?.message || this._i18n("ui.playback_command_failed_2"));
-        }
-        return;
-      }
-      const nextBtn = e.target.closest("[data-room-next]");
-      if (nextBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(nextBtn);
-        const entityId = nextBtn.dataset.roomNext;
-        try {
-          await this._playerCmdFor(entityId, "next");
-          this._toastSuccess(this._m(`${this._controlRoomPlayerName(entityId)} skipped to next`));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-        } catch (error) {
-          this._toastError(error?.message || this._i18n("ui.next_track_failed"));
-        }
-        return;
-      }
-      const muteBtn = e.target.closest("[data-room-mute]");
-      if (muteBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(muteBtn);
-        const entityId = muteBtn.dataset.roomMute;
-        const wasMuted = this._isMuted(this._playerByEntityId(entityId));
-        try {
-          if (!await this._toggleMuteFor(entityId)) return;
-          this._toastSuccess(wasMuted
-            ? this._m(`${this._controlRoomPlayerName(entityId)} unmuted`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} muted`));
-          this._timeout(() => this._updateNowPlayingState(), 160);
-        } catch (error) {
-          this._toastError(error?.message || this._i18n("ui.mute_command_failed"));
-        }
-        return;
-      }
-      const transferSourceBtn = e.target.closest("[data-room-transfer-source]");
-      if (transferSourceBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(transferSourceBtn);
-        this._state.controlRoomTransferSource = transferSourceBtn.dataset.roomTransferSource || "";
-        this._syncControlRoomTransferDefaults();
-        this._syncControlRoomUi();
-        this._toast(this._m(
-          `Transfer source: ${this._controlRoomPlayerName(this._state.controlRoomTransferSource)}`
-        ));
-        return;
-      }
-      const transferTargetBtn = e.target.closest("[data-room-transfer-target]");
-      if (transferTargetBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(transferTargetBtn);
-        const targetId = transferTargetBtn.dataset.roomTransferTarget || "";
-        if (targetId && targetId !== this._state.controlRoomTransferSource) {
-          this._state.controlRoomTransferTarget = targetId;
-          this._syncControlRoomUi();
-          this._toast(this._m(
-            `Transfer target: ${this._controlRoomPlayerName(targetId)}`
-          ));
-        }
-        return;
-      }
-      const transferBtn = e.target.closest("[data-room-transfer]");
-      if (transferBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(transferBtn);
-        const ok = await this._transferQueueBetween(this._state.controlRoomTransferSource, this._state.controlRoomTransferTarget, { silent: true });
-        if (ok) this._state.controlRoomPanel = "";
-        if (ok) this._toastSuccess(this._i18n("ui.queue_transferred"));
-        else this._toastError(this._i18n("ui.could_not_transfer_the_queue"));
-        this._timeout(() => this._updateNowPlayingState(), 300);
-        return;
-      }
-      const cloneBtn = e.target.closest("[data-room-clone]");
-      if (cloneBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(cloneBtn);
-        const ok = await this._cloneQueueBetween(this._state.controlRoomTransferSource, this._state.controlRoomTransferTarget, { silent: true });
-        if (ok) this._toastSuccess(this._i18n("ui.queue_cloned"));
-        else this._toastError(this._i18n("ui.could_not_clone_the_queue"));
-        this._timeout(() => this._updateNowPlayingState(), 300);
-        return;
-      }
-      const refreshQueuesBtn = e.target.closest("[data-room-refresh-queues]");
-      if (refreshQueuesBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(refreshQueuesBtn);
-        await this._loadControlRoomQueues([
-          this._state.controlRoomTransferSource,
-          this._state.controlRoomTransferTarget,
-          ...this._controlRoomSelectedPlayerIds(),
-        ].filter(Boolean));
-        this._toastSuccess(this._i18n("ui.queues_refreshed"));
-        return;
-      }
-      const clearQueueBtn = e.target.closest("[data-room-clear-queue]");
-      if (clearQueueBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(clearQueueBtn);
-        const entityId = clearQueueBtn.dataset.roomClearQueue || "";
-        if (!entityId) return;
-        await this._clearQueueForPlayer(entityId);
-        await this._loadControlRoomQueues([entityId]);
-        this._toastSuccess(this._i18n("ui.queue_cleared"));
-        return;
-      }
-      const libraryActionBtn = e.target.closest("[data-room-library-action]");
-      if (libraryActionBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(libraryActionBtn);
-        const action = libraryActionBtn.dataset.roomLibraryAction || "play";
-        const entry = {
-          uri: libraryActionBtn.dataset.roomLibraryUri || "",
-          media_type: libraryActionBtn.dataset.roomLibraryType || "album",
-          name: libraryActionBtn.dataset.roomLibraryName || "",
-          subtitle: libraryActionBtn.dataset.roomLibrarySubtitle || "",
-          image: libraryActionBtn.dataset.roomLibraryImage || "",
-          favorite_scope: libraryActionBtn.dataset.roomLibraryFavoriteScope || "library",
-        };
-        if (!entry?.uri) return;
-        const played = await this._playControlRoomLibraryEntry(entry, action);
-        if (played) {
-          if (action !== "like") this._state.controlRoomPanel = "";
-          if (action === "like") {
-            if (this._state.controlRoomPanel === "favorites") this._loadControlRoomFavorites().catch(() => {});
-            else this._syncControlRoomUi({ force: true });
-          }
-          const messages = {
-            play: this._m(`Started ${entry.name || "media"} in Studio`),
-            next: this._i18n("ui.will_play_next_in_studio"),
-            add: this._i18n("ui.added_to_studio_queue"),
-            radio_mode: this._i18n("ui.radio_mode_started"),
-            like: this._i18n("ui.favorite_updated"),
-          };
-          this._toastSuccess(messages[action] || messages.play);
-          this._timeout(() => this._updateNowPlayingState(), 350);
-        } else {
-          this._toastError(this._i18n("ui.studio_media_action_failed"));
-        }
-        return;
-      }
-      const libraryPlayBtn = e.target.closest("[data-room-library-play]");
-      if (libraryPlayBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(libraryPlayBtn);
-        const entry = {
-          uri: libraryPlayBtn.dataset.roomLibraryUri || "",
-          media_type: libraryPlayBtn.dataset.roomLibraryType || "album",
-          name: libraryPlayBtn.dataset.roomLibraryName || "",
-          subtitle: libraryPlayBtn.dataset.roomLibrarySubtitle || "",
-          image: libraryPlayBtn.dataset.roomLibraryImage || "",
-          favorite_scope: libraryPlayBtn.dataset.roomLibraryFavoriteScope || "library",
-        };
-        if (!entry?.uri) return;
-        const played = await this._playControlRoomLibraryEntry(entry);
-        if (played) {
-          this._state.controlRoomPanel = "";
-          this._toastSuccess(this._m(`Started ${entry.name || "media"} in Studio`));
-          this._timeout(() => this._updateNowPlayingState(), 350);
-        } else {
-          this._toastError(this._i18n("ui.could_not_start_playback_in_studio"));
-        }
-        return;
-      }
-      const smartMixBtn = e.target.closest("[data-room-smart-mix]");
-      if (smartMixBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        await this._startControlRoomMix(smartMixBtn.dataset.roomSmartMix || "", smartMixBtn);
-        return;
-      }
-      const smartCustomBtn = e.target.closest("[data-room-smart-custom]");
-      if (smartCustomBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        await this._startControlRoomMix("custom", smartCustomBtn);
-        return;
-      }
-      const saveSceneBtn = e.target.closest("[data-room-save-scene]");
-      if (saveSceneBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._saveControlRoomSceneFromStudio(saveSceneBtn);
-        return;
-      }
-      const deleteSceneBtn = e.target.closest("[data-room-delete-scene]");
-      if (deleteSceneBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._deleteControlRoomScene(deleteSceneBtn.dataset.roomDeleteScene || "", deleteSceneBtn);
-        return;
-      }
-      const sceneBtn = e.target.closest("[data-room-scene]");
-      if (sceneBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        await this._applyControlRoomScene(sceneBtn.dataset.roomScene || "home", sceneBtn);
-        return;
-      }
-      const announceBtn = e.target.closest("[data-room-announce-send]");
-      if (announceBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        await this._sendControlRoomAnnouncement(announceBtn);
-        return;
-      }
-      const thisDeviceBtn = e.target.closest("[data-room-this-device]");
-      if (thisDeviceBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(thisDeviceBtn);
-        const action = thisDeviceBtn.dataset.roomThisDevice;
-        if (action === "disconnect") this._disconnectThisDevicePlayer();
-        else this._connectThisDevicePlayer();
-        this._syncControlRoomUi({ force: true });
-        return;
-      }
-      const libraryMicBtn = e.target.closest("[data-room-library-mic]");
-      if (libraryMicBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(libraryMicBtn);
-        this._startControlRoomLibraryVoice();
-        return;
-      }
-      const selectionToggleBtn = e.target.closest("[data-room-selection-toggle]");
-      if (selectionToggleBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(selectionToggleBtn);
-        const entityId = selectionToggleBtn.dataset.roomSelectionToggle;
-        const result = this._toggleControlRoomPlayerSelection(entityId);
-        if (result === "kept") {
-          this._toast(this._i18n("ui.at_least_one_player_must_stay_selected"));
-        } else {
-          this._toastSuccess(result === "removed"
-            ? this._m(`${this._controlRoomPlayerName(entityId)} removed from selection`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} selected`));
-        }
-        return;
-      }
-      const visibleToggleBtn = e.target.closest("[data-room-visible-toggle]");
-      if (visibleToggleBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(visibleToggleBtn);
-        const entityId = visibleToggleBtn.dataset.roomVisibleToggle;
-        const wasVisible = this._controlRoomVisiblePlayerIds().includes(entityId);
-        this._toggleControlRoomVisiblePlayer(entityId);
-        this._toastSuccess(wasVisible
-          ? this._m(`${this._controlRoomPlayerName(entityId)} hidden from Studio`)
-          : this._m(`${this._controlRoomPlayerName(entityId)} shown in Studio`));
-        return;
-      }
-      const dockBtn = e.target.closest("[data-room-selection-action]");
-      if (dockBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const action = dockBtn.dataset.roomSelectionAction;
-        if (action === "close_panel") {
-          this._toggleControlRoomPanel(this._state.controlRoomPanel);
-          return;
-        }
-        const selectedIds = this._controlRoomActionTargetIds();
-        if (action === "browse_library") {
-          this._pressUiButton(dockBtn);
-          this._toast(this._i18n("ui.opening_studio_library"));
-          this._openControlRoomLibrary("library_playlists");
-          return;
-        }
-        if (action === "browse_artists" || action === "browse_albums" || action === "browse_tracks" || action === "browse_radio") {
-          this._pressUiButton(dockBtn);
-          const pageMap = {
-            browse_artists: "library_artists",
-            browse_albums: "library_albums",
-            browse_tracks: "library_tracks",
-            browse_radio: "library_radio",
-          };
-          this._toast(this._i18n("ui.opening_studio_library"));
-          this._openControlRoomLibrary(pageMap[action] || "library_playlists");
-          return;
-        }
-        if (action === "timers") {
-          this._pressUiButton(dockBtn);
-          this._toast(this._i18n("ui.opening_timers"));
-          this._openControlRoomLibrary("sleep_timer");
-          return;
-        }
-        if (action === "open_ma") {
-          this._pressUiButton(dockBtn);
-          this._launchMusicAssistant();
-          return;
-        }
-        if (["music", "actions", "library", "transfer", "selection", "visible", "mix", "recent", "favorites", "scenes", "announce", "pro"].includes(action)) {
-          this._pressUiButton(dockBtn);
-          const wasOpen = this._state.controlRoomPanel === action;
-          this._toggleControlRoomPanel(action);
-          this._toast(wasOpen
-            ? this._m(`${this._controlRoomPanelLabel(action)} closed`)
-            : this._m(`${this._controlRoomPanelLabel(action)} opened`));
-          return;
-        }
-        const primaryId = this._controlRoomPrimaryPlayerId();
-        if (action === "player_playpause") {
-          if (!primaryId) return;
-          this._pressUiButton(dockBtn);
-          const player = this._playerByEntityId(primaryId);
-          try {
-            await this._togglePlayFor(primaryId);
-            this._toastSuccess(player?.state === "playing"
-              ? this._m(`${this._controlRoomPlayerName(primaryId)} paused`)
-              : this._m(`${this._controlRoomPlayerName(primaryId)} started playing`));
-            this._timeout(() => this._updateNowPlayingState(), 250);
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.playback_command_failed_2"));
-          }
-          return;
-        }
-        if (action === "player_next") {
-          if (!primaryId) return;
-          this._pressUiButton(dockBtn);
-          try {
-            await this._playerCmdFor(primaryId, "next");
-            this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} skipped to next`));
-            this._timeout(() => this._updateNowPlayingState(), 250);
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.next_track_failed"));
-          }
-          return;
-        }
-        if (action === "player_mute") {
-          if (!primaryId) return;
-          this._pressUiButton(dockBtn);
-          const wasMuted = this._isMuted(this._playerByEntityId(primaryId));
-          try {
-            if (!await this._toggleMuteFor(primaryId)) return;
-            this._toastSuccess(wasMuted
-              ? this._m(`${this._controlRoomPlayerName(primaryId)} unmuted`)
-              : this._m(`${this._controlRoomPlayerName(primaryId)} muted`));
-            this._timeout(() => this._updateNowPlayingState(), 160);
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.mute_command_failed"));
-          }
-          return;
-        }
-        if (action === "player_stop") {
-          if (!primaryId) return;
-          this._pressUiButton(dockBtn);
-          try {
-            await this._stopPlayer(primaryId);
-            this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} stopped`));
-            this._timeout(() => this._updateNowPlayingState(), 250);
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.stop_command_failed"));
-          }
-          return;
-        }
-        if (!selectedIds.length) {
-          this._toastError(this._i18n("ui.select_at_least_one_studio_player"));
-          return;
-        }
-        if (action === "playpause") {
-          this._pressUiButton(dockBtn);
-          if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._togglePlayFor(entityId))) return;
-          this._toastSuccess(this._m(
-            `Play / pause sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
-          ));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-          return;
-        }
-        if (action === "next") {
-          this._pressUiButton(dockBtn);
-          if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._playerCmdFor(entityId, "next"))) return;
-          this._toastSuccess(this._m(
-            `Next sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
-          ));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-          return;
-        }
-        if (action === "mute") {
-          this._pressUiButton(dockBtn);
-          if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._toggleMuteFor(entityId))) return;
-          this._toastSuccess(this._m(
-            `Mute sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
-          ));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-          return;
-        }
-        if (action === "clear") {
-          this._pressUiButton(dockBtn);
-          if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._clearQueueForPlayer(entityId))) return;
-          this._toastSuccess(this._m(
-            `Queues cleared for ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
-          ));
-          this._loadControlRoomQueues(selectedIds).catch(() => {});
-          this._timeout(() => this._updateNowPlayingState(), 250);
-          return;
-        }
-        if (action === "stop_all") {
-          this._pressUiButton(dockBtn);
-          await this._stopAllPlayers();
-          this._timeout(() => this._updateNowPlayingState(), 350);
-          return;
-        }
-        if (action === "group") {
-          this._pressUiButton(dockBtn);
-          const groupPrimaryId = selectedIds[0];
-          const members = selectedIds.slice(1);
-          if (members.length < 1) {
-            this._toastError(this._i18n("ui.select_at_least_two_players_to_create_a_group"));
-            return;
-          }
-          try {
-            const ok = await this._applySpeakerGroupFor(groupPrimaryId, members);
-            if (!ok) throw new Error(this._i18n("ui.select_at_least_two_players_to_create_a_group"));
-            this._toastSuccess(this._i18n("ui.group_updated"));
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.player_groups_could_not_be_disconnected"));
-          }
-          this._timeout(() => this._updateNowPlayingState(), 350);
-          return;
-        }
-        if (action === "ungroup") {
-          this._pressUiButton(dockBtn);
-          await Promise.allSettled(selectedIds.map((entityId) => this._clearSpeakerGroupFor(entityId)));
-          this._toastSuccess(this._i18n("ui.group_cleared_2"));
-          this._timeout(() => this._updateNowPlayingState(), 350);
-        }
-      }
-    });
-    this.$("controlRoomBackdrop")?.addEventListener("input", (e) => {
-      const volumeInput = e.target.closest?.("[data-room-volume]");
-      if (volumeInput) {
-        const pct = Math.max(0, Math.min(100, Number(volumeInput.value || 0)));
-        volumeInput.style.setProperty("--vol-pct", `${pct}%`);
-        const label = volumeInput.closest(".control-room-volume-row")?.querySelector("[data-room-volume-value]");
-        if (label) label.textContent = `${pct}%`;
-        clearTimeout(this._controlRoomVolumeTimer);
-        this._controlRoomVolumeTimer = setTimeout(() => this._setPlayerVolumeFor(volumeInput.dataset.roomVolume, pct / 100), 90);
-        return;
-      }
-      const smartInput = e.target.closest?.("#controlRoomSmartQueryInput");
-      if (smartInput) {
-        this._state.controlRoomSmartQuery = smartInput.value || "";
-        return;
-      }
-      const announceText = e.target.closest?.("#controlRoomAnnouncementText");
-      if (announceText) {
-        this._state.controlRoomAnnouncementText = announceText.value || "";
-        return;
-      }
-      const sceneNameInput = e.target.closest?.("#controlRoomSceneNameInput");
-      if (sceneNameInput) {
-        this._state.controlRoomSceneName = sceneNameInput.value || "";
-        return;
-      }
-      const announceVolume = e.target.closest?.("#controlRoomAnnouncementVolumeInput");
-      if (announceVolume) {
-        const pct = Math.max(20, Math.min(50, Number(announceVolume.value || 20)));
-        this._state.controlRoomAnnouncementVolume = pct;
-        const label = announceVolume.closest(".announcement-volume-field")?.querySelector(".settings-value");
-        if (label) label.textContent = `+${pct}%`;
-        return;
-      }
-      const sourceSelect = e.target.closest?.("#controlRoomTransferSource");
-      if (sourceSelect) {
-        this._state.controlRoomTransferSource = sourceSelect.value || "";
-        this._syncControlRoomTransferDefaults();
-        this._syncControlRoomUi();
-        return;
-      }
-      const targetSelect = e.target.closest?.("#controlRoomTransferTarget");
-      if (targetSelect) {
-        this._state.controlRoomTransferTarget = targetSelect.value || "";
-      }
-    });
-    this.$("controlRoomBackdrop")?.addEventListener("input", (e) => {
-      const libraryInput = e.target.closest?.("#controlRoomLibraryInput");
-      if (!libraryInput) return;
-      this._state.controlRoomLibraryQuery = libraryInput.value || "";
-      clearTimeout(this._searchTimer);
-      this._searchTimer = setTimeout(() => this._searchControlRoomLibrary(libraryInput.value || ""), 180);
-    });
-    this.$("controlRoomBackdrop")?.addEventListener("keydown", (e) => {
-      const libraryInput = e.target.closest?.("#controlRoomLibraryInput");
-      if (!libraryInput) return;
-      e.stopPropagation();
-    });
-    this.shadowRoot.querySelector(".card")?.addEventListener("click", (e) => {
-      const chip = e.target.closest?.("#sleepTimerChip");
-      const menu = e.target.closest?.("#sleepTimerMenu");
-      if (chip || menu) return;
-      if (this._state.mobileSleepTimerMenuOpen) this._toggleSleepTimerMenu(false);
-    });
+    bindSleepTimerCorner(this);
+    bindControlRoom(this);
     this.shadowRoot.querySelectorAll("[data-mainbar-action]").forEach((btn) => btn.addEventListener("click", () => {
       const action = btn.dataset.mainbarAction;
       this._pressUiButton(btn);
@@ -8551,7 +5867,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       else if (action === "settings") this._openMobileMenu("settings");
       else if (action === "actions") this._openMobileMenu("main");
       else if (action === "players") this._openMobileMenu("players");
-      else if (action === "control_room") this._openControlRoom();
+      else if (action === "control_room") openControlRoom(this);
       else if (action === "home") this._goHomeAssistantDashboard();
       else if (action === "theme") {
         const reopenPage = this._state.menuOpen ? this._state.menuPage : "";
@@ -8611,9 +5927,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.$("mobileVolumePresetModal")?.addEventListener("click", (e) => {
       if (e.target === this.$("mobileVolumePresetModal")) this._closeMobileVolumePresets();
     });
-    this.$("mobileSmartVoiceModal")?.addEventListener("click", (e) => {
-      if (e.target === this.$("mobileSmartVoiceModal")) this._closeSmartVoiceConfirm();
-    });
+    bindSmartVoiceBackdrop(this);
     this.$("mobileVolumePresetSheet")?.addEventListener("click", this._boundMobileMenuClick);
     this.$("mobileQueueActionSheet")?.addEventListener("click", (event) => handleMediaActionClick(this, event));
     this.$("mobileQueueActionSheet")?.addEventListener("change", async (e) => {
@@ -8680,7 +5994,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       await this._ensureQueueSnapshot();
       this._renderCurrentView();
       this._startLoops();
-      if (!this._screensaverPageEntryPending) this._restoreScreensaverIfOpen();
+      if (!this._screensaverPageEntryPending) restoreScreensaverIfOpen(this);
       this._restoreMobileMenuAfterBuild("init");
     } catch (e) {
       this._renderError(e);
@@ -8727,8 +6041,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (tags) {
       const groupCount = this._playerGroupCount(player);
       const pinned = this._resolvedPinnedPlayerEntities().includes(player?.entity_id) || this._frontPinnedPlayerEntity() === player?.entity_id;
-      const nightMode = this._mobileNightMode();
-      const nightActive = this._isNightModeActive();
+      const nightMode = mobileNightMode(this);
+      const nightActive = isNightModeActive(this);
       tags.innerHTML = [
         pinned
           ? `<span class="player-focus-pill pinned"><span>${this._esc(this._i18n("ui.pinned"))}</span></span>`
@@ -9229,7 +6543,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._layoutModeConfig(),
         emptyQuickActions.join(","),
         this._enabledAuxiliaryButtons().map((button) => `${button.index}:${button.icon}:${button.name}`).join("|"),
-        this._voiceAssistantEnabled() ? "voice-on" : "voice-off",
+        voiceAssistantEnabled(this) ? "voice-on" : "voice-off",
       ].join(";");
       if (emptyActions.className !== emptyClassName) emptyActions.className = emptyClassName;
       if (emptyActions.dataset.maverickEmptyActionSignature !== emptySignature) {
@@ -9250,9 +6564,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (this.$("bigTotalTime")) this.$("bigTotalTime").textContent = "0:00";
     if (this.$("progressFill")) this.$("progressFill").style.width = "0%";
     if (!wasEmpty || !this.$("surpriseMeBtn") || displayArt || disableEmptyAction) {
-      const voiceButtonHtml = !disableEmptyAction && this._voiceAssistantEnabled()
-        ? `<button class="empty-voice-btn ${this._state.voiceAssistantListening ? "listening" : ""}" id="emptyVoiceAssistantBtn" title="${this._esc(this._flowAssistantLabel())}" aria-label="${this._esc(this._flowAssistantLabel())}">${this._iconSvg("mic")}</button>`
-        : "";
+      const voiceButtonHtml = disableEmptyAction ? "" : emptyVoiceButtonHtml(this);
       const magicVisualHtml = disableEmptyAction
         ? `<div class="surprise-me-card compact magic-empty disabled ${displayArt ? "has-art" : ""}" id="surpriseMeBtn" aria-hidden="true">
             ${displayArt
@@ -9282,25 +6594,16 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           if (!ok) this._hideEmptyPlaybackLoading();
         }, { lockMs: 1600 });
       });
-      if (!disableEmptyAction) this.$("emptyVoiceAssistantBtn")?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!this._lockUiButton(e.currentTarget, [8, 18, 8], { lockMs: 1200, disabled: false })) return;
-        this._startVoiceAssistantCommand({ ignoreWhenListening: true });
-      });
+      if (!disableEmptyAction) bindEmptyVoiceButton(this);
     }
     if (!emptyActions?.classList.contains("empty-quick-actions")) this._setMobileRandomFabVisible(false);
     this._setMobileRandomFabDisabled(false);
     this._destroyMobileEmbla();
     this._state.mobileArtRenderKey = "";
     if (displayArt) {
-      this._syncDynamicThemeArtwork(displayArt).catch(() => {});
+      syncDynamicThemeArtwork(this, displayArt).catch(() => {});
     } else {
-      this._mobileDynamicThemeToken += 1;
-      this._state.mobileDynamicThemeArtwork = "";
-      this._state.mobileDynamicThemeArtworkUrl = "";
-      this._state.mobileDynamicThemePalette = null;
-      this._applyDynamicThemeStyles();
+      resetDynamicThemeArtwork(this);
     }
     this._syncSourceBadgesUi(null, null);
     this._syncRecentHistoryUi();
@@ -9435,30 +6738,24 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     notice.classList.remove("open");
   }
 
-  _syncScreensaverDynamicArtwork() {
-    const player = this._getSelectedPlayer();
-    const art = this._currentArtworkUrl(player, this._state.maQueueState?.current_item || null, 720, { preferPlayerArtwork: true });
-    this._syncDynamicThemeArtwork(art || "").catch(() => {});
-  }
-
   _syncNowPlayingUI() {
     this.shadowRoot?.querySelector(".volume-wheel-popover")?._refreshVolumeState?.();
     if (this.$("immersiveActionsToggle")) queueMicrotask(() => syncImmersivePlayer(this));
-    this._syncSleepTimerState();
-    this._syncNightModeUi();
+    syncSleepTimerState(this);
+    syncNightModeUi(this);
     const player = this._getSelectedPlayer();
     const currentQueueItem = this._state.maQueueState?.current_item || null;
-    if (this._lyricsSessionActive?.()) this._syncLyricsForCurrentTrack();
+    if (lyricsSessionActive(this)) syncLyricsForCurrentTrack(this);
     if (this._state.screensaverOpen) {
-      this._syncScreensaverDynamicArtwork();
-      this._syncScreensaverUi();
+      syncScreensaverDynamicArtwork(this);
+      syncScreensaverUi(this);
       this._syncAmbientLightForCurrentMedia("screensaver");
       this._syncLocalSendspinMediaSession(player, currentQueueItem);
       return;
     }
     if (!player) {
       this._syncGroupVolumeShortcut(null);
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
       this._resetLocalSendspinMediaSession();
     }
     const compactTileMode = this._isCompactTileMode();
@@ -9525,7 +6822,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (artImage) {
         this._setDecodedArtworkImage(artImage, displayArt, displayTitle || this._i18n("ui.artwork"));
       }
-      this._syncDynamicThemeArtwork(displayArt || effectiveArt || "").catch(() => {});
+      syncDynamicThemeArtwork(this, displayArt || effectiveArt || "").catch(() => {});
       this._setDecodedBackgroundCrossfade(compactBackdrop, !this._isHotelMode() ? displayArt : "");
       this._setDecodedBackgroundImage(compactCoverAura, !this._isHotelMode() ? displayArt : "");
       this._setDecodedBackgroundCrossfade(bg, !this._isHotelMode() ? displayArt : "", overlay);
@@ -9662,9 +6959,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._hydrateDecodedArtworkImages(this.$("npArt"));
       }
       if (this.$("progressFill")) this.$("progressFill").style.width = "0%";
-      this._syncDynamicThemeArtwork(pendingArt || "").catch(() => {});
+      syncDynamicThemeArtwork(this, pendingArt || "").catch(() => {});
       syncMobileVolumeControls();
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
       return;
     }
     if (!hasPlayableMedia) {
@@ -9694,7 +6991,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._syncStatus();
       this._syncLikeButtons();
       this._updateActivePlayersBubble();
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
       this._syncLocalSendspinMediaSession(player, displayQueueItem);
       return;
     }
@@ -9735,7 +7032,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       sourceQueueItem: displayQueueItem,
     })) {
       syncMobileVolumeControls();
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
       return;
     }
     this._refreshMobileArtStack();
@@ -9744,7 +7041,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const overlay = this._mobileBackdropOverlay(this._effectiveTheme());
       this._setDecodedBackgroundCrossfade(bg, !this._isHotelMode() ? art : "", overlay);
     }
-    this._syncDynamicThemeArtwork(art || "").catch(() => {});
+    syncDynamicThemeArtwork(this, art || "").catch(() => {});
     const vol = Math.round(this._effectivePlayerVolumeLevel(player) * 100);
     if (this.$("volSlider")) {
       this.$("volSlider").value = vol;
@@ -9766,8 +7063,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._syncStatus();
     this._syncLikeButtons();
     this._updateActivePlayersBubble();
-    this._syncControlRoomUi();
-    if (this._state.screensaverOpen) this._syncScreensaverUi();
+    syncControlRoomUi(this);
+    if (this._state.screensaverOpen) syncScreensaverUi(this);
     this._syncLocalSendspinMediaSession(player, displayQueueItem);
   }
 
@@ -9950,7 +7247,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const wasOpen = !!this._state.menuOpen;
     const previousPage = this._state.menuPage || "main";
     if (!wasOpen || previousPage !== nextPage) closeVolumeWheel(this);
-    if (nextPage === "simple_wizard" && previousPage !== "simple_wizard") this._resetSimpleWizardState();
+    if (nextPage === "simple_wizard" && previousPage !== "simple_wizard") resetSimpleWizardState(this);
     if (nextPage === "discovery" && previousPage !== "discovery") this._startDiscoverySession();
     if (wasOpen) this._rememberMobileMenuScroll(previousPage);
     const hasExplicitScrollTop = options?.scrollTop !== undefined && options?.scrollTop !== null;
@@ -10019,16 +7316,16 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._closeMobileQueueActionMenu();
     clearTimeout(this._mobileQueueArtworkPrefetchTimer);
     this._mobileQueueArtworkPrefetchTimer = null;
-    this._closeSmartVoiceConfirm();
+    closeSmartVoiceConfirm(this);
     this._syncCompactMenuOverlayState();
     this.$("mobileMenu")?.classList.remove("open", "search-open", "discovery-open", "action-fullscreen-open", "library-fullscreen-open");
     this.$("homeShortcutFab")?.removeAttribute("hidden");
     this.$("mobileMenuBody")?.classList.remove("search-mode", "library-mode", "library-flow-mode");
-    if (this._state.controlRoomRestoreAfterMenu && this._controlRoomEnabled()) {
+    if (this._state.controlRoomRestoreAfterMenu && controlRoomEnabled(this)) {
       this._state.controlRoomRestoreAfterMenu = false;
       this._state.controlRoomPanel = "";
       this._state.controlRoomOpen = true;
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
     }
   }
 
@@ -10072,7 +7369,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _pushMobileMenu(page) {
     const nextPage = this._normalizeMobileMenuPage(page);
     if (!nextPage || nextPage === this._state.menuPage) return;
-    if (nextPage === "simple_wizard") this._resetSimpleWizardState();
+    if (nextPage === "simple_wizard") resetSimpleWizardState(this);
     if (nextPage === "discovery") this._startDiscoverySession();
     this._state.menuStack.push(this._state.menuPage);
     this._state.menuPage = nextPage;
@@ -10157,68 +7454,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         </span>
       </button>
     `;
-  }
-
-  _createSimpleWizardState(overrides = {}) {
-    return {
-      step: "players",
-      selectedPlayers: [],
-      source: "genre",
-      genre: "pop",
-      customGenre: "",
-      contentType: "playlist",
-      query: "",
-      candidates: [],
-      selectedIndex: 0,
-      loading: false,
-      error: "",
-      ...overrides,
-    };
-  }
-
-  _resetSimpleWizardState() {
-    this._simpleWizardToken = (this._simpleWizardToken || 0) + 1;
-    this._state.simpleWizard = this._createSimpleWizardState({ selectedPlayers: this._simpleWizardDefaultPlayerIds() });
-  }
-
-  _simpleWizardPlayerPool() {
-    this._loadPlayers();
-    const players = Array.isArray(this._state.players) ? this._state.players : [];
-    const pinnedEntities = new Set(this._resolvedPinnedPlayerEntities(players));
-    return players
-      .filter((player) => player?.entity_id)
-      .filter(MaverickPlayersFoundation.isPlayerAvailable)
-      .filter((player) => !(typeof this._isLikelyBrowserPlayer === "function" && this._isLikelyBrowserPlayer(player)))
-      .filter((player) => !this._pinnedPlayersExclusive() || !pinnedEntities.size || pinnedEntities.has(player.entity_id));
-  }
-
-  _simpleWizardDefaultPlayerIds(players = this._simpleWizardPlayerPool()) {
-    const selected = String(this._state.selectedPlayer || "").trim();
-    if (selected && players.some((player) => player.entity_id === selected)) return [selected];
-    const active = players.find((player) => this._isPlayerActive(player));
-    return (active || players[0])?.entity_id ? [(active || players[0]).entity_id] : [];
-  }
-
-  _simpleWizardState() {
-    const base = this._state.simpleWizard && typeof this._state.simpleWizard === "object"
-      ? this._state.simpleWizard
-      : this._createSimpleWizardState();
-    const defaults = this._createSimpleWizardState();
-    Object.keys(defaults).forEach((key) => {
-      if (base[key] === undefined) base[key] = defaults[key];
-    });
-    const players = this._simpleWizardPlayerPool();
-    const validIds = new Set(players.map((player) => player.entity_id));
-    const selectedPlayers = (Array.isArray(base.selectedPlayers) ? base.selectedPlayers : [])
-      .map((entityId) => String(entityId || "").trim())
-      .filter((entityId, index, list) => entityId && validIds.has(entityId) && list.indexOf(entityId) === index);
-    if (!selectedPlayers.length) selectedPlayers.push(...this._simpleWizardDefaultPlayerIds(players));
-    base.selectedPlayers = selectedPlayers;
-    base.source = base.source === "content" ? "content" : "genre";
-    base.genre = this._simpleWizardGenres().some((genre) => genre.id === base.genre) ? base.genre : "pop";
-    base.contentType = this._simpleWizardContentTypes().some((type) => type.id === base.contentType) ? base.contentType : "playlist";
-    this._state.simpleWizard = base;
-    return base;
   }
 
   _musicStyleCatalog(options = {}) {
@@ -10414,800 +7649,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return options.includeCustom
       ? [...styles, style("custom", "search", this._i18n("ui.free_style"), this._i18n("ui.type_anything"), [])]
       : styles;
-  }
-
-  _simpleWizardGenres() {
-    return this._musicStyleCatalog({ includeCustom: true });
-  }
-
-  _simpleWizardContentTypes() {
-    return [
-      { id: "playlist", icon: "playlist", label: this._i18n("ui.playlist"), subtitle: this._i18n("ui.play_a_saved_list") },
-      { id: "artist", icon: "artist", label: this._i18n("ui.artist"), subtitle: this._i18n("ui.play_an_artist") },
-      { id: "artist_radio", icon: "radio", label: this._i18n("ui.artist_radio"), subtitle: this._i18n("ui.songs_around_an_artist") },
-      { id: "library_radio", icon: "radio", label: this._i18n("ui.library_radio"), subtitle: this._i18n("ui.a_radio_station") },
-    ];
-  }
-
-  _simpleWizardStepIndex(step = "") {
-    const order = ["players", "source", "review"];
-    const index = order.indexOf(step);
-    return index >= 0 ? index : 0;
-  }
-
-  _simpleWizardProgressHtml(step = "players") {
-    const current = this._simpleWizardStepIndex(step);
-    const steps = [
-      this._i18n("ui.players"),
-      this._i18n("ui.music"),
-      this._i18n("ui.play_2"),
-    ];
-    return `
-      <div class="simple-wizard-progress" aria-hidden="true">
-        ${steps.map((label, index) => `
-          <span class="simple-wizard-progress-step ${index === current ? "active" : ""} ${index < current ? "done" : ""}">
-            <span>${this._esc(String(index + 1))}</span>
-            <strong>${this._esc(label)}</strong>
-          </span>
-        `).join("")}
-      </div>
-    `;
-  }
-
-  _simpleWizardSelectedPlayerNames(entityIds = []) {
-    const ids = Array.isArray(entityIds) ? entityIds : [];
-    if (ids.length > 1) return this._m(`${ids.length} players`);
-    const player = this._playerByEntityId(ids[0]);
-    return player?.attributes?.friendly_name || ids[0] || this._i18n("ui.selected_player_3");
-  }
-
-  _simpleWizardPlayersHtml(state) {
-    const players = this._simpleWizardPlayerPool();
-    const selected = new Set(state.selectedPlayers || []);
-    const allSelected = players.length > 0 && players.every((player) => selected.has(player.entity_id));
-    if (!players.length) {
-      return `
-        <div class="simple-wizard-panel">
-          <div class="notice open">${this._esc(this._i18n("ui.no_players_found_yet"))}</div>
-        </div>
-      `;
-    }
-    return `
-      <div class="simple-wizard-panel">
-        <div class="simple-wizard-title">${this._esc(this._i18n("ui.choose_where_to_play"))}</div>
-        <div class="simple-wizard-player-grid">
-          <button class="simple-wizard-player ${allSelected ? "active" : ""}" data-simple-all-players="1">
-            <span class="simple-wizard-player-icon">${this._iconSvg("speaker")}</span>
-            <span class="simple-wizard-player-copy">
-              <span class="simple-wizard-option-title">${this._esc(this._i18n("ui.all_players"))}</span>
-              <span class="simple-wizard-option-sub">${this._esc(this._i18n("ui.play_everywhere"))}</span>
-            </span>
-            <span class="simple-wizard-check">${this._iconSvg(allSelected ? "check" : "plus")}</span>
-          </button>
-          ${players.map((player) => {
-            const entityId = player.entity_id;
-            const active = selected.has(entityId);
-            const art = this._playerArtworkUrl(player, 120);
-            const name = player.attributes?.friendly_name || entityId;
-            const subtitle = player.attributes?.media_title || this._playerStateLabel(player);
-            return `
-              <button class="simple-wizard-player ${active ? "active" : ""} ${this._isPlayerActive(player) ? "is-playing" : ""}" data-simple-player="${this._esc(entityId)}">
-                <span class="simple-wizard-player-art">${art ? this._imgHtml(art, "", { fallbackIcon: "speaker" }) : this._iconSvg("speaker")}</span>
-                <span class="simple-wizard-player-copy">
-                  <span class="simple-wizard-option-title">${this._esc(name)}</span>
-                  <span class="simple-wizard-option-sub">${this._esc(subtitle || "")}</span>
-                </span>
-                <span class="simple-wizard-check">${this._iconSvg(active ? "check" : "plus")}</span>
-              </button>
-            `;
-          }).join("")}
-        </div>
-        <div class="simple-wizard-footer single">
-          <button class="simple-wizard-primary" data-simple-next="source" ${selected.size ? "" : "disabled"}>${this._esc(this._i18n("ui.continue_2"))}</button>
-        </div>
-      </div>
-    `;
-  }
-
-  _simpleWizardSourceHtml(state) {
-    const source = state.source === "content" ? "content" : "genre";
-    const selectedGenre = state.genre || "pop";
-    const contentType = state.contentType || "playlist";
-    const customGenre = String(state.customGenre || "").trim();
-    const genreOptions = this._simpleWizardGenres();
-    const selectedGenreMeta = genreOptions.find((genre) => genre.id === selectedGenre) || genreOptions[0];
-    return `
-      <div class="simple-wizard-panel">
-        <div class="simple-wizard-title">${this._esc(this._i18n("ui.choose_the_music"))}</div>
-        <div class="simple-wizard-source-grid">
-          <button class="simple-wizard-source ${source === "genre" ? "active" : ""}" data-simple-source="genre">
-            <span>${this._iconSvg("wand")}</span>
-            <strong>${this._esc(this._m("Style"))}</strong>
-          </button>
-          <button class="simple-wizard-source ${source === "content" ? "active" : ""}" data-simple-source="content">
-            <span>${this._iconSvg("library_music")}</span>
-            <strong>${this._esc(this._i18n("ui.existing_content"))}</strong>
-          </button>
-        </div>
-        ${source === "genre" ? `
-          <label class="simple-wizard-search simple-wizard-category-picker">
-            <span>${this._esc(this._m("Style"))}</span>
-            <select id="simpleWizardGenreSelect" class="media-sort-select settings-select simple-wizard-select" aria-label="${this._esc(this._m("Style"))}">
-              ${genreOptions.map((genre) => `<option value="${this._esc(genre.id)}" ${selectedGenre === genre.id ? "selected" : ""}>${this._esc(genre.label)}</option>`).join("")}
-            </select>
-          </label>
-          <div class="simple-wizard-option active simple-wizard-selected-option">
-            <span class="simple-wizard-option-icon">${this._iconSvg(selectedGenreMeta?.icon || "wand")}</span>
-            <span>
-              <span class="simple-wizard-option-title">${this._esc(selectedGenreMeta?.label || "")}</span>
-              <span class="simple-wizard-option-sub">${this._esc(selectedGenreMeta?.subtitle || "")}</span>
-            </span>
-          </div>
-          ${selectedGenre === "custom" ? `
-            <label class="simple-wizard-search simple-wizard-free-style">
-              <span>${this._esc(this._i18n("ui.free_style"))}</span>
-              <input id="simpleWizardCustomGenreInput" type="text" value="${this._esc(customGenre)}" placeholder="${this._esc(this._i18n("ui.example_quiet_jazz_greek_music_workout"))}">
-            </label>
-          ` : ""}
-        ` : `
-          <div class="simple-wizard-option-grid">
-            ${this._simpleWizardContentTypes().map((type) => `
-              <button class="simple-wizard-option ${contentType === type.id ? "active" : ""}" data-simple-content="${this._esc(type.id)}">
-                <span class="simple-wizard-option-icon">${this._iconSvg(type.icon)}</span>
-                <span>
-                  <span class="simple-wizard-option-title">${this._esc(type.label)}</span>
-                  <span class="simple-wizard-option-sub">${this._esc(type.subtitle)}</span>
-                </span>
-              </button>
-            `).join("")}
-          </div>
-          <label class="simple-wizard-search">
-            <span>${this._esc(this._i18n("ui.name_or_keyword"))}</span>
-            <input id="simpleWizardQueryInput" type="text" value="${this._esc(state.query || "")}" placeholder="${this._esc(this._i18n("ui.optional_2"))}">
-          </label>
-        `}
-        <div class="simple-wizard-footer">
-          <button class="simple-wizard-secondary" data-simple-back="players">${this._esc(this._i18n("ui.back_2"))}</button>
-          <button class="simple-wizard-primary" data-simple-build="1">${this._esc(this._i18n("ui.find_music"))}</button>
-        </div>
-      </div>
-    `;
-  }
-
-  _simpleWizardReviewHtml(state) {
-    if (state.loading) {
-      return `
-        <div class="simple-wizard-panel simple-wizard-loading">
-          <div class="simple-wizard-loader">${this._iconSvg("wand")}</div>
-          <div class="simple-wizard-title">${this._esc(this._i18n("ui.finding_music"))}</div>
-        </div>
-      `;
-    }
-    const candidates = Array.isArray(state.candidates) ? state.candidates : [];
-    if (!candidates.length) {
-      return `
-        <div class="simple-wizard-panel">
-          <div class="notice open">${this._esc(state.error || this._i18n("ui.no_matching_content_was_found"))}</div>
-          <div class="simple-wizard-footer">
-            <button class="simple-wizard-secondary" data-simple-back="source">${this._esc(this._i18n("ui.back_2"))}</button>
-            <button class="simple-wizard-primary" data-simple-build="1">${this._esc(this._i18n("ui.try_again"))}</button>
-          </div>
-        </div>
-      `;
-    }
-    const index = Math.max(0, Math.min(candidates.length - 1, Number(state.selectedIndex || 0)));
-    const candidate = candidates[index] || candidates[0];
-    const art = candidate.image || "";
-    return `
-      <div class="simple-wizard-panel">
-        <div class="simple-wizard-title">${this._esc(this._i18n("ui.ready_to_play"))}</div>
-        <div class="simple-wizard-review-card">
-          <span class="simple-wizard-review-art">${art ? this._imgHtml(art, "", { fallbackIcon: candidate.media_type === "radio" ? "radio" : "playlist" }) : this._iconSvg(candidate.media_type === "radio" ? "radio" : "playlist")}</span>
-          <span class="simple-wizard-review-copy">
-            <span class="simple-wizard-review-kicker">${this._esc(this._simpleWizardSelectedPlayerNames(state.selectedPlayers))}</span>
-            <span class="simple-wizard-review-title">${this._esc(candidate.name || this._i18n("ui.selected_music"))}</span>
-            <span class="simple-wizard-review-sub">${this._esc(candidate.subtitle || this._simpleWizardMediaTypeLabel(candidate.media_type))}</span>
-          </span>
-        </div>
-        <div class="simple-wizard-section-head">
-          <span>${this._esc(this._i18n("ui.results"))}</span>
-          <small>${this._esc(this._i18n("ui.choose_one_clear_option"))}</small>
-        </div>
-        <div class="simple-wizard-result-grid">
-          ${candidates.slice(0, 8).map((item, itemIndex) => {
-            const itemArt = item.image || "";
-            const itemType = this._simpleWizardMediaTypeLabel(item.media_type);
-            return `
-            <button class="simple-wizard-result ${itemIndex === index ? "active" : ""}" data-simple-candidate="${this._esc(String(itemIndex))}">
-              <span class="simple-wizard-result-art">${itemArt ? this._imgHtml(itemArt, "", { fallbackIcon: item.media_type === "radio" ? "radio" : item.media_type === "artist" ? "artist" : "playlist" }) : this._iconSvg(item.media_type === "radio" ? "radio" : item.media_type === "artist" ? "artist" : "playlist")}</span>
-              <span class="simple-wizard-result-copy">
-                <span class="simple-wizard-result-kicker">${this._esc(itemType)}</span>
-                <span class="simple-wizard-result-title">${this._esc(item.name || this._i18n("ui.option"))}</span>
-                <span class="simple-wizard-result-sub">${this._esc(item.subtitle || itemType)}</span>
-              </span>
-              <span class="simple-wizard-result-check">${this._iconSvg(itemIndex === index ? "check" : "plus")}</span>
-            </button>
-          `; }).join("")}
-        </div>
-        <div class="simple-wizard-footer triple">
-          <button class="simple-wizard-secondary" data-simple-back="source">${this._esc(this._i18n("ui.back_2"))}</button>
-          <button class="simple-wizard-secondary" data-simple-build="1">${this._esc(this._i18n("ui.refresh"))}</button>
-          <button class="simple-wizard-primary" data-simple-play="1">${this._esc(this._i18n("ui.play_now"))}</button>
-        </div>
-      </div>
-    `;
-  }
-
-  _simpleWizardHtml() {
-    const state = this._simpleWizardState();
-    const step = ["players", "source", "review"].includes(state.step) ? state.step : "players";
-    const body = step === "source"
-      ? this._simpleWizardSourceHtml(state)
-      : step === "review"
-        ? this._simpleWizardReviewHtml(state)
-        : this._simpleWizardPlayersHtml(state);
-    return `
-      <div class="simple-wizard-shell" data-simple-step="${this._esc(step)}">
-        ${this._simpleWizardProgressHtml(step)}
-        <div class="simple-wizard-toolbar">
-          <button class="simple-wizard-reset-btn" data-simple-reset="1">${this._esc(this._i18n("ui.reset"))}</button>
-        </div>
-        ${body}
-      </div>
-    `;
-  }
-
-  _simpleWizardMediaTypeLabel(mediaType = "") {
-    const type = String(mediaType || "").toLowerCase();
-    if (type === "artist") return this._i18n("ui.artist");
-    if (type === "radio") return this._i18n("ui.radio");
-    if (type === "track") return this._i18n("ui.track");
-    if (type === "album") return this._i18n("ui.album");
-    return this._i18n("ui.playlist");
-  }
-
-  _simpleWizardCandidateFromItem(item = {}, fallbackType = "playlist", options = {}) {
-    let normalized = {};
-    try { normalized = this._normalizeMediaItem(item) || {}; } catch (_) {}
-    const uri = String(options.uri || normalized.uri || item?.uri || item?.media_item?.uri || "").trim();
-    if (!uri) return null;
-    const mediaType = String(options.mediaType || normalized.media_type || item?.media_type || item?.type || fallbackType || "playlist").toLowerCase();
-    const name = normalized.name || item?.name || item?.title || item?.media_item?.name || uri;
-    const subtitle = options.subtitle
-      || this._artistName(item)
-      || normalized.artist
-      || item?.artist
-      || item?.artist_str
-      || item?.album?.name
-      || item?.metadata?.description
-      || this._simpleWizardMediaTypeLabel(mediaType);
-    const image = this._artUrl(item)
-      || normalized.image
-      || item?.image
-      || item?.image_url
-      || item?.media_item?.image
-      || item?.media_item?.album?.image
-      || "";
-    return {
-      uri,
-      media_type: mediaType,
-      name,
-      subtitle,
-      image,
-      radioMode: !!options.radioMode,
-    };
-  }
-
-  _simpleWizardUniqueCandidates(candidates = []) {
-    const seen = new Set();
-    return (Array.isArray(candidates) ? candidates : []).filter((candidate) => {
-      const uri = String(candidate?.uri || "").trim();
-      if (!uri || seen.has(uri)) return false;
-      seen.add(uri);
-      return true;
-    });
-  }
-
-  async _simpleWizardFindCandidates(state = this._simpleWizardState()) {
-    const out = [];
-    const addGroup = (items = [], mediaType = "playlist", options = {}) => {
-      (Array.isArray(items) ? items : []).forEach((item) => {
-        const candidate = this._simpleWizardCandidateFromItem(item, mediaType, options);
-        if (candidate) out.push(candidate);
-      });
-    };
-    if (state.source !== "content") {
-      const genre = this._simpleWizardGenres().find((item) => item.id === state.genre) || this._simpleWizardGenres()[0];
-      const customQuery = String(state.customGenre || "").trim();
-      const searchLabel = genre.id === "custom" && customQuery ? customQuery : genre.label;
-      const queries = genre.id === "custom" && customQuery ? [customQuery] : (genre.queries || [genre.label]);
-      for (const query of queries.slice(0, 3)) {
-        try {
-          const results = await this._search(query);
-          addGroup(results.playlists, "playlist", { subtitle: searchLabel });
-          addGroup(results.tracks, "track", { subtitle: searchLabel });
-          addGroup(results.albums, "album", { subtitle: searchLabel });
-          addGroup(results.radio, "radio", { subtitle: searchLabel });
-        } catch (_) {}
-        if (this._simpleWizardUniqueCandidates(out).length >= 8) break;
-      }
-      if (!out.length) {
-        const fallbacks = await Promise.allSettled([
-          this._fetchLibrary("playlist", "random", 18, false),
-          this._fetchLibrary("album", "random", 12, false),
-          this._fetchLibrary("radio", "random", 12, false),
-        ]);
-        fallbacks.forEach((result, index) => {
-          if (result.status !== "fulfilled") return;
-          addGroup(result.value, index === 1 ? "album" : index === 2 ? "radio" : "playlist", { subtitle: searchLabel });
-        });
-      }
-      return this._shuffleDiscoveryItems(this._simpleWizardUniqueCandidates(out), Date.now() + (this._simpleWizardToken || 0)).slice(0, 8);
-    }
-
-    const query = String(state.query || "").trim();
-    const type = state.contentType || "playlist";
-    if (type === "library_radio") {
-      if (query) {
-        try {
-          const results = await this._search(query);
-          addGroup(results.radio, "radio");
-        } catch (_) {}
-        try {
-          const stations = await this._fetchRadioBrowserStations(query, 18, { countryCode: this._mobileRadioBrowserCountry() || "all" });
-          addGroup(stations, "radio");
-        } catch (_) {}
-      } else {
-        const radios = await Promise.allSettled([
-          this._fetchLibrary("radio", "sort_name", 80, true),
-          this._fetchLibrary("radio", "random", 80, false),
-          this._fetchRadioBrowserStations("", 30, { countryCode: this._mobileRadioBrowserCountry() || "all" }),
-        ]);
-        radios.forEach((result) => {
-          if (result.status === "fulfilled") addGroup(result.value, "radio");
-        });
-      }
-      return this._shuffleDiscoveryItems(this._simpleWizardUniqueCandidates(out), Date.now() + (this._simpleWizardToken || 0)).slice(0, 8);
-    }
-
-    if (type === "artist" || type === "artist_radio") {
-      if (query) {
-        try {
-          const results = await this._search(query);
-          addGroup(results.artists, "artist", {
-            subtitle: type === "artist_radio" ? this._i18n("ui.artist_radio") : this._i18n("ui.artist"),
-            radioMode: type === "artist_radio",
-            mediaType: "artist",
-          });
-        } catch (_) {}
-      } else {
-        try {
-          const artists = await this._fetchLibrary("artist", "sort_name", 80, false);
-          addGroup(artists, "artist", {
-            subtitle: type === "artist_radio" ? this._i18n("ui.artist_radio") : this._i18n("ui.artist"),
-            radioMode: type === "artist_radio",
-            mediaType: "artist",
-          });
-        } catch (_) {}
-      }
-      return this._shuffleDiscoveryItems(this._simpleWizardUniqueCandidates(out), Date.now() + (this._simpleWizardToken || 0)).slice(0, 8);
-    }
-
-    if (query) {
-      try {
-        const results = await this._search(query);
-        addGroup(results.playlists, "playlist");
-      } catch (_) {}
-    } else {
-      const playlists = await Promise.allSettled([
-        this._loadScheduledStartPlaylists(),
-        this._fetchLibrary("playlist", "sort_name", 120, true),
-        this._fetchLibrary("playlist", "random", 80, false),
-      ]);
-      playlists.forEach((result) => {
-        if (result.status === "fulfilled") addGroup(result.value, "playlist");
-      });
-    }
-    return this._shuffleDiscoveryItems(this._simpleWizardUniqueCandidates(out), Date.now() + (this._simpleWizardToken || 0)).slice(0, 8);
-  }
-
-  async _simpleWizardBuildCandidates(sourceEl = null) {
-    const state = this._simpleWizardState();
-    const queryInput = this.$("simpleWizardQueryInput");
-    const genreSelect = this.$("simpleWizardGenreSelect");
-    const customGenreInput = this.$("simpleWizardCustomGenreInput");
-    if (queryInput) state.query = queryInput.value || "";
-    if (genreSelect) state.genre = this._simpleWizardGenres().some((genre) => genre.id === genreSelect.value) ? genreSelect.value : state.genre;
-    if (customGenreInput) state.customGenre = customGenreInput.value || "";
-    if (!state.selectedPlayers?.length) {
-      state.step = "players";
-      this._toastError(this._i18n("ui.choose_at_least_one_player"));
-      await this._renderMobileMenu();
-      return;
-    }
-    if (state.source !== "content" && state.genre === "custom" && !String(state.customGenre || "").trim()) {
-      state.step = "source";
-      this._toastError(this._i18n("ui.type_a_free_style_first"));
-      await this._renderMobileMenu();
-      return;
-    }
-    if (sourceEl) this._flashInteraction(sourceEl);
-    const token = ++this._simpleWizardToken;
-    state.step = "review";
-    state.loading = true;
-    state.error = "";
-    state.candidates = [];
-    state.selectedIndex = 0;
-    await this._renderMobileMenu();
-    try {
-      const candidates = await this._simpleWizardFindCandidates(state);
-      if (token !== this._simpleWizardToken) return;
-      state.candidates = candidates;
-      state.error = candidates.length ? "" : this._i18n("ui.no_matching_content_was_found");
-    } catch (error) {
-      if (token !== this._simpleWizardToken) return;
-      state.candidates = [];
-      state.error = error?.message || this._i18n("ui.could_not_find_music");
-    } finally {
-      if (token === this._simpleWizardToken) {
-        state.loading = false;
-        await this._renderMobileMenu();
-      }
-    }
-  }
-
-  _showSimpleWizardPopup(candidate = {}, entityIds = []) {
-    const host = this.$("surprisePopup");
-    if (!host) return;
-    const targetName = this._simpleWizardSelectedPlayerNames(entityIds);
-    const art = candidate.image || "";
-    host.innerHTML = `
-      <div class="surprise-popup-card simple-wizard-popup-card">
-        <div class="surprise-popup-player">${this._esc(this._i18n("ui.playing_on_2"))}: ${this._esc(targetName)}</div>
-        <div class="surprise-popup-art">${art ? this._imgHtml(art, "", { loading: "eager", fetchpriority: "high", fallbackIcon: "album" }) : this._iconSvg("wand")}</div>
-        <div class="surprise-popup-title">${this._esc(candidate.name || this._i18n("ui.selected_music"))}</div>
-      </div>
-    `;
-    host.classList.add("open", "simple-wizard-popup");
-    clearTimeout(this._simpleWizardPopupTimer);
-    this._simpleWizardPopupTimer = setTimeout(() => {
-      host.classList.remove("open", "simple-wizard-popup");
-    }, 1700);
-  }
-
-  async _simpleWizardPlay(sourceEl = null) {
-    const state = this._simpleWizardState();
-    const candidates = Array.isArray(state.candidates) ? state.candidates : [];
-    const index = Math.max(0, Math.min(candidates.length - 1, Number(state.selectedIndex || 0)));
-    const candidate = candidates[index];
-    if (!candidate?.uri) {
-      await this._simpleWizardBuildCandidates(sourceEl);
-      return;
-    }
-    const targets = [...new Set((state.selectedPlayers || []).filter((entityId) => this._playerByEntityId(entityId)))];
-    if (!targets.length) {
-      state.step = "players";
-      await this._renderMobileMenu();
-      this._toastError(this._i18n("ui.choose_at_least_one_player"));
-      return;
-    }
-    if (sourceEl) this._flashInteraction(sourceEl);
-    const primaryId = targets[0];
-    if (targets.length > 1) {
-      try {
-        const joined = await this._applySpeakerGroupFor(primaryId, targets.slice(1));
-        if (!joined) {
-          this._toastError(this._i18n("ui.select_at_least_two_players_to_create_a_group"));
-          return;
-        }
-        await new Promise((resolve) => window.setTimeout(resolve, 250));
-      } catch (error) {
-        this._toastError(error?.message || this._i18n("ui.queue_action_failed"));
-        return;
-      }
-    }
-    const ok = await this._playMediaOnPlayers([primaryId], candidate.uri, candidate.media_type || "playlist", "play", {
-      label: candidate.name || "",
-      silent: true,
-      radioMode: !!candidate.radioMode,
-    });
-    if (!ok) {
-      this._toastError(this._i18n("ui.could_not_start_playback"));
-      return;
-    }
-    this._selectPlayer(primaryId, true);
-    this._showSimpleWizardPopup(candidate, targets);
-    this._timeout(() => {
-      this._closeMobileMenu();
-      this._syncNowPlayingUI();
-    }, 1750);
-  }
-
-  async _handleSimpleWizardClick(e) {
-    const root = e.target.closest?.(".simple-wizard-shell");
-    if (!root) return false;
-    const button = e.target.closest?.("[data-simple-reset], [data-simple-player], [data-simple-all-players], [data-simple-next], [data-simple-back], [data-simple-source], [data-simple-genre], [data-simple-content], [data-simple-build], [data-simple-candidate], [data-simple-play]");
-    if (!button) return false;
-    e.preventDefault();
-    e.stopPropagation();
-    const state = this._simpleWizardState();
-    if (button.dataset.simpleReset !== undefined) {
-      this._resetSimpleWizardState();
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simpleAllPlayers !== undefined) {
-      const players = this._simpleWizardPlayerPool();
-      const ids = players.map((player) => player.entity_id);
-      const selected = new Set(state.selectedPlayers || []);
-      state.selectedPlayers = ids.length && ids.every((id) => selected.has(id)) ? this._simpleWizardDefaultPlayerIds(players) : ids;
-      state.candidates = [];
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simplePlayer) {
-      const entityId = button.dataset.simplePlayer;
-      const selected = new Set(state.selectedPlayers || []);
-      if (selected.has(entityId)) {
-        if (selected.size <= 1) {
-          this._toastError(this._i18n("ui.choose_at_least_one_player"));
-          return true;
-        }
-        selected.delete(entityId);
-      } else selected.add(entityId);
-      state.selectedPlayers = Array.from(selected);
-      state.candidates = [];
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simpleNext) {
-      if (button.dataset.simpleNext === "source" && !state.selectedPlayers?.length) {
-        this._toastError(this._i18n("ui.choose_at_least_one_player"));
-        return true;
-      }
-      state.step = button.dataset.simpleNext;
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simpleBack) {
-      state.step = button.dataset.simpleBack;
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simpleSource) {
-      state.source = button.dataset.simpleSource === "content" ? "content" : "genre";
-      state.candidates = [];
-      state.selectedIndex = 0;
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simpleGenre) {
-      state.genre = button.dataset.simpleGenre;
-      state.candidates = [];
-      state.selectedIndex = 0;
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simpleContent) {
-      state.contentType = button.dataset.simpleContent;
-      state.candidates = [];
-      state.selectedIndex = 0;
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simpleBuild !== undefined) {
-      await this._simpleWizardBuildCandidates(button);
-      return true;
-    }
-    if (button.dataset.simpleCandidate !== undefined) {
-      state.selectedIndex = Math.max(0, Number(button.dataset.simpleCandidate) || 0);
-      await this._renderMobileMenu();
-      return true;
-    }
-    if (button.dataset.simplePlay !== undefined) {
-      await this._simpleWizardPlay(button);
-      return true;
-    }
-    return false;
-  }
-
-  _sleepTimerActionTile(label, minutes, tone = "queue") {
-    return `
-      <button class="menu-item action-tile tone-${this._esc(tone)}" data-sleep-timer-start="${this._esc(String(minutes))}">
-        <span class="menu-item-main">
-          <span class="menu-item-ico">${this._iconSvg("timer")}</span>
-          <span style="min-width:0;flex:1;">
-            <span class="menu-item-title">${this._esc(label)}</span>
-            <span class="menu-item-sub">${this._esc(this._i18n("ui.set_sleep_timer"))}</span>
-          </span>
-        </span>
-      </button>
-    `;
-  }
-
-  _sleepTimerMenuHtml() {
-    this._loadPlayers();
-    const remaining = this._sleepTimerRemainingLabel();
-    const active = this._sleepTimerRemainingMs() > 0;
-    const status = active
-      ? this._m(`Active for ${remaining}`)
-      : this._i18n("ui.no_sleep_timer_is_active");
-    const schedules = this._scheduledStartSchedules();
-    const editSchedule = schedules.find((schedule) => schedule.id === this._state.mobileStartScheduleEditId) || null;
-    const showWakeEditor = !!editSchedule || this._state.mobileStartScheduleEditId === "__new__";
-    const wakeDraftSchedule = showWakeEditor ? {
-      id: editSchedule?.id || "__new__",
-      time: this._state.mobileStartTimerTime || editSchedule?.time || "07:00",
-      player: this._state.mobileStartTimerPlayer || editSchedule?.player || "",
-      playlist: this._state.mobileStartTimerPlaylist ?? editSchedule?.playlist ?? "",
-      playlistName: this._state.mobileStartTimerPlaylistName ?? editSchedule?.playlistName ?? "",
-      volume: this._state.mobileStartTimerVolume ?? editSchedule?.volume ?? 35,
-      days: this._state.mobileStartTimerDays || editSchedule?.days,
-      afterRun: this._state.mobileStartTimerAfterRun || editSchedule?.afterRun || "keep",
-    } : editSchedule;
-    const scheduledTime = this._normalizeClockTime(wakeDraftSchedule?.time || "07:00", "07:00");
-    const scheduledPlayer = this._scheduledStartPlayerId(wakeDraftSchedule);
-    const scheduledVolume = Math.max(0, Math.min(100, Number(wakeDraftSchedule?.volume ?? 35) || 35));
-    const scheduledDays = new Set(this._normalizeNightModeDays(wakeDraftSchedule?.days || this._state.mobileStartTimerDays));
-    const scheduledAfterRun = String(wakeDraftSchedule?.afterRun || "keep") === "disable" ? "disable" : "keep";
-    const nightMode = this._mobileNightMode();
-    const nightWindow = this._nightModeWindow();
-    const nightDays = new Set(this._nightModeDays());
-    const activeTab = ["timers", "wake", "night"].includes(this._state.mobileSchedulesTab) ? this._state.mobileSchedulesTab : "timers";
-    const schedulePlayers = this._strictSchedulePlayers();
-    const playerOptions = schedulePlayers.map((player) => {
-      const name = player.attributes?.friendly_name || player.entity_id;
-      return `<option value="${this._esc(player.entity_id)}" ${player.entity_id === scheduledPlayer ? "selected" : ""}>${this._esc(name)}</option>`;
-    }).join("");
-    const scheduleRows = schedules.length ? `
-      <div class="schedule-list">
-        ${schedules.map((schedule) => {
-          const player = this._playerByEntityId(this._scheduledStartPlayerId(schedule));
-          const playerName = player?.attributes?.friendly_name || this._i18n("ui.selected_player_3");
-          const afterRunLabel = schedule.afterRun === "disable"
-            ? this._i18n("ui.turns_off_after_run")
-            : this._i18n("ui.stays_active");
-          const days = this._nightModeDayOptions()
-            .filter(([value]) => this._normalizeNightModeDays(schedule.days).includes(value))
-            .map(([, label]) => label)
-            .join(" ");
-          return `
-            <div class="schedule-row ${schedule.enabled === false ? "disabled" : ""} ${schedule.id === this._state.mobileStartScheduleEditId ? "editing" : ""}">
-              <button class="schedule-row-main" data-start-schedule-edit="${this._esc(schedule.id)}">
-                <span class="schedule-row-time">${this._esc(schedule.time)}</span>
-                <span class="schedule-row-copy">
-                  <span class="schedule-row-title">${this._esc(playerName)}</span>
-                  <span class="schedule-row-sub">${this._esc(`${this._scheduledStartPlaylistLabel(schedule)} · ${schedule.volume}% · ${afterRunLabel} · ${days}`)}</span>
-                </span>
-              </button>
-              <div class="schedule-row-actions">
-                <button class="settings-pill ${schedule.enabled !== false ? "active" : ""}" data-start-schedule-toggle="${this._esc(schedule.id)}">${this._esc(schedule.enabled !== false ? this._i18n("ui.on") : this._i18n("ui.off"))}</button>
-                <button class="settings-pill" data-start-schedule-delete="${this._esc(schedule.id)}">${this._iconSvg("trash")}</button>
-              </div>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    ` : `<div class="notice open">${this._i18n("ui.no_wake_schedules_yet")}</div>`;
-    const timersHtml = `
-      <div class="settings-group scheduled-start-card schedule-panel-card schedule-timers-card">
-        <div class="settings-label">${this._esc(this._i18n("ui.sleep_timer_2"))}</div>
-        <div class="settings-hint">${this._esc(status)}</div>
-        <div class="sleep-timer-action-row ${active ? "with-cancel" : ""}" aria-label="${this._esc(this._i18n("ui.sleep_timer_presets"))}">
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="15">${this._esc(this._m("15 min"))}</button>
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="30">${this._esc(this._m("30 min"))}</button>
-          <button class="sleep-timer-action-btn" data-sleep-timer-start="60">${this._esc(this._m("60 min"))}</button>
-          ${active ? `<button class="sleep-timer-action-btn danger" data-sleep-timer-cancel>${this._esc(this._i18n("ui.cancel_2"))}</button>` : ``}
-        </div>
-      </div>
-    `;
-    const wakeHtml = `
-      <div class="wake-schedule-layout">
-        <div class="settings-group scheduled-start-card wake-schedule-list-card">
-          <div class="settings-label">${this._esc(this._i18n("ui.wake_schedules"))}</div>
-          <div class="settings-hint">${this._esc(this._scheduledStartStatusLabel())}</div>
-          ${scheduleRows}
-          <div class="settings-actions">
-            <button class="settings-pill" data-start-schedule-new>${this._esc(this._i18n("ui.new_schedule"))}</button>
-          </div>
-        </div>
-        ${showWakeEditor ? `<div class="settings-group scheduled-start-card wake-schedule-editor-card">
-          <div class="settings-label">${this._esc(editSchedule ? this._i18n("ui.edit_schedule") : this._i18n("ui.new_wake_schedule"))}</div>
-          <div class="scheduled-start-grid">
-            <label class="night-time-card" for="scheduledStartTimeInput">
-              <span class="night-time-label">${this._esc(this._i18n("ui.start_time"))}</span>
-              <input class="night-time-input" id="scheduledStartTimeInput" data-schedule-form-control type="time" value="${this._esc(scheduledTime)}" step="60" aria-label="${this._esc(this._i18n("ui.start_time"))}">
-            </label>
-            <label class="scheduled-start-field" for="scheduledStartPlayerSelect">
-              <span class="settings-label">${this._esc(this._i18n("ui.player_2"))}</span>
-              <select class="media-sort-select settings-select" id="scheduledStartPlayerSelect" data-schedule-form-control aria-label="${this._esc(this._i18n("ui.player_2"))}">
-                ${playerOptions || `<option value="">${this._esc(this._i18n("ui.no_players_found"))}</option>`}
-              </select>
-            </label>
-            <label class="scheduled-start-field" for="scheduledStartPlaylistSelect">
-              <span class="settings-label">${this._esc(this._i18n("ui.playlist"))}</span>
-              <select class="media-sort-select settings-select" id="scheduledStartPlaylistSelect" data-schedule-form-control aria-label="${this._esc(this._i18n("ui.playlist"))}">
-                ${this._scheduledStartPlaylistOptionsHtml(wakeDraftSchedule)}
-              </select>
-            </label>
-            <label class="scheduled-start-field" for="scheduledStartAfterRunSelect">
-              <span class="settings-label">${this._esc(this._i18n("ui.after_run"))}</span>
-              <select class="media-sort-select settings-select" id="scheduledStartAfterRunSelect" data-schedule-form-control aria-label="${this._esc(this._i18n("ui.after_run"))}">
-                <option value="keep" ${scheduledAfterRun === "keep" ? "selected" : ""}>${this._esc(this._i18n("ui.stay_active"))}</option>
-                <option value="disable" ${scheduledAfterRun === "disable" ? "selected" : ""}>${this._esc(this._i18n("ui.turn_off"))}</option>
-              </select>
-            </label>
-          </div>
-          <div class="settings-range scheduled-volume-field">
-            <div class="settings-label">${this._esc(this._i18n("ui.volume"))}</div>
-            <input id="scheduledStartVolumeInput" data-schedule-form-control type="range" min="0" max="100" step="1" value="${this._esc(String(scheduledVolume))}">
-            <div class="settings-value">${this._esc(String(scheduledVolume))}%</div>
-          </div>
-          <div class="settings-label">${this._esc(this._i18n("ui.active_days"))}</div>
-          <div class="settings-check-grid">
-            ${this._nightModeDayOptions().map(([value, label]) => `
-              <label class="settings-check-pill">
-                <input type="checkbox" data-schedule-form-control data-start-timer-day="${this._esc(String(value))}" ${scheduledDays.has(value) ? "checked" : ""}>
-                <span>${this._esc(label)}</span>
-              </label>`).join("")}
-          </div>
-          <div class="settings-actions">
-            <button class="settings-pill active" data-start-timer-save>${this._esc(editSchedule ? this._i18n("ui.save_schedule") : this._i18n("ui.create_schedule"))}</button>
-            ${editSchedule ? `<button class="settings-pill" data-start-timer-clear>${this._esc(this._i18n("ui.delete_schedule"))}</button>` : ``}
-          </div>
-        </div>` : ``}
-      </div>
-    `;
-    const nightScheduleControlsHtml = nightMode === "auto"
-      ? `
-        <div class="scheduled-start-grid two-col">
-          <label class="night-time-card" for="mobileNightStartInput">
-            <span class="night-time-label">${this._esc(this._i18n("ui.start_time_2"))}</span>
-            <input class="night-time-input" id="mobileNightStartInput" data-schedule-form-control type="time" value="${this._esc(nightWindow.start)}" step="60" aria-label="${this._esc(this._i18n("ui.start_time_2"))}">
-          </label>
-          <label class="night-time-card" for="mobileNightEndInput">
-            <span class="night-time-label">${this._esc(this._i18n("ui.end_time"))}</span>
-            <input class="night-time-input" id="mobileNightEndInput" data-schedule-form-control type="time" value="${this._esc(nightWindow.end)}" step="60" aria-label="${this._esc(this._i18n("ui.end_time"))}">
-          </label>
-        </div>
-        <div class="settings-label">${this._esc(this._i18n("ui.active_days"))}</div>
-        <div class="settings-check-grid">
-          ${this._nightModeDayOptions().map(([value, label]) => `
-            <label class="settings-check-pill">
-              <input type="checkbox" data-schedule-form-control data-setting-night-day="${this._esc(String(value))}" ${nightDays.has(value) ? "checked" : ""}>
-              <span>${this._esc(label)}</span>
-            </label>`).join("")}
-        </div>
-        <div class="settings-actions">
-          <button class="settings-pill active" data-setting-night-window-save>${this._esc(this._i18n("ui.apply_schedule"))}</button>
-        </div>
-      `
-      : `<div class="notice open">${this._esc(nightMode === "on"
-          ? this._i18n("ui.night_mode_stays_on_until_you_choose_another_mode")
-          : this._i18n("ui.night_mode_is_off_until_you_choose_another_mode"))}</div>`;
-    const nightHtml = `
-      <div class="settings-group scheduled-start-card schedule-panel-card schedule-night-card">
-        <div class="settings-label">${this._esc(this._i18n("ui.night_mode"))}</div>
-        <div class="settings-pills">
-          ${this._settingsPill(this._i18n("ui.off"), "off", nightMode, "data-setting-night-mode")}
-          ${this._settingsPill("Auto", "auto", nightMode, "data-setting-night-mode")}
-          ${this._settingsPill(this._i18n("ui.on"), "on", nightMode, "data-setting-night-mode")}
-        </div>
-        ${nightScheduleControlsHtml}
-      </div>
-    `;
-    return `
-      <div class="settings-shell">
-        <div class="schedule-tabs" role="tablist" aria-label="${this._esc(this._i18n("ui.schedules"))}">
-          <button class="settings-pill ${activeTab === "timers" ? "active" : ""}" data-schedule-tab="timers">${this._esc(this._i18n("ui.timers"))}</button>
-          <button class="settings-pill ${activeTab === "wake" ? "active" : ""}" data-schedule-tab="wake">${this._esc(this._i18n("ui.wake"))}</button>
-          <button class="settings-pill ${activeTab === "night" ? "active" : ""}" data-schedule-tab="night">${this._esc(this._i18n("ui.night"))}</button>
-        </div>
-        <div class="schedule-content">
-          ${activeTab === "wake" ? wakeHtml : activeTab === "night" ? nightHtml : timersHtml}
-        </div>
-      </div>
-    `;
   }
 
   _mainMenuHtml() {
@@ -11919,9 +8360,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ${this._settingsAccordionWrap("display", this._i18n("ui.settings_section_display", {}, "Display"), this._settingsSectionDisplay())}
       ${this._settingsAccordionWrap("players_library", this._i18n("ui.settings_section_players_library", {}, "Players & Library"), this._settingsSectionPlayersLibrary())}
       ${this._settingsAccordionWrap("quick_actions_bar", this._i18n("ui.settings_section_quick_actions_bar", {}, "Quick Actions Bar"), this._settingsSectionQuickActionsBar())}
-      ${this._settingsAccordionWrap("voice_assistant", this._i18n("ui.settings_section_voice_assistant", {}, "Voice Assistant"), this._settingsSectionVoiceAssistant())}
+      ${this._settingsAccordionWrap("voice_assistant", this._i18n("ui.settings_section_voice_assistant", {}, "Voice Assistant"), voiceAssistantSettingsSectionHtml(this))}
       ${this._settingsAccordionWrap("smart_home", this._i18n("ui.settings_section_smart_home", {}, "Smart Home"), this._settingsSectionSmartHome())}
-      ${this._settingsAccordionWrap("announcements", this._i18n("ui.settings_section_announcements", {}, "Announcements"), this._settingsSectionAnnouncements())}
+      ${this._settingsAccordionWrap("announcements", this._i18n("ui.settings_section_announcements", {}, "Announcements"), announcementsSettingsSectionHtml(this))}
       ${this._settingsAccordionWrap("music_assistant", this._i18n("ui.settings_section_music_assistant", {}, "Music Assistant"), this._settingsSectionMusicAssistant())}
       <div class="settings-version">Version ${MAVERICK_CARD_VERSION}</div>
     </div>`;
@@ -11930,7 +8371,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _settingsSectionDisplay() {
     const theme = this._state.cardTheme === "light" || this._state.cardTheme === "custom" ? this._state.cardTheme : "dark";
     const performanceProfile = this._performanceProfile();
-    const dynamicThemeMode = this._mobileDynamicThemeMode();
     const backgroundMotionMode = this._mobileBackgroundMotionMode();
     const fontScale = Number(this._state.mobileFontScale || 1).toFixed(2);
     const iconScale = this._mobileIconScale().toFixed(2);
@@ -11962,12 +8402,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             ${this._settingsPill("Ultra Lite", "ultra_lite", performanceProfile, "data-setting-performance-profile")}
           </div>
           <div class="settings-hint">${this._i18n("ui.performance_profile_helper")}</div>
-          <div class="settings-label">${this._i18n("ui.dynamic_theme")}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.off"), "off", dynamicThemeMode, "data-setting-dynamic-theme")}
-            ${this._settingsPill("Auto", "auto", dynamicThemeMode, "data-setting-dynamic-theme")}
-            ${this._settingsPill(this._i18n("ui.strong"), "strong", dynamicThemeMode, "data-setting-dynamic-theme")}
-          </div>
+          ${dynamicThemeSettingsPillsHtml(this)}
           <div class="settings-hint">${this._i18n("ui.auto_extracts_colors_from_the_current_artwork_and_keeps_the_effect_subtl")}</div>
           <div class="settings-label">${this._i18n("ui.background_motion")}</div>
           <div class="settings-pills">
@@ -12167,7 +8602,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     ];
     const visibleMainBarOptions = mainBarOptions;
     const selectedMainBar = new Set(this._mobileMainBarItems());
-    const showStudioMainBarOption = this._controlRoomEnabled();
+    const showStudioMainBarOption = controlRoomEnabled(this);
     const studioShortcut = this._mobileStudioShortcutEnabled();
     const settingsMainBarLocked = !this._usesVisualSettings();
     const volumeMode = this._mobileVolumeMode();
@@ -12203,7 +8638,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             ${showStudioMainBarOption ? `
               <label class="settings-check-pill">
                 <input type="checkbox" data-setting-studio-shortcut ${studioShortcut ? "checked" : ""}>
-                <span>${this._esc(this._controlRoomLabel())}</span>
+                <span>${this._esc(controlRoomLabel(this))}</span>
               </label>
             ` : ``}
             ${visibleMainBarOptions.map(([value, label]) => {
@@ -12238,45 +8673,10 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         </div>`;
   }
 
-  _settingsSectionVoiceAssistant() {
-    const voiceAssistantEnabled = this._voiceAssistantEnabled();
-    const voiceAssistantMode = this._voiceAssistantMode();
-    const voiceAssistantSpeakFeedback = this._voiceAssistantSpeakFeedbackEnabled();
-    const voiceAssistantAgentOptions = this._voiceAssistantAgentOptions();
-    return `
-        <div class="settings-group voice-assistant-settings-card">
-          <div class="settings-label">${this._flowAssistantLabel()}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.enabled"), "on", voiceAssistantEnabled ? "on" : "off", "data-setting-voice-assistant")}
-            ${this._settingsPill(this._i18n("ui.disabled"), "off", voiceAssistantEnabled ? "on" : "off", "data-setting-voice-assistant")}
-          </div>
-          <div class="settings-label">${this._i18n("ui.voice_assistant_mode")}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.hybrid_music_plus_assist"), "hybrid", voiceAssistantMode, "data-setting-voice-assistant-mode")}
-            ${this._settingsPill(this._i18n("ui.music_only"), "music", voiceAssistantMode, "data-setting-voice-assistant-mode")}
-            ${this._settingsPill(this._i18n("ui.assist_only"), "assist", voiceAssistantMode, "data-setting-voice-assistant-mode")}
-          </div>
-          <div class="settings-hint">${this._i18n("ui.hybrid_handles_music_locally_and_sends_unknown_commands_to_assist")}</div>
-          <div class="settings-label">${this._i18n("ui.assist_agent")}</div>
-          <select class="media-sort-select settings-select" id="voiceAssistantAgentSelect" aria-label="${this._esc(this._i18n("ui.assist_agent"))}">
-            ${voiceAssistantAgentOptions.map((option) => `
-              <option value="${this._esc(option.value)}" ${option.value === this._voiceAssistantAgentId() ? "selected" : ""}>${this._esc(option.label)}</option>
-            `).join("")}
-          </select>
-          <div class="settings-hint">${this._i18n("ui.optional_assist_agent_leave_empty_for_home_assistant_default")}</div>
-          <div class="settings-label">${this._i18n("ui.voice_feedback")}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.enabled"), "on", voiceAssistantSpeakFeedback ? "on" : "off", "data-setting-voice-feedback")}
-            ${this._settingsPill(this._i18n("ui.disabled"), "off", voiceAssistantSpeakFeedback ? "on" : "off", "data-setting-voice-feedback")}
-          </div>
-          <div class="settings-hint">${this._i18n("ui.speak_voice_assistant_responses_out_loud")}</div>
-        </div>`;
-  }
 
   _settingsSectionSmartHome() {
     const ambientEntitiesText = this._ambientLightEntities().join(", ");
     const ambientPlayerMapText = this._ambientLightPlayerMap().join("\n");
-    const screensaverAutoLyrics = this._screensaverAutoLyricsWhenPlaying();
     const powerButtonAction = this._powerButtonAction();
     const auxiliaryButtonConfigs = this._auxiliaryButtonConfigs();
     const auxiliaryIconOptions = [
@@ -12301,17 +8701,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return `
         <div class="settings-group smart-home-settings-card">
           <div class="settings-label">${this._i18n("ui.smart_home")}</div>
-          <div class="settings-label">${this._i18n("ui.screensaver", {}, "Screensaver")}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.enabled"), "on", this._state.screensaverEnabled ? "on" : "off", "data-setting-screensaver")}
-            ${this._settingsPill(this._i18n("ui.disabled"), "off", this._state.screensaverEnabled ? "on" : "off", "data-setting-screensaver")}
-          </div>
-          <div class="settings-label">${this._esc(this._i18n("ui.lyrics_while_playing", {}, "Lyrics while playing"))}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.enabled"), "on", screensaverAutoLyrics ? "on" : "off", "data-setting-screensaver-auto-lyrics")}
-            ${this._settingsPill(this._i18n("ui.disabled"), "off", screensaverAutoLyrics ? "on" : "off", "data-setting-screensaver-auto-lyrics")}
-          </div>
-          <div class="settings-hint">${this._esc(this._i18n("ui.screensaver_lyrics_while_playing_helper", {}, "When enabled, the screensaver opens directly in lyrics mode while music is playing, and stays in clock mode when idle."))}</div>
+          ${screensaverSettingsPillsHtml(this)}
           <div class="settings-label">${this._i18n("ui.ambient_light")}</div>
           <div class="settings-pills">
             ${this._settingsPill(this._i18n("ui.enabled"), "on", this._ambientLightEnabled() ? "on" : "off", "data-setting-ambient-light")}
@@ -12385,43 +8775,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             ${this._settingsPill(this._i18n("ui.enabled"), "on", this._discoveryModeEnabled() ? "on" : "off", "data-setting-discovery-mode")}
             ${this._settingsPill(this._i18n("ui.disabled"), "off", this._discoveryModeEnabled() ? "on" : "off", "data-setting-discovery-mode")}
           </div>
-        </div>`;
-  }
-
-  _settingsSectionAnnouncements() {
-    const presets = Array.isArray(this._state.mobileAnnouncementPresets)
-      ? this._state.mobileAnnouncementPresets.slice(0, 3)
-      : this._defaultAnnouncementPresets().slice(0, 3);
-    while (presets.length < 3) presets.push("");
-    const announcementVolume = this._announcementVolumePct();
-    const ttsEntity = this._announcementTtsEntity();
-    const announcementLanguage = this._announcementLanguageSetting();
-    const languageOptions = this._announcementLanguageOptions();
-    return `
-        <div class="settings-group announcement-settings-card">
-          <div class="settings-label">${this._esc(this._i18n("ui.announcement_presets"))}</div>
-          <div class="scheduled-start-grid two-col">
-            ${presets.map((preset, index) => `
-              <label class="scheduled-start-field">
-                <span class="settings-label">${this._esc(`${this._i18n("ui.announcement")} ${index + 1}`)}</span>
-                <input class="settings-text-input" data-announcement-preset-index="${this._esc(String(index))}" type="text" value="${this._esc(preset)}" placeholder="${this._esc(this._i18n("ui.type_an_announcement"))}">
-              </label>
-            `).join("")}
-          </div>
-          <div class="settings-hint">${this._esc(this._i18n("ui.configure_ready_made_announcement_phrases"))}</div>
-          <div class="settings-range announcement-volume-field">
-            <div class="settings-label">${this._esc(this._i18n("ui.announcement_volume_boost"))}</div>
-            <input id="mobileAnnouncementVolumeInput" type="range" min="20" max="50" step="1" value="${this._esc(String(announcementVolume))}">
-            <div class="settings-value">+${this._esc(String(announcementVolume))}%</div>
-          </div>
-          <div class="settings-label">${this._esc(this._i18n("ui.tts_entity"))}</div>
-          <input class="settings-text-input" id="mobileAnnouncementTtsEntity" type="text" value="${this._esc(ttsEntity)}" placeholder="tts.home_assistant_cloud">
-          <div class="settings-hint">${this._esc(this._i18n("ui.tts_entity_used_by_the_announcement_screen"))}</div>
-          <div class="settings-label">${this._esc(this._i18n("ui.announcement_language"))}</div>
-          <select class="media-sort-select settings-select" id="mobileAnnouncementTtsLanguageSelect" aria-label="${this._esc(this._i18n("ui.announcement_language"))}">
-            ${languageOptions.map(([value, label]) => `<option value="${this._esc(value)}" ${value === announcementLanguage ? "selected" : ""}>${this._esc(label)}</option>`).join("")}
-          </select>
-          <div class="settings-hint">${this._esc(this._i18n("ui.auto_leaves_home_assistant_cloud_voice_defaults_untouched_manual_choices"))}</div>
         </div>`;
   }
 
@@ -13224,8 +9577,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const announcements = Array.isArray(announcementsResult.value?.announcements) ? announcementsResult.value.announcements : [];
       const activity = Array.isArray(activityResult.value?.activity) ? activityResult.value.activity : [];
       if (schedulesResult.status === "fulfilled" || timersResult.status === "fulfilled" || volumeRulesResult.status === "fulfilled" || announcementsResult.status === "fulfilled" || activityResult.status === "fulfilled") {
-        const localSchedules = this._scheduledStartSchedules();
-        const localSleepTimerActive = this._sleepTimerRemainingMs() > 0;
+        const localSchedules = scheduledStartSchedules(this);
+        const localSleepTimerActive = sleepTimerRemainingMs(this) > 0;
         add("info", "Engine orchestration store", `${schedules.length} schedule(s), ${timers.length} timer(s), ${volumeRules.length} volume rule(s), ${announcements.length} announcement record(s), ${activity.length} activity event(s) stored in Maverick Music Engine. Card state has ${localSchedules.length} schedule(s) and ${localSleepTimerActive ? 1 : 0} active sleep timer(s).`);
         if (schedules.length) {
           add("info", "Engine schedule controls", `${schedules.length} per-schedule Run now button(s) should be available on the Maverick Music Engine device page after HA reloads the integration.`);
@@ -13263,7 +9616,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         }
         if (localSleepTimerActive) {
           const timerPlayer = String(this._state.mobileSleepTimerPlayer || this._state.selectedPlayer || this._getSelectedPlayer()?.entity_id || "").trim();
-          const timerId = this._maverickSleepTimerId(timerPlayer);
+          const timerId = sleepTimerId(timerPlayer);
           const now = Date.now();
           const timerFound = timers.some((timer) => {
             const type = String(timer?.type || timer?.timer_type || "sleep");
@@ -13793,7 +10146,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
 
   _librarySearchHomeHtml() {
     const q = this._state.mediaQuery || "";
-    const voiceSupported = this._isVoiceSearchSupported();
+    const voiceSupported = !!speechRecognitionCtor();
     return `
       <div class="media-home-shell">
         <div class="media-search-zone">
@@ -13859,1117 +10212,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     `;
   }
 
-  _speechRecognitionCtor() {
-    if (typeof window === "undefined") return null;
-    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-  }
-
-  _isVoiceSearchSupported() {
-    return !!this._speechRecognitionCtor();
-  }
-
-  _normalizeSmartVoiceCandidates(results = {}) {
-    const order = [
-      ["playlists", "playlist"],
-      ["tracks", "track"],
-      ["albums", "album"],
-      ["artists", "artist"],
-      ["radio", "radio"],
-      ["podcasts", "podcast"],
-    ];
-    const items = [];
-    order.forEach(([groupKey, mediaType]) => {
-      const group = Array.isArray(results?.[groupKey]) ? results[groupKey] : [];
-      group.forEach((item) => {
-        const uri = String(item?.uri || item?.media_item?.uri || "").trim();
-        if (!uri) return;
-        const mediaItem = item?.media_item || {};
-        const artist = this._artistName(item)
-          || this._artistName(mediaItem)
-          || item?.artist
-          || item?.artist_str
-          || item?.media_artist
-          || mediaItem?.artist
-          || mediaItem?.artist_str
-          || mediaItem?.media_artist
-          || "";
-        items.push({
-          uri,
-          media_type: this._voiceAssistantCanonicalMediaType(item?.media_type || item?.type || mediaType, mediaType),
-          name: item?.name || item?.title || mediaItem?.name || mediaItem?.title || uri,
-          artist,
-          album: item?.album?.name || item?.album || mediaItem?.album?.name || mediaItem?.album || "",
-          image: this._artUrl(item) || item?.image || item?.image_url || mediaItem?.image || mediaItem?.image_url || "",
-          _maverickVoiceFocused: item?._maverickVoiceFocused === true,
-        });
-      });
-    });
-    return items;
-  }
-
-  _currentSmartVoiceCandidate() {
-    const state = this._state.mobileSmartVoice || null;
-    if (!state?.candidates?.length) return null;
-    const index = Math.max(0, Math.min(state.candidates.length - 1, Number(state.index || 0)));
-    return state.candidates[index] || null;
-  }
-
-  _stopSmartVoiceCountdown() {
-    clearInterval(this._mobileSmartVoiceTimer);
-    this._mobileSmartVoiceTimer = null;
-  }
-
-  _closeSmartVoiceConfirm() {
-    this._stopSmartVoiceCountdown();
-    this._state.mobileSmartVoice = null;
-    this.$("mobileSmartVoiceModal")?.classList.remove("open");
-    const host = this.$("mobileSmartVoiceSheet");
-    if (host) host.innerHTML = "";
-  }
-
-  _renderSmartVoiceConfirm() {
-    const host = this.$("mobileSmartVoiceSheet");
-    const state = this._state.mobileSmartVoice || null;
-    const candidate = this._currentSmartVoiceCandidate();
-    if (!host || !state || !candidate) return;
-    const targetName = this._selectedPlayerName();
-    const subtitle = [candidate.artist, candidate.album].filter(Boolean).join(" · ");
-      host.innerHTML = `
-      <div class="smart-voice-head">
-        <div class="smart-voice-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("smart-voice-logo")}</div>
-        <div class="smart-voice-title">${this._esc(this._i18n("ui.smart_voice_selection"))}</div>
-        <div class="smart-voice-target">${this._esc(this._i18n("ui.player_2"))}: ${this._esc(targetName)}</div>
-      </div>
-      <div class="smart-voice-card">
-        <div class="smart-voice-chip">${this._iconSvg("mic")}<span>${this._esc(state.query || "")}</span></div>
-        <div class="smart-voice-name">${this._esc(candidate.name || "")}</div>
-        <div class="smart-voice-sub">${this._esc(subtitle || this._i18n("ui.ready_to_play"))}</div>
-        <div class="smart-voice-countdown"><span>${this._esc(String(state.countdown || 0))}</span></div>
-      </div>
-      <div class="confirm-actions smart-voice-actions">
-        <button class="menu-item" id="smartVoicePlayNowBtn">${this._esc(this._i18n("ui.play"))}</button>
-        <button class="menu-item" id="smartVoiceOtherBtn">${this._esc(this._i18n("ui.other"))}</button>
-        <button class="menu-item" id="smartVoiceCancelBtn">${this._esc(this._i18n("ui.cancel_2"))}</button>
-      </div>
-    `;
-    host.querySelector("#smartVoiceCancelBtn")?.addEventListener("click", () => this._closeSmartVoiceConfirm());
-    host.querySelector("#smartVoiceOtherBtn")?.addEventListener("click", () => this._chooseAnotherSmartVoiceCandidate());
-    host.querySelector("#smartVoicePlayNowBtn")?.addEventListener("click", () => this._playSmartVoiceCandidateNow());
-  }
-
-  _openSmartVoiceConfirm(query = "", candidates = []) {
-    if (!Array.isArray(candidates) || !candidates.length) {
-      this._toastError(this._i18n("ui.no_matching_content_was_found"));
-      return;
-    }
-    this._state.mobileSmartVoice = {
-      query,
-      candidates,
-      index: 0,
-      countdown: 5,
-    };
-    this.$("mobileSmartVoiceModal")?.classList.add("open");
-    this._renderSmartVoiceConfirm();
-    this._stopSmartVoiceCountdown();
-    this._mobileSmartVoiceTimer = window.setInterval(() => {
-      const state = this._state.mobileSmartVoice;
-      if (!state) return this._closeSmartVoiceConfirm();
-      state.countdown = Number(state.countdown || 0) - 1;
-      if (state.countdown <= 0) {
-        this._playSmartVoiceCandidateNow();
-        return;
-      }
-      this._renderSmartVoiceConfirm();
-    }, 1000);
-  }
-
-  _chooseAnotherSmartVoiceCandidate() {
-    const state = this._state.mobileSmartVoice;
-    if (!state?.candidates?.length) return;
-    if (state.candidates.length === 1) {
-      state.countdown = 5;
-      this._renderSmartVoiceConfirm();
-      return;
-    }
-    const currentUri = this._currentSmartVoiceCandidate()?.uri || "";
-    const pool = state.candidates.filter((item) => item?.uri && item.uri !== currentUri);
-    const next = pool[Math.floor(Math.random() * pool.length)] || state.candidates[(Number(state.index || 0) + 1) % state.candidates.length];
-    const nextIndex = Math.max(0, state.candidates.findIndex((item) => item?.uri === next?.uri));
-    state.index = nextIndex;
-    state.countdown = 5;
-    this._hapticTap([8]);
-    this._renderSmartVoiceConfirm();
-  }
-
-  async _playSmartVoiceCandidateNow() {
-    const candidate = this._currentSmartVoiceCandidate();
-    if (!candidate?.uri) {
-      this._closeSmartVoiceConfirm();
-      return;
-    }
-    this._stopSmartVoiceCountdown();
-    await this._playMedia(candidate.uri, candidate.media_type || "playlist", "play", { label: candidate.name || "" });
-    this._closeSmartVoiceConfirm();
-    this._closeMobileMenu();
-  }
-
-  _voiceAssistantRecognitionLanguage() {
-    try {
-      const languages = Array.isArray(window.navigator?.languages)
-        ? window.navigator.languages
-        : [window.navigator?.language || ""];
-      if (languages.some((language) => String(language || "").toLowerCase().startsWith("he"))) return "he-IL";
-    } catch (_) {}
-    return "en-US";
-  }
-
-  _voiceAssistantAssistLanguage() {
-    return this._voiceAssistantRecognitionLanguage().toLowerCase().startsWith("he") ? "he" : "en";
-  }
-
-  _normalizeVoiceCommandText(value = "") {
-    return MaverickVoiceMatchingFoundation.normalizeVoiceCommandText(value);
-  }
-
-  _voiceCommandHasAny(normalizedText = "", terms = []) {
-    return MaverickVoiceMatchingFoundation.voiceCommandHasAny(normalizedText, terms);
-  }
-
-  _voiceAssistantAliasIndex(normalizedText = "", alias = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantAliasIndex(normalizedText, alias);
-  }
-
-  _voiceAssistantPlayerPool() {
-    this._loadPlayers();
-    return (this._state.players || [])
-      .filter(MaverickPlayersFoundation.isPlayerAvailable)
-      .filter((player) => this._isMusicAssistantPlayer(player))
-      .filter((player) => !this._isLikelyBrowserPlayer(player) || this._isLocalSendspinPlayer(player))
-      .filter((player) => this._isAvailableThisDevicePlayer(player));
-  }
-
-  _voiceAssistantPlayerAliases(player = null) {
-    if (!player) return [];
-    const attrs = player.attributes || {};
-    const raw = player.__maverickRawPlayer || {};
-    const candidates = [
-      player.entity_id,
-      String(player.entity_id || "").replace(/^media_player\./, "").replace(/_/g, " "),
-      attrs.friendly_name,
-      attrs.name,
-      attrs.display_name,
-      attrs.mass_player_id,
-      attrs.player_id,
-      raw.name,
-      raw.display_name,
-      raw.friendly_name,
-    ];
-    const aliases = [];
-    candidates.forEach((value) => {
-      const alias = this._normalizeVoiceCommandText(value);
-      if (!alias || alias.length < 2) return;
-      if (["media player", "music assistant", "homeii direct", "homeii flow"].includes(alias)) return;
-      if (!aliases.includes(alias)) aliases.push(alias);
-    });
-    return aliases.sort((left, right) => right.length - left.length);
-  }
-
-  _voiceAssistantMentionedPlayers(transcript = "") {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    if (!normalized) return [];
-    const matches = [];
-    this._voiceAssistantPlayerPool().forEach((player) => {
-      this._voiceAssistantPlayerAliases(player).forEach((alias) => {
-        const index = this._voiceAssistantAliasIndex(normalized, alias);
-        if (index < 0) return;
-        matches.push({ player, alias, index, end: index + alias.length });
-      });
-    });
-    const ranges = [];
-    const seen = new Set();
-    return matches
-      .sort((left, right) => left.index - right.index || right.alias.length - left.alias.length)
-      .filter((match) => {
-        if (!match.player?.entity_id || seen.has(match.player.entity_id)) return false;
-        const overlaps = ranges.some(([start, end]) => match.index < end && match.end > start);
-        if (overlaps) return false;
-        seen.add(match.player.entity_id);
-        ranges.push([match.index, match.end]);
-        return true;
-      })
-      .map((match) => match.player);
-  }
-
-  _voiceAssistantDefaultPlayer(excludeEntityIds = [], { allowIdle = false } = {}) {
-    const excluded = new Set((Array.isArray(excludeEntityIds) ? excludeEntityIds : []).filter(Boolean));
-    const players = this._voiceAssistantPlayerPool();
-    const selected = this._getSelectedPlayer();
-    if (selected?.entity_id && !excluded.has(selected.entity_id) && players.some((player) => player.entity_id === selected.entity_id)) return selected;
-    return players.find((player) => player.state === "playing" && !excluded.has(player.entity_id))
-      || (allowIdle ? players.find((player) => !excluded.has(player.entity_id)) : null)
-      || null;
-  }
-
-  _resolveVoiceAssistantTarget(transcript = "") {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    const players = this._voiceAssistantPlayerPool();
-    const explicit = players.find((player) => this._voiceAssistantPlayerAliases(player)
-      .some((alias) => normalized.includes(alias)));
-    if (explicit) return { player: explicit, explicit: true };
-    const selected = this._getSelectedPlayer();
-    if (selected && players.some((player) => player.entity_id === selected.entity_id)) {
-      return { player: selected, explicit: false };
-    }
-    return {
-      player: players.find((player) => player.state === "playing") || players[0] || null,
-      explicit: false,
-    };
-  }
-
-  _stripVoiceAssistantPlayerAliases(text = "", player = null) {
-    return MaverickVoiceMatchingFoundation.stripVoiceAssistantPlayerAliases(text, this._voiceAssistantPlayerAliases(player));
-  }
-
-  _extractVoiceAssistantMusicQuery(transcript = "", player = null) {
-    return MaverickVoiceMatchingFoundation.extractVoiceAssistantMusicQuery(transcript, this._voiceAssistantPlayerAliases(player));
-  }
-
-  _voiceAssistantQueueIntent(transcript = "") {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    if (!normalized) return null;
-    const hasQueueWord = this._voiceCommandHasAny(normalized, ["queue", "current queue", "play queue", "music queue"]);
-    const hasTransferWord = this._voiceCommandHasAny(normalized, ["transfer", "move", "send", "move queue", "transfer queue"]);
-    const mentioned = this._voiceAssistantMentionedPlayers(transcript);
-    if (!hasTransferWord || (!hasQueueWord && mentioned.length < 2)) return null;
-    let sourcePlayer = null;
-    let targetPlayer = null;
-    if (mentioned.length >= 2) {
-      sourcePlayer = mentioned[0];
-      targetPlayer = mentioned[1];
-    } else if (mentioned.length === 1) {
-      targetPlayer = mentioned[0];
-      sourcePlayer = this._voiceAssistantDefaultPlayer([targetPlayer.entity_id]);
-    }
-    return {
-      type: "queue_transfer",
-      sourcePlayerId: sourcePlayer?.entity_id || "",
-      targetPlayerId: targetPlayer?.entity_id || "",
-    };
-  }
-
-  _voiceAssistantSpeakerGroupIntent(transcript = "") {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    if (!normalized) return null;
-    const mentioned = this._voiceAssistantMentionedPlayers(transcript);
-    const hasSpeakerWord = this._voiceCommandHasAny(normalized, ["speaker", "speakers", "player", "players", "room", "rooms"]);
-    const hasGroupWord = this._voiceCommandHasAny(normalized, ["group", "group speakers", "join", "connect speakers", "link speakers", "ungroup", "disconnect group", "speaker group"]);
-    const hasDisconnectWord = this._voiceCommandHasAny(normalized, ["ungroup", "disconnect group", "disconnect speakers", "unjoin", "clear group"]);
-    const hasConnectWord = this._voiceCommandHasAny(normalized, ["group", "join", "connect", "link", "pair", "activate speakers", "start speakers"]);
-    const allGroups = this._voiceCommandHasAny(normalized, ["all groups", "all speakers", "all players"]);
-    const speakerCountHint = this._voiceCommandHasAny(normalized, ["two speakers", "2 speakers"]);
-    if (hasDisconnectWord && (hasGroupWord || hasSpeakerWord || allGroups || mentioned.length)) {
-      if (allGroups) return { type: "group_disconnect_all" };
-      const player = mentioned[0] || this._voiceAssistantDefaultPlayer();
-      return { type: "group_disconnect", playerId: player?.entity_id || "" };
-    }
-    if (!hasConnectWord || (!hasGroupWord && !hasSpeakerWord && !speakerCountHint && mentioned.length < 2)) return null;
-    let primaryPlayer = null;
-    let memberPlayers = [];
-    if (mentioned.length >= 2) {
-      primaryPlayer = mentioned[0];
-      memberPlayers = mentioned.slice(1);
-    } else if (mentioned.length === 1) {
-      primaryPlayer = this._voiceAssistantDefaultPlayer([mentioned[0].entity_id]);
-      memberPlayers = primaryPlayer ? [mentioned[0]] : [];
-    }
-    return {
-      type: "group_connect",
-      primaryPlayerId: primaryPlayer?.entity_id || "",
-      memberPlayerIds: memberPlayers.map((player) => player?.entity_id).filter(Boolean),
-    };
-  }
-
-  _voiceAssistantVolumeIntent(normalizedText = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantVolumeIntent(normalizedText);
-  }
-
-  _voiceAssistantCommandIntent(transcript = "", player = null, { forceMusic = false } = {}) {
-    const normalized = this._normalizeVoiceCommandText(transcript);
-    if (!normalized) return { type: "unknown" };
-    const queueIntent = this._voiceAssistantQueueIntent(transcript);
-    if (queueIntent) return queueIntent;
-    const speakerGroupIntent = this._voiceAssistantSpeakerGroupIntent(transcript);
-    if (speakerGroupIntent) return speakerGroupIntent;
-    const volumeIntent = this._voiceAssistantVolumeIntent(normalized);
-    if (volumeIntent) return volumeIntent;
-    if (this._voiceCommandHasAny(normalized, ["next", "skip"])) return { type: "next" };
-    if (this._voiceCommandHasAny(normalized, ["previous", "back", "last song"])) return { type: "previous" };
-    if (this._voiceCommandHasAny(normalized, ["pause", "hold"])) return { type: "pause" };
-    if (this._voiceCommandHasAny(normalized, ["stop", "turn off music"])) return { type: "stop" };
-    if (this._voiceCommandHasAny(normalized, ["resume", "continue", "play music"])) return { type: "resume" };
-    const hasMusicVerb = this._voiceCommandHasAny(normalized, [
-      "play",
-      "put on",
-      "listen to",
-      "start music",
-    ]);
-    if (hasMusicVerb || forceMusic) {
-      const query = this._extractVoiceAssistantMusicQuery(transcript, player);
-      return query ? { type: "music", query } : { type: "resume" };
-    }
-    return { type: "unknown" };
-  }
-
-  _voiceAssistantRequestedMediaType(query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantRequestedMediaType(query);
-  }
-
-  _voiceAssistantCanonicalMediaType(value = "", fallback = "track") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantCanonicalMediaType(value, fallback);
-  }
-
-  _voiceAssistantImportantMusicTokens(value = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantImportantMusicTokens(value);
-  }
-
-  _voiceAssistantCleanMusicPhrase(value = "", { allowStopWordFallback = false } = {}) {
-    return MaverickVoiceMatchingFoundation.voiceAssistantCleanMusicPhrase(value, { allowStopWordFallback });
-  }
-
-  _voiceAssistantLatinPhoneticKeys(value = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantLatinPhoneticKeys(value);
-  }
-
-  _voiceAssistantTextHasToken(normalizedText = "", token = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantTextHasToken(normalizedText, token);
-  }
-
-  _voiceAssistantMatchedTokenCount(tokens = [], normalizedText = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantMatchedTokenCount(tokens, normalizedText);
-  }
-
-  _voiceAssistantMusicQueryParts(query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantMusicQueryParts(query);
-  }
-
-  _voiceAssistantFocusedMusicQuery(query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantFocusedMusicQuery(query);
-  }
-
-  async _voiceAssistantFocusedMusicSearch(query = "", mediaType = "track") {
-    const safeQuery = String(query || "").trim();
-    const type = this._voiceAssistantCanonicalMediaType(mediaType, "track");
-    if (!safeQuery) return this._emptySearchResults();
-    try {
-      const raw = await this._callService("search", { name: safeQuery, query: safeQuery, limit: 30, media_type: [type] });
-      return this._normalizeSearchResponse(raw);
-    } catch (_) {
-      try {
-        const raw2 = await this._callService("search", { name: safeQuery, limit: 30, media_type: type });
-        return this._normalizeSearchResponse(raw2);
-      } catch (_) {}
-    }
-    return this._emptySearchResults();
-  }
-
-  _markVoiceAssistantFocusedResults(results = {}) {
-    const out = this._emptySearchResults();
-    Object.keys(out).forEach((group) => {
-      out[group] = (Array.isArray(results?.[group]) ? results[group] : [])
-        .map((item) => ({ ...item, _maverickVoiceFocused: true }));
-    });
-    return out;
-  }
-
-  _voiceAssistantCandidateScore(candidate = {}, query = "", request = this._voiceAssistantRequestedMediaType(query)) {
-    return MaverickVoiceMatchingFoundation.voiceAssistantCandidateScore(candidate, query, request);
-  }
-
-  _voiceAssistantCandidateMatch(candidate = {}, query = "", request = this._voiceAssistantRequestedMediaType(query), index = 0) {
-    return MaverickVoiceMatchingFoundation.voiceAssistantCandidateMatch(candidate, query, request, index);
-  }
-
-  _voiceAssistantRankedCandidates(results = {}, query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantRankedCandidates(
-      this._normalizeSmartVoiceCandidates(results),
-      query,
-    );
-  }
-
-  _voiceAssistantBestCandidate(results = {}, query = "") {
-    return MaverickVoiceMatchingFoundation.voiceAssistantBestCandidate(
-      this._normalizeSmartVoiceCandidates(results),
-      query,
-    );
-  }
-
-  async _playVoiceAssistantMusic(query = "", player = null) {
-    const target = player || this._getSelectedPlayer();
-    if (!target?.entity_id) {
-      const message = this._i18n("ui.voice_command_no_player");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    const safeQuery = String(query || "").trim();
-    if (!safeQuery) {
-      const message = this._i18n("ui.voice_command_not_understood");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    this._toast(this._i18n("ui.voice_music_searching", { query: safeQuery }));
-    try {
-      let results = this._emptySearchResults();
-      try {
-        results = await this._search(safeQuery);
-      } catch (error) {
-        this._debugLog?.("warn", "[Maverick Music Voice] Music search failed", { query: safeQuery, error });
-      }
-      const requested = this._voiceAssistantRequestedMediaType(safeQuery);
-      const focusedQuery = this._voiceAssistantFocusedMusicQuery(safeQuery);
-      const focusedType = this._voiceAssistantCanonicalMediaType(requested?.type || "track", "track");
-      if (!this._hasSearchResults(results) && focusedQuery && focusedType) {
-        const focusedResults = await this._voiceAssistantFocusedMusicSearch(focusedQuery, focusedType);
-        results = this._mergeSearchResults(this._markVoiceAssistantFocusedResults(focusedResults), results);
-      }
-      const rankedCandidates = this._voiceAssistantRankedCandidates(results, safeQuery);
-      const candidate = rankedCandidates.find((match) => match.accepted && match.candidate?.uri)?.candidate
-        || rankedCandidates.find((match) => match.candidate?.uri)?.candidate
-        || this._normalizeSmartVoiceCandidates(results).find((item) => item?.uri)
-        || null;
-      if (!candidate?.uri) {
-        const message = this._i18n("ui.no_matching_content_was_found");
-        this._toastError(message);
-        return { handled: true, ok: false, message };
-      }
-      if (target.entity_id !== this._state.selectedPlayer) this._selectPlayer(target.entity_id, true);
-      const title = candidate.name || safeQuery;
-      this._updateVoiceAssistantDialog({ status: "processing", response: this._i18n("ui.voice_starting_playback", { title }) });
-      const mediaType = this._voiceAssistantCanonicalMediaType(candidate.media_type || focusedType, focusedType);
-      const played = await this._playMediaOnPlayer(target.entity_id, candidate.uri, mediaType, "play", {
-        label: title,
-        silent: true,
-      });
-      if (!played) {
-        const message = this._i18n("ui.could_not_play_label", { label: title });
-        this._toastError(message);
-        return { handled: true, ok: false, message };
-      }
-      return {
-        handled: true,
-        ok: true,
-        message: this._i18n("ui.voice_playing_result", { title }),
-        autoCloseMs: 1400,
-      };
-    } catch (error) {
-      const message = error?.message || this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-  }
-
-  async _runVoiceAssistantPlayerManagementCommand(intent = {}) {
-    const type = String(intent?.type || "");
-    if (!["queue_transfer", "group_connect", "group_disconnect", "group_disconnect_all"].includes(type)) return null;
-    try {
-      if (type === "queue_transfer") {
-        const sourcePlayerId = String(intent.sourcePlayerId || "").trim();
-        const targetPlayerId = String(intent.targetPlayerId || "").trim();
-        if (!sourcePlayerId || !targetPlayerId || sourcePlayerId === targetPlayerId) {
-          const message = this._i18n("ui.voice_queue_transfer_needs_players");
-          this._toastError(message);
-          return { handled: true, ok: false, message };
-        }
-        const ok = await this._transferQueueBetween(sourcePlayerId, targetPlayerId, { silent: true });
-        const source = this._controlRoomPlayerName(sourcePlayerId);
-        const target = this._controlRoomPlayerName(targetPlayerId);
-        const message = ok
-          ? this._i18n("ui.voice_queue_transferred_between", { source, target })
-          : this._i18n("ui.queue_action_failed");
-        (ok ? this._toastSuccess : this._toastError).call(this, message);
-        return { handled: true, ok, message, autoCloseMs: ok ? 1400 : 0 };
-      }
-      if (type === "group_connect") {
-        const primaryPlayerId = String(intent.primaryPlayerId || "").trim();
-        const memberPlayerIds = [...new Set((Array.isArray(intent.memberPlayerIds) ? intent.memberPlayerIds : []).filter((id) => id && id !== primaryPlayerId))];
-        if (!primaryPlayerId || !memberPlayerIds.length) {
-          const message = this._i18n("ui.voice_group_connect_needs_players");
-          this._toastError(message);
-          return { handled: true, ok: false, message };
-        }
-        const grouped = await this._applySpeakerGroupFor(primaryPlayerId, memberPlayerIds);
-        if (!grouped) {
-          const message = this._i18n("ui.select_at_least_two_players_to_create_a_group");
-          this._toastError(message);
-          return { handled: true, ok: false, message };
-        }
-        const primary = this._controlRoomPlayerName(primaryPlayerId);
-        const members = memberPlayerIds.map((entityId) => this._controlRoomPlayerName(entityId)).join(", ");
-        const message = this._i18n("ui.voice_group_connected_players", { primary, members });
-        this._toastSuccess(message);
-        this._timeout(() => {
-          this._loadPlayers();
-          this._refreshGroupingState();
-          if (this._state.menuOpen) this._renderMobileMenu();
-        }, 550);
-        return { handled: true, ok: true, message, autoCloseMs: 1400 };
-      }
-      if (type === "group_disconnect") {
-        const playerId = String(intent.playerId || "").trim();
-        if (!playerId) {
-          const message = this._i18n("ui.voice_group_disconnect_needs_player");
-          this._toastError(message);
-          return { handled: true, ok: false, message };
-        }
-        const ok = await this._clearSpeakerGroupFor(playerId);
-        const player = this._controlRoomPlayerName(playerId);
-        const message = ok
-          ? this._i18n("ui.voice_group_disconnected_player", { player })
-          : this._i18n("ui.player_groups_could_not_be_disconnected");
-        (ok ? this._toastSuccess : this._toastError).call(this, message);
-        return { handled: true, ok, message, autoCloseMs: ok ? 1200 : 0 };
-      }
-      if (type === "group_disconnect_all") {
-        const result = await this._disconnectPlayerGroups({ silent: true });
-        const ok = result?.ok !== false;
-        const message = ok
-          ? (Number(result?.count || 0) > 0 ? this._i18n("ui.all_player_groups_disconnected") : this._i18n("ui.no_player_groups_to_disconnect"))
-          : this._i18n("ui.player_groups_could_not_be_disconnected");
-        (ok ? this._toastSuccess : this._toastError).call(this, message);
-        return { handled: true, ok, message, autoCloseMs: ok ? 1200 : 0 };
-      }
-    } catch (error) {
-      const message = error?.message || this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    return null;
-  }
-
-  async _runVoiceAssistantMediaCommand(intent = {}, player = null) {
-    const playerManagementResult = await this._runVoiceAssistantPlayerManagementCommand(intent);
-    if (playerManagementResult) return playerManagementResult;
-    if (!player?.entity_id) {
-      const message = this._i18n("ui.voice_command_no_player");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    const entityId = player.entity_id;
-    try {
-      if (entityId !== this._state.selectedPlayer) this._selectPlayer(entityId, true);
-      if (intent.type === "next" || intent.type === "previous") {
-        await this._playerCmdFor(entityId, intent.type === "previous" ? "previous" : "next");
-      } else if (intent.type === "pause") {
-        await this._callMaverickEnginePlayerCommand(entityId, "pause");
-      } else if (intent.type === "resume") {
-        await this._callMaverickEnginePlayerCommand(entityId, "play");
-      } else if (intent.type === "stop") {
-        await this._callMaverickEnginePlayerCommand(entityId, "stop");
-      } else if (intent.type === "mute" || intent.type === "unmute") {
-        const shouldMute = intent.type === "mute";
-        if (this._isMuted(player) !== shouldMute && !await this._toggleMuteFor(entityId)) throw new Error(this._i18n("ui.mute_command_failed"));
-      } else if (intent.type === "volume_set") {
-        if (!await this._setPlayerVolumeFor(entityId, intent.level)) throw new Error(this._i18n("ui.playback_command_failed"));
-      } else if (intent.type === "volume_delta") {
-        const current = Number(player.attributes?.volume_level);
-        const base = Number.isFinite(current) ? current : 0.35;
-        if (!await this._setPlayerVolumeFor(entityId, Math.max(0, Math.min(1, base + Number(intent.delta || 0))))) throw new Error(this._i18n("ui.playback_command_failed"));
-      } else {
-        return { handled: false, ok: false, message: "" };
-      }
-      const actionLabel = ({
-        next: this._m("next track"),
-        previous: this._m("previous track"),
-        pause: this._m("pause"),
-        resume: this._m("play"),
-        stop: this._m("stop"),
-        mute: this._m("mute"),
-        unmute: this._m("unmute"),
-        volume_set: this._m("volume"),
-        volume_delta: this._m("volume"),
-      })[intent.type] || this._i18n("ui.voice_command_executed");
-      const message = this._i18n("ui.voice_command_completed_action", { action: actionLabel });
-      this._toastSuccess(message);
-      return { handled: true, ok: true, message, autoCloseMs: 1200 };
-    } catch (error) {
-      const message = error?.message || this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-  }
-
-  _assistResponseSpeech(response = null) {
-    const candidates = [
-      response?.response?.speech?.plain?.speech,
-      response?.response?.speech?.plain,
-      response?.speech?.plain?.speech,
-      response?.speech?.plain,
-      response?.response?.speech,
-      response?.speech,
-    ];
-    const found = candidates.find((value) => typeof value === "string" && value.trim());
-    return String(found || "").trim();
-  }
-
-  async _sendVoiceCommandToAssist(transcript = "") {
-    const text = String(transcript || "").trim();
-    if (!text) return false;
-    const payload = {
-      type: "conversation/process",
-      text,
-      language: this._voiceAssistantAssistLanguage(),
-    };
-    const agentId = this._voiceAssistantAgentId();
-    if (agentId) payload.agent_id = agentId;
-    try {
-      const response = await this._callHomeAssistantWs(payload);
-      const speech = this._assistResponseSpeech(response);
-      if (speech) this._toast(speech, "info", { duration: 6500 });
-      else this._toastSuccess(this._i18n("ui.voice_command_sent"));
-      return {
-        handled: true,
-        ok: true,
-        message: speech || this._i18n("ui.voice_command_sent"),
-      };
-    } catch (error) {
-      const message = error?.message || this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-  }
-
-  async _handleVoiceAssistantTranscript(transcript = "") {
-    const text = String(transcript || "").trim();
-    if (!text) {
-      const message = this._i18n("ui.no_speech_was_captured");
-      this._toastError(message);
-      return { handled: true, ok: false, message };
-    }
-    const mode = this._voiceAssistantMode();
-    const target = this._resolveVoiceAssistantTarget(text);
-    if (mode !== "assist") {
-      const intent = this._voiceAssistantCommandIntent(text, target.player, { forceMusic: mode === "music" });
-      if (intent.type === "music") {
-        return this._playVoiceAssistantMusic(intent.query, target.player);
-      }
-      if (intent.type !== "unknown") {
-        return this._runVoiceAssistantMediaCommand(intent, target.player);
-      }
-    }
-    if (mode !== "music") {
-      return this._sendVoiceCommandToAssist(text);
-    }
-    const message = this._i18n("ui.voice_command_not_understood");
-    this._toastError(message);
-    return { handled: true, ok: false, message };
-  }
-
-  _stopVoiceAssistantRecognition() {
-    clearTimeout(this._voiceAssistantRecognitionTimer);
-    this._voiceAssistantRecognitionTimer = null;
-    const recognition = this._voiceAssistantRecognition;
-    this._voiceAssistantRecognition = null;
-    this._state.voiceAssistantListening = false;
-    this.$("mobileVoiceAssistantBtn")?.classList.remove("listening");
-    this.$("emptyVoiceAssistantBtn")?.classList.remove("listening");
-    this.$("screensaverVoiceBtn")?.classList.remove("listening");
-    try {
-      if (recognition) recognition.__maverickCancelled = true;
-      recognition?.abort?.();
-    } catch {}
-  }
-
-  _voiceAssistantStatusLabel(status = "") {
-    const safeStatus = String(status || "").toLowerCase();
-    if (safeStatus === "listening") return this._i18n("ui.voice_listening_status");
-    if (safeStatus === "processing") return this._i18n("ui.voice_processing_status");
-    if (safeStatus === "success") return this._i18n("ui.voice_done_status");
-    if (safeStatus === "error") return this._i18n("ui.voice_error_status");
-    return this._i18n("ui.voice_ready_status");
-  }
-
-  _voiceAssistantDialogIcon(status = "") {
-    return String(status || "").toLowerCase() === "error" ? "close" : "mic";
-  }
-
-  _openVoiceAssistantDialog(status = "listening", updates = {}) {
-    clearTimeout(this._voiceAssistantDialogCloseTimer);
-    this._state.voiceAssistantDialogOpen = true;
-    this._state.voiceAssistantKeepScreensaver = updates.keepScreensaver === true;
-    this._state.voiceAssistantDialogStatus = status;
-    this._state.voiceAssistantTranscript = updates.transcript ?? "";
-    this._state.voiceAssistantResponse = updates.response ?? "";
-    this._syncVoiceAssistantDialog();
-  }
-
-  _updateVoiceAssistantDialog(updates = {}) {
-    if (updates.status && !["success", "error"].includes(String(updates.status || "").toLowerCase())) {
-      clearTimeout(this._voiceAssistantDialogCloseTimer);
-    }
-    this._state.voiceAssistantDialogOpen = updates.open ?? this._state.voiceAssistantDialogOpen ?? true;
-    if (updates.keepScreensaver !== undefined) this._state.voiceAssistantKeepScreensaver = updates.keepScreensaver === true;
-    if (updates.status !== undefined) this._state.voiceAssistantDialogStatus = updates.status;
-    if (updates.transcript !== undefined) this._state.voiceAssistantTranscript = updates.transcript;
-    if (updates.response !== undefined) this._state.voiceAssistantResponse = updates.response;
-    this._syncVoiceAssistantDialog();
-  }
-
-  _closeVoiceAssistantDialog({ stopRecognition = true } = {}) {
-    clearTimeout(this._voiceAssistantDialogCloseTimer);
-    clearTimeout(this._voiceAssistantRecognitionTimer);
-    this._voiceAssistantRecognitionTimer = null;
-    if (stopRecognition) this._stopVoiceAssistantRecognition();
-    this._state.voiceAssistantDialogOpen = false;
-    this._state.voiceAssistantKeepScreensaver = false;
-    this._syncVoiceAssistantDialog();
-  }
-
-  _scheduleVoiceAssistantDialogClose(delayMs = 1500) {
-    clearTimeout(this._voiceAssistantDialogCloseTimer);
-    this._voiceAssistantDialogCloseTimer = setTimeout(() => {
-      this._voiceAssistantDialogCloseTimer = null;
-      this._closeVoiceAssistantDialog({ stopRecognition: false });
-    }, Math.max(500, Number(delayMs) || 1500));
-  }
-
-  _syncVoiceAssistantDialog() {
-    const host = this.$("voiceAssistantDialog");
-    if (!host) return;
-    const open = !!this._state.voiceAssistantDialogOpen;
-    const status = String(this._state.voiceAssistantDialogStatus || "ready").toLowerCase();
-    const transcript = String(this._state.voiceAssistantTranscript || "").trim();
-    const response = String(this._state.voiceAssistantResponse || "").trim();
-    const keepScreensaver = this._state.voiceAssistantKeepScreensaver === true;
-    host.className = `voice-assistant-dialog ${open ? "open" : ""} ${keepScreensaver ? "keep-screensaver" : ""} status-${this._esc(status)}`;
-    if (!open) {
-      host.innerHTML = "";
-      return;
-    }
-    if (!host.querySelector(".voice-assistant-panel")) {
-      host.innerHTML = `
-      <div class="voice-assistant-panel" data-screensaver-dialog role="dialog" aria-label="FLOW ASSISTANT">
-        <div class="voice-assistant-head">
-          <div class="voice-assistant-title-row">
-            <span class="voice-assistant-icon" id="voiceAssistantDialogIconSlot"></span>
-            <span class="voice-assistant-copy">
-              <span class="voice-assistant-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("voice-assistant-logo")}</span>
-              <span class="voice-assistant-title">FLOW ASSISTANT</span>
-              <span class="voice-assistant-status" id="voiceAssistantDialogStatus"></span>
-            </span>
-          </div>
-          <button class="voice-assistant-close" id="voiceAssistantDialogClose" title="${this._esc(this._i18n("ui.close"))}">${this._iconSvg("close")}</button>
-        </div>
-        <div class="voice-assistant-meter" aria-hidden="true"><span></span></div>
-        <div class="voice-assistant-wave" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
-        <div class="voice-assistant-lines">
-          <div class="voice-assistant-line">
-            <span class="voice-assistant-line-label">${this._esc(this._i18n("ui.voice_transcript"))}</span>
-            <span class="voice-assistant-line-text" id="voiceAssistantDialogTranscript"></span>
-          </div>
-          <div class="voice-assistant-line">
-            <span class="voice-assistant-line-label">${this._esc(this._i18n("ui.voice_response"))}</span>
-            <span class="voice-assistant-line-text" id="voiceAssistantDialogResponse"></span>
-          </div>
-        </div>
-        <div class="voice-assistant-actions">
-          <button type="button" id="voiceAssistantDialogRetry" class="primary">${this._esc(this._i18n("ui.try_again"))}</button>
-          <button type="button" id="voiceAssistantDialogCloseSecondary">${this._esc(this._i18n("ui.close"))}</button>
-        </div>
-      </div>
-    `;
-      const panel = host.querySelector(".voice-assistant-panel");
-      const keepPanelEvent = (event) => {
-        if (this._state.screensaverOpen && this._state.voiceAssistantKeepScreensaver === true) {
-          event.stopPropagation();
-        }
-      };
-      panel?.addEventListener("pointerdown", keepPanelEvent);
-      panel?.addEventListener("click", keepPanelEvent);
-      panel?.addEventListener("keydown", keepPanelEvent);
-      host.querySelector("#voiceAssistantDialogClose")?.addEventListener("click", () => this._closeVoiceAssistantDialog());
-      host.querySelector("#voiceAssistantDialogCloseSecondary")?.addEventListener("click", () => this._closeVoiceAssistantDialog());
-      host.querySelector("#voiceAssistantDialogRetry")?.addEventListener("click", () => {
-        this._startVoiceAssistantCommand({ keepScreensaver: this._state.voiceAssistantKeepScreensaver === true });
-      });
-    }
-    const retryBtn = host.querySelector("#voiceAssistantDialogRetry");
-    if (retryBtn) retryBtn.hidden = status === "listening" || status === "processing";
-    const iconSlot = host.querySelector("#voiceAssistantDialogIconSlot");
-    const iconName = this._voiceAssistantDialogIcon(status);
-    if (iconSlot && iconSlot.dataset.iconName !== iconName) {
-      iconSlot.dataset.iconName = iconName;
-      iconSlot.innerHTML = this._iconSvg(iconName);
-    }
-    const statusEl = host.querySelector("#voiceAssistantDialogStatus");
-    if (statusEl) statusEl.textContent = this._voiceAssistantStatusLabel(status);
-    const transcriptEl = host.querySelector("#voiceAssistantDialogTranscript");
-    if (transcriptEl) {
-      transcriptEl.textContent = transcript || this._i18n("ui.waiting_for_speech");
-      transcriptEl.classList.toggle("voice-assistant-placeholder", !transcript);
-    }
-    const responseEl = host.querySelector("#voiceAssistantDialogResponse");
-    if (responseEl) {
-      responseEl.textContent = response || this._i18n("ui.voice_response_will_appear_here");
-      responseEl.classList.toggle("voice-assistant-placeholder", !response);
-    }
-  }
-
-  _voiceAssistantRecognitionErrorMessage(errorCode = "") {
-    const code = String(errorCode || "").trim();
-    if (code === "no-speech") return this._i18n("ui.no_speech_was_captured");
-    if (code === "not-allowed" || code === "service-not-allowed") return this._i18n("ui.microphone_permission_or_browser_blocked");
-    if (code === "language-not-supported") return this._i18n("ui.voice_language_is_not_supported");
-    if (code === "network") return this._i18n("ui.voice_recognition_network_failed");
-    return this._i18n("ui.voice_input_failed");
-  }
-
-  _speakVoiceAssistantFeedback(text = "") {
-    const message = String(text || "").trim();
-    if (!message || !this._voiceAssistantSpeakFeedbackEnabled()) return;
-    if (typeof window === "undefined") return;
-    const synth = window.speechSynthesis;
-    if (!synth || typeof window.SpeechSynthesisUtterance !== "function") return;
-    try {
-      synth.cancel();
-      const utterance = new window.SpeechSynthesisUtterance(message);
-      utterance.lang = this._voiceAssistantRecognitionLanguage();
-      utterance.rate = 1;
-      utterance.pitch = 1;
-      synth.speak(utterance);
-    } catch (_) {}
-  }
-
-  _startVoiceAssistantCommand(options = {}) {
-    const keepScreensaver = options?.keepScreensaver === true;
-    const ignoreWhenListening = options?.ignoreWhenListening === true;
-    const scheduleAutoClose = (status = "error", requestedDelay = null) => {
-      const requested = Number(requestedDelay);
-      const closeMs = Number.isFinite(requested) && requested > 0
-        ? requested
-        : this._flowAssistantAutoCloseMs(status);
-      if (closeMs > 0) this._scheduleVoiceAssistantDialogClose(closeMs);
-    };
-    if (keepScreensaver) this._resetScreensaverTimer({ hide: false, activity: true });
-    if (!this._voiceAssistantEnabled()) {
-      const message = this._i18n("ui.voice_assistant_disabled");
-      this._toastError(message);
-      this._openVoiceAssistantDialog("error", { response: message, keepScreensaver });
-      scheduleAutoClose("error");
-      return;
-    }
-    if (this._mobileMicMode() === "off") {
-      const message = this._i18n("ui.microphone_is_disabled");
-      this._toastError(message);
-      this._openVoiceAssistantDialog("error", { response: message, keepScreensaver });
-      scheduleAutoClose("error");
-      return;
-    }
-    if (this._state.voiceAssistantListening) {
-      if (ignoreWhenListening) {
-        this._openVoiceAssistantDialog("listening", {
-          transcript: this._state.voiceAssistantTranscript || "",
-          response: this._state.voiceAssistantResponse || "",
-          keepScreensaver,
-        });
-        return;
-      }
-      this._stopVoiceAssistantRecognition();
-      this._closeVoiceAssistantDialog();
-      return;
-    }
-    if (!keepScreensaver) this._resetScreensaverTimer({ hide: true, activity: true });
-    this._openVoiceAssistantDialog("listening", { transcript: "", response: "", keepScreensaver });
-    const SpeechRecognition = this._speechRecognitionCtor();
-    const micButtons = Array.from(this.shadowRoot?.querySelectorAll("#mobileVoiceAssistantBtn, #emptyVoiceAssistantBtn, #screensaverVoiceBtn") || []);
-    if (!SpeechRecognition) {
-      const message = this._i18n("ui.voice_input_is_not_supported_on_this_device");
-      this._toastError(message);
-      this._updateVoiceAssistantDialog({ status: "error", response: message, keepScreensaver });
-      scheduleAutoClose("error");
-      return;
-    }
-    clearTimeout(this._voiceAssistantRecognitionTimer);
-    this._voiceAssistantRecognitionTimer = null;
-    try { this._voiceAssistantRecognition?.abort?.(); } catch {}
-    const recognition = new SpeechRecognition();
-    this._voiceAssistantRecognition = recognition;
-    recognition.lang = this._voiceAssistantRecognitionLanguage();
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
-    let capturedTranscript = "";
-    let handled = false;
-    let recognitionFailed = false;
-    const stopListeningUi = () => {
-      clearTimeout(this._voiceAssistantRecognitionTimer);
-      this._voiceAssistantRecognitionTimer = null;
-      this._state.voiceAssistantListening = false;
-      micButtons.forEach((btn) => btn.classList.remove("listening"));
-    };
-    const finishTranscript = (transcript) => {
-      if (handled) return;
-      handled = true;
-      stopListeningUi();
-      if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-      try { recognition.abort?.(); } catch {}
-      this._updateVoiceAssistantDialog({ status: "processing", transcript, response: this._i18n("ui.voice_processing_status") });
-      this._withTimeout(
-        this._handleVoiceAssistantTranscript(transcript),
-        this._flowAssistantResponseTimeoutMs(),
-        this._timeoutMessage(this._flowAssistantLabel()),
-      ).then((result) => {
-        const message = result?.message || (result?.ok === false ? this._i18n("ui.voice_command_failed") : this._i18n("ui.voice_command_executed"));
-        const status = result?.ok === false ? "error" : "success";
-        this._updateVoiceAssistantDialog({ status, transcript, response: message });
-        if (result?.ok !== false) {
-          this._speakVoiceAssistantFeedback(message);
-        }
-        scheduleAutoClose(status, result?.autoCloseMs);
-      }).catch((error) => {
-        const message = error?.message || this._i18n("ui.voice_command_failed");
-        this._toastError(message);
-        this._updateVoiceAssistantDialog({ status: "error", transcript, response: message });
-        scheduleAutoClose("error");
-      });
-    };
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results || [])
-        .map((result) => result?.[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      if (transcript) capturedTranscript = transcript;
-      if (capturedTranscript) this._updateVoiceAssistantDialog({ status: "listening", transcript: capturedTranscript });
-      const finalized = Array.from(event.results || []).some((result) => result?.isFinal);
-      if (finalized && capturedTranscript) finishTranscript(capturedTranscript);
-    };
-    recognition.onerror = (event) => {
-      if (handled) return;
-      if (recognition.__maverickCancelled) return;
-      recognitionFailed = true;
-      stopListeningUi();
-      if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-      const message = this._voiceAssistantRecognitionErrorMessage(event?.error);
-      this._toastError(message);
-      this._updateVoiceAssistantDialog({ status: "error", response: message });
-      scheduleAutoClose("error");
-    };
-    recognition.onend = () => {
-      stopListeningUi();
-      if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-      if (recognition.__maverickCancelled) return;
-      if (!handled && capturedTranscript) {
-        finishTranscript(capturedTranscript);
-      } else if (!handled && !recognitionFailed) {
-        const message = this._i18n("ui.no_speech_was_captured");
-        this._toastError(message);
-        this._updateVoiceAssistantDialog({ status: "error", response: message });
-        scheduleAutoClose("error");
-      }
-    };
-    try {
-      this._state.voiceAssistantListening = true;
-      micButtons.forEach((btn) => btn.classList.add("listening"));
-      this._hapticTap([8, 18, 8]);
-      this._toast(this._i18n("ui.voice_assistant_listening"));
-      recognition.start();
-      this._voiceAssistantRecognitionTimer = setTimeout(() => {
-        if (handled) return;
-        handled = true;
-        recognitionFailed = true;
-        stopListeningUi();
-        if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-        try {
-          recognition.__maverickCancelled = true;
-          recognition.abort?.();
-        } catch {}
-        const message = this._timeoutMessage(this._flowAssistantLabel());
-        this._toastError(message);
-        this._updateVoiceAssistantDialog({ status: "error", transcript: capturedTranscript, response: message });
-        scheduleAutoClose("error");
-      }, this._flowAssistantListenTimeoutMs());
-    } catch {
-      stopListeningUi();
-      if (this._voiceAssistantRecognition === recognition) this._voiceAssistantRecognition = null;
-      const message = this._i18n("ui.voice_command_failed");
-      this._toastError(message);
-      this._updateVoiceAssistantDialog({ status: "error", response: message });
-      scheduleAutoClose("error");
-    }
-  }
-
-  async _handleSmartVoiceTranscript(transcript = "") {
-    const query = String(transcript || "").trim();
-    if (!query) return;
-    this._state.mediaQuery = query;
-    const input = this.$("mobileMediaSearchInput");
-    if (input) input.value = query;
-    this._toast(this._i18n("ui.searching_smart_selection"));
-    const results = await this._search(query);
-    const candidates = this._normalizeSmartVoiceCandidates(results);
-    this._openSmartVoiceConfirm(query, candidates);
-  }
-
-  _startMobileVoiceSearch() {
-    const SpeechRecognition = this._speechRecognitionCtor();
-    const input = this.$("mobileMediaSearchInput");
-    const micBtn = this.$("mobileVoiceSearchBtn");
-    const micMode = this._mobileMicMode();
-    if (!SpeechRecognition) {
-      this._toastError(this._i18n("ui.voice_search_is_not_supported_on_this_device"));
-      return;
-    }
-    if (micMode === "off") {
-      this._toastError(this._i18n("ui.microphone_is_disabled"));
-      return;
-    }
-    try {
-      this._voiceRecognition?.abort?.();
-    } catch (_) {}
-    const recognition = new SpeechRecognition();
-    this._voiceRecognition = recognition;
-    recognition.lang = "en-US";
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
-    micBtn?.classList.add("listening");
-    this._hapticTap([8, 18, 8]);
-    this._toast(this._i18n("ui.listening"));
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results || [])
-        .map((result) => result?.[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      if (!transcript) return;
-      const finalized = Array.from(event.results || []).some((result) => result?.isFinal);
-      this._state.mediaQuery = transcript;
-      if (input) {
-        input.value = transcript;
-        input.focus({ preventScroll: true });
-      }
-      if (micMode === "smart" && finalized) {
-        this._handleSmartVoiceTranscript(transcript).catch((error) => {
-          this._toastError(error?.message || this._i18n("ui.voice_search_failed"));
-        });
-        return;
-      }
-      clearTimeout(this._searchTimer);
-      this._searchTimer = setTimeout(() => this._renderMobileMediaResults(), 120);
-    };
-    recognition.onerror = () => {
-      this._toastError(this._i18n("ui.voice_search_failed"));
-    };
-    recognition.onend = () => {
-      micBtn?.classList.remove("listening");
-      if (this._voiceRecognition === recognition) this._voiceRecognition = null;
-    };
-    try {
-      recognition.start();
-    } catch (_) {
-      micBtn?.classList.remove("listening");
-      this._toastError(this._i18n("ui.voice_search_failed"));
-    }
-  }
 
   _mobileSortOptions() {
     return [
@@ -15605,7 +10847,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       voiceBtn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this._startMobileVoiceSearch();
+        startMobileVoiceSearch(this);
       });
     }
     if (clearBtn && !clearBtn.dataset.boundClear) {
@@ -15721,317 +10963,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       resultsHost.innerHTML = this._mediaSearchSectionsHtml(mergedResults, searchRenderOptions);
       this._hydrateImages(body);
     }
-  }
-
-  _announcementsMenuHtml() {
-    const text = this._state.mobileAnnouncementText || "";
-    const presets = (this._state.mobileAnnouncementPresets || []).slice(0, 3);
-    const targetValue = this._announcementTargetValue();
-    const announcementVolume = this._announcementVolumePct();
-    const announcementLanguage = this._announcementLanguageSetting();
-    const targetOptions = [
-      ["all", this._i18n("ui.announce_to_all_players")],
-      ...this._announcementEligiblePlayers().map((player) => [player.entity_id, player.attributes?.friendly_name || player.entity_id]),
-    ];
-    const languageOptions = this._announcementLanguageOptions();
-    return `
-      <div class="announcements-shell">
-        <div class="announcement-target">
-          <span class="announcement-target-icon">${this._iconSvg("speaker")}</span>
-          <select class="media-sort-select announcement-target-select" id="mobileAnnouncementTargetSelect" aria-label="${this._esc(this._i18n("ui.announcement_target"))}">
-            ${targetOptions.map(([value, label]) => `<option value="${this._esc(value)}" ${value === targetValue ? "selected" : ""}>${this._esc(label)}</option>`).join("")}
-          </select>
-        </div>
-        <div class="announcement-target announcement-language-target">
-          <span class="announcement-target-icon">${this._iconSvg("announcement")}</span>
-          <select class="media-sort-select announcement-target-select" id="mobileAnnouncementTtsLanguageSelect" aria-label="${this._esc(this._i18n("ui.announcement_language"))}">
-            ${languageOptions.map(([value, label]) => `<option value="${this._esc(value)}" ${value === announcementLanguage ? "selected" : ""}>${this._esc(label)}</option>`).join("")}
-          </select>
-        </div>
-        <div class="announcement-input-wrap">
-          <textarea id="mobileAnnouncementText" class="announcement-textarea" rows="4" placeholder="${this._esc(this._i18n("ui.type_an_announcement"))}">${this._esc(text)}</textarea>
-          <button class="announcement-voice-btn" data-announcement-voice title="${this._esc(this._i18n("ui.dictate"))}">${this._iconSvg("mic")}</button>
-        </div>
-        <div class="announcement-presets">
-          ${presets.map((preset, index) => preset ? `
-            <button class="settings-pill" data-announcement-preset-fill="${this._esc(index)}">${this._esc(preset)}</button>
-          ` : ``).join("")}
-        </div>
-        <div class="settings-range announcement-volume-field">
-          <div class="settings-label">${this._esc(this._i18n("ui.announcement_volume_boost"))}</div>
-          <input id="mobileAnnouncementVolumeInput" type="range" min="20" max="50" step="1" value="${this._esc(String(announcementVolume))}">
-          <div class="settings-value">+${this._esc(String(announcementVolume))}%</div>
-        </div>
-        <button class="action-btn announcement-send-btn" data-announcement-send>
-          ${this._iconSvg("announcement")}
-          <span>${this._esc(this._i18n("ui.announce"))}</span>
-        </button>
-      </div>
-    `;
-  }
-
-  _announcementTtsEntity() {
-    const explicit = String(this._state.mobileAnnouncementTtsEntity || this._config?.announcement_tts_entity || "").trim();
-    if (explicit) return explicit;
-    const ttsEntity = Object.keys(this._hass?.states || {}).find((entityId) => entityId.startsWith("tts."));
-    return String(ttsEntity || "").trim();
-  }
-
-  _announcementLanguageOptions() {
-    return [
-      ["auto", this._i18n("ui.auto_cloud_default")],
-      ["en-US", "English (US)"],
-      ["en-GB", "English (UK)"],
-    ];
-  }
-
-  _normalizeAnnouncementLanguage(value = "") {
-    const normalized = String(value || "auto").trim();
-    const allowed = new Set(this._announcementLanguageOptions().map(([option]) => option));
-    return allowed.has(normalized) ? normalized : "auto";
-  }
-
-  _announcementLanguageSetting() {
-    return this._normalizeAnnouncementLanguage(this._state.mobileAnnouncementTtsLanguage || this._config?.announcement_tts_language || "auto");
-  }
-
-  _announcementLanguageCode() {
-    const configured = this._announcementLanguageSetting();
-    if (configured !== "auto") return configured;
-    return "";
-  }
-
-  _announcementRecognitionLanguageCode() {
-    const configured = this._announcementLanguageSetting();
-    if (configured !== "auto") return configured;
-    try {
-      const browserLanguage = typeof navigator !== "undefined" ? navigator.language : "";
-      const lang = this._hass?.locale?.language || this._hass?.language || browserLanguage || "";
-      if (lang) return String(lang);
-    } catch (_) {}
-    return "en-US";
-  }
-
-  _announcementPayloadWithLanguage(payload = {}, language = "") {
-    const next = { ...payload };
-    if (language) next.language = language;
-    else delete next.language;
-    if (next.options && !Object.keys(next.options).length) delete next.options;
-    return next;
-  }
-
-  _preferredAnnouncementSayService() {
-    const services = Object.keys(this._hass?.services?.tts || {});
-    return services.find((service) => service === "google_translate_say" || service.endsWith("_say")) || "";
-  }
-
-  _prepareAnnouncementVolumes(targets = []) {
-    const boost = this._announcementVolumePct() / 100;
-    return (Array.isArray(targets) ? targets : [])
-      .map((player) => {
-        const entityId = String(player?.entity_id || "").trim();
-        const previousVolume = this._playerVolumeLevel(entityId);
-        return {
-          entityId,
-          previousVolume,
-          targetVolume: Number.isFinite(previousVolume) ? Math.max(0, Math.min(1, previousVolume + boost)) : boost,
-          targetVolumePct: Math.round((Number.isFinite(previousVolume) ? Math.max(0, Math.min(1, previousVolume + boost)) : boost) * 100),
-        };
-      })
-      .filter((snapshot) => snapshot.entityId);
-  }
-
-  _announcementVolumeSnapshot(playerOrEntityId, snapshots = []) {
-    const entityId = String(playerOrEntityId?.entity_id || playerOrEntityId || "").trim();
-    return snapshots.find((item) => item.entityId === entityId) || null;
-  }
-
-  _announcementTargetVolumePct(playerOrEntityId, snapshots = []) {
-    const snapshot = this._announcementVolumeSnapshot(playerOrEntityId, snapshots);
-    const value = Number(snapshot?.targetVolumePct);
-    return Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : null;
-  }
-
-  _announcementTtsOptions(player, snapshots = [], language = "") {
-    const options = {};
-    if (language) options.language = language;
-    const targetVolumePct = this._announcementTargetVolumePct(player, snapshots);
-    if (Number.isFinite(targetVolumePct)) options.announce_volume = targetVolumePct;
-    return options;
-  }
-
-  async _callMusicAssistantAnnouncement(player, url, snapshots = []) {
-    const targetVolumePct = this._announcementTargetVolumePct(player, snapshots);
-    return this._maverickEngineAnnounce({
-      message: url,
-      player: player?.entity_id || "",
-      players: [player?.entity_id || ""].filter(Boolean),
-      volume: Number.isFinite(targetVolumePct) ? targetVolumePct : this._announcementVolumePct(),
-      target: player?.entity_id || "",
-    });
-  }
-
-  _announcementRestoreDelayMs(message = "") {
-    const textLength = String(message || "").trim().length;
-    return Math.max(5000, Math.min(22000, 3200 + textLength * 90));
-  }
-
-  _scheduleAnnouncementVolumeRestore(snapshots = [], delayMs = 0) {
-    this._announcementVolumeRestoreTimers = this._announcementVolumeRestoreTimers || new Map();
-    snapshots.forEach((snapshot) => {
-      if (!snapshot?.entityId || !Number.isFinite(snapshot.previousVolume)) return;
-      const existing = this._announcementVolumeRestoreTimers.get(snapshot.entityId);
-      if (Array.isArray(existing)) existing.forEach((timer) => clearTimeout(timer));
-      else if (existing) clearTimeout(existing);
-      const baseDelay = Math.max(0, Number(delayMs) || 0);
-      const delays = [baseDelay, baseDelay + 4500, baseDelay + 9000];
-      const timers = delays.map((delay, index) => setTimeout(() => {
-        this._setPlayerVolumeForAnnouncement(snapshot.entityId, snapshot.previousVolume).catch(() => {});
-        if (index === delays.length - 1) this._announcementVolumeRestoreTimers.delete(snapshot.entityId);
-      }, delay));
-      this._announcementVolumeRestoreTimers.set(snapshot.entityId, timers);
-    });
-  }
-
-  async _recordAnnouncementInMaverickEngine(message = "", targets = [], options = {}) {
-    if (!this._maverickEngineEnabled()) return false;
-    const cleanMessage = String(message || "").trim();
-    if (!cleanMessage) return false;
-    const players = (Array.isArray(targets) ? targets : [])
-      .map((player) => String(player?.entity_id || player || "").trim())
-      .filter(Boolean);
-    try {
-      const ready = await this._maverickEngineReadyForPersistence();
-      if (!ready) return false;
-      await this._maverickEngineAnnounce({
-        message: cleanMessage,
-        player: players.length === 1 ? players[0] : "",
-        players,
-        volume: this._announcementVolumePct(),
-        language: String(options.language || "").trim(),
-        target: String(options.target || this._announcementTargetValue() || "").trim(),
-        sent: options.sent !== false,
-      });
-      return true;
-    } catch (error) {
-      this._debugLog("Engine announcement record skipped", error?.message || error);
-      return false;
-    }
-  }
-
-  async _sendMobileAnnouncement() {
-    if (this._announcementSendPending) return;
-    const message = String(this._state.mobileAnnouncementText || "").trim();
-    const targetValue = this._announcementTargetValue();
-    const eligiblePlayers = this._announcementEligiblePlayers();
-    const targets = targetValue === "all"
-      ? eligiblePlayers
-      : eligiblePlayers.filter((player) => player.entity_id === targetValue);
-    if (!message) {
-      this._toastError(this._i18n("ui.enter_an_announcement_first"));
-      return;
-    }
-    if (!targets.length) {
-      this._toastError(this._i18n("ui.select_a_player_first"));
-      return;
-    }
-    this._hapticTap([12, 24, 12]);
-    const playerName = targetValue === "all"
-      ? this._i18n("ui.all_players_2")
-      : (targets[0]?.attributes?.friendly_name || targets[0]?.entity_id || this._selectedPlayerName());
-    const preview = message.length > 72 ? `${message.slice(0, 69)}...` : message;
-    const language = this._announcementLanguageCode();
-    this._toast(this._i18n("ui.announcement_to_player_preview", {
-      player: playerName,
-      preview,
-    }));
-    this._announcementSendPending = true;
-    try {
-      const ttsEntity = this._announcementTtsEntity();
-      const targetEntityIds = targets
-        .map((player) => String(player?.entity_id || "").trim())
-        .filter(Boolean);
-      const volumeGroups = new Map();
-      for (const snapshot of this._prepareAnnouncementVolumes(targets)) {
-        const group = volumeGroups.get(snapshot.targetVolumePct) || [];
-        group.push(snapshot.entityId);
-        volumeGroups.set(snapshot.targetVolumePct, group);
-      }
-      const responses = await Promise.all([...volumeGroups].map(async ([volume, players]) => {
-        try {
-          const result = await this._maverickEngineAnnounce({
-            message, player: players.length === 1 ? players[0] : "", players,
-            volume, language, tts_entity: ttsEntity, target: targetValue,
-          });
-          return Array.isArray(result?.results) && result.results.length ? result.results
-            : players.map((player) => ({ player, ok: result?.ok === true || result?.sent === true }));
-        } catch (error) {
-          return players.map((player) => ({ player, ok: false, error: error?.message }));
-        }
-      }));
-      const results = responses.flat();
-      const failures = results.filter((item) => item?.ok !== true);
-      const acknowledged = targetEntityIds.every((id) => results.some((item) => item?.player === id && item?.ok === true));
-      if (!acknowledged || failures.length) {
-        const names = targetEntityIds.filter((id) => !results.some((item) => item?.player === id && item?.ok === true))
-          .map((id) => targets.find((player) => player.entity_id === id)?.attributes?.friendly_name || id);
-        throw new Error(`${this._m("Announcement not confirmed")}: ${names.join(", ") || playerName}`);
-      }
-      this._toastSuccess(this._i18n("ui.announcement_sent_to_player", { player: playerName }));
-    } catch (error) {
-      this._toastError(this._i18n("ui.announcement_failed_with_error", {
-        error: error?.message ? `: ${error.message}` : "",
-      }));
-    } finally {
-      // MA owns announcement completion and restores playback/volume. A browser
-      // timer cannot infer audio duration and would overwrite later user changes.
-      this._announcementSendPending = false;
-    }
-  }
-
-  _startMobileAnnouncementVoice() {
-    const SpeechRecognition = this._speechRecognitionCtor();
-    const input = this.$("mobileAnnouncementText");
-    if (!SpeechRecognition) {
-      this._toastError(this._i18n("ui.voice_input_is_not_supported_on_this_device"));
-      return;
-    }
-    try { this._voiceRecognition?.abort?.(); } catch (_) {}
-    const recognition = new SpeechRecognition();
-    this._voiceRecognition = recognition;
-    recognition.lang = this._announcementRecognitionLanguageCode();
-    recognition.interimResults = true;
-    recognition.continuous = false;
-    recognition.maxAlternatives = 1;
-    let capturedTranscript = false;
-    let recognitionFailed = false;
-    this._toast(this._i18n("ui.listening"));
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results || [])
-        .map((result) => result?.[0]?.transcript || "")
-        .join(" ")
-        .trim();
-      if (!transcript) return;
-      capturedTranscript = true;
-      this._state.mobileAnnouncementText = transcript;
-      if (input) {
-        input.value = transcript;
-        input.focus({ preventScroll: true });
-      }
-    };
-    recognition.onnomatch = () => {
-      recognitionFailed = true;
-      this._toastError(this._i18n("ui.no_speech_was_captured"));
-    };
-    recognition.onerror = () => {
-      recognitionFailed = true;
-      this._toastError(this._i18n("ui.voice_input_failed"));
-    };
-    recognition.onend = () => {
-      if (!capturedTranscript && !recognitionFailed) this._toastError(this._i18n("ui.no_speech_was_captured"));
-      if (this._voiceRecognition === recognition) this._voiceRecognition = null;
-    };
-    try { recognition.start(); } catch (_) { this._toastError(this._i18n("ui.voice_input_failed")); }
   }
 
   _groupPlayerStatusText(checked = false, connected = false, isOwner = false) {
@@ -16592,7 +11523,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (!body || !title || !back || !aux || !close) return;
     const page = this._normalizeMobileMenuPage(this._state.menuPage || "main");
     if (page !== this._state.menuPage) this._state.menuPage = page;
-    if (page === "sleep_timer" && this._isScheduleFormEditing()) return;
+    if (page === "sleep_timer" && isScheduleFormEditing(this)) return;
     const renderStarted = typeof performance !== "undefined" && typeof performance.now === "function"
       ? performance.now()
       : Date.now();
@@ -16660,8 +11591,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         menu.style.removeProperty("--menu-dynamic-art");
         menu.classList.remove("has-menu-art");
       }
-      if (detail) this._applyMenuDetailTheme(menu, detailArt, detail);
-      else this._clearMenuDetailTheme(menu);
+      if (detail) applyMenuDetailTheme(this, menu, detailArt, detail);
+      else clearMenuDetailTheme(this, menu);
     }
     const sheetClasses = [
       "sheet-actions",
@@ -16728,7 +11659,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
     if (page === "simple_wizard") {
       this._setMobileMenuHeader("FLOW", this._menuPageIcon(page));
-      body.innerHTML = this._simpleWizardHtml();
+      body.innerHTML = simpleWizardHtml(this);
       finishMenuRender();
       return;
     }
@@ -16811,7 +11742,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           ? this._libraryFlowPickerHtml(filteredLikedEntries, "track", { className: "library-liked-flow" })
           : this._likedMediaEntriesHtml(filteredLikedEntries);
         body.innerHTML = this._libraryShellHtml(`${this._mediaLayoutToolbarHtml()}${likedContent}`, page);
-        this._applyMenuLibraryThemeFromItems(menu, filteredLikedEntries.length ? filteredLikedEntries : likedEntries, "track");
+        applyMenuLibraryThemeFromItems(this, menu, filteredLikedEntries.length ? filteredLikedEntries : likedEntries, "track");
         finishMenuRender();
         this._restoreLibraryTabSearchFocus();
         return;
@@ -16876,12 +11807,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           ${loadMoreHtml(items.length)}
         `;
         body.innerHTML = this._libraryShellHtml(searchContent([], { providerLoading: true }), page);
-        this._applyMenuLibraryThemeFromItems(menu, sortedItems, meta.type);
+        applyMenuLibraryThemeFromItems(this, menu, sortedItems, meta.type);
         finishMenuRender();
         this._restoreLibraryTabSearchFocus();
         if (favoritesOnly) {
           body.innerHTML = this._libraryShellHtml(searchContent([], {}), page);
-          this._applyMenuLibraryThemeFromItems(menu, sortedItems, meta.type);
+          applyMenuLibraryThemeFromItems(this, menu, sortedItems, meta.type);
           finishMenuRender();
           this._restoreLibraryTabSearchFocus();
           return;
@@ -16898,7 +11829,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         if (!isCurrentRender()) return;
         libraryThemeItems = sortedItems.length ? sortedItems : providerItems;
         body.innerHTML = this._libraryShellHtml(searchContent(providerItems, { providerError }), page);
-        this._applyMenuLibraryThemeFromItems(menu, libraryThemeItems, meta.type);
+        applyMenuLibraryThemeFromItems(this, menu, libraryThemeItems, meta.type);
         finishMenuRender();
         this._restoreLibraryTabSearchFocus();
         return;
@@ -16926,7 +11857,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           ? `<div class="notice open">${this._esc(radioFlowError)}</div>`
           : this._libraryFlowPickerHtml(radioFlowItems, meta.type, { className: "library-radio-flow", captionMode: "radio_station" });
         body.innerHTML = this._libraryShellHtml(`${this._mediaLayoutToolbarHtml()}${radioFlowContent}`, page);
-        this._applyMenuLibraryThemeFromItems(menu, libraryThemeItems, meta.type);
+        applyMenuLibraryThemeFromItems(this, menu, libraryThemeItems, meta.type);
         finishMenuRender();
         this._restoreLibraryTabSearchFocus();
         return;
@@ -17053,7 +11984,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (!isCurrentRender()) return;
       content += loadMoreHtml(items.length);
       body.innerHTML = this._libraryShellHtml(content, page);
-      this._applyMenuLibraryThemeFromItems(menu, libraryThemeItems, meta.type);
+      applyMenuLibraryThemeFromItems(this, menu, libraryThemeItems, meta.type);
       finishMenuRender();
       this._restoreLibraryTabSearchFocus();
       return;
@@ -17126,14 +12057,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (page === "players") body.innerHTML = this._playersMenuHtml();
     else if (page === "players_active") body.innerHTML = this._playersMenuHtml({ activeOnly: true });
     else if (page === "sleep_timer") {
-      body.innerHTML = this._loadingStateHtml(this._i18n("ui.loading_schedules"), { notice: true });
-      await Promise.allSettled([
-        this._hydrateSchedulesFromMaverickEngine(),
-        this._hydrateSleepTimerFromMaverickEngine(),
-      ]);
-      await this._loadScheduledStartPlaylists();
+      await renderTimersPage(this, body, isCurrentRender);
       if (!isCurrentRender()) return;
-      body.innerHTML = this._sleepTimerMenuHtml();
     }
     else if (page === "transfer") body.innerHTML = this._transferMenuHtml();
     else if (page === "saved_playlists" || page === "volume_rules") {
@@ -17156,7 +12081,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (!isCurrentRender()) return;
     }
     else if (page === "group") body.innerHTML = this._groupMenuHtml();
-    else if (page === "announcements") body.innerHTML = this._announcementsMenuHtml();
+    else if (page === "announcements") body.innerHTML = announcementsPageHtml(this);
     else if (page === "ungroup_all") {
       body.innerHTML = this._loadingStateHtml(this._i18n("ui.disconnecting_player_groups"), { notice: true });
       await this._ungroupAllPlayers();
@@ -17227,8 +12152,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._refreshManualFrontPlayerHold(this._manualFrontContentHoldMs());
     }
     const scheduleFormControl = eventTarget.closest?.(".sheet-schedules input, .sheet-schedules select, .sheet-schedules textarea");
-    if (scheduleFormControl && this._isScheduleFormControl(scheduleFormControl)) {
-      this._markScheduleFormControlActive(scheduleFormControl);
+    if (scheduleFormControl && isScheduleFormControl(scheduleFormControl)) {
+      markScheduleFormControlActive(this, scheduleFormControl);
       e.stopPropagation();
       return;
     }
@@ -17236,7 +12161,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       e.stopPropagation();
       return;
     }
-    if (await this._handleSimpleWizardClick(e)) return;
+    if (await handleSimpleWizardClick(this, e)) return;
     const artistInfoCloseBtn = eventTarget.closest(".artist-info-close");
     const artistInfoBackdrop = eventTarget.classList?.contains("artist-info-backdrop") ? eventTarget : null;
     if (artistInfoCloseBtn || artistInfoBackdrop) {
@@ -17350,35 +12275,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._refreshAfterSettingsChange({ playerListChanged: true });
       return;
     }
-    const announcementPresetBtn = eventTarget.closest("[data-announcement-preset-fill]");
-    if (announcementPresetBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      const index = Number(announcementPresetBtn.dataset.announcementPresetFill);
-      const preset = (this._state.mobileAnnouncementPresets || [])[index] || "";
-      this._state.mobileAnnouncementText = preset;
-      const input = this.$("mobileAnnouncementText");
-      if (input) input.value = preset;
-      this._flashInteraction(announcementPresetBtn);
-      this._hapticTap([8]);
-      return;
-    }
-    const announcementVoiceBtn = eventTarget.closest("[data-announcement-voice]");
-    if (announcementVoiceBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._flashInteraction(announcementVoiceBtn);
-      this._startMobileAnnouncementVoice();
-      return;
-    }
-    const announcementSendBtn = eventTarget.closest("[data-announcement-send]");
-    if (announcementSendBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._flashInteraction(announcementSendBtn);
-      await this._sendMobileAnnouncement();
-      return;
-    }
+    if (await handleAnnouncementMenuClick(this, e, eventTarget)) return;
     const discoveryPathBtn = eventTarget.closest("[data-discovery-path], [data-discovery-retry]");
     if (discoveryPathBtn) {
       e.preventDefault();
@@ -17522,99 +12419,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       await this._handleQueueAction(action, queueItemId, queueRow?.dataset.uri || "", queueRow?.dataset.sortIndex || "", targetPosition);
       return;
     }
-    const scheduleTabBtn = eventTarget.closest("[data-schedule-tab]");
-    if (scheduleTabBtn?.dataset.scheduleTab) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      const tab = String(scheduleTabBtn.dataset.scheduleTab || "");
-      this._state.mobileSchedulesTab = ["timers", "wake", "night"].includes(tab) ? tab : "timers";
-      this._persistMobileAppearance();
-      await this._renderMobileMenu();
-      return;
-    }
-    const startScheduleNewBtn = eventTarget.closest("[data-start-schedule-new]");
-    if (startScheduleNewBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startScheduleNewBtn);
-      this._state.mobileSchedulesTab = "wake";
-      this._newScheduledStartDraft();
-      this._persistMobileAppearance();
-      await this._renderMobileMenu();
-      return;
-    }
-    const startScheduleEditBtn = eventTarget.closest("[data-start-schedule-edit]");
-    if (startScheduleEditBtn?.dataset.startScheduleEdit) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startScheduleEditBtn);
-      this._state.mobileSchedulesTab = "wake";
-      this._editScheduledStart(startScheduleEditBtn.dataset.startScheduleEdit);
-      this._persistMobileAppearance();
-      await this._renderMobileMenu();
-      return;
-    }
-    const startScheduleToggleBtn = eventTarget.closest("[data-start-schedule-toggle]");
-    if (startScheduleToggleBtn?.dataset.startScheduleToggle) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startScheduleToggleBtn);
-      await this._toggleScheduledStart(startScheduleToggleBtn.dataset.startScheduleToggle);
-      await this._renderMobileMenu();
-      return;
-    }
-    const startScheduleDeleteBtn = eventTarget.closest("[data-start-schedule-delete]");
-    if (startScheduleDeleteBtn?.dataset.startScheduleDelete) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startScheduleDeleteBtn);
-      await this._deleteScheduledStart(startScheduleDeleteBtn.dataset.startScheduleDelete);
-      await this._renderMobileMenu();
-      return;
-    }
-    const sleepTimerStartBtn = eventTarget.closest("[data-sleep-timer-start]");
-    if (sleepTimerStartBtn?.dataset.sleepTimerStart) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._flashInteraction(sleepTimerStartBtn);
-      await this._setSleepTimerMinutes(Number(sleepTimerStartBtn.dataset.sleepTimerStart || 15), "general");
-      await this._renderMobileMenu();
-      return;
-    }
-    const sleepTimerCancelBtn = eventTarget.closest("[data-sleep-timer-cancel]");
-    if (sleepTimerCancelBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._flashInteraction(sleepTimerCancelBtn);
-      await this._clearSleepTimer(true);
-      await this._renderMobileMenu();
-      return;
-    }
-    const startTimerSaveBtn = eventTarget.closest("[data-start-timer-save]");
-    if (startTimerSaveBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startTimerSaveBtn);
-      await this._setScheduledStartFromMenu();
-      await this._renderMobileMenu();
-      return;
-    }
-    const startTimerClearBtn = eventTarget.closest("[data-start-timer-clear]");
-    if (startTimerClearBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(startTimerClearBtn);
-      await this._clearScheduledStart(true);
-      await this._renderMobileMenu();
-      return;
-    }
+    if (await handleTimersMenuClick(this, e, eventTarget)) return;
     const action = eventTarget.closest("[data-menu-action]");
     if (action) {
       this._flashInteraction(action);
@@ -17710,21 +12515,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
       return;
     }
-    const dynamicThemeBtn = eventTarget.closest("[data-setting-dynamic-theme]");
-    if (dynamicThemeBtn?.dataset.settingDynamicTheme) {
-      this._flashInteraction(dynamicThemeBtn);
-      this._state.mobileDynamicThemeMode = ["off", "auto", "strong"].includes(dynamicThemeBtn.dataset.settingDynamicTheme)
-        ? dynamicThemeBtn.dataset.settingDynamicTheme
-        : "auto";
-      if (this._state.mobileDynamicThemeMode === "off") {
-        this._state.mobileDynamicThemePalette = null;
-      }
-      this._persistMobileAppearance();
-      this._applyDynamicThemeStyles();
-      this._syncNowPlayingUI();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
+    if (handleDynamicThemeSettingsClick(this, eventTarget)) return;
     const performanceProfileBtn = eventTarget.closest("[data-setting-performance-profile]");
     if (performanceProfileBtn?.dataset.settingPerformanceProfile) {
       this._flashInteraction(performanceProfileBtn);
@@ -17741,7 +12532,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._state.mobileDynamicThemeArtworkUrl = "";
       }
       this._persistMobileAppearance();
-      this._applyDynamicThemeStyles();
+      applyDynamicThemeStyles(this);
       this._applyBackgroundMotionStyles();
       this._syncNowPlayingUI();
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
@@ -17760,7 +12551,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._state.mobileDynamicThemeArtworkUrl = "";
       }
       this._persistMobileAppearance();
-      this._applyDynamicThemeStyles();
+      applyDynamicThemeStyles(this);
       this._applyBackgroundMotionStyles();
       this._syncNowPlayingUI();
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
@@ -17799,39 +12590,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       else this._reopenSettingsMenuPreservingScroll();
       return;
     }
-    const screensaverBtn = eventTarget.closest("[data-setting-screensaver]");
-    if (screensaverBtn?.dataset.settingScreensaver) {
-      this._flashInteraction(screensaverBtn);
-      this._state.screensaverEnabled = screensaverBtn.dataset.settingScreensaver === "on";
-      this._persistMobileAppearance();
-      this._resetScreensaverTimer({ hide: true });
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
-    const screensaverAutoLyricsBtn = eventTarget.closest("[data-setting-screensaver-auto-lyrics]");
-    if (screensaverAutoLyricsBtn?.dataset.settingScreensaverAutoLyrics) {
-      this._flashInteraction(screensaverAutoLyricsBtn);
-      this._state.screensaverAutoLyricsWhenPlaying = screensaverAutoLyricsBtn.dataset.settingScreensaverAutoLyrics === "on";
-      if (!this._state.screensaverAutoLyricsWhenPlaying && !this._state.lyricsOpen) {
-        this._state.screensaverLyricsOpen = false;
-        this._clearLyricsState?.();
-      } else if (this._state.screensaverOpen) {
-        this._maybeOpenScreensaverLyricsForPlayback();
-      }
-      this._persistMobileAppearance();
-      this._syncScreensaverUi();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
-    const screensaverControlsBtn = eventTarget.closest("[data-setting-screensaver-controls]");
-    if (screensaverControlsBtn?.dataset.settingScreensaverControls) {
-      this._flashInteraction(screensaverControlsBtn);
-      this._state.screensaverControlsEnabled = screensaverControlsBtn.dataset.settingScreensaverControls === "on";
-      this._persistMobileAppearance();
-      this._syncScreensaverUi();
-      this._refreshAfterSettingsChange({});
-      return;
-    }
+    if (handleScreensaverSettingsClick(this, eventTarget)) return;
     const powerButtonBtn = eventTarget.closest("[data-setting-power-button]");
     if (powerButtonBtn?.dataset.settingPowerButton) {
       this._flashInteraction(powerButtonBtn);
@@ -17849,54 +12608,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._refreshAfterSettingsChange({});
       return;
     }
-    const nightModeBtn = eventTarget.closest("[data-setting-night-mode]");
-    if (nightModeBtn?.dataset.settingNightMode) {
-      const previousNight = {night_mode:this._mobileNightMode(),night_start:this._state.mobileNightModeStart,night_end:this._state.mobileNightModeEnd,night_days:[...this._nightModeDays()]};
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(nightModeBtn);
-      this._state.mobileNightMode = ["off", "auto", "on"].includes(nightModeBtn.dataset.settingNightMode)
-        ? nightModeBtn.dataset.settingNightMode
-        : "auto";
-      if (!(await saveNightPreferences(this, previousNight))) return;
-      this._persistMobileAppearance();
-      this._rebuildMobileUi({ reopenPage: this._state.menuOpen ? (this._state.menuPage || "sleep_timer") : "sleep_timer", reopenStudio: this._state.controlRoomOpen });
-      return;
-    }
-    const nightWindowSaveBtn = eventTarget.closest("[data-setting-night-window-save]");
-    if (nightWindowSaveBtn) {
-      const previousNight = {night_mode:this._mobileNightMode(),night_start:this._state.mobileNightModeStart,night_end:this._state.mobileNightModeEnd,night_days:[...this._nightModeDays()]};
-      this._state.mobileScheduleControlActiveUntil = 0;
-      this._flashInteraction(nightWindowSaveBtn);
-      const startInput = this.$("mobileNightStartInput");
-      const endInput = this.$("mobileNightEndInput");
-      const checkedDays = Array.from(this.shadowRoot?.querySelectorAll("input[data-setting-night-day]:checked") || [])
-        .map((input) => Number(input.dataset.settingNightDay))
-        .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6);
-      this._state.mobileNightModeStart = this._normalizeClockTime(startInput?.value || "22:00", "22:00");
-      this._state.mobileNightModeEnd = this._normalizeClockTime(endInput?.value || "06:00", "06:00");
-      this._state.mobileNightModeDays = this._normalizeNightModeDays(checkedDays);
-      if (!(await saveNightPreferences(this, previousNight))) return;
-      this._persistMobileAppearance();
-      this._toastSuccess(this._i18n("ui.night_schedule_updated"));
-      this._build();
-      this._init();
-      this._openMobileMenu(this._state.menuPage || "sleep_timer");
-      return;
-    }
-    const sleepTimerBtn = eventTarget.closest("[data-setting-sleep-timer]");
-    if (sleepTimerBtn) {
-      this._flashInteraction(sleepTimerBtn);
-      await this._cycleSleepTimer();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
-    const sleepClearBtn = eventTarget.closest("[data-setting-sleep-clear]");
-    if (sleepClearBtn) {
-      this._flashInteraction(sleepClearBtn);
-      await this._clearSleepTimer(true);
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
+    if (await handleNightSettingsClick(this, eventTarget)) return;
     const compactModeBtn = eventTarget.closest("[data-setting-compact-mode]");
     if (compactModeBtn?.dataset.settingCompactMode) {
       this._flashInteraction(compactModeBtn);
@@ -17992,31 +12704,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
       return;
     }
-    const voiceAssistantBtn = eventTarget.closest("[data-setting-voice-assistant]");
-    if (voiceAssistantBtn?.dataset.settingVoiceAssistant) {
-      this._flashInteraction(voiceAssistantBtn);
-      this._state.voiceAssistantEnabled = voiceAssistantBtn.dataset.settingVoiceAssistant === "on";
-      if (!this._state.voiceAssistantEnabled) this._stopVoiceAssistantRecognition();
-      this._persistMobileAppearance();
-      this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
-      return;
-    }
-    const voiceAssistantModeBtn = eventTarget.closest("[data-setting-voice-assistant-mode]");
-    if (voiceAssistantModeBtn?.dataset.settingVoiceAssistantMode) {
-      this._flashInteraction(voiceAssistantModeBtn);
-      this._state.voiceAssistantMode = MaverickMobileSettingsFoundation.normalizeVoiceAssistantMode(voiceAssistantModeBtn.dataset.settingVoiceAssistantMode);
-      this._persistMobileAppearance();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
-    const voiceFeedbackBtn = eventTarget.closest("[data-setting-voice-feedback]");
-    if (voiceFeedbackBtn?.dataset.settingVoiceFeedback) {
-      this._flashInteraction(voiceFeedbackBtn);
-      this._state.voiceAssistantSpeakFeedback = voiceFeedbackBtn.dataset.settingVoiceFeedback === "on";
-      this._persistMobileAppearance();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
+    if (handleVoiceSettingsClick(this, eventTarget)) return;
     const footerModeBtn = eventTarget.closest("[data-setting-footer-mode]");
     const playerDesignBtn = eventTarget.closest("[data-setting-player-design]");
     if (playerDesignBtn) {
@@ -18462,7 +13150,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       clearBtn?.classList?.toggle("visible", !!String(libraryTabSearchInput.value || "").trim() || !!this._libraryTabSearchQuery(page));
       return;
     }
-    if (this._isScheduleFormControl(e.target)) this._markScheduleFormControlActive(e.target);
+    if (isScheduleFormControl(e.target)) markScheduleFormControlActive(this, e.target);
     if (e.type === "input" && e.target?.matches?.('input[type="checkbox"]')) return;
     if (e.target?.matches?.("[data-queue-move-auto]")) {
       await this._handleQueueMoveAutoChange(e);
@@ -18470,118 +13158,17 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
     if (e.target?.matches?.("[data-queue-move-target]")) return;
     this._rememberMobileMenuScroll();
-    if (e.target?.id === "simpleWizardQueryInput") {
-      const state = this._state.simpleWizard && typeof this._state.simpleWizard === "object"
-        ? this._state.simpleWizard
-        : this._createSimpleWizardState();
-      state.query = e.target.value || "";
-      this._state.simpleWizard = state;
-      return;
-    }
-    if (e.target?.id === "simpleWizardGenreSelect") {
-      const state = this._state.simpleWizard && typeof this._state.simpleWizard === "object"
-        ? this._state.simpleWizard
-        : this._createSimpleWizardState();
-      state.genre = this._simpleWizardGenres().some((genre) => genre.id === e.target.value) ? e.target.value : "pop";
-      state.candidates = [];
-      state.selectedIndex = 0;
-      this._state.simpleWizard = state;
-      await this._renderMobileMenu();
-      return;
-    }
-    if (e.target?.id === "simpleWizardCustomGenreInput") {
-      const state = this._state.simpleWizard && typeof this._state.simpleWizard === "object"
-        ? this._state.simpleWizard
-        : this._createSimpleWizardState();
-      state.customGenre = e.target.value || "";
-      this._state.simpleWizard = state;
-      return;
-    }
-    if (e.target?.id === "scheduledStartTimeInput") {
-      if (e.target.value) this._state.mobileStartTimerTime = this._normalizeClockTime(e.target.value, this._state.mobileStartTimerTime || "07:00");
-      return;
-    }
-    if (e.target?.id === "scheduledStartPlayerSelect") {
-      this._state.mobileStartTimerPlayer = String(e.target.value || "").trim();
-      return;
-    }
-    if (e.target?.id === "scheduledStartPlaylistSelect") {
-      const playlist = String(e.target.value || "").trim();
-      this._state.mobileStartTimerPlaylist = playlist;
-      this._state.mobileStartTimerPlaylistName = playlist
-        ? String(e.target.selectedOptions?.[0]?.textContent || "").trim()
-        : "";
-      return;
-    }
-    if (e.target?.id === "scheduledStartAfterRunSelect") {
-      this._state.mobileStartTimerAfterRun = String(e.target.value || "keep") === "disable" ? "disable" : "keep";
-      return;
-    }
-    const startDayCheckbox = e.target?.closest?.("input[data-start-timer-day]");
-    if (startDayCheckbox) {
-      this._state.mobileStartTimerDays = this._normalizeNightModeDays(
-        Array.from(this.shadowRoot?.querySelectorAll("input[data-start-timer-day]:checked") || [])
-          .map((input) => Number(input.dataset.startTimerDay))
-          .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6)
-      );
-      return;
-    }
-    const nightDayCheckbox = e.target?.closest?.("input[data-setting-night-day]");
-    if (nightDayCheckbox) {
-      this._state.mobileNightModeDays = this._normalizeNightModeDays(
-        Array.from(this.shadowRoot?.querySelectorAll("input[data-setting-night-day]:checked") || [])
-          .map((input) => Number(input.dataset.settingNightDay))
-          .filter((value) => Number.isInteger(value) && value >= 0 && value <= 6)
-      );
-      return;
-    }
-    if (e.target?.id === "mobileAnnouncementText") {
-      this._state.mobileAnnouncementText = e.target.value || "";
-      return;
-    }
-    if (e.target?.id === "mobileAnnouncementTargetSelect") {
-      this._state.mobileAnnouncementTarget = e.target.value || "";
-      return;
-    }
-    if (e.target?.id === "mobileAnnouncementVolumeInput") {
-      const pct = Math.max(20, Math.min(50, Number(e.target.value || 20)));
-      this._state.mobileAnnouncementVolume = pct;
-      const valueEl = e.target.closest(".announcement-volume-field")?.querySelector(".settings-value");
-      if (valueEl) valueEl.textContent = `+${pct}%`;
-      this._persistMobileAppearance();
-      return;
-    }
-    if (e.target?.dataset?.announcementPresetIndex !== undefined) {
-      const index = Number(e.target.dataset.announcementPresetIndex);
-      if (Number.isFinite(index)) {
-        const presets = Array.isArray(this._state.mobileAnnouncementPresets) ? [...this._state.mobileAnnouncementPresets] : ["", "", ""];
-        presets[index] = e.target.value || "";
-        this._state.mobileAnnouncementPresets = presets.slice(0, 3);
-        this._persistMobileAppearance();
-      }
-      return;
-    }
-    if (e.target?.id === "mobileAnnouncementTtsEntity") {
-      this._state.mobileAnnouncementTtsEntity = e.target.value || "";
-      this._persistMobileAppearance();
-      return;
-    }
+    if (await handleSimpleWizardChange(this, e)) return;
+    if (handleTimersFormChange(this, e)) return;
+    if (handleNightFormChange(this, e)) return;
+    if (handleAnnouncementFormChange(this, e)) return;
     if (e.target?.id === "mobileLanguageSelect") {
       this._state.lang = e.target.value || "en";
       try { localStorage.setItem(this._lsKey("maverick_music_lang"), this._state.lang); } catch (_) {}
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
       return;
     }
-    if (e.target?.id === "mobileAnnouncementTtsLanguageSelect") {
-      this._state.mobileAnnouncementTtsLanguage = this._normalizeAnnouncementLanguage(e.target.value || "auto");
-      this._persistMobileAppearance();
-      return;
-    }
-    if (e.target?.id === "voiceAssistantAgentSelect") {
-      this._state.voiceAssistantAgentId = String(e.target.value || "").trim();
-      this._persistMobileAppearance();
-      return;
-    }
+    if (handleVoiceSettingsChange(this, e)) return;
     if (e.target?.id === "ambientLightEntitiesInput") {
       this._state.ambientLightEntities = MaverickMobileSettingsFoundation.normalizeEntityList(e.target.value || "");
       this._persistMobileAppearance();
@@ -18613,12 +13200,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     if (e.target?.id === "ambientLightCooldownInput") {
       this._state.ambientLightCooldown = MaverickMobileSettingsFoundation.clampSeconds(e.target.value || 8, 8, { min: 0, max: 120 });
       this._persistMobileAppearance();
-      return;
-    }
-    if (e.target?.id === "screensaverClockModeSelect") {
-      this._state.screensaverClockMode = MaverickMobileSettingsFoundation.normalizeScreensaverClockMode(e.target.value || "digital");
-      this._persistMobileAppearance();
-      this._syncScreensaverUi();
       return;
     }
     if (e.target?.id === "powerButtonActionSelect") {
@@ -18737,7 +13318,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this.style?.setProperty("--accent-color", color);
       this.shadowRoot?.querySelector(".card")?.style?.setProperty("--accent-color", color);
       this.shadowRoot?.querySelector(".card")?.style?.setProperty("--ma-accent", color);
-      this._applyDynamicThemeStyles();
+      applyDynamicThemeStyles(this);
       const valueEl = e.target.closest(".settings-color-row")?.querySelector(".settings-value");
       if (valueEl) valueEl.textContent = String(color).toUpperCase();
       return;
@@ -18758,23 +13339,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.mobileVolumeStepPercent = MaverickMobileSettingsFoundation.clampMobileVolumeStepPercent(e.target.value || 5);
       this._persistMobileAppearance();
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
-      return;
-    }
-    if (e.target?.id === "scheduledStartVolumeInput") {
-      const pct = Math.max(0, Math.min(100, Number(e.target.value || 0)));
-      this._state.mobileStartTimerVolume = pct;
-      const valueEl = e.target.closest(".scheduled-volume-field")?.querySelector(".settings-value");
-      if (valueEl) valueEl.textContent = `${pct}%`;
-      return;
-    }
-    if (e.target?.id === "mobileNightStartInput" || e.target?.id === "mobileNightEndInput") {
-      if (e.target.value) {
-        if (e.target.id === "mobileNightStartInput") {
-          this._state.mobileNightModeStart = this._normalizeClockTime(e.target.value, this._state.mobileNightModeStart || "22:00");
-        } else {
-          this._state.mobileNightModeEnd = this._normalizeClockTime(e.target.value, this._state.mobileNightModeEnd || "06:00");
-        }
-      }
       return;
     }
     if (e.target?.dataset?.playerVolume) {
@@ -18911,17 +13475,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (item === "home") this._state.mobileHomeShortcutEnabled = !!quickActionCheckbox.checked;
       this._persistMobileAppearance();
       this._refreshAfterSettingsChange({ quickActionsChanged: true });
-      return;
-    }
-    const screensaverControlCheckbox = e.target?.closest?.("input[data-setting-screensaver-control]");
-    if (screensaverControlCheckbox) {
-      const item = String(screensaverControlCheckbox.dataset.settingScreensaverControl || "").trim();
-      const current = new Set(this._screensaverControlButtons({ includeDisabled: true }));
-      if (screensaverControlCheckbox.checked) current.add(item); else current.delete(item);
-      this._state.screensaverControlButtons = MaverickMobileSettingsFoundation.normalizeScreensaverControlButtons(Array.from(current), []);
-      this._persistMobileAppearance();
-      this._syncScreensaverUi();
-      this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
       return;
     }
     const studioShortcutCheckbox = e.target?.closest?.("input[data-setting-studio-shortcut]");

@@ -1,49 +1,46 @@
-// @vitest-environment jsdom
-import { afterAll, describe, expect, it, vi } from "vitest";
-import "../src/maverick-music.js";
-vi.hoisted(() => { vi.useFakeTimers(); });
-afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
-const prototype = globalThis.customElements.get("maverick-music").prototype;
+import { describe, expect, it, vi } from "vitest";
+import { sendMobileAnnouncement } from "../src/core/media/announcements.js";
+
+const players = ["Computer", "Kitchen"].map((name) => ({ entity_id: name, state: "playing", attributes: { friendly_name: name } }));
 function context() {
   return {
-    _state: { mobileAnnouncementText: "Test" },
-    _announcementTargetValue: () => "all",
-    _announcementEligiblePlayers: () => ["Computer", "Kitchen"].map((name) => ({ entity_id: name, attributes: { friendly_name: name } })),
+    _state: { mobileAnnouncementText: "Test", mobileAnnouncementTarget: "all", mobileAnnouncementVolume: 20, mobileAnnouncementTtsEntity: "tts.test", mobileAnnouncementTtsLanguage: "en-US", players },
+    _config: {}, _hass: { states: {} },
+    _playerVolumeLevel: () => 0.2,
     _hapticTap: vi.fn(), _i18n: (key, data) => `${key} ${JSON.stringify(data || {})}`,
-    _m: (text) => text, _announcementLanguageCode: () => "en", _announcementTtsEntity: () => "tts.test",
-    _announcementVolumePct: () => 20, _toast: vi.fn(), _toastError: vi.fn(), _toastSuccess: vi.fn(),
-    _prepareAnnouncementVolumes: (targets) => targets.map((player) => ({ entityId: player.entity_id, targetVolumePct: 40 })),
-    _scheduleAnnouncementVolumeRestore: vi.fn(),
+    _m: (text) => text, _toast: vi.fn(), _toastError: vi.fn(), _toastSuccess: vi.fn(),
+    _callMaverickEnginePlayerCommand: vi.fn(async () => true),
     _maverickEngineAnnounce: vi.fn(async () => ({ ok: true, results: [{ player: "Computer", ok: true }, { player: "Kitchen", ok: true }] })),
   };
 }
 describe("truthful announcement dispatch", () => {
   it("passes each player's boosted volume to MA without changing its normal volume", async () => {
     const card = context();
-    card._prepareAnnouncementVolumes = () => [{ entityId: "Computer", targetVolumePct: 45 }, { entityId: "Kitchen", targetVolumePct: 70 }];
-    await prototype._sendMobileAnnouncement.call(card);
-    expect(card._maverickEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({ players: ["Computer"], volume: 45 }));
+    card._playerVolumeLevel = (entityId) => (entityId === "Computer" ? 0.25 : 0.5);
+    await sendMobileAnnouncement(card);
+    expect(card._maverickEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({ players: ["Computer"], volume: 45, tts_entity: "tts.test", language: "en-US" }));
     expect(card._maverickEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({ players: ["Kitchen"], volume: 70 }));
-    expect(card._scheduleAnnouncementVolumeRestore).not.toHaveBeenCalled();
+    expect(card._callMaverickEnginePlayerCommand).not.toHaveBeenCalled();
+    expect(card._announcementVolumeRestoreTimers).toBeUndefined();
   });
   it("lets MA restore audio without a browser volume timer", async () => {
     const card = context();
-    await prototype._sendMobileAnnouncement.call(card);
+    await sendMobileAnnouncement(card);
     expect(card._toastSuccess).toHaveBeenCalledOnce();
-    expect(card._scheduleAnnouncementVolumeRestore).not.toHaveBeenCalled();
+    expect(card._callMaverickEnginePlayerCommand).not.toHaveBeenCalled();
     expect(card._announcementSendPending).toBe(false);
   });
   it("does not announce success when only one target accepted the request", async () => {
     const card = context();
     card._maverickEngineAnnounce.mockResolvedValue({ ok: true, sent: true, results: [{ player: "Computer", ok: true }, { player: "Kitchen", ok: false }] });
-    await prototype._sendMobileAnnouncement.call(card);
+    await sendMobileAnnouncement(card);
     expect(card._toastSuccess).not.toHaveBeenCalled();
     expect(card._toastError).toHaveBeenCalledWith(expect.stringContaining("Kitchen"));
   });
   it("rejects an empty acknowledgement", async () => {
     const card = context();
     card._maverickEngineAnnounce.mockResolvedValue({});
-    await prototype._sendMobileAnnouncement.call(card);
+    await sendMobileAnnouncement(card);
     expect(card._toastSuccess).not.toHaveBeenCalled();
     expect(card._toastError).toHaveBeenCalledOnce();
   });
@@ -51,12 +48,12 @@ describe("truthful announcement dispatch", () => {
     const card = context();
     let reject;
     card._maverickEngineAnnounce.mockImplementationOnce(() => new Promise((_, fail) => { reject = fail; }));
-    const first = prototype._sendMobileAnnouncement.call(card);
-    await prototype._sendMobileAnnouncement.call(card);
+    const first = sendMobileAnnouncement(card);
+    await sendMobileAnnouncement(card);
     expect(card._maverickEngineAnnounce).toHaveBeenCalledOnce();
     reject(new Error("Connection lost"));
     await first;
-    await prototype._sendMobileAnnouncement.call(card);
+    await sendMobileAnnouncement(card);
     expect(card._maverickEngineAnnounce).toHaveBeenCalledTimes(2);
   });
 });

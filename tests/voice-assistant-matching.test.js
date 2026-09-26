@@ -1,4 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import {
+  playVoiceAssistantMusic,
+  voiceAssistantBestCandidate,
+  voiceAssistantCommandIntent,
+  voiceAssistantQueueIntent,
+  voiceAssistantSpeakerGroupIntent,
+} from "../src/core/media/voice.js";
 
 let MaverickMusicFlowCard;
 const originalGlobals = {
@@ -49,6 +56,16 @@ function createCard() {
     || item.artist
     || "";
   card._artUrl = () => "";
+  card._loadPlayers = () => {};
+  card._state.players = [];
+  return card;
+}
+
+function withPlayers(card, players) {
+  card._state.players = players.map(([entityId, name]) => ({ entity_id: entityId, state: "idle", attributes: { friendly_name: name } }));
+  card._isMusicAssistantPlayer = () => true;
+  card._isLikelyBrowserPlayer = () => false;
+  card._isAvailableThisDevicePlayer = () => true;
   return card;
 }
 
@@ -58,18 +75,16 @@ describe("command routing", () => {
     ["pause", "pause"], ["stop", "stop"], ["resume playing", "resume"],
   ])("routes %s to %s", (text, type) => {
     const card = createCard();
-    card._voiceAssistantMentionedPlayers = () => [];
-    expect(card._voiceAssistantCommandIntent(text).type).toBe(type);
+    expect(voiceAssistantCommandIntent(card, text).type).toBe(type);
   });
   it("recognizes a queue transfer without changing player order", () => {
     const card = createCard();
-    card._voiceAssistantMentionedPlayers = () => [{ entity_id: "media_player.computer" }, { entity_id: "media_player.kitchen" }];
-    expect(card._voiceAssistantQueueIntent("transfer the queue from Computer to Kitchen")).toEqual({ type: "queue_transfer", sourcePlayerId: "media_player.computer", targetPlayerId: "media_player.kitchen" });
+    withPlayers(card, [["media_player.computer", "Computer"], ["media_player.kitchen", "Kitchen"]]);
+    expect(voiceAssistantQueueIntent(card, "transfer the queue from Computer to Kitchen")).toEqual({ type: "queue_transfer", sourcePlayerId: "media_player.computer", targetPlayerId: "media_player.kitchen" });
   });
   it("recognizes explicit group disconnection", () => {
     const card = createCard();
-    card._voiceAssistantMentionedPlayers = () => [];
-    expect(card._voiceAssistantSpeakerGroupIntent("ungroup all speakers")).toEqual({ type: "group_disconnect_all" });
+    expect(voiceAssistantSpeakerGroupIntent(card, "ungroup all speakers")).toEqual({ type: "group_disconnect_all" });
   });
 });
 
@@ -353,7 +368,7 @@ describe("now playing subtitle", () => {
 describe("voice assistant music matching", () => {
   it("rejects unrelated search results instead of auto-playing by media type only", () => {
     const card = createCard();
-    const result = card._voiceAssistantBestCandidate({
+    const result = voiceAssistantBestCandidate(card, {
       tracks: [
         {
           uri: "spotify://track/wrong",
@@ -369,7 +384,7 @@ describe("voice assistant music matching", () => {
 
   it("prefers the song and artist that match the spoken request", () => {
     const card = createCard();
-    const result = card._voiceAssistantBestCandidate({
+    const result = voiceAssistantBestCandidate(card, {
       tracks: [
         {
           uri: "spotify://track/wrong",
@@ -391,7 +406,7 @@ describe("voice assistant music matching", () => {
 
   it("accepts natural artist-only requests such as songs by an artist", () => {
     const card = createCard();
-    const result = card._voiceAssistantBestCandidate({
+    const result = voiceAssistantBestCandidate(card, {
       tracks: [
         {
           uri: "spotify://track/idan",
@@ -417,13 +432,13 @@ describe("voice assistant music matching", () => {
     card._i18n = (key, params = {}) => params.title || params.query || key;
     card._toast = () => {};
     card._toastError = () => {};
-    card._updateVoiceAssistantDialog = () => {};
     card._search = async (query) => {
       calls.push(["global", query]);
       return card._emptySearchResults();
     };
-    card._voiceAssistantFocusedMusicSearch = async (query, mediaType) => {
-      calls.push(["focused", query, mediaType]);
+    card._normalizeSearchResponse = (raw) => raw;
+    card._callService = async (service, params) => {
+      calls.push(["focused", params.query, params.media_type[0]]);
       return {
         ...card._emptySearchResults(),
         playlists: [
@@ -440,7 +455,7 @@ describe("voice assistant music matching", () => {
       return true;
     };
 
-    const result = await card._playVoiceAssistantMusic("playlist by shlomo artzi", player);
+    const result = await playVoiceAssistantMusic(card, "playlist by shlomo artzi", player);
 
     expect(result.ok).toBe(true);
     expect(calls).toContainEqual(["focused", "playlist shlomo artzi", "playlist"]);
@@ -461,11 +476,11 @@ describe("voice assistant music matching", () => {
     card._toast = () => {};
     card._toastError = () => {};
     card._debugLog = () => {};
-    card._updateVoiceAssistantDialog = () => {};
     card._search = async () => {
       throw new Error("global search unavailable");
     };
-    card._voiceAssistantFocusedMusicSearch = async () => ({
+    card._normalizeSearchResponse = (raw) => raw;
+    card._callService = async () => ({
       ...card._emptySearchResults(),
       playlists: [
         {
@@ -480,7 +495,7 @@ describe("voice assistant music matching", () => {
       return true;
     };
 
-    const result = await card._playVoiceAssistantMusic("playlist by shlomo artzi", player);
+    const result = await playVoiceAssistantMusic(card, "playlist by shlomo artzi", player);
 
     expect(result.ok).toBe(true);
     expect(played).toEqual({
@@ -492,7 +507,7 @@ describe("voice assistant music matching", () => {
 
   it("accepts a title match even when artist metadata is missing from the search result", () => {
     const card = createCard();
-    const result = card._voiceAssistantBestCandidate({
+    const result = voiceAssistantBestCandidate(card, {
       tracks: [
         {
           uri: "spotify://track/michelle-no-artist",
@@ -507,7 +522,7 @@ describe("voice assistant music matching", () => {
 
   it("still accepts a clear one-word title match", () => {
     const card = createCard();
-    const result = card._voiceAssistantBestCandidate({
+    const result = voiceAssistantBestCandidate(card, {
       tracks: [
         {
           uri: "spotify://track/imagine",

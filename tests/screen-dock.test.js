@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
 import { screenActions, syncScreenDock } from "../src/core/media/screen-dock.js";
+import { setSleepTimerMinutes } from "../src/core/media/timers.js";
+vi.mock("../src/core/media/timers.js", async (importOriginal) => ({ ...(await importOriginal()), setSleepTimerMinutes: vi.fn(async () => {}) }));
 const { document } = globalThis;
 
 describe("context screen wheel", () => {
@@ -165,15 +167,15 @@ describe("context screen wheel", () => {
   it("shows timer durations and only schedules the duration explicitly tapped", async () => {
     const sheet = document.createElement("div");
     const card = { _m:(a)=>a, _esc:String, _iconSvg:()=>"<svg></svg>", _config:{action_menu_labels:true}, _state:{},
-      _sleepTimerRemainingMs:()=>0, _setSleepTimerMinutes:vi.fn(async()=>{}), _renderMobileMenu:vi.fn(async()=>{}),
+      _renderMobileMenu:vi.fn(async()=>{}),
       shadowRoot:sheet, $:()=>null,
     };
     syncScreenDock(card,sheet,"sleep_timer");
     sheet.querySelector("[data-screen-wheel]").click();
-    expect(card._setSleepTimerMinutes).not.toHaveBeenCalled();
+    expect(setSleepTimerMinutes).not.toHaveBeenCalled();
     sheet.querySelector('[data-immersive-action="timer:30"]').click();
     await Promise.resolve();
-    expect(card._setSleepTimerMinutes).toHaveBeenCalledWith(30);
+    expect(setSleepTimerMinutes).toHaveBeenCalledWith(card, 30);
     expect(sheet.querySelector("[data-fan-step]").disabled).toBe(false);
   });
   it("reuses one dock across menu renders and routes back without playing", () => {

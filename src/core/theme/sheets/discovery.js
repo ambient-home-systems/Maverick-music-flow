@@ -838,31 +838,5 @@ export default function() {
   background:#fff1f2!important;
   border-color:rgba(180,35,43,.16)!important;
 }
-.card.screensaver-active .stage{
-  pointer-events:none;
-}
-.card.screensaver-active .bg,
-.card.screensaver-active .shade,
-.card.screensaver-active .glow{
-  animation-play-state:paused;
-}
-
-.screensaver-backdrop{
-  position:absolute;
-  inset:0;
-  z-index:85;
-  display:grid;
-  place-items:center;
-  padding:28px;
-  background:#02060d;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity .46s cubic-bezier(.22,.78,.24,1);
-  overflow:hidden;
-  isolation:isolate;
-  contain:layout paint style;
-  will-change:opacity;
-  transform:translateZ(0);
-}
 `;
 }

@@ -1,18 +1,19 @@
 // @vitest-environment jsdom
 import { afterAll, describe, expect, it, vi } from "vitest";
 import "../src/maverick-music.js";
+import { resetScreensaverTimer } from "../src/core/media/screensaver.js";
 vi.hoisted(() => { vi.useFakeTimers(); });
 afterAll(() => { vi.clearAllTimers(); vi.useRealTimers(); });
 const prototype = globalThis.customElements.get("maverick-music").prototype;
 describe("screensaver inactivity delay", () => {
   it("uses the configured delay when no explicit override is supplied", async () => {
-    const card={_screensaverSuppressedByEditor:()=>false,_screensaverEnabled:()=>true,isConnected:true,
-      _screensaverTimeoutSeconds:()=>30,_showScreensaver:vi.fn()};
-    prototype._resetScreensaverTimer.call(card);
+    const card={_isVisualEditorContext:()=>false,isConnected:true,getBoundingClientRect:()=>({width:900,height:700}),
+      _state:{screensaverEnabled:true,screensaverTimeoutSeconds:30},shadowRoot:{querySelector:()=>null},$:()=>null};
+    resetScreensaverTimer(card);
     await vi.advanceTimersByTimeAsync(500);
-    expect(card._showScreensaver).not.toHaveBeenCalled();
+    expect(card._state.screensaverOpen).toBeUndefined();
     await vi.advanceTimersByTimeAsync(29500);
-    expect(card._showScreensaver).toHaveBeenCalledOnce();
+    expect(card._state.screensaverOpen).toBe(true);
   });
 });
 describe("group disconnect failure", () => {
@@ -21,7 +22,7 @@ describe("group disconnect failure", () => {
     root.innerHTML = '<section class="volume-wheel-popover"></section>';
     const card = {_state: {menuOpen:true, menuPage:"group_volume"}, shadowRoot:root,
       $:()=>null, _shortenManualFrontPlayerHold:()=>{}, _manualFrontDefaultHoldMs:()=>0,
-      _closeMobileQueueActionMenu:()=>{}, _closeSmartVoiceConfirm:()=>{}, _syncCompactMenuOverlayState:()=>{}};
+      _closeMobileQueueActionMenu:()=>{}, _syncCompactMenuOverlayState:()=>{}};
     prototype._closeMobileMenu.call(card);
     expect(root.querySelector(".volume-wheel-popover")).toBeNull();
     expect(card._state.menuOpen).toBe(false);

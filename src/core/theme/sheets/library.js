@@ -239,18 +239,6 @@ export default function() {
         .theme-light .surprise-me-card.magic-empty.pressed {
           box-shadow:0 14px 28px rgba(111,126,150,.12), 0 0 0 1px rgba(31,38,51,.10), 0 0 18px rgba(31,38,51,.08);
         }
-        .theme-light .empty-voice-btn {
-          color:#7a5210;
-          background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(239,244,250,.68));
-          border-color:color-mix(in srgb, var(--ma-accent) 30%, rgba(147,161,183,.2));
-          box-shadow:0 14px 28px rgba(111,126,150,.14), 0 0 0 5px rgba(255,255,255,.45), inset 0 1px 0 rgba(255,255,255,.78);
-        }
-        .theme-light .empty-voice-btn:hover,
-        .theme-light .empty-voice-btn.listening {
-          color:#6e4b10;
-          background:linear-gradient(180deg, color-mix(in srgb, var(--ma-accent) 16%, white 84%), rgba(255,255,255,.8));
-          box-shadow:0 16px 32px color-mix(in srgb, var(--ma-accent) 14%, rgba(111,126,150,.14)), 0 0 0 7px color-mix(in srgb, var(--ma-accent) 8%, transparent), inset 0 1px 0 rgba(255,255,255,.82);
-        }
         .theme-light .menu-item.active,
         .theme-light .menu-list-item.active,
         .theme-light .queue-row.active {
@@ -497,31 +485,7 @@ export default function() {
         .media-search-clear.visible:active {
           transform:scale(.92);
         }
-        .media-voice-btn {
-          width:38px;
-          height:38px;
-          border:none;
-          border-radius:14px;
-          display:grid;
-          place-items:center;
-          color:#18120a;
-          background:linear-gradient(135deg, var(--ma-accent), color-mix(in srgb, var(--ma-accent) 72%, white 28%));
-          box-shadow:0 10px 20px color-mix(in srgb, var(--ma-accent) 18%, transparent);
-          cursor:pointer;
-          transition:transform .16s ease, box-shadow .16s ease, opacity .16s ease;
-        }
-        .media-voice-btn .ui-ic { width:19px; height:19px; }
-        .media-voice-btn:active { transform:scale(.94); }
-        .media-voice-btn.unsupported { opacity:.52; filter:saturate(.55); }
-        .media-voice-btn.listening {
-          animation:voicePulse 1s ease-in-out infinite;
-          box-shadow:0 0 0 8px color-mix(in srgb, var(--ma-accent) 14%, transparent), 0 14px 26px color-mix(in srgb, var(--ma-accent) 22%, transparent);
-        }
         .theme-light .media-search-clear:not(.visible) { color:rgba(55,68,85,.76); }
-        @keyframes voicePulse {
-          0%,100% { transform:scale(1); }
-          50% { transform:scale(1.07); }
-        }
         .media-categories {
           display:grid;
           gap:10px;

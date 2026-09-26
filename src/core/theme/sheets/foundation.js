@@ -193,19 +193,6 @@ export default function({ hostMinWidth, height, minCardHeight, fontScale, iconSc
           background:rgba(var(--v2-custom-rgb) / .14);
           box-shadow:0 22px 56px rgba(0,0,0,.16);
         }
-        .card.dynamic-theme {
-          border-color:rgba(var(--dynamic-accent-rgb, 224 161 27) / .24);
-          box-shadow:
-            0 24px 56px rgba(0,0,0,.28),
-            0 0 0 1px rgba(var(--dynamic-accent-rgb, 224 161 27) / .08),
-            0 18px 42px rgba(var(--dynamic-glow-rgb, 255 178 56) / .12);
-        }
-        .theme-light.card.dynamic-theme {
-          box-shadow:
-            0 22px 56px rgba(73,89,110,.16),
-            0 0 0 1px rgba(var(--dynamic-accent-rgb, 224 161 27) / .08),
-            0 18px 40px rgba(var(--dynamic-glow-rgb, 255 178 56) / .1);
-        }
         .bg,.shade,.glow { position:absolute; inset:0; pointer-events:none; }
         .bg {
           background:

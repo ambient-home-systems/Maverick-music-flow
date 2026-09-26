@@ -1,4 +1,5 @@
 import { actionIconSvg } from "./action-menu.js";
+import { normalizeNightMode } from "../state/night-mode.js";
 // Small views backed by the existing Engine and player controls.
 export async function refreshArtworkLighting(card, force = false) {
   if (!card._state.engineCapabilities?.artwork_lighting) return null;
@@ -76,7 +77,7 @@ export async function renderListeningTools(card, body, page) {
       const values=await card._maverickEngineCommand("interface/get");
       if(card._state.menuPage !== page || !body.isConnected) return;
       applyInterfacePreferences(card,values);card._state.engineInterfacePreferences=values;
-      const mode=card._mobileNightMode();
+      const mode=normalizeNightMode(card._state.mobileNightMode);
       body.innerHTML=`<form class="smart-settings"><h2>${t("Night display")}</h2><label>${t("Mode")}<select name="mode">${["off","on","auto"].map(value=>`<option value="${value}" ${mode===value?"selected":""}>${t({off:"Off",on:"On",auto:"Automatic"}[value])}</option>`).join("")}</select></label><label>${t("Start")}<input name="start" type="time" value="${card._esc(card._state.mobileNightModeStart || "22:00")}" required></label><label>${t("End")}<input name="end" type="time" value="${card._esc(card._state.mobileNightModeEnd || "06:00")}" required></label>${card._nightModeDayOptions().map(([day,name])=>`<label>${card._esc(name)}<input name="day" type="checkbox" value="${day}" ${card._nightModeDays().includes(day)?"checked":""}></label>`).join("")}<button type="submit">${t("Save to Engine")}</button><p role="status"></p></form>`;
       const form=body.querySelector("form");form.onsubmit=async event=>{
         event.preventDefault();event.stopPropagation();const button=form.querySelector('[type="submit"]');button.disabled=true;
@@ -198,7 +199,7 @@ export function applyInterfacePreferences(card, values = {}) {
 export async function saveNightPreferences(card, previous = {}) {
   if (!card._state.engineCapabilities?.interface_preferences) return true;
   try {
-    const result = await card._maverickEngineCommand("interface/set", {night_mode:card._mobileNightMode(),night_start:card._state.mobileNightModeStart,night_end:card._state.mobileNightModeEnd,night_days:card._nightModeDays()});
+    const result = await card._maverickEngineCommand("interface/set", {night_mode:normalizeNightMode(card._state.mobileNightMode),night_start:card._state.mobileNightModeStart,night_end:card._state.mobileNightModeEnd,night_days:card._nightModeDays()});
     card._state.engineInterfacePreferences = result;
     return true;
   } catch(error) {
