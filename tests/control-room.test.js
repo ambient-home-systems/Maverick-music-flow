@@ -325,11 +325,9 @@ describe("mixes and media", () => {
     const { card, root } = stubCard();
     const body = mount(card, root);
     toggleControlRoomPanel(card, "library");
-    vi.useFakeTimers({ now: 1000, toFake: ["Date"] });
     let resolveFirst;
     card._search.mockImplementationOnce(() => new Promise((resolve) => { resolveFirst = resolve; }));
     const first = searchControlRoomLibrary(card, "old");
-    vi.setSystemTime(1001);
     const second = searchControlRoomLibrary(card, " new ");
     await second;
     expect(body.querySelectorAll(".control-room-media-card")).toHaveLength(2);

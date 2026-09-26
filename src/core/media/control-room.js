@@ -1028,7 +1028,9 @@ export async function searchControlRoomLibrary(card, query = "") {
     syncControlRoomLibraryResultsUi(card);
     return;
   }
-  const token = Date.now();
+  // A counter, not a timestamp: two searches started in the same millisecond
+  // must still resolve in favour of the later one.
+  const token = (Number(card._state.controlRoomLibraryToken) || 0) + 1;
   card._state.controlRoomLibraryToken = token;
   card._state.controlRoomLibraryLoading = true;
   syncControlRoomLibraryResultsUi(card);
