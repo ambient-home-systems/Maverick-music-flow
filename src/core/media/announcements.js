@@ -134,32 +134,6 @@ export function scheduleAnnouncementVolumeRestore(card, snapshots = [], delayMs 
 // ---------------------------------------------------------------------------
 // Dispatch
 
-export async function recordAnnouncementInEngine(card, message = "", targets = [], options = {}) {
-  if (!card._maverickEngineEnabled()) return false;
-  const cleanMessage = String(message || "").trim();
-  if (!cleanMessage) return false;
-  const players = (Array.isArray(targets) ? targets : [])
-    .map((player) => String(player?.entity_id || player || "").trim())
-    .filter(Boolean);
-  try {
-    const ready = await card._maverickEngineReadyForPersistence();
-    if (!ready) return false;
-    await card._maverickEngineAnnounce({
-      message: cleanMessage,
-      player: players.length === 1 ? players[0] : "",
-      players,
-      volume: announcementVolumePct(card),
-      language: String(options.language || "").trim(),
-      target: String(options.target || announcementTargetValue(card) || "").trim(),
-      sent: options.sent !== false,
-    });
-    return true;
-  } catch (error) {
-    card._debugLog("Engine announcement record skipped", error?.message || error);
-    return false;
-  }
-}
-
 export async function sendMobileAnnouncement(card) {
   if (card._announcementSendPending) return;
   const message = String(card._state.mobileAnnouncementText || "").trim();
