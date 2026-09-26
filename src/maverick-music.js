@@ -17,8 +17,7 @@ import {
 } from "./core/media/timers.js";
 import {
   announcementsPageHtml, announcementsSettingsSectionHtml, announcementVolumePct, announcementLanguageSetting, defaultAnnouncementPresets,
-  handleAnnouncementFormChange, handleAnnouncementMenuClick, handleStudioAnnouncementInput, isDefaultAnnouncementPresetSet, normalizeAnnouncementLanguage,
-  sendControlRoomAnnouncement,
+  handleAnnouncementFormChange, handleAnnouncementMenuClick, isDefaultAnnouncementPresetSet, normalizeAnnouncementLanguage,
 } from "./core/media/announcements.js";
 import {
   bindScreensaver, handleScreensaverSettingsClick, hideScreensaver, openTabletLyricsScreensaver, restoreScreensaverIfOpen, screensaverClockMode,
@@ -35,7 +34,6 @@ import {
   handleVoiceSettingsChange,
   handleVoiceSettingsClick,
   speechRecognitionCtor,
-  startControlRoomLibraryVoice,
   startMobileVoiceSearch,
   startVoiceAssistantCommand,
   syncVoiceAssistantDialog,
@@ -53,6 +51,7 @@ import {
   activeAccentColor, activeAccentRgb, applyDynamicThemeStyles, applyMenuDetailTheme, applyMenuLibraryThemeFromItems, clearMenuDetailTheme,
   dynamicThemePalette, dynamicThemeSettingsPillsHtml, handleDynamicThemeSettingsClick, resetDynamicThemeArtwork, syncDynamicThemeArtwork,
 } from "./core/media/dynamic-theme.js";
+import { bindControlRoom, closeControlRoom, controlRoomBackdropHtml, controlRoomEnabled, controlRoomLabel, loadControlRoomScenesFromStorage, openControlRoom, syncControlRoomChrome, syncControlRoomUi } from "./core/media/control-room.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -587,7 +586,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     try { this._state.frontPinnedPlayerEntity = localStorage.getItem(this._lsKey("maverick_music_front_pinned_player")) || ""; } catch (_) {}
     try { this._state.mobileFontScale = Math.max(0.5, Math.min(1.5, Number(localStorage.getItem(this._lsKey("maverick_music_mobile_font_scale")) || 1) || 1)); } catch (_) {}
     try { this._state.mobileIconScale = MaverickMobileSettingsFoundation.clampMobileIconScale(localStorage.getItem(this._lsKey("maverick_music_mobile_icon_scale")) || 1); } catch (_) {}
-    this._loadControlRoomScenesFromStorage();
+    loadControlRoomScenesFromStorage(this);
     try { this._state.mobileNightMode = localStorage.getItem(this._lsKey("maverick_music_mobile_night_mode")) || "off"; } catch (_) {}
     try { this._state.mobileNightModeStart = localStorage.getItem(this._lsKey("maverick_music_mobile_night_start")) || "22:00"; } catch (_) {}
     try { this._state.mobileNightModeEnd = localStorage.getItem(this._lsKey("maverick_music_mobile_night_end")) || "06:00"; } catch (_) {}
@@ -994,7 +993,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._closeMobileQueueActionMenu?.();
     this._closeMobileVolumePresets?.();
     closeSmartVoiceConfirm(this);
-    this._closeControlRoom?.({ silent: true });
+    closeControlRoom(this, { silent: true });
     this._state.mobileLayoutMode = "full";
     this._state.mobileEdgeToEdge = false;
     this._state.mobileEdgeReturnAvailable = true;
@@ -1010,7 +1009,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._closeMobileQueueActionMenu?.();
     this._closeMobileVolumePresets?.();
     closeSmartVoiceConfirm(this);
-    this._closeControlRoom?.({ silent: true });
+    closeControlRoom(this, { silent: true });
     this._state.mobileLayoutMode = "edge_to_edge";
     this._state.mobileEdgeToEdge = false;
     this._state.mobileEdgeReturnAvailable = false;
@@ -1101,7 +1100,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._state.controlRoomOpen = false;
       this._state.controlRoomPanel = "";
       this._state.controlRoomRestoreAfterMenu = false;
-      this._syncControlRoomChrome();
+      syncControlRoomChrome(this);
     }
     this._build();
     this._init();
@@ -4004,7 +4003,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       : this._i18n("ui.stopped_all_players_cleared_playlists_and_disconnected_groups"));
     this._syncNowPlayingUI();
     if (this._state.menuOpen) this._renderMobileMenu();
-    if (this._state.controlRoomOpen) this._syncControlRoomUi({ force: true });
+    if (this._state.controlRoomOpen) syncControlRoomUi(this, { force: true });
     this._timeout(() => this._updateNowPlayingState(), 500);
   }
 
@@ -5473,11 +5472,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const quickActionsWithVoice = quickActions;
     const quickActionsWithHome = quickActionsWithVoice;
     const quickActionsWithPower = this._mobileActionsWithAuxiliary(quickActionsWithHome);
-    const controlRoomEnabled = this._controlRoomEnabled();
+    const studioEnabled = controlRoomEnabled(this);
     const studioShortcutEnabled = this._mobileStudioShortcutEnabled();
     const mainBarButtons = [];
-    if (!hotelMode && controlRoomEnabled && studioShortcutEnabled) {
-      mainBarButtons.push(`<button class="footer-btn control-room-entry" data-mainbar-action="control_room" title="${this._controlRoomLabel()}">${this._mobileFooterButtonInner("grid", this._controlRoomLabel())}</button>`);
+    if (!hotelMode && studioEnabled && studioShortcutEnabled) {
+      mainBarButtons.push(`<button class="footer-btn control-room-entry" data-mainbar-action="control_room" title="${controlRoomLabel(this)}">${this._mobileFooterButtonInner("grid", controlRoomLabel(this))}</button>`);
     }
     if (mainBarItems.includes("actions")) {
       mainBarButtons.push(`<button class="footer-btn" data-mainbar-action="actions" title="${this._i18n("ui.actions_2")}">${this._mobileFooterButtonInner("menu", this._i18n("ui.actions_2"))}</button>`);
@@ -5562,17 +5561,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       ? quickActionsWithPower.filter((action) => action !== "history" && action !== "timer")
       : quickActionsWithPower;
     const mobileQuickActionsHtml = this._mobileQuickActionButtonsHtml(mobileHistoryToggleButtonHtml, quickActionsInArtRow);
-    const controlRoomBackdropHtml = !hotelMode && controlRoomEnabled ? `
-      <div class="control-room-backdrop" id="controlRoomBackdrop">
-        <div class="control-room-shell">
-          <div class="control-room-head">
-            <div class="control-room-head-brand" aria-hidden="true">${this._tabletBrandSignatureHtml("control-room-head-logo")}</div>
-            <button class="control-room-close" id="controlRoomCloseBtn" title="${this._esc(this._i18n("ui.close"))}">${this._iconSvg("close")}</button>
-          </div>
-          <div class="control-room-body-host" id="controlRoomBody"></div>
-        </div>
-      </div>
-    ` : ``;
+    const studioShellHtml = controlRoomBackdropHtml(this);
     const compactTileHtml = `
       <div class="compact-shell premium-player-tile">
         <div class="compact-backdrop-art" id="compactBackdropArt"></div>
@@ -5705,7 +5694,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           </div>
           <div class="history-drawer-body" id="historyDrawerBody"></div>
         </aside>
-        ${controlRoomBackdropHtml}
+        ${studioShellHtml}
         <div class="menu-backdrop${this._state.menuOpen ? " open" : ""}" id="mobileMenu">
           <div class="menu-sheet">
             <div class="menu-head">
@@ -5772,7 +5761,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._setHistoryDrawerOpen(this._state.mobileHistoryDrawerOpen);
     this._syncRecentHistoryUi(true);
     syncSleepTimerChip(this);
-    this._syncControlRoomUi();
+    syncControlRoomUi(this);
     syncVoiceAssistantDialog(this);
     this._restoreMobileMenuAfterBuild("build");
     bindScreensaver(this);
@@ -5869,558 +5858,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._syncRecentHistoryUi();
     });
     bindSleepTimerCorner(this);
-    this.$("controlRoomCloseBtn")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation?.();
-      e.stopPropagation();
-      this._suppressHomeShortcutNavigation();
-      if (!this._pressUiButton(e.currentTarget)) return;
-      this._closeControlRoom();
-    });
-    const keepControlRoomScroll = (e) => {
-      if (e.target?.closest?.("[data-control-room-scroll]")) e.stopPropagation();
-    };
-    this.$("controlRoomBackdrop")?.addEventListener("wheel", keepControlRoomScroll, { passive: true });
-    this.$("controlRoomBackdrop")?.addEventListener("touchmove", keepControlRoomScroll, { passive: true });
-    this.$("controlRoomBackdrop")?.addEventListener("click", async (e) => {
-      if (e.target?.id === "controlRoomBackdrop") {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!this._state.controlRoomOpen) {
-          this._syncControlRoomChrome();
-          return;
-        }
-        this._closeControlRoom();
-        return;
-      }
-      const selectBtn = e.target.closest("[data-room-select]");
-      if (selectBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(selectBtn);
-        const entityId = selectBtn.dataset.roomSelect;
-        const result = this._toggleControlRoomPlayerSelection(entityId);
-        const name = this._controlRoomPlayerName(entityId);
-        if (result === "kept") {
-          this._toast(this._i18n("ui.at_least_one_player_must_stay_selected"));
-        } else {
-          this._toastSuccess(result === "removed"
-            ? this._m(`${name} removed from studio selection`)
-            : this._m(`${name} added to studio selection`));
-        }
-        return;
-      }
-      const primaryBtn = e.target.closest("[data-room-primary]");
-      if (primaryBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(primaryBtn);
-        const entityId = primaryBtn.dataset.roomPrimary;
-        this._setControlRoomPrimary(entityId);
-        this._toastSuccess(this._m(
-          `Studio is now controlling ${this._controlRoomPlayerName(entityId)}`
-        ));
-        return;
-      }
-      const playBtn = e.target.closest("[data-room-toggle-play]");
-      if (playBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(playBtn);
-        const entityId = playBtn.dataset.roomTogglePlay;
-        const player = this._playerByEntityId(entityId);
-        try {
-          await this._togglePlayFor(entityId);
-          this._toastSuccess(player?.state === "playing"
-            ? this._m(`${this._controlRoomPlayerName(entityId)} paused`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} started playing`));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-        } catch (error) {
-          this._toastError(error?.message || this._i18n("ui.playback_command_failed_2"));
-        }
-        return;
-      }
-      const nextBtn = e.target.closest("[data-room-next]");
-      if (nextBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(nextBtn);
-        const entityId = nextBtn.dataset.roomNext;
-        try {
-          await this._playerCmdFor(entityId, "next");
-          this._toastSuccess(this._m(`${this._controlRoomPlayerName(entityId)} skipped to next`));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-        } catch (error) {
-          this._toastError(error?.message || this._i18n("ui.next_track_failed"));
-        }
-        return;
-      }
-      const muteBtn = e.target.closest("[data-room-mute]");
-      if (muteBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(muteBtn);
-        const entityId = muteBtn.dataset.roomMute;
-        const wasMuted = this._isMuted(this._playerByEntityId(entityId));
-        try {
-          if (!await this._toggleMuteFor(entityId)) return;
-          this._toastSuccess(wasMuted
-            ? this._m(`${this._controlRoomPlayerName(entityId)} unmuted`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} muted`));
-          this._timeout(() => this._updateNowPlayingState(), 160);
-        } catch (error) {
-          this._toastError(error?.message || this._i18n("ui.mute_command_failed"));
-        }
-        return;
-      }
-      const transferSourceBtn = e.target.closest("[data-room-transfer-source]");
-      if (transferSourceBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(transferSourceBtn);
-        this._state.controlRoomTransferSource = transferSourceBtn.dataset.roomTransferSource || "";
-        this._syncControlRoomTransferDefaults();
-        this._syncControlRoomUi();
-        this._toast(this._m(
-          `Transfer source: ${this._controlRoomPlayerName(this._state.controlRoomTransferSource)}`
-        ));
-        return;
-      }
-      const transferTargetBtn = e.target.closest("[data-room-transfer-target]");
-      if (transferTargetBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(transferTargetBtn);
-        const targetId = transferTargetBtn.dataset.roomTransferTarget || "";
-        if (targetId && targetId !== this._state.controlRoomTransferSource) {
-          this._state.controlRoomTransferTarget = targetId;
-          this._syncControlRoomUi();
-          this._toast(this._m(
-            `Transfer target: ${this._controlRoomPlayerName(targetId)}`
-          ));
-        }
-        return;
-      }
-      const transferBtn = e.target.closest("[data-room-transfer]");
-      if (transferBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(transferBtn);
-        const ok = await this._transferQueueBetween(this._state.controlRoomTransferSource, this._state.controlRoomTransferTarget, { silent: true });
-        if (ok) this._state.controlRoomPanel = "";
-        if (ok) this._toastSuccess(this._i18n("ui.queue_transferred"));
-        else this._toastError(this._i18n("ui.could_not_transfer_the_queue"));
-        this._timeout(() => this._updateNowPlayingState(), 300);
-        return;
-      }
-      const cloneBtn = e.target.closest("[data-room-clone]");
-      if (cloneBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(cloneBtn);
-        const ok = await this._cloneQueueBetween(this._state.controlRoomTransferSource, this._state.controlRoomTransferTarget, { silent: true });
-        if (ok) this._toastSuccess(this._i18n("ui.queue_cloned"));
-        else this._toastError(this._i18n("ui.could_not_clone_the_queue"));
-        this._timeout(() => this._updateNowPlayingState(), 300);
-        return;
-      }
-      const refreshQueuesBtn = e.target.closest("[data-room-refresh-queues]");
-      if (refreshQueuesBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(refreshQueuesBtn);
-        await this._loadControlRoomQueues([
-          this._state.controlRoomTransferSource,
-          this._state.controlRoomTransferTarget,
-          ...this._controlRoomSelectedPlayerIds(),
-        ].filter(Boolean));
-        this._toastSuccess(this._i18n("ui.queues_refreshed"));
-        return;
-      }
-      const clearQueueBtn = e.target.closest("[data-room-clear-queue]");
-      if (clearQueueBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(clearQueueBtn);
-        const entityId = clearQueueBtn.dataset.roomClearQueue || "";
-        if (!entityId) return;
-        await this._clearQueueForPlayer(entityId);
-        await this._loadControlRoomQueues([entityId]);
-        this._toastSuccess(this._i18n("ui.queue_cleared"));
-        return;
-      }
-      const libraryActionBtn = e.target.closest("[data-room-library-action]");
-      if (libraryActionBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(libraryActionBtn);
-        const action = libraryActionBtn.dataset.roomLibraryAction || "play";
-        const entry = {
-          uri: libraryActionBtn.dataset.roomLibraryUri || "",
-          media_type: libraryActionBtn.dataset.roomLibraryType || "album",
-          name: libraryActionBtn.dataset.roomLibraryName || "",
-          subtitle: libraryActionBtn.dataset.roomLibrarySubtitle || "",
-          image: libraryActionBtn.dataset.roomLibraryImage || "",
-          favorite_scope: libraryActionBtn.dataset.roomLibraryFavoriteScope || "library",
-        };
-        if (!entry?.uri) return;
-        const played = await this._playControlRoomLibraryEntry(entry, action);
-        if (played) {
-          if (action !== "like") this._state.controlRoomPanel = "";
-          if (action === "like") {
-            if (this._state.controlRoomPanel === "favorites") this._loadControlRoomFavorites().catch(() => {});
-            else this._syncControlRoomUi({ force: true });
-          }
-          const messages = {
-            play: this._m(`Started ${entry.name || "media"} in Studio`),
-            next: this._i18n("ui.will_play_next_in_studio"),
-            add: this._i18n("ui.added_to_studio_queue"),
-            radio_mode: this._i18n("ui.radio_mode_started"),
-            like: this._i18n("ui.favorite_updated"),
-          };
-          this._toastSuccess(messages[action] || messages.play);
-          this._timeout(() => this._updateNowPlayingState(), 350);
-        } else {
-          this._toastError(this._i18n("ui.studio_media_action_failed"));
-        }
-        return;
-      }
-      const libraryPlayBtn = e.target.closest("[data-room-library-play]");
-      if (libraryPlayBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(libraryPlayBtn);
-        const entry = {
-          uri: libraryPlayBtn.dataset.roomLibraryUri || "",
-          media_type: libraryPlayBtn.dataset.roomLibraryType || "album",
-          name: libraryPlayBtn.dataset.roomLibraryName || "",
-          subtitle: libraryPlayBtn.dataset.roomLibrarySubtitle || "",
-          image: libraryPlayBtn.dataset.roomLibraryImage || "",
-          favorite_scope: libraryPlayBtn.dataset.roomLibraryFavoriteScope || "library",
-        };
-        if (!entry?.uri) return;
-        const played = await this._playControlRoomLibraryEntry(entry);
-        if (played) {
-          this._state.controlRoomPanel = "";
-          this._toastSuccess(this._m(`Started ${entry.name || "media"} in Studio`));
-          this._timeout(() => this._updateNowPlayingState(), 350);
-        } else {
-          this._toastError(this._i18n("ui.could_not_start_playback_in_studio"));
-        }
-        return;
-      }
-      const smartMixBtn = e.target.closest("[data-room-smart-mix]");
-      if (smartMixBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        await this._startControlRoomMix(smartMixBtn.dataset.roomSmartMix || "", smartMixBtn);
-        return;
-      }
-      const smartCustomBtn = e.target.closest("[data-room-smart-custom]");
-      if (smartCustomBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        await this._startControlRoomMix("custom", smartCustomBtn);
-        return;
-      }
-      const saveSceneBtn = e.target.closest("[data-room-save-scene]");
-      if (saveSceneBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._saveControlRoomSceneFromStudio(saveSceneBtn);
-        return;
-      }
-      const deleteSceneBtn = e.target.closest("[data-room-delete-scene]");
-      if (deleteSceneBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._deleteControlRoomScene(deleteSceneBtn.dataset.roomDeleteScene || "", deleteSceneBtn);
-        return;
-      }
-      const sceneBtn = e.target.closest("[data-room-scene]");
-      if (sceneBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        await this._applyControlRoomScene(sceneBtn.dataset.roomScene || "home", sceneBtn);
-        return;
-      }
-      const announceBtn = e.target.closest("[data-room-announce-send]");
-      if (announceBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        await sendControlRoomAnnouncement(this, announceBtn);
-        return;
-      }
-      const thisDeviceBtn = e.target.closest("[data-room-this-device]");
-      if (thisDeviceBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(thisDeviceBtn);
-        const action = thisDeviceBtn.dataset.roomThisDevice;
-        if (action === "disconnect") this._disconnectThisDevicePlayer();
-        else this._connectThisDevicePlayer();
-        this._syncControlRoomUi({ force: true });
-        return;
-      }
-      const libraryMicBtn = e.target.closest("[data-room-library-mic]");
-      if (libraryMicBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(libraryMicBtn);
-        startControlRoomLibraryVoice(this);
-        return;
-      }
-      const selectionToggleBtn = e.target.closest("[data-room-selection-toggle]");
-      if (selectionToggleBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(selectionToggleBtn);
-        const entityId = selectionToggleBtn.dataset.roomSelectionToggle;
-        const result = this._toggleControlRoomPlayerSelection(entityId);
-        if (result === "kept") {
-          this._toast(this._i18n("ui.at_least_one_player_must_stay_selected"));
-        } else {
-          this._toastSuccess(result === "removed"
-            ? this._m(`${this._controlRoomPlayerName(entityId)} removed from selection`)
-            : this._m(`${this._controlRoomPlayerName(entityId)} selected`));
-        }
-        return;
-      }
-      const visibleToggleBtn = e.target.closest("[data-room-visible-toggle]");
-      if (visibleToggleBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._pressUiButton(visibleToggleBtn);
-        const entityId = visibleToggleBtn.dataset.roomVisibleToggle;
-        const wasVisible = this._controlRoomVisiblePlayerIds().includes(entityId);
-        this._toggleControlRoomVisiblePlayer(entityId);
-        this._toastSuccess(wasVisible
-          ? this._m(`${this._controlRoomPlayerName(entityId)} hidden from Studio`)
-          : this._m(`${this._controlRoomPlayerName(entityId)} shown in Studio`));
-        return;
-      }
-      const dockBtn = e.target.closest("[data-room-selection-action]");
-      if (dockBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const action = dockBtn.dataset.roomSelectionAction;
-        if (action === "close_panel") {
-          this._toggleControlRoomPanel(this._state.controlRoomPanel);
-          return;
-        }
-        const selectedIds = this._controlRoomActionTargetIds();
-        if (action === "browse_library") {
-          this._pressUiButton(dockBtn);
-          this._toast(this._i18n("ui.opening_studio_library"));
-          this._openControlRoomLibrary("library_playlists");
-          return;
-        }
-        if (action === "browse_artists" || action === "browse_albums" || action === "browse_tracks" || action === "browse_radio") {
-          this._pressUiButton(dockBtn);
-          const pageMap = {
-            browse_artists: "library_artists",
-            browse_albums: "library_albums",
-            browse_tracks: "library_tracks",
-            browse_radio: "library_radio",
-          };
-          this._toast(this._i18n("ui.opening_studio_library"));
-          this._openControlRoomLibrary(pageMap[action] || "library_playlists");
-          return;
-        }
-        if (action === "timers") {
-          this._pressUiButton(dockBtn);
-          this._toast(this._i18n("ui.opening_timers"));
-          this._openControlRoomLibrary("sleep_timer");
-          return;
-        }
-        if (action === "open_ma") {
-          this._pressUiButton(dockBtn);
-          this._launchMusicAssistant();
-          return;
-        }
-        if (["music", "actions", "library", "transfer", "selection", "visible", "mix", "recent", "favorites", "scenes", "announce", "pro"].includes(action)) {
-          this._pressUiButton(dockBtn);
-          const wasOpen = this._state.controlRoomPanel === action;
-          this._toggleControlRoomPanel(action);
-          this._toast(wasOpen
-            ? this._m(`${this._controlRoomPanelLabel(action)} closed`)
-            : this._m(`${this._controlRoomPanelLabel(action)} opened`));
-          return;
-        }
-        const primaryId = this._controlRoomPrimaryPlayerId();
-        if (action === "player_playpause") {
-          if (!primaryId) return;
-          this._pressUiButton(dockBtn);
-          const player = this._playerByEntityId(primaryId);
-          try {
-            await this._togglePlayFor(primaryId);
-            this._toastSuccess(player?.state === "playing"
-              ? this._m(`${this._controlRoomPlayerName(primaryId)} paused`)
-              : this._m(`${this._controlRoomPlayerName(primaryId)} started playing`));
-            this._timeout(() => this._updateNowPlayingState(), 250);
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.playback_command_failed_2"));
-          }
-          return;
-        }
-        if (action === "player_next") {
-          if (!primaryId) return;
-          this._pressUiButton(dockBtn);
-          try {
-            await this._playerCmdFor(primaryId, "next");
-            this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} skipped to next`));
-            this._timeout(() => this._updateNowPlayingState(), 250);
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.next_track_failed"));
-          }
-          return;
-        }
-        if (action === "player_mute") {
-          if (!primaryId) return;
-          this._pressUiButton(dockBtn);
-          const wasMuted = this._isMuted(this._playerByEntityId(primaryId));
-          try {
-            if (!await this._toggleMuteFor(primaryId)) return;
-            this._toastSuccess(wasMuted
-              ? this._m(`${this._controlRoomPlayerName(primaryId)} unmuted`)
-              : this._m(`${this._controlRoomPlayerName(primaryId)} muted`));
-            this._timeout(() => this._updateNowPlayingState(), 160);
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.mute_command_failed"));
-          }
-          return;
-        }
-        if (action === "player_stop") {
-          if (!primaryId) return;
-          this._pressUiButton(dockBtn);
-          try {
-            await this._stopPlayer(primaryId);
-            this._toastSuccess(this._m(`${this._controlRoomPlayerName(primaryId)} stopped`));
-            this._timeout(() => this._updateNowPlayingState(), 250);
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.stop_command_failed"));
-          }
-          return;
-        }
-        if (!selectedIds.length) {
-          this._toastError(this._i18n("ui.select_at_least_one_studio_player"));
-          return;
-        }
-        if (action === "playpause") {
-          this._pressUiButton(dockBtn);
-          if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._togglePlayFor(entityId))) return;
-          this._toastSuccess(this._m(
-            `Play / pause sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
-          ));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-          return;
-        }
-        if (action === "next") {
-          this._pressUiButton(dockBtn);
-          if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._playerCmdFor(entityId, "next"))) return;
-          this._toastSuccess(this._m(
-            `Next sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
-          ));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-          return;
-        }
-        if (action === "mute") {
-          this._pressUiButton(dockBtn);
-          if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._toggleMuteFor(entityId))) return;
-          this._toastSuccess(this._m(
-            `Mute sent to ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
-          ));
-          this._timeout(() => this._updateNowPlayingState(), 250);
-          return;
-        }
-        if (action === "clear") {
-          this._pressUiButton(dockBtn);
-          if (!await this._runControlRoomPlayerBatch(selectedIds, (entityId) => this._clearQueueForPlayer(entityId))) return;
-          this._toastSuccess(this._m(
-            `Queues cleared for ${this._controlRoomPlayerCountLabel(selectedIds.length)}`
-          ));
-          this._loadControlRoomQueues(selectedIds).catch(() => {});
-          this._timeout(() => this._updateNowPlayingState(), 250);
-          return;
-        }
-        if (action === "stop_all") {
-          this._pressUiButton(dockBtn);
-          await this._stopAllPlayers();
-          this._timeout(() => this._updateNowPlayingState(), 350);
-          return;
-        }
-        if (action === "group") {
-          this._pressUiButton(dockBtn);
-          const groupPrimaryId = selectedIds[0];
-          const members = selectedIds.slice(1);
-          if (members.length < 1) {
-            this._toastError(this._i18n("ui.select_at_least_two_players_to_create_a_group"));
-            return;
-          }
-          try {
-            const ok = await this._applySpeakerGroupFor(groupPrimaryId, members);
-            if (!ok) throw new Error(this._i18n("ui.select_at_least_two_players_to_create_a_group"));
-            this._toastSuccess(this._i18n("ui.group_updated"));
-          } catch (error) {
-            this._toastError(error?.message || this._i18n("ui.player_groups_could_not_be_disconnected"));
-          }
-          this._timeout(() => this._updateNowPlayingState(), 350);
-          return;
-        }
-        if (action === "ungroup") {
-          this._pressUiButton(dockBtn);
-          await Promise.allSettled(selectedIds.map((entityId) => this._clearSpeakerGroupFor(entityId)));
-          this._toastSuccess(this._i18n("ui.group_cleared_2"));
-          this._timeout(() => this._updateNowPlayingState(), 350);
-        }
-      }
-    });
-    this.$("controlRoomBackdrop")?.addEventListener("input", (e) => {
-      const volumeInput = e.target.closest?.("[data-room-volume]");
-      if (volumeInput) {
-        const pct = Math.max(0, Math.min(100, Number(volumeInput.value || 0)));
-        volumeInput.style.setProperty("--vol-pct", `${pct}%`);
-        const label = volumeInput.closest(".control-room-volume-row")?.querySelector("[data-room-volume-value]");
-        if (label) label.textContent = `${pct}%`;
-        clearTimeout(this._controlRoomVolumeTimer);
-        this._controlRoomVolumeTimer = setTimeout(() => this._setPlayerVolumeFor(volumeInput.dataset.roomVolume, pct / 100), 90);
-        return;
-      }
-      const smartInput = e.target.closest?.("#controlRoomSmartQueryInput");
-      if (smartInput) {
-        this._state.controlRoomSmartQuery = smartInput.value || "";
-        return;
-      }
-      if (handleStudioAnnouncementInput(this, e)) return;
-      const sceneNameInput = e.target.closest?.("#controlRoomSceneNameInput");
-      if (sceneNameInput) {
-        this._state.controlRoomSceneName = sceneNameInput.value || "";
-        return;
-      }
-      const sourceSelect = e.target.closest?.("#controlRoomTransferSource");
-      if (sourceSelect) {
-        this._state.controlRoomTransferSource = sourceSelect.value || "";
-        this._syncControlRoomTransferDefaults();
-        this._syncControlRoomUi();
-        return;
-      }
-      const targetSelect = e.target.closest?.("#controlRoomTransferTarget");
-      if (targetSelect) {
-        this._state.controlRoomTransferTarget = targetSelect.value || "";
-      }
-    });
-    this.$("controlRoomBackdrop")?.addEventListener("input", (e) => {
-      const libraryInput = e.target.closest?.("#controlRoomLibraryInput");
-      if (!libraryInput) return;
-      this._state.controlRoomLibraryQuery = libraryInput.value || "";
-      clearTimeout(this._searchTimer);
-      this._searchTimer = setTimeout(() => this._searchControlRoomLibrary(libraryInput.value || ""), 180);
-    });
-    this.$("controlRoomBackdrop")?.addEventListener("keydown", (e) => {
-      const libraryInput = e.target.closest?.("#controlRoomLibraryInput");
-      if (!libraryInput) return;
-      e.stopPropagation();
-    });
+    bindControlRoom(this);
     this.shadowRoot.querySelectorAll("[data-mainbar-action]").forEach((btn) => btn.addEventListener("click", () => {
       const action = btn.dataset.mainbarAction;
       this._pressUiButton(btn);
@@ -6429,7 +5867,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       else if (action === "settings") this._openMobileMenu("settings");
       else if (action === "actions") this._openMobileMenu("main");
       else if (action === "players") this._openMobileMenu("players");
-      else if (action === "control_room") this._openControlRoom();
+      else if (action === "control_room") openControlRoom(this);
       else if (action === "home") this._goHomeAssistantDashboard();
       else if (action === "theme") {
         const reopenPage = this._state.menuOpen ? this._state.menuPage : "";
@@ -7317,7 +6755,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     }
     if (!player) {
       this._syncGroupVolumeShortcut(null);
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
       this._resetLocalSendspinMediaSession();
     }
     const compactTileMode = this._isCompactTileMode();
@@ -7523,7 +6961,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (this.$("progressFill")) this.$("progressFill").style.width = "0%";
       syncDynamicThemeArtwork(this, pendingArt || "").catch(() => {});
       syncMobileVolumeControls();
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
       return;
     }
     if (!hasPlayableMedia) {
@@ -7553,7 +6991,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._syncStatus();
       this._syncLikeButtons();
       this._updateActivePlayersBubble();
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
       this._syncLocalSendspinMediaSession(player, displayQueueItem);
       return;
     }
@@ -7594,7 +7032,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       sourceQueueItem: displayQueueItem,
     })) {
       syncMobileVolumeControls();
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
       return;
     }
     this._refreshMobileArtStack();
@@ -7625,7 +7063,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._syncStatus();
     this._syncLikeButtons();
     this._updateActivePlayersBubble();
-    this._syncControlRoomUi();
+    syncControlRoomUi(this);
     if (this._state.screensaverOpen) syncScreensaverUi(this);
     this._syncLocalSendspinMediaSession(player, displayQueueItem);
   }
@@ -7883,11 +7321,11 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this.$("mobileMenu")?.classList.remove("open", "search-open", "discovery-open", "action-fullscreen-open", "library-fullscreen-open");
     this.$("homeShortcutFab")?.removeAttribute("hidden");
     this.$("mobileMenuBody")?.classList.remove("search-mode", "library-mode", "library-flow-mode");
-    if (this._state.controlRoomRestoreAfterMenu && this._controlRoomEnabled()) {
+    if (this._state.controlRoomRestoreAfterMenu && controlRoomEnabled(this)) {
       this._state.controlRoomRestoreAfterMenu = false;
       this._state.controlRoomPanel = "";
       this._state.controlRoomOpen = true;
-      this._syncControlRoomUi();
+      syncControlRoomUi(this);
     }
   }
 
@@ -9164,7 +8602,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     ];
     const visibleMainBarOptions = mainBarOptions;
     const selectedMainBar = new Set(this._mobileMainBarItems());
-    const showStudioMainBarOption = this._controlRoomEnabled();
+    const showStudioMainBarOption = controlRoomEnabled(this);
     const studioShortcut = this._mobileStudioShortcutEnabled();
     const settingsMainBarLocked = !this._usesVisualSettings();
     const volumeMode = this._mobileVolumeMode();
@@ -9200,7 +8638,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             ${showStudioMainBarOption ? `
               <label class="settings-check-pill">
                 <input type="checkbox" data-setting-studio-shortcut ${studioShortcut ? "checked" : ""}>
-                <span>${this._esc(this._controlRoomLabel())}</span>
+                <span>${this._esc(controlRoomLabel(this))}</span>
               </label>
             ` : ``}
             ${visibleMainBarOptions.map(([value, label]) => {
