@@ -1,5 +1,6 @@
 import { clampNumber, clampSeconds, normalizeScreensaverClockMode, normalizeScreensaverControlButtons } from "../state/mobile-settings.js";
 import { cssUrl } from "../theme/css-url.js";
+import { syncDynamicThemeArtwork } from "./dynamic-theme.js";
 import { clearLyricsState, closeLyricsModal, lyricsSessionActive, nudgeLyricsFontScale, syncLyricsForCurrentTrack, syncScreensaverLyricsUi, toggleLyricsSyncEnabled } from "./lyrics.js";
 
 // The screensaver's lyrics mode is rendered by the lyrics module, which owns the session state it reads.
@@ -511,7 +512,7 @@ export function syncScreensaverUi(card) {
 export function syncScreensaverDynamicArtwork(card) {
   const player = card._getSelectedPlayer();
   const art = card._currentArtworkUrl(player, card._state.maQueueState?.current_item || null, 720, { preferPlayerArtwork: true });
-  card._syncDynamicThemeArtwork(art || "").catch(() => {});
+  syncDynamicThemeArtwork(card, art || "").catch(() => {});
 }
 
 // ---------------------------------------------------------------------------

@@ -21,6 +21,7 @@ import {
 } from "../src/core/media/screensaver.js";
 
 // The screensaver only forwards to the lyrics module; keep those calls observable and inert here.
+vi.mock("../src/core/media/dynamic-theme.js", () => ({ syncDynamicThemeArtwork: vi.fn(async () => {}) }));
 vi.mock("../src/core/media/lyrics.js", async (importOriginal) => ({
   ...(await importOriginal()),
   clearLyricsState: vi.fn(), closeLyricsModal: vi.fn(), syncLyricsForCurrentTrack: vi.fn(), toggleLyricsSyncEnabled: vi.fn(), nudgeLyricsFontScale: vi.fn(),
@@ -74,7 +75,6 @@ function stubCard(state = {}) {
     _ensureQueueSnapshot: vi.fn(async () => {}),
     _syncVoiceAssistantDialog: vi.fn(),
     _syncNowPlayingUI: vi.fn(),
-    _syncDynamicThemeArtwork: vi.fn(async () => {}),
     _pressUiButton: () => true,
     _playerCmd: vi.fn(),
     _togglePlay: vi.fn(),

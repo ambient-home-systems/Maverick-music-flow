@@ -49,6 +49,10 @@ import {
 import { handleSimpleWizardChange, handleSimpleWizardClick, resetSimpleWizardState, simpleWizardHtml } from "./core/media/simple-wizard.js";
 import { bindNightQuickRow, handleNightFormChange, handleNightSettingsClick, isNightModeActive, mobileNightMode, nightModeDays, nightModeWindow, nightQuickRowHtml, syncNightModeUi } from "./core/media/night-mode.js";
 import { normalizeClockTime, normalizeNightModeDays } from "./core/state/night-mode.js";
+import {
+  activeAccentColor, activeAccentRgb, applyDynamicThemeStyles, applyMenuDetailTheme, applyMenuLibraryThemeFromItems, clearMenuDetailTheme,
+  dynamicThemePalette, dynamicThemeSettingsPillsHtml, handleDynamicThemeSettingsClick, resetDynamicThemeArtwork, syncDynamicThemeArtwork,
+} from "./core/media/dynamic-theme.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -1051,11 +1055,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return MaverickStateFoundation.mobileShowUpNextEnabled(this._state);
   }
 
-  _mobileDynamicThemeMode() {
-    if (this._performanceModeEnabled()) return "off";
-    return MaverickStateFoundation.mobileDynamicThemeMode(this._state);
-  }
-
   _mobileBackgroundMotionMode() {
     if (this._performanceModeEnabled()) return "off";
     return MaverickStateFoundation.mobileBackgroundMotionMode(this._state);
@@ -1216,156 +1215,19 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     );
   }
 
-  _clampByte(value) {
-    return MaverickPaletteFoundation.clampRgbByte(value);
-  }
-
-  _normalizeRgbTuple(value, fallback = [245, 166, 35]) {
-    return MaverickPaletteFoundation.normalizeRgbTuple(value, fallback);
-  }
-
-  _rgbTupleToString(tuple = [245, 166, 35]) {
-    return MaverickPaletteFoundation.rgbTupleToString(tuple);
-  }
-
-  _rgbTupleToHex(tuple = [245, 166, 35]) {
-    return MaverickPaletteFoundation.rgbTupleToHex(tuple);
-  }
-
-  _mixRgb(left = [245, 166, 35], right = [255, 255, 255], ratio = 0.5) {
-    return MaverickPaletteFoundation.mixRgb(left, right, ratio);
-  }
-
-  _rgbToHsl(tuple = [245, 166, 35]) {
-    return MaverickPaletteFoundation.rgbToHsl(tuple);
-  }
-
-  _hslToRgb(hue = 0, saturation = 0, lightness = 0.5) {
-    return MaverickPaletteFoundation.hslToRgb(hue, saturation, lightness);
-  }
-
-  _tunePaletteColor(tuple = [245, 166, 35], options = {}) {
-    return MaverickPaletteFoundation.tunePaletteColor(tuple, options);
-  }
-
-  _dynamicThemePalette() {
-    return this._mobileDynamicThemeMode() === "off" ? null : (this._state.mobileDynamicThemePalette || null);
-  }
-
-  _dynamicThemeActive() {
-    return !!this._dynamicThemePalette()?.accent;
-  }
-
-  _activeAccentColor() {
-    return MaverickPaletteFoundation.resolveActiveAccentColor(
-      this._dynamicThemePalette(),
-      this._state.mobileCustomColor || "#f5a623",
-    );
-  }
-
-  _activeAccentRgb() {
-    return MaverickPaletteFoundation.resolveActiveAccentRgb(
-      this._dynamicThemePalette(),
-      this._state.mobileCustomColor || "#f5a623",
-    );
-  }
-
-  _dynamicThemeStrengthValue() {
-    return MaverickPaletteFoundation.dynamicThemeStrengthValue(this._mobileDynamicThemeMode());
-  }
-
-  _dynamicThemeStyleSignature(artworkKey = "", artUrl = "") {
-    const palette = this._dynamicThemePalette();
-    const paletteKey = palette
-      ? [
-          palette.accent || "",
-          palette.accent_rgb || "",
-          palette.surface || "",
-          palette.surface_rgb || "",
-          palette.glow || "",
-          palette.glow_rgb || "",
-          palette.text || "",
-        ].join(",")
-      : "";
-    return [
-      artworkKey,
-      artUrl,
-      this._mobileDynamicThemeMode(),
-      this._effectiveTheme(),
-      this._activeAccentColor(),
-      this._dynamicThemeStrengthValue(),
-      this._isHotelMode() ? "hotel" : "normal",
-      paletteKey,
-    ].join("||");
-  }
-
-  _applyDynamicThemeRenderState(artworkKey = "", artUrl = "") {
-    const signature = this._dynamicThemeStyleSignature(artworkKey, artUrl);
-    if (signature === this._mobileDynamicThemeAppliedSignature) return false;
-    this._mobileDynamicThemeAppliedSignature = signature;
-    this._applyDynamicThemeStyles();
-    this._applyBackgroundMotionStyles();
-    this._syncCurrentArtworkBackgrounds(artUrl);
-    return true;
-  }
-
   _mobileBackdropOverlay(theme = this._effectiveTheme()) {
-    const palette = this._dynamicThemePalette();
+    const palette = dynamicThemePalette(this);
     if (!palette) {
       return theme === "light"
         ? `radial-gradient(circle at 18% 18%, rgba(255,187,88,.16), transparent 26%), radial-gradient(circle at 82% 14%, rgba(255,150,108,.1), transparent 18%), linear-gradient(180deg, rgba(255,255,255,.08), rgba(224,232,242,.3) 22%, rgba(197,208,222,.58) 62%, rgba(183,195,210,.74))`
         : `radial-gradient(circle at 18% 20%, rgba(255,181,64,.24), transparent 32%), radial-gradient(circle at 82% 16%, rgba(255,128,76,.12), transparent 20%), linear-gradient(180deg, rgba(9,12,19,.26), rgba(9,12,19,.82), rgba(9,12,19,.98))`;
     }
-    const accent = palette.accent_rgb || this._activeAccentRgb();
+    const accent = palette.accent_rgb || activeAccentRgb(this);
     const surface = palette.surface_rgb || accent;
     const glow = palette.glow_rgb || accent;
     return theme === "light"
       ? `radial-gradient(circle at 18% 18%, rgba(${accent} / .16), transparent 28%), radial-gradient(circle at 82% 14%, rgba(${glow} / .1), transparent 20%), linear-gradient(180deg, rgba(255,255,255,.08), rgba(${surface} / .24) 22%, rgba(${surface} / .42) 60%, rgba(${surface} / .54))`
       : `radial-gradient(circle at 18% 20%, rgba(${accent} / .24), transparent 32%), radial-gradient(circle at 82% 16%, rgba(${glow} / .14), transparent 20%), linear-gradient(180deg, rgba(${surface} / .18), rgba(9,12,19,.82), rgba(9,12,19,.98))`;
-  }
-
-  _applyDynamicThemeStyles() {
-    const host = this;
-    const card = this.shadowRoot?.querySelector(".card");
-    const accent = this._activeAccentColor();
-    const palette = this._dynamicThemePalette();
-    const artworkUrl = String(this._state.mobileDynamicThemeArtworkUrl || "").trim();
-    const artworkCssUrl = artworkUrl ? cssUrl(artworkUrl) : "";
-    host.style?.setProperty("--accent-color", accent);
-    host.style?.setProperty("--ma-accent", accent);
-    if (artworkCssUrl) {
-      host.style?.setProperty("--dynamic-art-url", artworkCssUrl);
-      card?.style?.setProperty("--dynamic-art-url", artworkCssUrl);
-    } else {
-      host.style?.removeProperty("--dynamic-art-url");
-      card?.style?.removeProperty("--dynamic-art-url");
-    }
-    if (card) {
-      card.style?.setProperty("--accent-color", accent);
-      card.style?.setProperty("--ma-accent", accent);
-      card.classList.toggle("dynamic-theme", !!palette);
-    }
-    if (!palette) {
-      host.style?.removeProperty("--dynamic-accent-rgb");
-      host.style?.removeProperty("--dynamic-surface-rgb");
-      host.style?.removeProperty("--dynamic-glow-rgb");
-      host.style?.removeProperty("--dynamic-theme-strength");
-      card?.style?.removeProperty("--dynamic-accent-rgb");
-      card?.style?.removeProperty("--dynamic-surface-rgb");
-      card?.style?.removeProperty("--dynamic-glow-rgb");
-      card?.style?.removeProperty("--dynamic-theme-strength");
-      return;
-    }
-    const pairs = {
-      "--dynamic-accent-rgb": palette.accent_rgb || this._activeAccentRgb(),
-      "--dynamic-surface-rgb": palette.surface_rgb || this._activeAccentRgb(),
-      "--dynamic-glow-rgb": palette.glow_rgb || this._activeAccentRgb(),
-      "--dynamic-theme-strength": this._dynamicThemeStrengthValue(),
-    };
-    Object.entries(pairs).forEach(([key, value]) => {
-      host.style?.setProperty(key, value);
-      card?.style?.setProperty(key, value);
-    });
   }
 
   _applyBackgroundMotionStyles() {
@@ -1411,31 +1273,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     card?.classList.toggle("motion-extreme", mode === "extreme");
   }
 
-  _currentServerDynamicThemePalette() {
-    const player = this._getSelectedPlayer?.() || null;
-    const attrs = player?.attributes || {};
-    const currentQueueItem = this._state.maQueueState?.current_item || null;
-    const currentMedia = currentQueueItem?.media_item || {};
-    const rawCurrentMedia = player?.__maverickRawPlayer?.current_media || attrs.current_media || attrs.currentMedia || {};
-    const candidates = [
-      attrs.media_palette,
-      attrs.current_media_palette,
-      rawCurrentMedia?.palette,
-      currentQueueItem?.palette,
-      currentQueueItem?.media_palette,
-      currentQueueItem?.streamdetails?.stream_metadata?.palette,
-      currentMedia?.palette,
-      currentMedia?.metadata?.palette,
-    ];
-    for (const candidate of candidates) {
-      const palette = MaverickPaletteFoundation.normalizeMaPalette(candidate, {
-        mode: this._mobileDynamicThemeMode(),
-      });
-      if (palette) return palette;
-    }
-    return null;
-  }
-
   _libraryDetailArtworkUrl(detail = {}, size = 960) {
     const mediaType = String(detail?.media_type || detail?.type || "").toLowerCase();
     const artistInfo = detail?.artistInfo || null;
@@ -1447,216 +1284,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (art) return art;
     }
     return "";
-  }
-
-  _libraryDetailServerPalette(detail = {}) {
-    if (this._mobileDynamicThemeMode() === "off") return null;
-    const mediaType = String(detail?.media_type || detail?.type || "").toLowerCase();
-    const browse = mediaType === "album" ? this._albumBrowseState(detail) : null;
-    const selectedAlbum = browse?.albums?.[browse.index] || null;
-    const artistInfo = detail?.artistInfo || null;
-    const candidates = [
-      detail?.palette,
-      detail?.media_palette,
-      detail?.image_palette,
-      detail?.color_palette,
-      detail?.metadata?.palette,
-      detail?.metadata?.media_palette,
-      detail?.metadata?.image_palette,
-      detail?.media_item?.palette,
-      detail?.media_item?.media_palette,
-      detail?.media_item?.metadata?.palette,
-      detail?.album?.palette,
-      detail?.album?.metadata?.palette,
-      selectedAlbum?.palette,
-      selectedAlbum?.media_palette,
-      selectedAlbum?.metadata?.palette,
-      artistInfo?.palette,
-      artistInfo?.media_palette,
-      artistInfo?.metadata?.palette,
-    ];
-    for (const candidate of candidates) {
-      const palette = MaverickPaletteFoundation.normalizeMaPalette(candidate, {
-        mode: this._mobileDynamicThemeMode(),
-      });
-      if (palette) return palette;
-    }
-    return null;
-  }
-
-  _setMenuDetailPalette(menu = null, palette = null) {
-    if (!menu) return;
-    const keys = [
-      "--menu-detail-accent-rgb",
-      "--menu-detail-surface-rgb",
-      "--menu-detail-glow-rgb",
-      "--ma-accent",
-      "--accent-color",
-    ];
-    if (!palette) {
-      keys.forEach((key) => menu.style.removeProperty(key));
-      menu.classList.remove("has-menu-detail-palette");
-      return;
-    }
-    const accentRgb = palette.accent_rgb || this._activeAccentRgb();
-    const pairs = {
-      "--menu-detail-accent-rgb": accentRgb,
-      "--menu-detail-surface-rgb": palette.surface_rgb || accentRgb,
-      "--menu-detail-glow-rgb": palette.glow_rgb || accentRgb,
-      "--ma-accent": palette.accent || this._activeAccentColor(),
-      "--accent-color": palette.accent || this._activeAccentColor(),
-    };
-    Object.entries(pairs).forEach(([key, value]) => menu.style.setProperty(key, value));
-    menu.classList.add("has-menu-detail-palette");
-  }
-
-  _clearMenuDetailTheme(menu = null) {
-    if (!menu) return;
-    this._menuDetailThemeToken += 1;
-    menu.classList.remove("has-menu-detail-theme");
-    this._setMenuDetailPalette(menu, null);
-  }
-
-  _applyMenuDetailTheme(menu = null, detailArt = "", detail = {}) {
-    if (!menu) return;
-    const serverPalette = this._libraryDetailServerPalette(detail);
-    menu.classList.toggle("has-menu-detail-theme", !!(detailArt || serverPalette));
-    this._setMenuDetailPalette(menu, serverPalette);
-    const token = ++this._menuDetailThemeToken;
-    if (serverPalette || this._mobileDynamicThemeMode() === "off" || !detailArt) return;
-    this._extractDynamicThemePalette(detailArt).then((palette) => {
-      if (!palette || token !== this._menuDetailThemeToken) return;
-      const currentMenu = this.$("mobileMenu");
-      if (currentMenu !== menu || this._state.menuPage !== "media_detail") return;
-      this._setMenuDetailPalette(menu, palette);
-    }).catch(() => {});
-  }
-
-  _applyMenuLibraryThemeFromItems(menu = null, items = [], mediaType = "") {
-    if (!menu) return;
-    const playingArt = this._currentArtworkUrl(this._getSelectedPlayer(), this._state.maQueueState?.current_item || null, 960);
-    if (playingArt) {
-      menu.style.setProperty("--menu-dynamic-art", cssUrl(playingArt));
-      menu.classList.add("has-menu-art");
-      this._clearMenuDetailTheme(menu);
-      return;
-    }
-    const item = (Array.isArray(items) ? items : []).find((entry) => this._artUrl(entry, { size: 960 }));
-    const art = item ? this._artUrl(item, { size: 960 }) : "";
-    if (!item || !art) return;
-    menu.style.setProperty("--menu-dynamic-art", cssUrl(art));
-    menu.classList.add("has-menu-art");
-    this._applyMenuDetailTheme(menu, art, { ...item, media_type: item.media_type || item.type || mediaType });
-  }
-
-  async _extractDynamicThemePalette(artUrl = "") {
-    const normalizedArt = String(artUrl || "").trim();
-    const cacheKey = `${this._mobileDynamicThemeMode()}:${normalizedArt}`;
-    if (!normalizedArt) return null;
-    if (this._mobileDynamicThemePaletteCache.has(cacheKey)) {
-      return this._mobileDynamicThemePaletteCache.get(cacheKey);
-    }
-    const promise = new Promise((resolve) => {
-      try {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.referrerPolicy = "no-referrer";
-        img.decoding = "async";
-        img.onload = () => {
-          try {
-            const canvas = document.createElement("canvas");
-            const size = 40;
-            canvas.width = size;
-            canvas.height = size;
-            const ctx = canvas.getContext("2d", { willReadFrequently: true });
-            if (!ctx) {
-              resolve(null);
-              return;
-            }
-            ctx.drawImage(img, 0, 0, size, size);
-            const { data } = ctx.getImageData(0, 0, size, size);
-            let sum = [0, 0, 0];
-            let sumWeight = 0;
-            let vivid = [0, 0, 0];
-            let vividWeight = 0;
-            for (let index = 0; index < data.length; index += 16) {
-              const alpha = (data[index + 3] || 0) / 255;
-              if (alpha < 0.08) continue;
-              const rgb = [data[index], data[index + 1], data[index + 2]];
-              const [hue, saturation, lightness] = this._rgbToHsl(rgb);
-              const balancedLight = 1 - Math.abs(lightness - 0.52);
-              const weight = alpha * (0.35 + (saturation * 0.9) + (balancedLight * 0.55));
-              sum = sum.map((entry, rgbIndex) => entry + (rgb[rgbIndex] * weight));
-              sumWeight += weight;
-              const vividSample = this._tunePaletteColor(rgb, { minSaturation: 0.48, minLightness: 0.4, maxLightness: 0.58 });
-              const vividSampleWeight = alpha * (0.2 + (saturation * 1.9) + (balancedLight * 0.85) + (hue * 0.05));
-              vivid = vivid.map((entry, rgbIndex) => entry + (vividSample[rgbIndex] * vividSampleWeight));
-              vividWeight += vividSampleWeight;
-            }
-            if (!sumWeight || !vividWeight) {
-              resolve(null);
-              return;
-            }
-            const base = sum.map((entry) => this._clampByte(entry / sumWeight));
-            const vividTuple = vivid.map((entry) => this._clampByte(entry / vividWeight));
-            resolve(MaverickPaletteFoundation.buildDynamicThemePalette({
-              baseTuple: base,
-              vividTuple,
-              mode: this._mobileDynamicThemeMode(),
-            }));
-          } catch (_) {
-            resolve(null);
-          }
-        };
-        img.onerror = () => resolve(null);
-        img.src = normalizedArt;
-      } catch (_) {
-        resolve(null);
-      }
-    });
-    this._mobileDynamicThemePaletteCache.set(cacheKey, promise);
-    const resolved = await promise;
-    this._mobileDynamicThemePaletteCache.set(cacheKey, resolved);
-    return resolved;
-  }
-
-  async _syncDynamicThemeArtwork(artUrl = "") {
-    const normalizedArt = String(artUrl || "").trim();
-    const mode = this._mobileDynamicThemeMode();
-    const artworkKey = normalizedArt ? `${mode}:${normalizedArt}` : "";
-    if (mode === "off" || !normalizedArt) {
-      this._mobileDynamicThemeToken += 1;
-      this._state.mobileDynamicThemeArtwork = "";
-      this._state.mobileDynamicThemeArtworkUrl = "";
-      this._state.mobileDynamicThemePalette = null;
-      this._applyDynamicThemeRenderState(`off:${normalizedArt}`, normalizedArt);
-      this._syncAmbientLightForCurrentMedia("theme-off");
-      return;
-    }
-    if (this._state.mobileDynamicThemeArtwork === artworkKey) {
-      this._state.mobileDynamicThemeArtworkUrl = normalizedArt;
-      const serverPalette = this._currentServerDynamicThemePalette();
-      if (serverPalette) {
-        this._state.mobileDynamicThemePalette = serverPalette;
-        this._state.controlRoomRenderedHtml = "";
-        this._state.controlRoomRenderSignature = "";
-      }
-      this._applyDynamicThemeRenderState(artworkKey, normalizedArt);
-      this._syncAmbientLightForCurrentMedia("theme-cache");
-      return;
-    }
-    this._state.mobileDynamicThemeArtwork = artworkKey;
-    this._state.mobileDynamicThemeArtworkUrl = normalizedArt;
-    const token = ++this._mobileDynamicThemeToken;
-    const serverPalette = this._currentServerDynamicThemePalette();
-    const palette = serverPalette || await this._extractDynamicThemePalette(normalizedArt);
-    if (token !== this._mobileDynamicThemeToken) return;
-    this._state.mobileDynamicThemePalette = palette;
-    this._state.controlRoomRenderedHtml = "";
-    this._state.controlRoomRenderSignature = "";
-    this._applyDynamicThemeRenderState(artworkKey, normalizedArt);
-    this._syncAmbientLightForCurrentMedia("theme-palette");
-    if (this._state.controlRoomOpen) this._syncControlRoomUi();
   }
 
   async _maverickEngineReadyForPersistence() {
@@ -3136,12 +2763,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   }
 
   _activeAccentRgbTuple() {
-    const parts = String(this._activeAccentRgb() || "")
+    const parts = String(activeAccentRgb(this) || "")
       .split(/[\s,]+/)
       .map((value) => Number(value))
       .filter((value) => Number.isFinite(value));
-    if (parts.length >= 3) return parts.slice(0, 3).map((value) => this._clampByte(value));
-    return MaverickPaletteFoundation.hexToRgbTuple(this._activeAccentColor() || "#f5a623");
+    if (parts.length >= 3) return parts.slice(0, 3).map((value) => MaverickPaletteFoundation.clampRgbByte(value));
+    return MaverickPaletteFoundation.hexToRgbTuple(activeAccentColor(this) || "#f5a623");
   }
 
   _ambientLightTrackSignature(player = this._getSelectedPlayer()) {
@@ -6140,7 +5767,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       </div>
     `;
 
-    this._applyDynamicThemeStyles();
+    applyDynamicThemeStyles(this);
     this._applyBackgroundMotionStyles();
     this._setHistoryDrawerOpen(this._state.mobileHistoryDrawerOpen);
     this._syncRecentHistoryUi(true);
@@ -7536,13 +7163,9 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     this._destroyMobileEmbla();
     this._state.mobileArtRenderKey = "";
     if (displayArt) {
-      this._syncDynamicThemeArtwork(displayArt).catch(() => {});
+      syncDynamicThemeArtwork(this, displayArt).catch(() => {});
     } else {
-      this._mobileDynamicThemeToken += 1;
-      this._state.mobileDynamicThemeArtwork = "";
-      this._state.mobileDynamicThemeArtworkUrl = "";
-      this._state.mobileDynamicThemePalette = null;
-      this._applyDynamicThemeStyles();
+      resetDynamicThemeArtwork(this);
     }
     this._syncSourceBadgesUi(null, null);
     this._syncRecentHistoryUi();
@@ -7761,7 +7384,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (artImage) {
         this._setDecodedArtworkImage(artImage, displayArt, displayTitle || this._i18n("ui.artwork"));
       }
-      this._syncDynamicThemeArtwork(displayArt || effectiveArt || "").catch(() => {});
+      syncDynamicThemeArtwork(this, displayArt || effectiveArt || "").catch(() => {});
       this._setDecodedBackgroundCrossfade(compactBackdrop, !this._isHotelMode() ? displayArt : "");
       this._setDecodedBackgroundImage(compactCoverAura, !this._isHotelMode() ? displayArt : "");
       this._setDecodedBackgroundCrossfade(bg, !this._isHotelMode() ? displayArt : "", overlay);
@@ -7898,7 +7521,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._hydrateDecodedArtworkImages(this.$("npArt"));
       }
       if (this.$("progressFill")) this.$("progressFill").style.width = "0%";
-      this._syncDynamicThemeArtwork(pendingArt || "").catch(() => {});
+      syncDynamicThemeArtwork(this, pendingArt || "").catch(() => {});
       syncMobileVolumeControls();
       this._syncControlRoomUi();
       return;
@@ -7980,7 +7603,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       const overlay = this._mobileBackdropOverlay(this._effectiveTheme());
       this._setDecodedBackgroundCrossfade(bg, !this._isHotelMode() ? art : "", overlay);
     }
-    this._syncDynamicThemeArtwork(art || "").catch(() => {});
+    syncDynamicThemeArtwork(this, art || "").catch(() => {});
     const vol = Math.round(this._effectivePlayerVolumeLevel(player) * 100);
     if (this.$("volSlider")) {
       this.$("volSlider").value = vol;
@@ -9310,7 +8933,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
   _settingsSectionDisplay() {
     const theme = this._state.cardTheme === "light" || this._state.cardTheme === "custom" ? this._state.cardTheme : "dark";
     const performanceProfile = this._performanceProfile();
-    const dynamicThemeMode = this._mobileDynamicThemeMode();
     const backgroundMotionMode = this._mobileBackgroundMotionMode();
     const fontScale = Number(this._state.mobileFontScale || 1).toFixed(2);
     const iconScale = this._mobileIconScale().toFixed(2);
@@ -9342,12 +8964,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
             ${this._settingsPill("Ultra Lite", "ultra_lite", performanceProfile, "data-setting-performance-profile")}
           </div>
           <div class="settings-hint">${this._i18n("ui.performance_profile_helper")}</div>
-          <div class="settings-label">${this._i18n("ui.dynamic_theme")}</div>
-          <div class="settings-pills">
-            ${this._settingsPill(this._i18n("ui.off"), "off", dynamicThemeMode, "data-setting-dynamic-theme")}
-            ${this._settingsPill("Auto", "auto", dynamicThemeMode, "data-setting-dynamic-theme")}
-            ${this._settingsPill(this._i18n("ui.strong"), "strong", dynamicThemeMode, "data-setting-dynamic-theme")}
-          </div>
+          ${dynamicThemeSettingsPillsHtml(this)}
           <div class="settings-hint">${this._i18n("ui.auto_extracts_colors_from_the_current_artwork_and_keeps_the_effect_subtl")}</div>
           <div class="settings-label">${this._i18n("ui.background_motion")}</div>
           <div class="settings-pills">
@@ -12536,8 +12153,8 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         menu.style.removeProperty("--menu-dynamic-art");
         menu.classList.remove("has-menu-art");
       }
-      if (detail) this._applyMenuDetailTheme(menu, detailArt, detail);
-      else this._clearMenuDetailTheme(menu);
+      if (detail) applyMenuDetailTheme(this, menu, detailArt, detail);
+      else clearMenuDetailTheme(this, menu);
     }
     const sheetClasses = [
       "sheet-actions",
@@ -12687,7 +12304,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           ? this._libraryFlowPickerHtml(filteredLikedEntries, "track", { className: "library-liked-flow" })
           : this._likedMediaEntriesHtml(filteredLikedEntries);
         body.innerHTML = this._libraryShellHtml(`${this._mediaLayoutToolbarHtml()}${likedContent}`, page);
-        this._applyMenuLibraryThemeFromItems(menu, filteredLikedEntries.length ? filteredLikedEntries : likedEntries, "track");
+        applyMenuLibraryThemeFromItems(this, menu, filteredLikedEntries.length ? filteredLikedEntries : likedEntries, "track");
         finishMenuRender();
         this._restoreLibraryTabSearchFocus();
         return;
@@ -12752,12 +12369,12 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           ${loadMoreHtml(items.length)}
         `;
         body.innerHTML = this._libraryShellHtml(searchContent([], { providerLoading: true }), page);
-        this._applyMenuLibraryThemeFromItems(menu, sortedItems, meta.type);
+        applyMenuLibraryThemeFromItems(this, menu, sortedItems, meta.type);
         finishMenuRender();
         this._restoreLibraryTabSearchFocus();
         if (favoritesOnly) {
           body.innerHTML = this._libraryShellHtml(searchContent([], {}), page);
-          this._applyMenuLibraryThemeFromItems(menu, sortedItems, meta.type);
+          applyMenuLibraryThemeFromItems(this, menu, sortedItems, meta.type);
           finishMenuRender();
           this._restoreLibraryTabSearchFocus();
           return;
@@ -12774,7 +12391,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         if (!isCurrentRender()) return;
         libraryThemeItems = sortedItems.length ? sortedItems : providerItems;
         body.innerHTML = this._libraryShellHtml(searchContent(providerItems, { providerError }), page);
-        this._applyMenuLibraryThemeFromItems(menu, libraryThemeItems, meta.type);
+        applyMenuLibraryThemeFromItems(this, menu, libraryThemeItems, meta.type);
         finishMenuRender();
         this._restoreLibraryTabSearchFocus();
         return;
@@ -12802,7 +12419,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
           ? `<div class="notice open">${this._esc(radioFlowError)}</div>`
           : this._libraryFlowPickerHtml(radioFlowItems, meta.type, { className: "library-radio-flow", captionMode: "radio_station" });
         body.innerHTML = this._libraryShellHtml(`${this._mediaLayoutToolbarHtml()}${radioFlowContent}`, page);
-        this._applyMenuLibraryThemeFromItems(menu, libraryThemeItems, meta.type);
+        applyMenuLibraryThemeFromItems(this, menu, libraryThemeItems, meta.type);
         finishMenuRender();
         this._restoreLibraryTabSearchFocus();
         return;
@@ -12929,7 +12546,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       if (!isCurrentRender()) return;
       content += loadMoreHtml(items.length);
       body.innerHTML = this._libraryShellHtml(content, page);
-      this._applyMenuLibraryThemeFromItems(menu, libraryThemeItems, meta.type);
+      applyMenuLibraryThemeFromItems(this, menu, libraryThemeItems, meta.type);
       finishMenuRender();
       this._restoreLibraryTabSearchFocus();
       return;
@@ -13460,21 +13077,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
       return;
     }
-    const dynamicThemeBtn = eventTarget.closest("[data-setting-dynamic-theme]");
-    if (dynamicThemeBtn?.dataset.settingDynamicTheme) {
-      this._flashInteraction(dynamicThemeBtn);
-      this._state.mobileDynamicThemeMode = ["off", "auto", "strong"].includes(dynamicThemeBtn.dataset.settingDynamicTheme)
-        ? dynamicThemeBtn.dataset.settingDynamicTheme
-        : "auto";
-      if (this._state.mobileDynamicThemeMode === "off") {
-        this._state.mobileDynamicThemePalette = null;
-      }
-      this._persistMobileAppearance();
-      this._applyDynamicThemeStyles();
-      this._syncNowPlayingUI();
-      this._reopenSettingsMenuPreservingScroll();
-      return;
-    }
+    if (handleDynamicThemeSettingsClick(this, eventTarget)) return;
     const performanceProfileBtn = eventTarget.closest("[data-setting-performance-profile]");
     if (performanceProfileBtn?.dataset.settingPerformanceProfile) {
       this._flashInteraction(performanceProfileBtn);
@@ -13491,7 +13094,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._state.mobileDynamicThemeArtworkUrl = "";
       }
       this._persistMobileAppearance();
-      this._applyDynamicThemeStyles();
+      applyDynamicThemeStyles(this);
       this._applyBackgroundMotionStyles();
       this._syncNowPlayingUI();
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
@@ -13510,7 +13113,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
         this._state.mobileDynamicThemeArtworkUrl = "";
       }
       this._persistMobileAppearance();
-      this._applyDynamicThemeStyles();
+      applyDynamicThemeStyles(this);
       this._applyBackgroundMotionStyles();
       this._syncNowPlayingUI();
       this._reopenSettingsMenuPreservingScroll({ rebuild: true, init: true });
@@ -14277,7 +13880,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
       this.style?.setProperty("--accent-color", color);
       this.shadowRoot?.querySelector(".card")?.style?.setProperty("--accent-color", color);
       this.shadowRoot?.querySelector(".card")?.style?.setProperty("--ma-accent", color);
-      this._applyDynamicThemeStyles();
+      applyDynamicThemeStyles(this);
       const valueEl = e.target.closest(".settings-color-row")?.querySelector(".settings-value");
       if (valueEl) valueEl.textContent = String(color).toUpperCase();
       return;
