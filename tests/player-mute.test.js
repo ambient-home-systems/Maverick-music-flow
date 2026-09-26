@@ -85,7 +85,8 @@ describe("consistent player mute", () => {
   });
   it("reports partial batch failures without replaying successful actions", async () => {
     const card = context();
-    card._controlRoomPlayerName = (id) => id;
+    card._playerByEntityId = () => null;
+    card._i18n = (key) => key;
     const action = vi.fn(async (id) => { if (id === "offline") throw new Error("offline"); return true; });
     card._m = (english) => english;
     await expect(prototype._runControlRoomPlayerBatch.call(card, ["computer", "offline"], action)).resolves.toBe(false);

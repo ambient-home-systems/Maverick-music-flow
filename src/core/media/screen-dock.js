@@ -2,6 +2,7 @@ import { actionIconSvg } from "./action-menu.js";
 import { bindImmersivePlayer } from "./immersive-player.js";
 import { clearSleepTimer, setSleepTimerMinutes, sleepTimerRemainingMs } from "./timers.js";
 import { openLyricsModal } from "./lyrics.js";
+import { openControlRoom, toggleControlRoomPanel } from "./control-room.js";
 
 // The same wheel interaction as the player, with screen-specific commands.
 export function screenActions(card, page) {
@@ -132,7 +133,7 @@ export function syncScreenDock(card, sheet, page, closeScreen) {
       const panel = sheet.querySelector(":scope > .screen-all-actions");
       if (panel) { panel.remove(); return; }
       if (dock.dataset.page === "studio" && card._state.controlRoomPanel) {
-        card._toggleControlRoomPanel(card._state.controlRoomPanel);
+        toggleControlRoomPanel(card, card._state.controlRoomPanel);
         return;
       }
       return dock._closeScreen ? dock._closeScreen() : card._backMobileMenu();
@@ -156,7 +157,7 @@ export function syncScreenDock(card, sheet, page, closeScreen) {
         card._closeMobileMenu();
         if (origin === "history") return card._setHistoryDrawerOpen(true);
         if (origin === "lyrics") return openLyricsModal(card);
-        if (origin === "studio") { card._openControlRoom(); if (panel) card._toggleControlRoomPanel(panel); return; }
+        if (origin === "studio") { openControlRoom(card); if (panel) toggleControlRoomPanel(card, panel); return; }
         if (origin === "queue_actions") return card._openMobileQueueActionMenu(entry);
         if (origin === "media_actions") return card._openMobileMediaActionMenu(entry);
       };
@@ -182,7 +183,7 @@ export function syncScreenDock(card, sheet, page, closeScreen) {
           body.querySelector("[data-ai-apply]").click();
           return;
         }
-        if (id === "studio_back") { card._toggleControlRoomPanel(card._state.controlRoomPanel); return; }
+        if (id === "studio_back") { toggleControlRoomPanel(card, card._state.controlRoomPanel); return; }
         if (id === "local_device") { dock._closeScreen?.(); await card._connectThisDevicePlayer(); return; }
         if (id === "player_preferences") {
           const open = card._settingsAccordionOpenSet(); open.add("players_library"); card._persistSettingsAccordionOpen(open);

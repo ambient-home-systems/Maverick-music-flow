@@ -33,7 +33,7 @@ describe("group disconnect failure", () => {
     const card={_state:{players},_playerGroupMemberIds:()=>['leader','child','child'],
       _isStaticGroupPlayer:()=>false,
       _setPlayerVolumeFor:vi.fn(id=>id==='leader'?new Promise(resolve=>{finish=resolve;}):Promise.reject(new Error('Offline'))),
-      _controlRoomPlayerName:id=>id,_toastError:vi.fn(),_m:en=>en,_schedulePlayerStateRefresh:vi.fn()};
+      _playerByEntityId:()=>null,_i18n:(key)=>key,_toastError:vi.fn(),_m:en=>en,_schedulePlayerStateRefresh:vi.fn()};
     card._runControlRoomPlayerBatch=(ids,action)=>prototype._runControlRoomPlayerBatch.call(card,ids,action);
     const pending=prototype._setGroupVolumeFor.call(card,'leader',0.3);
     expect(card._setPlayerVolumeFor).toHaveBeenCalledTimes(2);

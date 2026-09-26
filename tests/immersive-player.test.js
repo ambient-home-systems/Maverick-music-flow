@@ -3,9 +3,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { immersiveActionPages, immersivePlayerEnabled, immersivePlayerDock, bindImmersivePlayer, syncImmersivePlayer, commitImmersiveSwipe, reconcileImmersiveCovers } from "../src/core/media/immersive-player.js";
 import { validateMobileCardEditorConfig } from "../src/config/validators.js";
 vi.mock("../src/core/media/lyrics.js", async (importOriginal) => ({ ...(await importOriginal()), openLyricsModal: vi.fn() }));
+vi.mock("../src/core/media/control-room.js", () => ({ controlRoomEnabled: vi.fn(() => false), openControlRoom: vi.fn() }));
+import { controlRoomEnabled, openControlRoom } from "../src/core/media/control-room.js";
 const { document, KeyboardEvent, MouseEvent, WheelEvent } = globalThis;
 
-afterEach(() => document.body.replaceChildren());
+afterEach(() => { document.body.replaceChildren(); controlRoomEnabled.mockReturnValue(false); openControlRoom.mockClear(); });
 
 it("opens the player/style/play wizard from Music Flow rather than queue covers", () => {
   const {card,root,open}=fixture();open();
@@ -58,11 +60,11 @@ describe("optional immersive player", () => {
     const {card,root,open}=fixture();
     expect(immersiveActionPages(card).flat().some(item=>item.id==='home')).toBe(false);
     card._mobileHomeShortcutEnabled=()=>true; card._goHomeAssistantDashboard=vi.fn();
-    card._controlRoomEnabled=()=>true; card._openControlRoom=vi.fn();
+    controlRoomEnabled.mockReturnValue(true);
     open(); root.querySelector('[data-immersive-action="home"]').click();
     expect(card._goHomeAssistantDashboard).toHaveBeenCalledOnce();
     open(); root.querySelector('[data-immersive-action="studio"]').click();
-    expect(card._openControlRoom).toHaveBeenCalledOnce();
+    expect(openControlRoom).toHaveBeenCalledOnce();
   });
   it("refreshes changed artwork for the same queue item without replacing the image node", () => {
     const host = document.createElement("div");

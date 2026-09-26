@@ -18,6 +18,9 @@ import {
   setMenuDetailPalette,
   syncDynamicThemeArtwork,
 } from "../src/core/media/dynamic-theme.js";
+import { syncControlRoomUi } from "../src/core/media/control-room.js";
+
+vi.mock("../src/core/media/control-room.js", () => ({ syncControlRoomUi: vi.fn() }));
 
 const { document, HTMLCanvasElement } = globalThis;
 const READY = { accent: "#112233", accent_rgb: "17 34 51", surface_rgb: "1 2 3", glow_rgb: "4 5 6" };
@@ -47,7 +50,6 @@ function stubCard(state = {}) {
     _applyBackgroundMotionStyles: vi.fn(),
     _syncCurrentArtworkBackgrounds: vi.fn(),
     _syncAmbientLightForCurrentMedia: vi.fn(),
-    _syncControlRoomUi: vi.fn(),
     _flashInteraction: vi.fn(),
     _persistMobileAppearance: vi.fn(),
     _syncNowPlayingUI: vi.fn(),
@@ -177,7 +179,7 @@ describe("extraction and artwork sync", () => {
     expect(card._state.mobileDynamicThemePalette).toMatchObject({ accent: expect.any(String) });
     expect(surface.classList.contains("dynamic-theme")).toBe(true);
     expect(card._syncAmbientLightForCurrentMedia).toHaveBeenLastCalledWith("theme-palette");
-    expect(card._syncControlRoomUi).not.toHaveBeenCalled();
+    expect(syncControlRoomUi).not.toHaveBeenCalled();
     card._state.controlRoomRenderedHtml = "stale";
     card._getSelectedPlayer = () => ({ attributes: { media_palette: READY } });
     await syncDynamicThemeArtwork(card, "https://art/a.jpg");
@@ -193,7 +195,7 @@ describe("extraction and artwork sync", () => {
     expect(card._state.mobileDynamicThemeArtwork).toBe("");
     expect(surface.classList.contains("dynamic-theme")).toBe(false);
     await syncDynamicThemeArtwork(card, "https://art/c.jpg");
-    expect(card._syncControlRoomUi).toHaveBeenCalledTimes(1);
+    expect(syncControlRoomUi).toHaveBeenCalledTimes(1);
     await syncDynamicThemeArtwork(card, "");
     expect(card._state.mobileDynamicThemeArtworkUrl).toBe("");
     expect(card._syncAmbientLightForCurrentMedia).toHaveBeenLastCalledWith("theme-off");

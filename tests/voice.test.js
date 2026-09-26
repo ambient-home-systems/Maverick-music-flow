@@ -32,6 +32,8 @@ import {
 import { resetScreensaverTimer } from "../src/core/media/screensaver.js";
 
 vi.mock("../src/core/media/screensaver.js", () => ({ resetScreensaverTimer: vi.fn() }));
+vi.mock("../src/core/media/control-room.js", () => ({ controlRoomPlayerName: vi.fn((card, id) => id.replace("media_player.", "")), syncControlRoomUi: vi.fn(), searchControlRoomLibrary: vi.fn() }));
+import { searchControlRoomLibrary, syncControlRoomUi } from "../src/core/media/control-room.js";
 
 const { document, window, MouseEvent } = globalThis;
 
@@ -86,7 +88,6 @@ function stubCard(state = {}) {
     _getSelectedPlayer() { return this._state.players.find((p) => p.entity_id === this._state.selectedPlayer) || null; },
     _selectPlayer: vi.fn(function (entityId) { this._state.selectedPlayer = entityId; }),
     _selectedPlayerName: () => "Computer",
-    _controlRoomPlayerName: (id) => id.replace("media_player.", ""),
     _artistName: (item = {}) => item.artist || "",
     _artUrl: () => "",
     _emptySearchResults: empty,
@@ -110,8 +111,6 @@ function stubCard(state = {}) {
     _refreshGroupingState: vi.fn(),
     _renderMobileMenu: vi.fn(),
     _renderMobileMediaResults: vi.fn(),
-    _syncControlRoomUi: vi.fn(),
-    _searchControlRoomLibrary: vi.fn(),
     _closeMobileMenu: vi.fn(),
     _hapticTap: vi.fn(),
     _flashInteraction: vi.fn(),
@@ -497,10 +496,10 @@ describe("studio library voice", () => {
     rec.result("miles davis");
     expect(card._state.controlRoomLibraryQuery).toBe("miles davis");
     expect(card._state.controlRoomPanel).toBe("library");
-    expect(card._syncControlRoomUi).toHaveBeenCalledTimes(1);
+    expect(syncControlRoomUi).toHaveBeenCalledWith(card);
     expect(root.querySelector("#controlRoomLibraryInput").value).toBe("miles davis");
     vi.advanceTimersByTime(120);
-    expect(card._searchControlRoomLibrary).toHaveBeenCalledWith("miles davis");
+    expect(searchControlRoomLibrary).toHaveBeenCalledWith(card, "miles davis");
     rec.onerror();
     expect(card._toastError).toHaveBeenLastCalledWith("ui.voice_input_failed");
     rec.onend();

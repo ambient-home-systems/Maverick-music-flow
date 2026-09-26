@@ -51,7 +51,7 @@ import {
   activeAccentColor, activeAccentRgb, applyDynamicThemeStyles, applyMenuDetailTheme, applyMenuLibraryThemeFromItems, clearMenuDetailTheme,
   dynamicThemePalette, dynamicThemeSettingsPillsHtml, handleDynamicThemeSettingsClick, resetDynamicThemeArtwork, syncDynamicThemeArtwork,
 } from "./core/media/dynamic-theme.js";
-import { bindControlRoom, closeControlRoom, controlRoomBackdropHtml, controlRoomEnabled, controlRoomLabel, loadControlRoomScenesFromStorage, openControlRoom, syncControlRoomChrome, syncControlRoomUi } from "./core/media/control-room.js";
+import { bindControlRoom, closeControlRoom, controlRoomBackdropHtml, controlRoomEnabled, controlRoomLabel, controlRoomPlayerName, loadControlRoomScenesFromStorage, openControlRoom, syncControlRoomChrome, syncControlRoomUi } from "./core/media/control-room.js";
 import { queuePlaybackOptionsHtml, toggleQueueAutoplay, toggleQueueCrossfade, setPlaybackSpeed } from "./core/media/queue-options.js";
 import { loadDiscoverySections, discoveryPlayerFocusHtml, updateDiscoveryMenuBody, discoveryMenuHtml } from "./core/media/discovery.js";
 import {
@@ -2594,29 +2594,6 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     return MaverickMobileSettingsFoundation.normalizeHomeShortcutPath(this._state.mobileHomeShortcutPath, { leadingSlash: true });
   }
 
-  // Voice facade: screensaver.js and announcements.js reach voice through
-  // the card so that voice.js stays the only one of those modules importing
-  // the other. Everything else calls core/media/voice.js directly.
-  _speechRecognitionCtor() {
-    return speechRecognitionCtor();
-  }
-
-  _voiceAssistantEnabled() {
-    return voiceAssistantEnabled(this);
-  }
-
-  _flowAssistantLabel() {
-    return flowAssistantLabel(this);
-  }
-
-  _startVoiceAssistantCommand(options = {}) {
-    return startVoiceAssistantCommand(this, options);
-  }
-
-  _syncVoiceAssistantDialog() {
-    return syncVoiceAssistantDialog(this);
-  }
-
   _ambientLightEnabled() {
     if (this._state.engineCapabilities?.artwork_lighting) return this._state.artworkLighting?.rules?.[this._state.selectedPlayer]?.enabled === true;
     return this._state.ambientLightEnabled === true;
@@ -4115,7 +4092,7 @@ class MaverickMusicFlowBaseCard extends MaverickBaseMusicCard {
     const results = await Promise.allSettled(playerIds.map(action));
     const failed = playerIds.filter((_, index) => results[index].status === "rejected" || results[index].value === false);
     if (!failed.length) return true;
-    const names = failed.map((id) => this._controlRoomPlayerName(id)).join(", ");
+    const names = failed.map((id) => controlRoomPlayerName(this, id)).join(", ");
     this._toastError(this._m(`The action failed for: ${names}`));
     this._schedulePlayerStateRefresh(0);
     return false;

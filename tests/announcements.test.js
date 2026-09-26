@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   announcementRestoreDelayMs,
   announcementTargetValue,
@@ -15,6 +15,16 @@ import {
   startAnnouncementDictation,
   studioAnnouncePanelHtml,
 } from "../src/core/media/announcements.js";
+import { controlRoomPrimaryPlayerId, controlRoomSelectedPlayerIds } from "../src/core/media/control-room.js";
+import { speechRecognitionCtor } from "../src/core/media/voice.js";
+
+vi.mock("../src/core/media/control-room.js", () => ({ controlRoomSelectedPlayerIds: vi.fn(), controlRoomPrimaryPlayerId: vi.fn() }));
+vi.mock("../src/core/media/voice.js", () => ({ speechRecognitionCtor: vi.fn() }));
+beforeEach(() => {
+  controlRoomSelectedPlayerIds.mockReset().mockReturnValue([]);
+  controlRoomPrimaryPlayerId.mockReset().mockReturnValue("media_player.kitchen");
+  speechRecognitionCtor.mockReset().mockReturnValue(null);
+});
 
 const { document, MouseEvent } = globalThis;
 const players = [
@@ -46,10 +56,7 @@ function stubCard(state = {}) {
     _iconSvg: (name) => `<svg data-icon="${name}"></svg>`,
     _playerVolumeLevel: (entityId) => volumes[entityId],
     _selectedPlayerName: () => "Bedroom",
-    _controlRoomSelectedPlayerIds: () => [],
-    _controlRoomPrimaryPlayerId: () => "media_player.kitchen",
     _pressUiButton: vi.fn(() => true),
-    _speechRecognitionCtor: () => null,
     _maverickEngineEnabled: () => true,
     _maverickEngineAnnounce: vi.fn(async ({ players: ids }) => ({ ok: true, results: ids.map((player) => ({ player, ok: true })) })),
     _callMaverickEnginePlayerCommand: vi.fn(async () => true),
@@ -178,7 +185,7 @@ describe("announcement bind", () => {
     const { card } = stubCard({ mobileAnnouncementTtsLanguage: "en-GB" });
     const started = vi.fn();
     class FakeRecognition { start() { started(this); } }
-    card._speechRecognitionCtor = () => FakeRecognition;
+    speechRecognitionCtor.mockReturnValue(FakeRecognition);
     startAnnouncementDictation(card);
     const recognition = card._voiceRecognition;
     expect(recognition).toBeInstanceOf(FakeRecognition);
@@ -198,7 +205,7 @@ describe("studio announcement send", () => {
   it("sends to each selected player and restores their volumes afterwards", async () => {
     vi.useFakeTimers();
     const { card, root } = stubCard({ mobileAnnouncementText: "keep me", mobileAnnouncementTarget: "all", mobileAnnouncementVolume: 25 });
-    card._controlRoomSelectedPlayerIds = () => ["media_player.kitchen", "media_player.bedroom"];
+    controlRoomSelectedPlayerIds.mockReturnValue(["media_player.kitchen", "media_player.bedroom"]);
     root.querySelector("#controlRoomBody").innerHTML = studioAnnouncePanelHtml(card, "");
     root.querySelector("#controlRoomAnnouncementText").value = "Studio message";
     root.querySelector("#controlRoomAnnouncementVolumeInput").value = "30";
@@ -224,7 +231,7 @@ describe("studio announcement send", () => {
     expect(await sendControlRoomAnnouncement(card)).toBe(false);
     expect(card._toastError).toHaveBeenCalledWith("ui.enter_an_announcement_first");
     card._state.controlRoomAnnouncementText = "Hello";
-    card._controlRoomPrimaryPlayerId = () => "";
+    controlRoomPrimaryPlayerId.mockReturnValue("");
     expect(await sendControlRoomAnnouncement(card)).toBe(false);
     expect(card._toastError).toHaveBeenCalledWith("ui.select_at_least_one_studio_player");
     expect(card._maverickEngineAnnounce).not.toHaveBeenCalled();
