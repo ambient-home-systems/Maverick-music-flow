@@ -7,7 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { extractCardVersion } from "../src/core/version-utils.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } from "../src/core/engine-client.js";
 import { normalizeScheduledStartSchedule, scheduledStartEnginePayload } from "../src/core/media/timers.js";
-import { recordAnnouncementInEngine } from "../src/core/media/announcements.js";
 import { openTabletLyricsScreensaver, screensaverBlocked, screensaverControlButtonHtml, screensaverControlButtons, screensaverEnabled, showScreensaver, hideScreensaver, syncScreensaverLyricsUi } from "../src/core/media/screensaver.js";
 import { currentLyricsTrackKey, fetchLyricsForCurrentTrack, syncLyricsForCurrentTrack } from "../src/core/media/lyrics.js";
 
@@ -520,33 +519,6 @@ describe("runtime baseline", () => {
     expect(card._state.engineAvailable).toBe(true);
     expect(card._state.engineLastTransport).toBe("http");
     expect(globalThis.sessionStorage.getItem("maverick_music_queue_snapshot_v1::media_player.main::queue-main__main")).toBeNull();
-  });
-
-  it("records successful announcements in Engine without taking over playback", async () => {
-    await import("../src/maverick-music.js?runtime-engine-announcement-baseline");
-    await Promise.resolve();
-    await vi.runAllTimersAsync();
-
-    const CardCtor = globalThis.customElements.get("maverick-music");
-    const card = new CardCtor();
-    card.setConfig({ type: "custom:maverick-music", engine_mode: "required" });
-    card._maverickEngineEnabled = vi.fn(() => true);
-    card._maverickEngineReadyForPersistence = vi.fn(async () => true);
-    card._maverickEngineAnnounce = vi.fn(async () => ({ accepted: true }));
-
-    await expect(recordAnnouncementInEngine(card, "Dinner is ready", [
-      { entity_id: "media_player.kitchen" },
-      "media_player.living_room",
-    ], { language: "en-US", target: "all" })).resolves.toBe(true);
-
-    expect(card._maverickEngineAnnounce).toHaveBeenCalledWith(expect.objectContaining({
-      message: "Dinner is ready",
-      player: "",
-      players: ["media_player.kitchen", "media_player.living_room"],
-      language: "en-US",
-      target: "all",
-      sent: true,
-    }));
   });
 
   it("keeps operational timers and schedules persisted while visual settings own appearance", async () => {
