@@ -27,13 +27,13 @@ export function controlRoomPlayerName(card, entityOrPlayer = "") {
   return player ? card._playerDisplayName(player) : (String(entityOrPlayer || "") || card._i18n("ui.player"));
 }
 
-export function controlRoomPlayerCountLabel(card, count = 0) {
+function controlRoomPlayerCountLabel(card, count = 0) {
   const amount = Math.max(0, Number(count) || 0);
   if (amount === 1) return card._i18n("ui.player_count_one");
   return card._i18n("ui.player_count_many", { count: amount });
 }
 
-export function controlRoomPanelLabel(card, panel = "") {
+function controlRoomPanelLabel(card, panel = "") {
   const labels = {
     selection: card._i18n("ui.connected_players"),
     visible: card._i18n("ui.visible_tiles"),
@@ -51,7 +51,7 @@ export function controlRoomPanelLabel(card, panel = "") {
   return labels[String(panel || "")] || controlRoomLabel(card);
 }
 
-export function controlRoomActionTargetIds(card) {
+function controlRoomActionTargetIds(card) {
   const selectedIds = controlRoomSelectedPlayerIds(card);
   if (selectedIds.length) return selectedIds;
   const primaryId = controlRoomPrimaryPlayerId(card);
@@ -108,7 +108,7 @@ function controlRoomAllPlayers(card) {
   return visible.length ? visible : players;
 }
 
-export function controlRoomVisiblePlayerIds(card) {
+function controlRoomVisiblePlayerIds(card) {
   const players = controlRoomAllPlayers(card);
   const validIds = new Set(players.map((player) => player.entity_id));
   let visibleIds = (Array.isArray(card._state.controlRoomVisiblePlayers) ? card._state.controlRoomVisiblePlayers : [])
@@ -144,7 +144,7 @@ export function revealControlRoomThisDevicePlayer(card, entityId = "", options =
   return true;
 }
 
-export function controlRoomPlayers(card) {
+function controlRoomPlayers(card) {
   const players = controlRoomAllPlayers(card);
   const visibleIds = new Set(controlRoomVisiblePlayerIds(card));
   const filtered = players.filter((player) => visibleIds.has(player.entity_id));
@@ -274,7 +274,7 @@ function controlRoomPrimaryPlayer(card) {
   return card._playerByEntityId(controlRoomPrimaryPlayerId(card));
 }
 
-export function setControlRoomSelection(card, entityIds = []) {
+function setControlRoomSelection(card, entityIds = []) {
   const players = controlRoomPlayers(card);
   const validIds = new Set(players.map((player) => player.entity_id));
   const next = [];
@@ -291,7 +291,7 @@ export function setControlRoomSelection(card, entityIds = []) {
   syncControlRoomUi(card);
 }
 
-export function toggleControlRoomPlayerSelection(card, entityId) {
+function toggleControlRoomPlayerSelection(card, entityId) {
   if (!entityId) return "kept";
   const current = controlRoomSelectedPlayerIds(card);
   const isSelected = current.includes(entityId);
@@ -306,7 +306,7 @@ export function toggleControlRoomPlayerSelection(card, entityId) {
   return isSelected ? "removed" : "added";
 }
 
-export function setControlRoomPrimary(card, entityId, options = {}) {
+function setControlRoomPrimary(card, entityId, options = {}) {
   if (!entityId) return;
   const current = controlRoomSelectedPlayerIds(card).filter((id) => id !== entityId);
   const exclusive = !!options.exclusive;
@@ -316,7 +316,7 @@ export function setControlRoomPrimary(card, entityId, options = {}) {
   else syncControlRoomUi(card);
 }
 
-export function setControlRoomVisiblePlayers(card, entityIds = []) {
+function setControlRoomVisiblePlayers(card, entityIds = []) {
   const players = controlRoomAllPlayers(card);
   const validIds = new Set(players.map((player) => player.entity_id));
   const next = [];
@@ -334,7 +334,7 @@ export function setControlRoomVisiblePlayers(card, entityIds = []) {
   }
 }
 
-export function toggleControlRoomVisiblePlayer(card, entityId) {
+function toggleControlRoomVisiblePlayer(card, entityId) {
   if (!entityId) return;
   const current = controlRoomVisiblePlayerIds(card);
   const next = current.includes(entityId)
@@ -424,7 +424,7 @@ export function closeControlRoom(card, options = {}) {
   if (!options.silent) card._toast(card._i18n("ui.studio_closed"));
 }
 
-export function openControlRoomLibrary(card, page = "library_playlists") {
+function openControlRoomLibrary(card, page = "library_playlists") {
   card._state.controlRoomRestoreAfterMenu = true;
   card._state.controlRoomOpen = true;
   card._openMobileMenu(page);
@@ -674,7 +674,7 @@ export function controlRoomUniqueEntries(card, entries = []) {
   });
 }
 
-export async function loadControlRoomRecent(card) {
+async function loadControlRoomRecent(card) {
   card._state.controlRoomRecentLoading = true;
   syncControlRoomUi(card);
   const items = [];
@@ -695,7 +695,7 @@ export async function loadControlRoomRecent(card) {
   syncControlRoomUi(card, { force: true });
 }
 
-export async function loadControlRoomFavorites(card) {
+async function loadControlRoomFavorites(card) {
   card._state.controlRoomFavoritesLoading = true;
   syncControlRoomUi(card);
   let items = [];
@@ -784,7 +784,7 @@ async function playControlRoomEntries(card, entries = [], options = {}) {
   return true;
 }
 
-export async function startControlRoomMix(card, presetId = "", sourceEl = null) {
+async function startControlRoomMix(card, presetId = "", sourceEl = null) {
   const customInput = card.$("controlRoomSmartQueryInput");
   const customQuery = customInput?.value || card._state.controlRoomSmartQuery || "";
   if (sourceEl) card._pressUiButton(sourceEl);
@@ -971,7 +971,7 @@ async function applySavedControlRoomScene(card, scene = null, sourceEl = null) {
   return true;
 }
 
-export async function applyControlRoomScene(card, sceneId = "", sourceEl = null) {
+async function applyControlRoomScene(card, sceneId = "", sourceEl = null) {
   if (sourceEl) card._pressUiButton(sourceEl);
   const scene = String(sceneId || "home");
   if (scene.startsWith("custom:")) {
@@ -1056,7 +1056,7 @@ function syncControlRoomLibraryResultsUi(card) {
   syncControlRoomUi(card);
 }
 
-export async function playControlRoomLibraryEntry(card, entry, mode = "play") {
+async function playControlRoomLibraryEntry(card, entry, mode = "play") {
   const action = String(mode || "play");
   if (!entry?.uri) return false;
   if (action === "like") {
@@ -1551,7 +1551,7 @@ function controlRoomRenderSignature(card) {
   });
 }
 
-export function controlRoomHtml(card) {
+function controlRoomHtml(card) {
   if (!controlRoomEnabled(card)) return "";
   const players = controlRoomPlayers(card);
   const primary = controlRoomPrimaryPlayer(card);
