@@ -1338,26 +1338,17 @@ export function createMaverickBaseMusicCard({
       };
       const configured = String(this._config?.brand_logo_url || this._config?.logo_url || "").trim();
       push(configured);
-      push(this._moduleAssetUrl("homeii-flow-logo-v2.png"), true);
-      push(this._moduleAssetUrl("homeii-flow-logo.png"), true);
-      push(this._moduleAssetUrl("homeii-flow-logo.svg"), true);
-      push("/local/community/maverick-music-flow/homeii-flow-logo.png", true);
-      push("/local/community/maverick-music-flow/homeii-flow-logo.svg", true);
-      push("/hacsfiles/maverick-music-flow/homeii-flow-logo.png", true);
-      push("/hacsfiles/maverick-music-flow/homeii-flow-logo.svg", true);
-      push("/local/community/homeii-music-flow/homeii-flow-logo.png", true);
-      push("/local/community/homeii-music-flow/homeii-flow-logo.svg", true);
-      push("/hacsfiles/homeii-music-flow/homeii-flow-logo.png", true);
-      push("/hacsfiles/homeii-music-flow/homeii-flow-logo.svg", true);
-      push("/local/homeii-flow-logo.png", true);
-      push("/local/homeii-flow-logo.svg", true);
-      this._maverickBrandLogoCandidates = urls.length ? urls : ["/local/community/maverick-music-flow/homeii-flow-logo.svg"];
+      push(this._moduleAssetUrl("maverick-music-flow-logo.png"), true);
+      push("/local/community/maverick-music-flow/maverick-music-flow-logo.png", true);
+      push("/hacsfiles/maverick-music-flow/maverick-music-flow-logo.png", true);
+      push("/maverick_music_flow/maverick-music-flow-logo.png", true);
+      this._maverickBrandLogoCandidates = urls.length ? urls : ["/local/community/maverick-music-flow/maverick-music-flow-logo.png"];
       return this._maverickBrandLogoCandidates;
     }
 
     _brandLogoUrl() {
       if (typeof this._maverickBrandLogoUrl === "string" && this._maverickBrandLogoUrl) return this._maverickBrandLogoUrl;
-      this._maverickBrandLogoUrl = this._brandLogoCandidates()[0] || "/local/community/maverick-music-flow/homeii-flow-logo.svg";
+      this._maverickBrandLogoUrl = this._brandLogoCandidates()[0] || "/local/community/maverick-music-flow/maverick-music-flow-logo.png";
       return this._maverickBrandLogoUrl;
     }
 
