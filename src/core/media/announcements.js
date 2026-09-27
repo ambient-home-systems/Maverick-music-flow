@@ -42,7 +42,7 @@ export function announcementEligiblePlayers(card) {
   return eligiblePlayersOf(card._state.players || []);
 }
 
-export function announcementTargetValue(card) {
+function announcementTargetValue(card) {
   const raw = String(card._state.mobileAnnouncementTarget || "").trim();
   if (raw === "all") return "all";
   const eligible = announcementEligiblePlayers(card);
@@ -55,7 +55,7 @@ export function announcementVolumePct(card) {
   return Number.isFinite(raw) ? clampVolume(raw) : 20;
 }
 
-export function announcementTtsEntity(card) {
+function announcementTtsEntity(card) {
   const explicit = String(card._state.mobileAnnouncementTtsEntity || card._config?.announcement_tts_entity || "").trim();
   if (explicit) return explicit;
   const ttsEntity = Object.keys(card._hass?.states || {}).find((entityId) => entityId.startsWith("tts."));
@@ -86,7 +86,7 @@ function announcementRecognitionLanguageCode(card) {
 // ---------------------------------------------------------------------------
 // Volume boost and restore
 
-export function prepareAnnouncementVolumes(card, targets = []) {
+function prepareAnnouncementVolumes(card, targets = []) {
   const boost = announcementVolumePct(card) / 100;
   return (Array.isArray(targets) ? targets : [])
     .map((player) => {
@@ -102,7 +102,7 @@ export function prepareAnnouncementVolumes(card, targets = []) {
     .filter((snapshot) => snapshot.entityId);
 }
 
-export function announcementRestoreDelayMs(message = "") {
+function announcementRestoreDelayMs(message = "") {
   const textLength = String(message || "").trim().length;
   return Math.max(5000, Math.min(22000, 3200 + textLength * 90));
 }
@@ -114,7 +114,7 @@ async function setPlayerVolumeForAnnouncement(card, entityId, level) {
   return true;
 }
 
-export function scheduleAnnouncementVolumeRestore(card, snapshots = [], delayMs = 0) {
+function scheduleAnnouncementVolumeRestore(card, snapshots = [], delayMs = 0) {
   card._announcementVolumeRestoreTimers = card._announcementVolumeRestoreTimers || new Map();
   snapshots.forEach((snapshot) => {
     if (!snapshot?.entityId || !Number.isFinite(snapshot.previousVolume)) return;
@@ -134,7 +134,7 @@ export function scheduleAnnouncementVolumeRestore(card, snapshots = [], delayMs 
 // ---------------------------------------------------------------------------
 // Dispatch
 
-export async function sendMobileAnnouncement(card) {
+async function sendMobileAnnouncement(card) {
   if (card._announcementSendPending) return;
   const message = String(card._state.mobileAnnouncementText || "").trim();
   const targetValue = announcementTargetValue(card);
@@ -247,7 +247,7 @@ export async function sendControlRoomAnnouncement(card, sourceEl = null) {
   }
 }
 
-export function startAnnouncementDictation(card) {
+function startAnnouncementDictation(card) {
   const SpeechRecognition = speechRecognitionCtor();
   const input = card.$("mobileAnnouncementText");
   if (!SpeechRecognition) {
