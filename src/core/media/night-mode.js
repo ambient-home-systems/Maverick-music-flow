@@ -72,7 +72,7 @@ function rebuildAround(card) {
 // ---------------------------------------------------------------------------
 // Actions
 
-export function cycleNightMode(card) {
+function cycleNightMode(card) {
   const order = ["auto", "on", "off"];
   const current = mobileNightMode(card);
   const next = order[(order.indexOf(current) + 1) % order.length];
@@ -81,7 +81,7 @@ export function cycleNightMode(card) {
   rebuildAround(card);
 }
 
-export async function playNightMix(card) {
+async function playNightMix(card) {
   try {
     const [allPlaylists, likedPlaylists] = await Promise.allSettled([
       card._fetchLibrary("playlist", "sort_name", 500, false),
