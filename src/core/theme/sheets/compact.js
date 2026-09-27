@@ -147,6 +147,13 @@ export default function() {
           display:block;
           overflow:visible;
         }
+        .brand-signature-logo[data-maverick-logo-tone="dark-text"],
+        .theme-light .brand-signature-logo[data-maverick-logo-tone="light-text"] {
+          display:none !important;
+        }
+        .theme-light .brand-signature-logo[data-maverick-logo-tone="dark-text"] {
+          display:block !important;
+        }
         .brand-signature-logo .tablet-brand-home,
         .brand-signature-logo .tablet-brand-flow {
           fill:currentColor;

@@ -77,7 +77,8 @@ jobs:
           fi
           gh release upload "$TAG_NAME" \
             dist/maverick-music.js \
-            dist/homeii-flow-icon.png \
-            dist/homeii-flow-logo-v2.png \
+            dist/maverick-music-flow-icon.png \
+            dist/maverick-music-flow-logo.png \
+            dist/maverick-music-flow-logo-dark.png \
             --repo "$GITHUB_REPOSITORY" --clobber
 

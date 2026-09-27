@@ -187,7 +187,6 @@ export function createMaverickBaseMusicCard({
         validator(nextConfig);
       }
       this._config = nextConfig;
-      this._maverickBrandLogoUrl = "";
       this._maverickBrandLogoCandidates = null;
 
       try {
@@ -1327,8 +1326,13 @@ export function createMaverickBaseMusicCard({
       }
     }
 
-    _brandLogoCandidates() {
-      if (Array.isArray(this._maverickBrandLogoCandidates)) return this._maverickBrandLogoCandidates;
+    // The logo's wordmark is dark, so dark themes use a light-text copy
+    // (maverick-music-flow-logo-dark.png). Each logo renders both copies and
+    // the stylesheet shows the one for the current theme, so the logo follows
+    // theme changes that do not rebuild the card.
+    _brandLogoCandidates(tone = "dark-text") {
+      this._maverickBrandLogoCandidates ||= {};
+      if (Array.isArray(this._maverickBrandLogoCandidates[tone])) return this._maverickBrandLogoCandidates[tone];
       const urls = [];
       const push = (url, versioned = false) => {
         const value = String(url || "").trim();
@@ -1336,36 +1340,25 @@ export function createMaverickBaseMusicCard({
         const next = versioned ? this._versionedAssetUrl(value) : value;
         if (!urls.includes(next)) urls.push(next);
       };
+      const pushLogo = (fileName) => {
+        push(this._moduleAssetUrl(fileName), true);
+        push(`/local/community/maverick-music-flow/${fileName}`, true);
+        push(`/hacsfiles/maverick-music-flow/${fileName}`, true);
+        push(`/maverick_music_flow/${fileName}`, true);
+      };
       const configured = String(this._config?.brand_logo_url || this._config?.logo_url || "").trim();
       push(configured);
-      push(this._moduleAssetUrl("homeii-flow-logo-v2.png"), true);
-      push(this._moduleAssetUrl("homeii-flow-logo.png"), true);
-      push(this._moduleAssetUrl("homeii-flow-logo.svg"), true);
-      push("/local/community/maverick-music-flow/homeii-flow-logo.png", true);
-      push("/local/community/maverick-music-flow/homeii-flow-logo.svg", true);
-      push("/hacsfiles/maverick-music-flow/homeii-flow-logo.png", true);
-      push("/hacsfiles/maverick-music-flow/homeii-flow-logo.svg", true);
-      push("/local/community/homeii-music-flow/homeii-flow-logo.png", true);
-      push("/local/community/homeii-music-flow/homeii-flow-logo.svg", true);
-      push("/hacsfiles/homeii-music-flow/homeii-flow-logo.png", true);
-      push("/hacsfiles/homeii-music-flow/homeii-flow-logo.svg", true);
-      push("/local/homeii-flow-logo.png", true);
-      push("/local/homeii-flow-logo.svg", true);
-      this._maverickBrandLogoCandidates = urls.length ? urls : ["/local/community/maverick-music-flow/homeii-flow-logo.svg"];
-      return this._maverickBrandLogoCandidates;
-    }
-
-    _brandLogoUrl() {
-      if (typeof this._maverickBrandLogoUrl === "string" && this._maverickBrandLogoUrl) return this._maverickBrandLogoUrl;
-      this._maverickBrandLogoUrl = this._brandLogoCandidates()[0] || "/local/community/maverick-music-flow/homeii-flow-logo.svg";
-      return this._maverickBrandLogoUrl;
+      if (tone === "light-text") pushLogo("maverick-music-flow-logo-dark.png");
+      pushLogo("maverick-music-flow-logo.png");
+      this._maverickBrandLogoCandidates[tone] = urls;
+      return urls;
     }
 
     _brandLogoImgHtml(className = "maverick-logo-fallback") {
-      const candidates = this._brandLogoCandidates();
-      const primary = candidates[0] || this._brandLogoUrl();
-      const fallbacks = candidates.slice(1).join("|");
-      return `<img class="${this._esc(className)}" data-maverick-brand-logo="1" data-maverick-logo-fallbacks="${this._esc(fallbacks)}" src="${this._esc(primary)}" alt="Maverick Music" loading="lazy" decoding="async">`;
+      return ["dark-text", "light-text"].map((tone) => {
+        const [primary, ...fallbacks] = this._brandLogoCandidates(tone);
+        return `<img class="${this._esc(className)}" data-maverick-brand-logo="1" data-maverick-logo-tone="${tone}" data-maverick-logo-fallbacks="${this._esc(fallbacks.join("|"))}" src="${this._esc(primary)}" alt="Maverick Music" loading="lazy" decoding="async">`;
+      }).join("");
     }
 
     _tabletBrandSignatureHtml(className = "tablet-brand-logo") {

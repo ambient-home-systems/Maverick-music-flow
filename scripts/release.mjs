@@ -21,10 +21,9 @@ const bundlePath = path.join(distDir, "maverick-music.js");
 const sourceMainPath = path.join(rootDir, "src", "maverick-music.js");
 const brandDir = path.join(rootDir, "docs", "brand");
 const brandAssets = [
-  "homeii-flow-logo.svg",
-  "homeii-flow-logo.png",
-  "homeii-flow-logo-v2.png",
-  "homeii-flow-icon.png",
+  "maverick-music-flow-logo.png",
+  "maverick-music-flow-logo-dark.png",
+  "maverick-music-flow-icon.png",
 ];
 
 const LICENSE_BANNER_MARKER = "@license MIT — Maverick Music";

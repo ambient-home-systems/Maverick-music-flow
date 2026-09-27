@@ -9,8 +9,8 @@
   - `LICENSE`
   - `hacs.json`
   - `dist/maverick-music.js`
-  - `dist/homeii-flow-logo.svg`, `dist/homeii-flow-logo.png`, `dist/homeii-flow-logo-v2.png`, `dist/homeii-flow-icon.png`
-  - `docs/brand/homeii-flow-logo.svg`
+  - `dist/maverick-music-flow-logo.png`, `dist/maverick-music-flow-logo-dark.png`, `dist/maverick-music-flow-icon.png`
+  - `docs/brand/maverick-music-flow-logo.png`, `docs/brand/maverick-music-flow-logo-dark.png`
   - `src/sendspin-js/` (including `src/sendspin-js/LICENSE`)
   - `vendor/embla-carousel.umd.js`
   - `.github/workflows/validate.yml`
@@ -35,7 +35,7 @@
 HACS downloads everything in `dist/`, so it holds only what an installation needs:
 
 - `dist/maverick-music.js`: the single self-contained runtime. `npm run build` runs `vite build` and then `scripts/release.mjs`, which verifies the `/*! MAVERICK_CARD_VERSION = "..."; */` banner against `package.json`, minifies whitespace and syntax with esbuild, and prepends a license banner (MIT for this project, Apache-2.0 for the bundled Sendspin client, MIT for Embla Carousel and opus-encdec). Sendspin, its Opus fallback decoder, Embla, the dictionaries, and the Heebo font are all inlined; the file imports nothing from sibling paths.
-- `dist/homeii-flow-logo.svg`, `dist/homeii-flow-logo.png`, `dist/homeii-flow-logo-v2.png`, `dist/homeii-flow-icon.png`: brand images copied from `docs/brand/`.
+- `dist/maverick-music-flow-logo.png`, `dist/maverick-music-flow-logo-dark.png`, `dist/maverick-music-flow-icon.png`: brand images copied from `docs/brand/`. The `-dark` logo has light text for dark themes.
 
 `dist/` no longer carries copies of `src/core`, `src/config`, `src/localization`, `src/sendspin-js`, or `vendor/`. The Sendspin source and its Apache-2.0 license text stay in `src/sendspin-js/`, and Embla stays in `vendor/`. `tests/dist-bundle.test.js` checks the committed bundle for the version banner, the license notices, the absence of sibling imports, and the size budget.
 
@@ -43,9 +43,9 @@ HACS downloads everything in `dist/`, so it holds only what an installation need
 
 - Confirm `hacs.json` still points to `maverick-music.js`.
 - Confirm `dist/maverick-music.js` matches the released runtime: it starts with the license banner and carries `/*! MAVERICK_CARD_VERSION = "X.Y.Z"; */` for the released version.
-- Confirm `dist/` contains only `maverick-music.js` and the four brand images (`npm run build` followed by `git status` should show no changes).
+- Confirm `dist/` contains only `maverick-music.js` and the three brand images (`npm run build` followed by `git status` should show no changes).
 - Confirm `src/sendspin-js/LICENSE` is still in the repository.
-- Confirm `dist/homeii-flow-logo.svg` and `docs/brand/homeii-flow-logo.svg` exist.
+- Confirm `dist/maverick-music-flow-logo.png` and `docs/brand/maverick-music-flow-logo.png` exist.
 - Confirm the HACS validation workflow is enabled on GitHub.
 - Confirm the README requirements section still matches the current release.
 - Confirm the README Sendspin section explains `ma_url`, `ma_token`, local network preference, and the `This device` flow.
