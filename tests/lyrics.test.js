@@ -3,19 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   clearLyricsState,
   closeLyricsModal,
-  currentLyricsActiveIndex,
-  currentLyricsTrackKey,
-  fetchLyricsForCurrentTrack,
   lyricsFontScale,
   lyricsSessionActive,
-  nudgeLyricsFontScale,
-  nudgeLyricsSyncOffset,
   openLyricsModal,
-  setLyricsFontScale,
-  setLyricsSyncOffset,
   syncLyricsForCurrentTrack,
-  syncLyricsHighlight,
-  toggleLyricsSyncEnabled,
 } from "../src/core/media/lyrics.js";
 
 const { document } = globalThis;
@@ -55,45 +46,56 @@ function stubCard(state = {}, info = { key: "song-1", title: "Song One", artist:
   return { card, root, backdrop: root.querySelector("#lyricsBackdrop") };
 }
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+const press = (root, id, times = 1) => { for (let i = 0; i < times; i += 1) root.querySelector(`#${id}`).click(); };
 afterEach(() => { document.body.innerHTML = ""; vi.restoreAllMocks(); });
 
 describe("lyrics fetch", () => {
   it("prefers embedded metadata, then Music Assistant, and caches the result", async () => {
     const { card } = stubCard({ maQueueState: { current_item: { media_item: { uri: "library://track/1", media_type: "track", lrc_lyrics: "[00:02.00]Embedded" } } } });
-    const embedded = await fetchLyricsForCurrentTrack(card);
-    expect(embedded).toMatchObject({ source: "metadata", text: "Embedded", lrc: [{ time: 2, text: "Embedded" }] });
+    await openLyricsModal(card);
+    expect(card._cache.lyrics.get("song-1")).toMatchObject({ source: "metadata", text: "Embedded", lrc: [{ time: 2, text: "Embedded" }] });
+    expect(card._state.lyricsLines).toMatchObject([{ time: 2, text: "Embedded" }]);
     expect(card._callEngineMaCommand).not.toHaveBeenCalled();
+    // Two opens in flight at once share one Music Assistant round trip.
     const other = stubCard();
-    const [first, second] = await Promise.all([fetchLyricsForCurrentTrack(other.card), fetchLyricsForCurrentTrack(other.card)]);
-    expect(first).toBe(second);
-    expect(first.source).toBe("music_assistant");
-    expect(first.lrc).toHaveLength(3);
+    await Promise.all([openLyricsModal(other.card), openLyricsModal(other.card)]);
     expect(other.card._callEngineMaCommand).toHaveBeenCalledTimes(2);
-    await fetchLyricsForCurrentTrack(other.card);
+    expect(other.card._cache.lyrics.get("song-1")).toMatchObject({ source: "music_assistant" });
+    expect(other.card._state.lyricsLines).toHaveLength(3);
+    await openLyricsModal(other.card);
     expect(other.card._callEngineMaCommand).toHaveBeenCalledTimes(2);
   });
   it("stays offline without the LRCLIB opt-in and uses it when enabled", async () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: true, json: async () => ({ plainLyrics: "From the web" }) });
-    const { card } = stubCard();
+    const { card, backdrop } = stubCard();
     card._callEngineMaCommand = vi.fn(async (command) => (command === "music/item_by_uri" ? { uri: "library://track/1" } : null));
-    expect((await fetchLyricsForCurrentTrack(card)).source).toBe("disabled");
+    await openLyricsModal(card);
+    expect(backdrop.querySelector(".lyrics-state").textContent).toBe("ui.no_lyrics_found");
     expect(fetchSpy).not.toHaveBeenCalled();
+    expect(card._cache.lyrics.size).toBe(0);
     card._config.lrclib_lyrics_enabled = true;
-    const external = await fetchLyricsForCurrentTrack(card);
-    expect(external).toMatchObject({ source: "lrclib", text: "From the web" });
+    await openLyricsModal(card);
+    expect(backdrop.querySelector(".lyrics-pre").textContent).toBe("From the web");
     expect(String(fetchSpy.mock.calls[0][0])).toContain("https://lrclib.net/api/get?track_name=Song+One&artist_name=Band&album_name=Album&duration=200");
-    expect(card._cache.lyrics.get("song-1")).toBe(external);
+    expect(card._cache.lyrics.get("song-1")).toMatchObject({ source: "lrclib", text: "From the web" });
   });
   it("surfaces a Music Assistant failure and allows a retry", async () => {
-    const { card } = stubCard();
+    const { card, root, backdrop } = stubCard();
     card._callEngineMaCommand.mockRejectedValueOnce(new Error("MA offline"));
-    await expect(fetchLyricsForCurrentTrack(card)).rejects.toThrow("MA offline");
+    await openLyricsModal(card);
+    expect(backdrop.querySelector(".lyrics-state").textContent).toBe("ui.lyrics_unavailable_right_now");
     expect(card._cache.lyrics.size).toBe(0);
-    expect((await fetchLyricsForCurrentTrack(card)).source).toBe("music_assistant");
+    press(root, "lyricsRetryBtn");
+    await vi.waitFor(() => expect(root.querySelectorAll(".lyrics-line")).toHaveLength(3));
+    expect(card._cache.lyrics.get("song-1")).toMatchObject({ source: "music_assistant" });
   });
-  it("builds the track key from the queue item, the player and the track info", () => {
+  it("builds the track key from the queue item, the player and the track info", async () => {
     const { card } = stubCard();
-    expect(currentLyricsTrackKey(card)).toBe("library://track/1|library://track/1|song-1|200");
+    expect(lyricsSessionActive(card)).toBe(false);
+    await openLyricsModal(card);
+    expect(card._state.lyricsTrackKey).toBe("library://track/1|library://track/1|song-1|200");
+    expect(lyricsSessionActive(card)).toBe(true);
+    closeLyricsModal(card, { sync: false });
     expect(lyricsSessionActive(card)).toBe(false);
     card._state.screensaverLyricsOpen = true;
     expect(lyricsSessionActive(card)).toBe(true);
@@ -178,36 +180,44 @@ describe("lyrics karaoke and preferences", () => {
     const { card, root } = stubCard();
     await openLyricsModal(card);
     card._getCurrentPosition = () => 5.5;
-    expect(currentLyricsActiveIndex(card, card._state.lyricsLines)).toBe(1);
-    syncLyricsHighlight(card, true);
+    syncLyricsForCurrentTrack(card);
+    expect(card._state.lyricsActiveIndex).toBe(1);
     expect(root.querySelector('.lyrics-line[data-lyrics-index="1"]').classList.contains("active")).toBe(true);
     expect(root.querySelector("#lyricsTimeline").classList.contains("karaoke-active")).toBe(true);
-    setLyricsSyncOffset(card, 4000);
+    press(root, "lyricsOffsetPlusBtn", 8);
+    expect(card._state.mobileLyricsSyncOffsetMs).toBe(4000);
     expect(root.querySelector("#lyricsOffsetResetBtn").textContent).toBe("+4.0s");
     expect(card._state.lyricsActiveIndex).toBe(2);
-    nudgeLyricsSyncOffset(card, -20000);
+    press(root, "lyricsOffsetMinusBtn", 40);
     expect(card._state.mobileLyricsSyncOffsetMs).toBe(-10000);
-    toggleLyricsSyncEnabled(card);
+    expect(card._state.lyricsActiveIndex).toBe(0);
+    press(root, "lyricsOffsetResetBtn");
+    expect(card._state.mobileLyricsSyncOffsetMs).toBe(0);
+    expect(root.querySelector("#lyricsOffsetResetBtn").textContent).toBe("0.0s");
+    expect(card._state.lyricsActiveIndex).toBe(1);
+    press(root, "lyricsSyncBtn");
     expect(card._state.mobileLyricsSyncEnabled).toBe(false);
     expect(card._state.lyricsActiveIndex).toBe(-1);
     expect(root.querySelector("#lyricsSyncBtn").getAttribute("aria-pressed")).toBe("false");
     expect(root.querySelectorAll(".lyrics-line.active")).toHaveLength(0);
-    expect(currentLyricsActiveIndex(card, card._state.lyricsLines)).toBe(-1);
+    syncLyricsForCurrentTrack(card);
+    expect(card._state.lyricsActiveIndex).toBe(-1);
   });
   it("clamps the font scale, updates the sheet variable and the label, and persists", async () => {
     const { card, root } = stubCard();
     await openLyricsModal(card);
     expect(lyricsFontScale(card)).toBe(1);
-    nudgeLyricsFontScale(card, 0.08);
+    press(root, "lyricsFontPlusBtn");
     expect(card._state.mobileLyricsFontScale).toBeCloseTo(1.08);
     expect(root.querySelector(".lyrics-sheet").style.getPropertyValue("--lyrics-font-scale")).toBe("1.08");
     expect(root.querySelector("#lyricsFontResetBtn").textContent).toBe("108%");
-    setLyricsFontScale(card, 9);
+    press(root, "lyricsFontPlusBtn", 5);
     expect(lyricsFontScale(card)).toBe(1.4);
-    setLyricsFontScale(card, 0.1);
+    press(root, "lyricsFontMinusBtn", 10);
     expect(lyricsFontScale(card)).toBe(0.75);
-    expect(card._persistMobileAppearance).toHaveBeenCalledTimes(3);
-    root.querySelector("#lyricsFontResetBtn").click();
+    expect(root.querySelector("#lyricsFontResetBtn").textContent).toBe("75%");
+    expect(card._persistMobileAppearance).toHaveBeenCalledTimes(16);
+    press(root, "lyricsFontResetBtn");
     expect(lyricsFontScale(card)).toBe(1);
   });
 });

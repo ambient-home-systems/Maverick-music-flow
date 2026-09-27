@@ -8,7 +8,7 @@ import { loadScheduledStartPlaylists } from "./timers.js";
 
 const STEP_ORDER = ["players", "source", "review"];
 
-export function createSimpleWizardState(overrides = {}) {
+function createSimpleWizardState(overrides = {}) {
   return {
     step: "players",
     selectedPlayers: [],
@@ -30,7 +30,7 @@ export function resetSimpleWizardState(card) {
   card._state.simpleWizard = createSimpleWizardState({ selectedPlayers: simpleWizardDefaultPlayerIds(card) });
 }
 
-export function simpleWizardPlayerPool(card) {
+function simpleWizardPlayerPool(card) {
   card._loadPlayers();
   const players = Array.isArray(card._state.players) ? card._state.players : [];
   const pinnedEntities = new Set(card._resolvedPinnedPlayerEntities(players));
@@ -41,7 +41,7 @@ export function simpleWizardPlayerPool(card) {
     .filter((player) => !card._pinnedPlayersExclusive() || !pinnedEntities.size || pinnedEntities.has(player.entity_id));
 }
 
-export function simpleWizardDefaultPlayerIds(card, players = simpleWizardPlayerPool(card)) {
+function simpleWizardDefaultPlayerIds(card, players = simpleWizardPlayerPool(card)) {
   const selected = String(card._state.selectedPlayer || "").trim();
   if (selected && players.some((player) => player.entity_id === selected)) return [selected];
   const active = players.find((player) => card._isPlayerActive(player));
@@ -54,7 +54,7 @@ function existingOrFreshState(card) {
     : createSimpleWizardState();
 }
 
-export function simpleWizardState(card) {
+function simpleWizardState(card) {
   const base = existingOrFreshState(card);
   const defaults = createSimpleWizardState();
   Object.keys(defaults).forEach((key) => {
@@ -74,11 +74,11 @@ export function simpleWizardState(card) {
   return base;
 }
 
-export function simpleWizardGenres(card) {
+function simpleWizardGenres(card) {
   return card._musicStyleCatalog({ includeCustom: true });
 }
 
-export function simpleWizardContentTypes(card) {
+function simpleWizardContentTypes(card) {
   return [
     { id: "playlist", icon: "playlist", label: card._i18n("ui.playlist"), subtitle: card._i18n("ui.play_a_saved_list") },
     { id: "artist", icon: "artist", label: card._i18n("ui.artist"), subtitle: card._i18n("ui.play_an_artist") },
@@ -329,7 +329,7 @@ function simpleWizardMediaTypeLabel(card, mediaType = "") {
   return card._i18n("ui.playlist");
 }
 
-export function simpleWizardCandidateFromItem(card, item = {}, fallbackType = "playlist", options = {}) {
+function simpleWizardCandidateFromItem(card, item = {}, fallbackType = "playlist", options = {}) {
   let normalized = {};
   try { normalized = card._normalizeMediaItem(item) || {}; } catch (_) {}
   const uri = String(options.uri || normalized.uri || item?.uri || item?.media_item?.uri || "").trim();
@@ -371,7 +371,7 @@ function simpleWizardUniqueCandidates(candidates = []) {
   });
 }
 
-export async function simpleWizardFindCandidates(card, state = simpleWizardState(card)) {
+async function simpleWizardFindCandidates(card, state = simpleWizardState(card)) {
   const out = [];
   const addGroup = (items = [], mediaType = "playlist", options = {}) => {
     (Array.isArray(items) ? items : []).forEach((item) => {
@@ -472,7 +472,7 @@ export async function simpleWizardFindCandidates(card, state = simpleWizardState
   return finish();
 }
 
-export async function simpleWizardBuildCandidates(card, sourceEl = null) {
+async function simpleWizardBuildCandidates(card, sourceEl = null) {
   const state = simpleWizardState(card);
   const queryInput = card.$("simpleWizardQueryInput");
   const genreSelect = card.$("simpleWizardGenreSelect");
@@ -520,7 +520,7 @@ export async function simpleWizardBuildCandidates(card, sourceEl = null) {
 // ---------------------------------------------------------------------------
 // Playback
 
-export function showSimpleWizardPopup(card, candidate = {}, entityIds = []) {
+function showSimpleWizardPopup(card, candidate = {}, entityIds = []) {
   const host = card.$("surprisePopup");
   if (!host) return;
   const targetName = simpleWizardSelectedPlayerNames(card, entityIds);
@@ -539,7 +539,7 @@ export function showSimpleWizardPopup(card, candidate = {}, entityIds = []) {
   }, 1700);
 }
 
-export async function simpleWizardPlay(card, sourceEl = null) {
+async function simpleWizardPlay(card, sourceEl = null) {
   const state = simpleWizardState(card);
   const candidates = Array.isArray(state.candidates) ? state.candidates : [];
   const index = Math.max(0, Math.min(candidates.length - 1, Number(state.selectedIndex || 0)));

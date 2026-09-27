@@ -1,41 +1,26 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  applyControlRoomScene,
   bindControlRoom,
   closeControlRoom,
-  controlRoomActionTargetIds,
   controlRoomBackdropHtml,
   controlRoomCustomScenes,
   controlRoomEnabled,
-  controlRoomHtml,
   controlRoomLabel,
   controlRoomMixPresets,
   controlRoomNormalizeMediaEntry,
-  controlRoomPanelLabel,
-  controlRoomPlayerCountLabel,
   controlRoomPlayerName,
-  controlRoomPlayers,
   controlRoomPrimaryPlayerId,
   controlRoomSelectedPlayerIds,
   controlRoomUniqueEntries,
-  controlRoomVisiblePlayerIds,
   loadControlRoomQueues,
   loadControlRoomScenesFromStorage,
   openControlRoom,
-  openControlRoomLibrary,
-  playControlRoomLibraryEntry,
   revealControlRoomThisDevicePlayer,
   searchControlRoomLibrary,
-  setControlRoomPrimary,
-  setControlRoomSelection,
-  setControlRoomVisiblePlayers,
-  startControlRoomMix,
   syncControlRoomChrome,
   syncControlRoomUi,
   toggleControlRoomPanel,
-  toggleControlRoomPlayerSelection,
-  toggleControlRoomVisiblePlayer,
 } from "../src/core/media/control-room.js";
 import { sendControlRoomAnnouncement } from "../src/core/media/announcements.js";
 import { startControlRoomLibraryVoice } from "../src/core/media/voice.js";
@@ -171,28 +156,29 @@ describe("gates, labels and player pools", () => {
     card._layoutModeConfig = () => "mobile";
     expect(controlRoomEnabled(card)).toBe(false);
     expect(controlRoomLabel(card)).toBe("ui.studio");
-    expect(controlRoomPanelLabel(card, "mix")).toBe("ui.smart_mix");
-    expect(controlRoomPanelLabel(card, "nope")).toBe("ui.studio");
-    expect(controlRoomPlayerCountLabel(card, 1)).toBe("ui.player_count_one");
-    expect(controlRoomPlayerCountLabel(card, 3)).toBe("ui.player_count_many:3");
     expect(controlRoomPlayerName(card, "media_player.office")).toBe("Office");
     expect(controlRoomPlayerName(card, { attributes: { friendly_name: "Direct" } })).toBe("Direct");
     expect(controlRoomPlayerName(card, "media_player.ghost")).toBe("media_player.ghost");
     expect(controlRoomPlayerName(card, "")).toBe("ui.player");
   });
   it("keeps browser players out of the room and honours visibility with the this-device reveal", () => {
-    const { card } = stubCard();
-    expect(controlRoomPlayers(card).map((p) => p.entity_id)).toEqual(["media_player.kitchen", "media_player.office"]);
+    const { card, root } = stubCard();
+    const body = mount(card, root);
+    const tiles = () => [...body.querySelectorAll("[data-room-tile]")].map((tile) => tile.dataset.roomTile);
+    expect(tiles()).toEqual(["media_player.kitchen", "media_player.office"]);
     expect(card._loadPlayers).toHaveBeenCalled();
-    expect(controlRoomVisiblePlayerIds(card)).toEqual(["media_player.kitchen", "media_player.office"]);
+    expect(card._state.controlRoomVisiblePlayers).toEqual(["media_player.kitchen", "media_player.office"]);
     card._state.controlRoomVisiblePlayers = ["media_player.office", "media_player.gone"];
-    expect(controlRoomVisiblePlayerIds(card)).toEqual(["media_player.office"]);
-    expect(controlRoomPlayers(card).map((p) => p.entity_id)).toEqual(["media_player.office"]);
+    syncControlRoomUi(card, { force: true });
+    expect(tiles()).toEqual(["media_player.office"]);
+    expect(card._state.controlRoomVisiblePlayers).toEqual(["media_player.office"]);
+    expect(controlRoomSelectedPlayerIds(card)).toEqual(["media_player.office"]);
     card._state.players.push(player("media_player.this_device", "This device"));
     card._isLocalSendspinPlayer = (p) => p.entity_id === "media_player.this_device";
     card._isAvailableThisDevicePlayer = (p) => p.entity_id === "media_player.this_device";
     card._state.controlRoomRevealThisDevicePending = true;
-    expect(controlRoomVisiblePlayerIds(card)).toEqual(["media_player.office", "media_player.this_device"]);
+    syncControlRoomUi(card, { force: true });
+    expect(tiles()).toEqual(["media_player.office", "media_player.this_device"]);
     expect(card._state.controlRoomRevealThisDevicePending).toBe(false);
     expect(revealControlRoomThisDevicePlayer(card, "")).toBe(false);
     card._state.controlRoomSelectedPlayers = ["media_player.office"];
@@ -203,38 +189,45 @@ describe("gates, labels and player pools", () => {
 
 describe("selection", () => {
   it("defaults to the selected player and keeps at least one target", () => {
-    const { card } = stubCard();
+    const { card, root } = stubCard({ controlRoomSelectedPlayers: ["media_player.ghost", "media_player.office"] });
+    expect(controlRoomSelectedPlayerIds(card)).toEqual(["media_player.office"]);
+    card._state.controlRoomSelectedPlayers = [];
     expect(controlRoomSelectedPlayerIds(card)).toEqual(["media_player.kitchen"]);
     expect(controlRoomPrimaryPlayerId(card)).toBe("media_player.kitchen");
-    expect(controlRoomActionTargetIds(card)).toEqual(["media_player.kitchen"]);
-    expect(toggleControlRoomPlayerSelection(card, "media_player.kitchen")).toBe("kept");
-    expect(toggleControlRoomPlayerSelection(card, "media_player.office")).toBe("added");
+    const body = mount(card, root);
+    expect(body.querySelector(".control-room-selection-count").textContent).toBe("1");
+    click(body.querySelector('[data-room-select="media_player.kitchen"]'));
+    expect(card._toast).toHaveBeenCalledWith("ui.at_least_one_player_must_stay_selected");
+    expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.kitchen"]);
+    click(body.querySelector('[data-room-select="media_player.office"]'));
+    expect(card._toastSuccess).toHaveBeenCalledWith("Office added to studio selection");
     expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.kitchen", "media_player.office"]);
     expect(card._state.controlRoomTransferSource).toBe("media_player.kitchen");
     expect(card._state.controlRoomTransferTarget).toBe("media_player.office");
-    expect(toggleControlRoomPlayerSelection(card, "media_player.kitchen")).toBe("removed");
+    expect(body.querySelector(".control-room-selection-count").textContent).toBe("2");
+    click(body.querySelector('[data-room-select="media_player.kitchen"]'));
+    expect(card._toastSuccess).toHaveBeenCalledWith("Kitchen removed from studio selection");
     expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.office"]);
-    setControlRoomSelection(card, ["media_player.ghost", "media_player.office", "media_player.office"]);
-    expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.office"]);
-    setControlRoomSelection(card, []);
-    expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.kitchen"]);
-    setControlRoomPrimary(card, "media_player.office");
-    expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.office", "media_player.kitchen"]);
-    expect(card._selectPlayer).toHaveBeenCalledWith("media_player.office", true);
-    setControlRoomPrimary(card, "media_player.kitchen", { exclusive: true, selectPlayer: false });
-    expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.kitchen"]);
-    expect(card._selectPlayer).toHaveBeenCalledTimes(1);
+    click(body.querySelector('[data-room-primary="media_player.kitchen"]'));
+    expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.kitchen", "media_player.office"]);
+    expect(card._selectPlayer).toHaveBeenCalledWith("media_player.kitchen", true);
+    expect(card._toastSuccess).toHaveBeenCalledWith("Studio is now controlling Kitchen");
   });
-  it("re-primes the primary when it is hidden", () => {
-    const { card } = stubCard();
-    setControlRoomVisiblePlayers(card, ["media_player.office"]);
+  it("hides and shows tiles from the visible panel and keeps a valid primary", () => {
+    const { card, root } = stubCard();
+    const body = mount(card, root);
+    toggleControlRoomPanel(card, "visible");
+    click(body.querySelector('[data-room-visible-toggle="media_player.kitchen"]'));
+    expect(card._toastSuccess).toHaveBeenCalledWith("Kitchen hidden from Studio");
     expect(card._state.controlRoomVisiblePlayers).toEqual(["media_player.office"]);
     expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.office"]);
     expect(card._state.controlRoomTransferSource).toBe("media_player.office");
-    expect(card._selectPlayer).not.toHaveBeenCalled();
-    toggleControlRoomVisiblePlayer(card, "media_player.kitchen");
+    expect([...body.querySelectorAll("[data-room-tile]")].map((tile) => tile.dataset.roomTile)).toEqual(["media_player.office"]);
+    click(body.querySelector('[data-room-visible-toggle="media_player.kitchen"]'));
+    expect(card._toastSuccess).toHaveBeenCalledWith("Kitchen shown in Studio");
     expect(card._state.controlRoomVisiblePlayers).toEqual(["media_player.office", "media_player.kitchen"]);
-    setControlRoomVisiblePlayers(card, []);
+    click(body.querySelector('[data-room-visible-toggle="media_player.office"]'));
+    click(body.querySelector('[data-room-visible-toggle="media_player.kitchen"]'));
     expect(card._state.controlRoomVisiblePlayers).toEqual(["media_player.kitchen"]);
   });
 });
@@ -261,7 +254,8 @@ describe("open, close and panels", () => {
     toggleControlRoomPanel(card, "favorites");
     await flush();
     expect(card._state.controlRoomFavoritesItems[0]).toMatchObject({ uri: "lib://track/liked", subtitle: "ui.favorite" });
-    openControlRoomLibrary(card, "library_albums");
+    toggleControlRoomPanel(card, "music");
+    click(body.querySelector('[data-room-selection-action="browse_albums"]'));
     expect(card._state.controlRoomRestoreAfterMenu).toBe(true);
     expect(card._openMobileMenu).toHaveBeenCalledWith("library_albums");
     closeControlRoom(card, { silent: true });
@@ -272,7 +266,6 @@ describe("open, close and panels", () => {
     expect(card._toast).toHaveBeenCalledWith("ui.studio_closed");
     card._layoutModeConfig = () => "mobile";
     expect(controlRoomBackdropHtml(card)).toBe("");
-    expect(controlRoomHtml(card)).toBe("");
     card._state.controlRoomOpen = true;
     syncControlRoomChrome(card);
     expect(root.querySelector("#controlRoomBackdrop").classList.contains("open")).toBe(false);
@@ -291,35 +284,53 @@ describe("open, close and panels", () => {
 
 describe("mixes and media", () => {
   it("normalises entries, dedupes them and starts a preset mix on the grouped targets", async () => {
-    const { card } = stubCard({ controlRoomSelectedPlayers: ["media_player.kitchen", "media_player.office"] });
+    const { card, root } = stubCard({ controlRoomSelectedPlayers: ["media_player.kitchen", "media_player.office"] });
     expect(controlRoomNormalizeMediaEntry(card, { uri: "u", artists: [{ name: "A" }, { name: "B" }], album: { name: "Al" } }, "track")).toMatchObject({ uri: "u", media_type: "track", name: "u", subtitle: "A, B", artist: "A, B", album: "Al", favorite_scope: "library" });
     expect(controlRoomUniqueEntries(card, [{ uri: "x" }, { uri: "X" }, { name: "n" }, {}]).length).toBe(2);
     expect(controlRoomMixPresets(card).map((p) => p.id)).toContain("calm");
-    expect(await startControlRoomMix(card, "calm")).toBe(true);
+    const body = mount(card, root);
+    toggleControlRoomPanel(card, "mix");
+    const startMix = async (id) => { click(body.querySelector(`[data-room-smart-mix="${id}"]`)); await flush(); await flush(); };
+    await startMix("calm");
     expect(card._search).toHaveBeenCalledWith("relax chill playlist");
     expect(card._applySpeakerGroupFor).toHaveBeenCalledWith("media_player.kitchen", ["media_player.office"]);
     expect(card._playMediaOnPlayer.mock.calls[0]).toEqual(["media_player.kitchen", "lib://playlist/1", "playlist", "play", { label: "Mix One", silent: true, radioMode: false }]);
     expect(card._playMediaOnPlayer.mock.calls[1].slice(0, 4)).toEqual(["media_player.kitchen", "lib://track/2", "track", "add"]);
     expect(card._state.controlRoomPanel).toBe("");
     expect(card._toastSuccess).toHaveBeenCalledWith("ui.studio_mix_started");
-    expect(await startControlRoomMix(card, "favorites")).toBe(true);
+    toggleControlRoomPanel(card, "mix");
+    await startMix("favorites");
     expect(card._playMediaOnPlayer).toHaveBeenLastCalledWith("media_player.kitchen", "lib://track/liked", "track", "shuffle", expect.any(Object));
     card._search.mockResolvedValue(empty());
     card._nativeMixEntriesForPreset.mockResolvedValue([]);
-    expect(await startControlRoomMix(card, "party")).toBe(false);
+    toggleControlRoomPanel(card, "mix");
+    await startMix("party");
     expect(card._toastError).toHaveBeenCalledWith("ui.no_mix_content_found");
   });
-  it("plays library entries with the requested enqueue mode and guards radio mode", async () => {
-    const { card } = stubCard();
-    expect(await playControlRoomLibraryEntry(card, { name: "no uri" })).toBe(false);
-    expect(await playControlRoomLibraryEntry(card, { uri: "u", media_type: "album" }, "next")).toBe(true);
-    expect(card._playMediaOnPlayer).toHaveBeenLastCalledWith("media_player.kitchen", "u", "album", "next", { label: "", silent: true, radioMode: false });
-    expect(await playControlRoomLibraryEntry(card, { uri: "u", media_type: "album" }, "radio_mode")).toBe(false);
-    expect(card._toastError).toHaveBeenCalledWith("ui.radio_mode_is_not_available_for_this_media_type");
-    expect(await playControlRoomLibraryEntry(card, { uri: "t", media_type: "track" }, "radio_mode")).toBe(true);
-    expect(card._playMediaOnPlayer).toHaveBeenLastCalledWith("media_player.kitchen", "t", "track", "play", { label: "", silent: true, radioMode: true });
-    expect(await playControlRoomLibraryEntry(card, { uri: "t" }, "like")).toBe(true);
-    expect(card._toggleLikeEntry).toHaveBeenCalledWith({ uri: "t" });
+  it("plays library entries with the requested enqueue mode and offers radio mode only where supported", async () => {
+    const { card, root } = stubCard();
+    const body = mount(card, root);
+    toggleControlRoomPanel(card, "library");
+    await searchControlRoomLibrary(card, "song");
+    const cards = () => body.querySelectorAll(".control-room-media-card");
+    expect(cards()).toHaveLength(2);
+    expect(cards()[0].querySelector('[data-room-library-action="radio_mode"]')).toBe(null);
+    expect(cards()[1].querySelector('[data-room-library-action="radio_mode"]')).not.toBe(null);
+    click(cards()[0].querySelector('[data-room-library-action="add"]'));
+    await flush();
+    expect(card._playMediaOnPlayer).toHaveBeenLastCalledWith("media_player.kitchen", "lib://playlist/1", "playlist", "add", { label: "Mix One", silent: true, radioMode: false });
+    expect(card._toastSuccess).toHaveBeenLastCalledWith("ui.added_to_studio_queue");
+    expect(card._state.controlRoomPanel).toBe("");
+    toggleControlRoomPanel(card, "library");
+    click(cards()[1].querySelector('[data-room-library-action="radio_mode"]'));
+    await flush();
+    expect(card._playMediaOnPlayer).toHaveBeenLastCalledWith("media_player.kitchen", "lib://track/2", "track", "play", { label: "Song Two", silent: true, radioMode: true });
+    toggleControlRoomPanel(card, "library");
+    click(cards()[1].querySelector('[data-room-library-action="like"]'));
+    await flush();
+    expect(card._toggleLikeEntry).toHaveBeenCalledWith(expect.objectContaining({ uri: "lib://track/2", media_type: "track" }));
+    expect(card._toastSuccess).toHaveBeenLastCalledWith("ui.favorite_updated");
+    expect(card._state.controlRoomPanel).toBe("library");
   });
   it("searches the library with a token guard and renders the results in place", async () => {
     const { card, root } = stubCard();
@@ -355,14 +366,16 @@ describe("scenes", () => {
     expect(controlRoomCustomScenes(card).map((s) => s.name)).toEqual(["Evening", "Old"]);
     expect(controlRoomCustomScenes(card)[0]).toMatchObject({ playerIds: ["media_player.kitchen"], volumes: { "media_player.kitchen": 0.5 }, media: { name: "Song A" } });
     expect(JSON.parse(localStorage.getItem("test_maverick_music_control_room_scenes_v1"))).toHaveLength(2);
-    expect(await applyControlRoomScene(card, "custom:abc")).toBe(true);
+    const applyScene = async (id) => { click(body.querySelector(`[data-room-scene="${id}"]`)); await flush(); await flush(); };
+    await applyScene("custom:abc");
+    expect(card._toastSuccess).toHaveBeenCalledWith('Scene "Old" applied');
     expect(card._state.controlRoomSelectedPlayers).toEqual(["media_player.office"]);
     expect(card._setPlayerVolumeFor).toHaveBeenCalledWith("media_player.office", 0.2);
     expect(card._playMediaOnPlayer).toHaveBeenCalledWith("media_player.office", "lib://playlist/old", "track", "play", { label: "Old mix", silent: true });
-    expect(await applyControlRoomScene(card, "custom:missing")).toBe(false);
-    expect(await applyControlRoomScene(card, "home")).toBe(true);
+    await applyScene("home");
+    expect(card._toastSuccess).toHaveBeenCalledWith("ui.home_scene_prepared");
     expect(card._setPlayerVolumeFor).toHaveBeenLastCalledWith("media_player.office", 0.35);
-    expect(await applyControlRoomScene(card, "night")).toBe(true);
+    await applyScene("night");
     expect(card._setPlayerVolumeFor).toHaveBeenLastCalledWith("media_player.office", 0.18);
     expect(card._search).toHaveBeenCalledWith("night chill playlist");
     click(body.querySelector('[data-room-delete-scene="custom:abc"]'));

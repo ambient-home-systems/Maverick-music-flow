@@ -89,7 +89,7 @@ async function syncSleepTimerToEngine(card, minutes = 15, source = "general", op
   }
 }
 
-export async function confirmSleepTimerInEngine(card, timerId = "", playerId = "", expectedTarget = 0) {
+async function confirmSleepTimerInEngine(card, timerId = "", playerId = "", expectedTarget = 0) {
   const id = String(timerId || "").trim();
   const player = String(playerId || "").trim();
   if ((!id && !player) || !card._maverickEngineEnabled()) return false;
@@ -137,7 +137,7 @@ async function deleteSleepTimerFromEngine(card, playerId = "", options = {}) {
   }
 }
 
-export async function hydrateSleepTimerFromEngine(card) {
+async function hydrateSleepTimerFromEngine(card) {
   if (!card._maverickEngineEnabled()) return false;
   const result = await card._maverickEngineGetTimers();
   if (!Array.isArray(result?.timers)) return false;
@@ -187,7 +187,7 @@ export async function setSleepTimerMinutes(card, minutes = 15, source = "general
   return saved;
 }
 
-export async function saveSleepTimerState(card, nextState, minutes, source) {
+async function saveSleepTimerState(card, nextState, minutes, source) {
   if (card._sleepTimerSavePending) {
     card._toastError(card._m("A timer update is still in progress."));
     return false;
@@ -214,7 +214,7 @@ export async function saveSleepTimerState(card, nextState, minutes, source) {
   }
 }
 
-export async function addSleepTimerMinutes(card, minutes = 15) {
+async function addSleepTimerMinutes(card, minutes = 15) {
   const amount = Math.max(1, Number(minutes) || 0);
   const player = card._getSelectedPlayer();
   const target = extendSleepTimerTargetAt(card._state.mobileSleepTimerEndsAt || 0, amount, Date.now());
@@ -226,7 +226,7 @@ export async function addSleepTimerMinutes(card, minutes = 15) {
   card._toastSuccess(card._i18n("ui.sleep_timer_added_minutes", { minutes: amount }));
 }
 
-export function toggleSleepTimerMenu(card, force = null) {
+function toggleSleepTimerMenu(card, force = null) {
   const next = typeof force === "boolean" ? force : !card._state.mobileSleepTimerMenuOpen;
   card._state.mobileSleepTimerMenuOpen = !!next && sleepTimerChipVisible(card);
   syncSleepTimerChip(card);
@@ -269,7 +269,7 @@ export async function cycleSleepTimer(card, source = "general") {
 // ---------------------------------------------------------------------------
 // Sleep timer: DOM
 
-export function sleepTimerCornerInnerHtml(card) {
+function sleepTimerCornerInnerHtml(card) {
   const label = sleepTimerFooterLabel(card);
   const active = !!label && sleepTimerChipVisible(card);
   if (!active) return "";
@@ -351,7 +351,7 @@ export function syncSleepTimerState(card) {
   card._toastSuccess(card._i18n("ui.sleep_timer_finished"));
 }
 
-export function syncMobileTimerAction(card) {
+function syncMobileTimerAction(card) {
   const btn = card.$("mobileTimerBtn");
   if (!btn) return;
   const remainingLabel = sleepTimerFooterLabel(card);
@@ -464,7 +464,7 @@ function engineScheduleToScheduledStartSchedule(card, schedule = {}, index = 0) 
   }, index);
 }
 
-export function scheduledStartEnginePayload(card, schedule = {}) {
+function scheduledStartEnginePayload(card, schedule = {}) {
   const normalized = normalizeScheduledStartSchedule(card, schedule);
   const playlistLabel = normalized.playlistName || scheduledStartPlaylistLabel(card, normalized) || "";
   const mediaMode = normalized.playlist ? "selected" : "random_playlist";
@@ -567,7 +567,7 @@ async function deleteScheduleFromEngine(card, id = "", options = {}) {
   }
 }
 
-export async function hydrateSchedulesFromEngine(card) {
+async function hydrateSchedulesFromEngine(card) {
   if (!card._maverickEngineEnabled()) return false;
   const result = await card._maverickEngineGetSchedules();
   const engineSchedules = Array.isArray(result?.schedules) ? result.schedules : [];
@@ -701,7 +701,7 @@ function scheduledStartStatusLabel(card) {
 // ---------------------------------------------------------------------------
 // Wake schedules: actions
 
-export async function setScheduledStartFromMenu(card) {
+async function setScheduledStartFromMenu(card) {
   const timeInput = card.$("scheduledStartTimeInput");
   const playerSelect = card.$("scheduledStartPlayerSelect");
   const playlistSelect = card.$("scheduledStartPlaylistSelect");
@@ -753,7 +753,7 @@ export async function setScheduledStartFromMenu(card) {
   return true;
 }
 
-export async function clearScheduledStart(card, showToast = false) {
+async function clearScheduledStart(card, showToast = false) {
   const editId = String(card._state.mobileStartScheduleEditId || "").trim();
   if (editId && editId !== "__new__") {
     card._state.mobileStartSchedules = scheduledStartSchedules(card).filter((schedule) => schedule.id !== editId);
@@ -769,7 +769,7 @@ export async function clearScheduledStart(card, showToast = false) {
   if (showToast) card._toast(card._i18n("ui.scheduled_start_cleared"));
 }
 
-export function editScheduledStart(card, id = "") {
+function editScheduledStart(card, id = "") {
   const schedule = scheduledStartSchedules(card).find((item) => item.id === id);
   if (!schedule) return false;
   card._state.mobileStartScheduleEditId = schedule.id;
@@ -785,7 +785,7 @@ export function editScheduledStart(card, id = "") {
   return true;
 }
 
-export function newScheduledStartDraft(card) {
+function newScheduledStartDraft(card) {
   card._state.mobileStartScheduleEditId = "__new__";
   card._state.mobileStartTimerEnabled = false;
   card._state.mobileStartTimerTime = "07:00";
@@ -798,7 +798,7 @@ export function newScheduledStartDraft(card) {
   card._state.mobileStartTimerAfterRun = "keep";
 }
 
-export async function toggleScheduledStart(card, id = "") {
+async function toggleScheduledStart(card, id = "") {
   const schedules = scheduledStartSchedules(card);
   const index = schedules.findIndex((schedule) => schedule.id === id);
   if (index < 0) return false;
@@ -810,7 +810,7 @@ export async function toggleScheduledStart(card, id = "") {
   return true;
 }
 
-export async function deleteScheduledStart(card, id = "") {
+async function deleteScheduledStart(card, id = "") {
   const schedules = scheduledStartSchedules(card).filter((schedule) => schedule.id !== id);
   card._state.mobileStartSchedules = schedules;
   if (card._state.mobileStartScheduleEditId === id) card._state.mobileStartScheduleEditId = "";
@@ -883,7 +883,7 @@ export function syncScheduledStartState(card, date = new Date()) {
 // ---------------------------------------------------------------------------
 // Page: Timers / Wake / Night tabs
 
-export function timersPageHtml(card) {
+function timersPageHtml(card) {
   card._loadPlayers();
   const remaining = sleepTimerRemainingLabel(card);
   const active = sleepTimerRemainingMs(card) > 0;

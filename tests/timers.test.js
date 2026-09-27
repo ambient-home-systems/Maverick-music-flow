@@ -8,13 +8,10 @@ import {
   isScheduleFormEditing,
   markScheduleFormControlActive,
   renderTimersPage,
-  sleepTimerCornerInnerHtml,
   sleepTimerFabHtml,
-  syncMobileTimerAction,
   syncScheduledStartState,
   syncSleepTimerChip,
   syncSleepTimerState,
-  timersPageHtml,
 } from "../src/core/media/timers.js";
 
 const { document, MouseEvent } = globalThis;
@@ -74,58 +71,68 @@ function stubCard(state = {}) {
   return { card, root };
 }
 const click = (el) => el.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+// Renders the page the way the menu does and hands back its markup.
+const render = async (card, body = document.createElement("div")) => { await renderTimersPage(card, body, () => true); return body.innerHTML; };
 afterEach(() => { document.body.innerHTML = ""; });
 
 describe("timers page render", () => {
-  it("shows presets without a cancel button until a timer is running", () => {
+  it("shows presets without a cancel button until a timer is running", async () => {
     const { card } = stubCard();
-    let html = timersPageHtml(card);
+    let html = await render(card);
     expect(html).toContain("ui.no_sleep_timer_is_active");
     expect(html.match(/data-sleep-timer-start="(\d+)"/g)).toEqual(['data-sleep-timer-start="15"', 'data-sleep-timer-start="30"', 'data-sleep-timer-start="60"']);
     expect(html).not.toContain("data-sleep-timer-cancel");
     card._state.mobileSleepTimerEndsAt = Date.now() + 15 * 60000;
-    html = timersPageHtml(card);
+    html = await render(card);
     expect(html).toContain("Active for 15m");
     expect(html).toContain("data-sleep-timer-cancel");
     expect(card._loadPlayers).toHaveBeenCalled();
   });
-  it("lists wake schedules with escaped names and opens the editor for a draft", () => {
+  it("lists wake schedules with escaped names and opens the editor for a draft", async () => {
     const { card } = stubCard({ mobileSchedulesTab: "wake", mobileStartSchedules: [schedule(), schedule({ id: "wake_2", enabled: false })] });
-    let html = timersPageHtml(card);
+    card._fetchLibrary = vi.fn(async () => []);
+    const body = document.createElement("div");
+    let html = await render(card, body);
     expect(html).toContain('data-start-schedule-edit="wake_1"');
-    expect(html).toContain("Kitchen &lt;Speaker>");
-    expect(html).toContain("Morning &quot;Mix&quot;");
+    expect(body.querySelector(".schedule-row-title").textContent).toBe("Kitchen <Speaker>");
+    expect(body.querySelector(".schedule-row-sub").textContent).toContain('Morning "Mix"');
     expect(html.match(/class="schedule-row disabled/g)).toHaveLength(1);
     expect(html).not.toContain("scheduledStartTimeInput");
     card._state.mobileStartScheduleEditId = "__new__";
     card._state.mobileStartTimerTime = "06:45";
-    html = timersPageHtml(card);
+    html = await render(card, body);
     expect(html).toContain('id="scheduledStartTimeInput"');
     expect(html).toContain('value="06:45"');
-    expect(html).toContain('<option value="media_player.kitchen" selected>');
+    expect(body.querySelector("#scheduledStartPlayerSelect").value).toBe("media_player.kitchen");
     expect(html).toContain("ui.create_schedule");
     expect(html).not.toContain("data-start-timer-clear");
   });
-  it("renders the night tab from the card's night mode", () => {
+  it("renders the night tab from the card's night mode", async () => {
     const { card } = stubCard({ mobileSchedulesTab: "night" });
-    expect(timersPageHtml(card)).toContain("ui.night_mode_is_off_until_you_choose_another_mode");
+    expect(await render(card)).toContain("ui.night_mode_is_off_until_you_choose_another_mode");
     card._state.mobileNightMode = "auto";
-    const html = timersPageHtml(card);
+    const html = await render(card);
     expect(html).toContain('id="mobileNightStartInput"');
     expect(html).toContain("data-setting-night-window-save");
     expect(html).toContain('data-schedule-tab="night"');
   });
   it("renders the corner chip and the quick-action button from the same timer state", () => {
-    const { card } = stubCard();
-    expect(sleepTimerCornerInnerHtml(card)).toBe("");
+    const { card, root } = stubCard();
+    const corner = root.querySelector("#sleepTimerCorner");
+    syncSleepTimerChip(card);
+    expect(corner.innerHTML).toBe("");
+    expect(corner.hidden).toBe(true);
     expect(sleepTimerFabHtml(card)).toContain('class="mobile-timer-label" hidden');
     card._state.mobileSleepTimerEndsAt = Date.now() + 90 * 1000;
-    const chip = sleepTimerCornerInnerHtml(card);
+    syncSleepTimerChip(card);
+    const chip = corner.innerHTML;
+    expect(corner.hidden).toBe(false);
     expect(chip).toContain('id="sleepTimerMenu" hidden');
     expect(chip.match(/data-sleep-timer-add="(\d+)"/g)).toHaveLength(3);
     expect(chip).toMatch(/<span id="sleepTimerChipLabel">1:(29|30)<\/span>/);
     card._state.mobileSleepTimerMenuOpen = true;
-    expect(sleepTimerCornerInnerHtml(card)).toContain('id="sleepTimerMenu">');
+    syncSleepTimerChip(card);
+    expect(corner.innerHTML).toContain('id="sleepTimerMenu">');
     expect(sleepTimerFabHtml(card)).toContain("mobile-timer-fab active");
   });
   it("hydrates, loads playlists and renders the page only while still current", async () => {
@@ -165,7 +172,7 @@ describe("timers page bind", () => {
   it("handles tab, preset and cancel clicks and re-renders the page", async () => {
     const { card, root } = stubCard();
     const body = root.querySelector("#mobileMenuBody");
-    body.innerHTML = timersPageHtml(card);
+    await render(card, body);
     const dispatch = (selector) => { const target = body.querySelector(selector); const event = new MouseEvent("click", { bubbles: true, cancelable: true }); Object.defineProperty(event, "target", { value: target }); return handleTimersMenuClick(card, event, target); };
     expect(await dispatch('[data-schedule-tab="wake"]')).toBe(true);
     expect(card._state.mobileSchedulesTab).toBe("wake");
@@ -174,7 +181,7 @@ describe("timers page bind", () => {
     expect(card._state.mobileSleepTimerPlayer).toBe("media_player.kitchen");
     expect(card._state.mobileSleepTimerEndsAt).toBeGreaterThan(Date.now() + 29 * 60000);
     card._state.mobileSchedulesTab = "timers";
-    body.innerHTML = timersPageHtml(card);
+    await render(card, body);
     expect(await dispatch("[data-sleep-timer-cancel]")).toBe(true);
     expect(card._state.mobileSleepTimerEndsAt).toBe(0);
     const unrelated = document.createElement("button");
@@ -186,10 +193,10 @@ describe("timers page bind", () => {
   it("creates, edits, toggles and deletes wake schedules from the editor", async () => {
     const { card, root } = stubCard({ mobileSchedulesTab: "wake" });
     const body = root.querySelector("#mobileMenuBody");
-    const dispatch = async (selector) => { body.innerHTML = timersPageHtml(card); const target = body.querySelector(selector); const event = new MouseEvent("click", { bubbles: true, cancelable: true }); Object.defineProperty(event, "target", { value: target }); return handleTimersMenuClick(card, event, target); };
+    const dispatch = async (selector) => { await render(card, body); const target = body.querySelector(selector); const event = new MouseEvent("click", { bubbles: true, cancelable: true }); Object.defineProperty(event, "target", { value: target }); return handleTimersMenuClick(card, event, target); };
     await dispatch("[data-start-schedule-new]");
     expect(card._state.mobileStartScheduleEditId).toBe("__new__");
-    body.innerHTML = timersPageHtml(card);
+    await render(card, body);
     body.querySelector("#scheduledStartTimeInput").value = "06:15";
     body.querySelector("#scheduledStartVolumeInput").value = "55";
     body.querySelector("#scheduledStartAfterRunSelect").value = "disable";
@@ -216,10 +223,57 @@ describe("timers page bind", () => {
     await dispatch('[data-start-schedule-delete="wake_1"]');
     expect(card._state.mobileStartSchedules).toHaveLength(0);
   });
-  it("writes editor changes into the draft without touching unrelated inputs", () => {
+  it("sends a saved schedule to the Engine as a wake_playback payload keyed by schedule_id", async () => {
+    const { card, root } = stubCard({ mobileSchedulesTab: "wake", mobileStartScheduleEditId: "__new__" });
+    card._maverickEngineEnabled = () => true;
+    card._maverickEngineReadyForPersistence = async () => true;
+    card._maverickEngineTimeoutMs = () => 5000;
+    card._maverickEngineSetSchedule = vi.fn(async () => ({ ok: true }));
+    // The page read (no options) sees an empty Engine; the confirmation read (required) sees what was saved.
+    card._maverickEngineGetSchedules = vi.fn(async (_, options) => ({ schedules: options ? card._state.mobileStartSchedules.map((item) => ({ schedule_id: item.id })) : [] }));
+    const body = root.querySelector("#mobileMenuBody");
+    const save = async () => {
+      card._maverickEngineSetSchedule.mockClear();
+      const target = body.querySelector("[data-start-timer-save]");
+      const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "target", { value: target });
+      await handleTimersMenuClick(card, event, target);
+      expect(card._maverickEngineSetSchedule).toHaveBeenCalledOnce();
+      return card._maverickEngineSetSchedule.mock.calls[0][0];
+    };
+    await render(card, body);
+    body.querySelector("#scheduledStartPlaylistSelect").value = "library://playlist/1";
+    const selected = await save();
+    expect(selected).toEqual(expect.objectContaining({
+      kind: "wake_playback",
+      schedule_id: card._state.mobileStartSchedules[0].id,
+      player: "media_player.kitchen",
+      media_id: "library://playlist/1",
+      playlist: "library://playlist/1",
+      media_mode: "selected",
+      playlist_name: "Morning Mix",
+    }));
+    expect(selected).not.toHaveProperty("fallback_action");
+    expect(selected).not.toHaveProperty("id");
+    expect(card._maverickEngineSetSchedule).toHaveBeenCalledWith(selected, { required: true });
+    expect(card._toastSuccess).toHaveBeenLastCalledWith("Schedule saved to Maverick Music Engine");
+    card._state.mobileStartScheduleEditId = "__new__";
+    await render(card, body);
+    body.querySelector("#scheduledStartPlaylistSelect").value = "";
+    const random = await save();
+    expect(random).toEqual(expect.objectContaining({
+      schedule_id: card._state.mobileStartSchedules[1].id,
+      player: "media_player.kitchen",
+      media_id: "",
+      media_mode: "random_playlist",
+      selection_mode: "random_playlist",
+      media_type: "playlist",
+    }));
+  });
+  it("writes editor changes into the draft without touching unrelated inputs", async () => {
     const { card, root } = stubCard({ mobileSchedulesTab: "wake", mobileStartScheduleEditId: "__new__" });
     const body = root.querySelector("#mobileMenuBody");
-    body.innerHTML = timersPageHtml(card);
+    await render(card, body);
     const change = (el) => handleTimersFormChange(card, { target: el });
     const time = body.querySelector("#scheduledStartTimeInput"); time.value = "05:50";
     expect(change(time)).toBe(true);
@@ -288,7 +342,7 @@ describe("timers sync", () => {
     expect(fab.querySelector(".mobile-timer-label").hidden).toBe(false);
     card._mobileQuickActions = () => [];
     card._state.mobileSleepTimerEndsAt = 0;
-    syncMobileTimerAction(card);
+    syncSleepTimerChip(card);
     expect(fab.hidden).toBe(true);
     expect(card._rebuildMobileUi).not.toHaveBeenCalled();
   });
