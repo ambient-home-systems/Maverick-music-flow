@@ -1,7 +1,15 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import { normalizeWaveform, waveformPath, syncWaveform } from "../src/core/media/waveform.js";
+import { syncWaveform } from "../src/core/media/waveform.js";
 const { document } = globalThis;
+// Renders one analysis result into a fresh progress bar and returns the bar.
+async function rendered(analysis, progress = document.createElement("div")) {
+  const card = { _config: {}, _getCurrentMediaUri: () => "spotify://track/one", $: () => progress, _callEngineMaCommand: vi.fn(async () => analysis) };
+  syncWaveform(card, progress, 25); await Promise.all(card._waveformPending.values());
+  syncWaveform(card, progress, 25);
+  return progress;
+}
+const bars = (progress) => (progress.querySelector(".waveform-base").getAttribute("d").match(/M/g) || []).length;
 
 describe("MA waveform", () => {
   it("retries a transient failure during the same track without request flooding", async () => {
@@ -14,17 +22,30 @@ describe("MA waveform", () => {
     syncWaveform(card,progress,20);await Promise.all(card._waveformPending.values());
     expect(command).toHaveBeenCalledTimes(2);expect(progress.classList.contains('has-waveform')).toBe(true);
   });
-  it("uses only valid finite analysis bins", () => {
-    expect(normalizeWaveform(null)).toBeNull();
-    expect(normalizeWaveform([1, NaN])).toBeNull();
-    expect(normalizeWaveform(["1", 0])).toBeNull();
-    expect(normalizeWaveform([-1, .3, 2])).toEqual([0, .3, 1]);
+  it("uses only valid finite analysis bins", async () => {
+    for (const invalid of [null, [1, NaN], ["1", 0], [0.5]]) {
+      expect((await rendered(invalid)).classList.contains("has-waveform")).toBe(false);
+    }
+    const path = (await rendered([-1, .3, 2])).querySelector(".waveform-base").getAttribute("d");
+    expect(path.startsWith("M6.00 21.00V23.00")).toBe(true); // -1 clamps to 0: the minimum bar
+    expect(path).toContain("16.30V27.70"); // .3 stays as is
+    expect(path.endsWith("M714.00 3.00V41.00")).toBe(true); // 2 clamps to 1: the full bar
   });
-  it("adapts density to width and preserves peaks", () => {
+  it("adapts density to width and preserves peaks", async () => {
     const bins = Array(1800).fill(0); bins[0] = 1;
-    expect((waveformPath(bins, 300).match(/M/g) || []).length).toBe(60);
-    expect((waveformPath(bins, 700).match(/M/g) || []).length).toBe(140);
-    expect(waveformPath(bins, 300)).toContain("3.00V41.00");
+    const progress = document.createElement("div");
+    let width = 0;
+    Object.defineProperty(progress, "clientWidth", { get: () => width });
+    const card = { _config: {}, _getCurrentMediaUri: () => "spotify://track/one", $: () => progress, _callEngineMaCommand: vi.fn(async () => bins) };
+    syncWaveform(card, progress, 25); await Promise.all(card._waveformPending.values());
+    syncWaveform(card, progress, 25);
+    expect(bars(progress)).toBe(60); // an unmeasured bar renders as 300px wide
+    expect(progress.querySelector(".waveform-base").getAttribute("d")).toContain("3.00V41.00");
+    width = 700; syncWaveform(card, progress, 25);
+    expect(bars(progress)).toBe(140);
+    card._performanceModeEnabled = () => true; syncWaveform(card, progress, 25);
+    expect(bars(progress)).toBe(30);
+    expect(card._callEngineMaCommand).toHaveBeenCalledOnce();
   });
   it("deduplicates reads and ignores a stale result after a track change", async () => {
     const progress = document.createElement("div");
