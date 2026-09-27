@@ -2,7 +2,6 @@ import {
   extractVoiceAssistantMusicQuery,
   normalizeVoiceCommandText,
   voiceAssistantAliasIndex,
-  voiceAssistantBestCandidate as bestCandidateOf,
   voiceAssistantCanonicalMediaType,
   voiceAssistantFocusedMusicQuery,
   voiceAssistantRankedCandidates as rankedCandidatesOf,
@@ -217,7 +216,7 @@ function voiceAssistantPlayerAliases(player = null) {
   return aliases.sort((left, right) => right.length - left.length);
 }
 
-export function voiceAssistantMentionedPlayers(card, transcript = "") {
+function voiceAssistantMentionedPlayers(card, transcript = "") {
   const normalized = normalizeVoiceCommandText(transcript);
   if (!normalized) return [];
   const matches = [];
@@ -269,7 +268,7 @@ function resolveVoiceAssistantTarget(card, transcript = "") {
   };
 }
 
-export function voiceAssistantQueueIntent(card, transcript = "") {
+function voiceAssistantQueueIntent(card, transcript = "") {
   const normalized = normalizeVoiceCommandText(transcript);
   if (!normalized) return null;
   const hasQueueWord = voiceCommandHasAny(normalized, ["queue", "current queue", "play queue", "music queue"]);
@@ -292,7 +291,7 @@ export function voiceAssistantQueueIntent(card, transcript = "") {
   };
 }
 
-export function voiceAssistantSpeakerGroupIntent(card, transcript = "") {
+function voiceAssistantSpeakerGroupIntent(card, transcript = "") {
   const normalized = normalizeVoiceCommandText(transcript);
   if (!normalized) return null;
   const mentioned = voiceAssistantMentionedPlayers(card, transcript);
@@ -324,7 +323,7 @@ export function voiceAssistantSpeakerGroupIntent(card, transcript = "") {
   };
 }
 
-export function voiceAssistantCommandIntent(card, transcript = "", player = null, { forceMusic = false } = {}) {
+function voiceAssistantCommandIntent(card, transcript = "", player = null, { forceMusic = false } = {}) {
   const normalized = normalizeVoiceCommandText(transcript);
   if (!normalized) return { type: "unknown" };
   const queueIntent = voiceAssistantQueueIntent(card, transcript);
@@ -422,11 +421,7 @@ function voiceAssistantRankedCandidates(card, results = {}, query = "") {
   return rankedCandidatesOf(normalizeSmartVoiceCandidates(card, results), query);
 }
 
-export function voiceAssistantBestCandidate(card, results = {}, query = "") {
-  return bestCandidateOf(normalizeSmartVoiceCandidates(card, results), query);
-}
-
-export async function playVoiceAssistantMusic(card, query = "", player = null) {
+async function playVoiceAssistantMusic(card, query = "", player = null) {
   const target = player || card._getSelectedPlayer();
   if (!target?.entity_id) {
     const message = card._i18n("ui.voice_command_no_player");
@@ -663,7 +658,7 @@ async function sendVoiceCommandToAssist(card, transcript = "") {
   }
 }
 
-export async function handleVoiceAssistantTranscript(card, transcript = "") {
+async function handleVoiceAssistantTranscript(card, transcript = "") {
   const text = String(transcript || "").trim();
   if (!text) {
     const message = card._i18n("ui.no_speech_was_captured");
@@ -742,7 +737,7 @@ function updateVoiceAssistantDialog(card, updates = {}) {
   syncVoiceAssistantDialog(card);
 }
 
-export function closeVoiceAssistantDialog(card, { stopRecognition = true } = {}) {
+function closeVoiceAssistantDialog(card, { stopRecognition = true } = {}) {
   clearTimeout(card._voiceAssistantDialogCloseTimer);
   clearTimeout(card._voiceAssistantRecognitionTimer);
   card._voiceAssistantRecognitionTimer = null;

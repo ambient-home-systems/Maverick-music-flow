@@ -4,13 +4,10 @@ import {
   bindEmptyVoiceButton,
   bindSmartVoiceBackdrop,
   closeSmartVoiceConfirm,
-  closeVoiceAssistantDialog,
   emptyVoiceButtonHtml,
   flowAssistantLabel,
-  handleVoiceAssistantTranscript,
   handleVoiceSettingsChange,
   handleVoiceSettingsClick,
-  playVoiceAssistantMusic,
   speechRecognitionCtor,
   startControlRoomLibraryVoice,
   startMobileVoiceSearch,
@@ -18,15 +15,10 @@ import {
   stopVoiceAssistantRecognition,
   syncVoiceAssistantDialog,
   voiceAssistantAgentId,
-  voiceAssistantBestCandidate,
-  voiceAssistantCommandIntent,
   voiceAssistantEnabled,
   voiceAssistantFabHtml,
-  voiceAssistantMentionedPlayers,
   voiceAssistantMode,
-  voiceAssistantQueueIntent,
   voiceAssistantSettingsSectionHtml,
-  voiceAssistantSpeakerGroupIntent,
   voiceAssistantSpeakFeedbackEnabled,
 } from "../src/core/media/voice.js";
 import { resetScreensaverTimer } from "../src/core/media/screensaver.js";
@@ -125,6 +117,16 @@ function stubCard(state = {}) {
   return { card, root };
 }
 
+// Speaks one final transcript to the Flow Assistant and returns the dialog's outcome once it settles.
+// Needs fake timers: the outcome is read from the dialog state before its auto-close fires.
+async function speak(card, transcript) {
+  window.SpeechRecognition = FakeRecognition;
+  startVoiceAssistantCommand(card);
+  FakeRecognition.instances.at(-1).result(transcript);
+  for (let i = 0; i < 5; i += 1) await vi.advanceTimersByTimeAsync(0);
+  return { ok: card._state.voiceAssistantDialogStatus === "success", message: card._state.voiceAssistantResponse };
+}
+
 afterEach(() => {
   document.body.innerHTML = "";
   FakeRecognition.instances = [];
@@ -180,99 +182,129 @@ describe("settings", () => {
 });
 
 describe("intents", () => {
-  it("finds mentioned players by alias in spoken order without overlaps", () => {
+  it("finds mentioned players by alias in spoken order without overlaps", async () => {
+    vi.useFakeTimers();
     const { card } = stubCard();
     card._state.players.push(player("media_player.kitchen_2", "Kitchen Two"));
-    const ids = (text) => voiceAssistantMentionedPlayers(card, text).map((p) => p.entity_id);
-    expect(ids("move the queue from Kitchen Two to the computer")).toEqual(["media_player.kitchen_2", "media_player.computer"]);
-    expect(ids("play something")).toEqual([]);
-    expect(ids("")).toEqual([]);
+    await speak(card, "move the queue from Kitchen Two to the computer");
+    expect(card._transferQueueBetween).toHaveBeenCalledWith("media_player.kitchen_2", "media_player.computer", { silent: true });
+    await speak(card, "play something");
+    expect(card._search).toHaveBeenCalledWith(expect.stringContaining("something"));
     card._state.players[0].state = "unavailable";
-    expect(ids("computer")).toEqual([]);
+    await speak(card, "ungroup the computer");
+    expect(card._clearSpeakerGroupFor).toHaveBeenCalledWith("media_player.kitchen");
   });
-  it("builds queue transfer and speaker group intents", () => {
+  it("builds queue transfer and speaker group intents", async () => {
+    vi.useFakeTimers();
     const { card } = stubCard();
-    expect(voiceAssistantQueueIntent(card, "transfer the queue from Computer to Kitchen")).toEqual({ type: "queue_transfer", sourcePlayerId: "media_player.computer", targetPlayerId: "media_player.kitchen" });
-    expect(voiceAssistantQueueIntent(card, "send the queue to kitchen")).toEqual({ type: "queue_transfer", sourcePlayerId: "media_player.computer", targetPlayerId: "media_player.kitchen" });
-    expect(voiceAssistantQueueIntent(card, "kitchen queue")).toBe(null);
-    expect(voiceAssistantSpeakerGroupIntent(card, "ungroup all speakers")).toEqual({ type: "group_disconnect_all" });
-    expect(voiceAssistantSpeakerGroupIntent(card, "ungroup the kitchen")).toEqual({ type: "group_disconnect", playerId: "media_player.kitchen" });
-    expect(voiceAssistantSpeakerGroupIntent(card, "group computer with kitchen")).toEqual({ type: "group_connect", primaryPlayerId: "media_player.computer", memberPlayerIds: ["media_player.kitchen"] });
-    expect(voiceAssistantSpeakerGroupIntent(card, "join the kitchen")).toEqual({ type: "group_connect", primaryPlayerId: "media_player.computer", memberPlayerIds: ["media_player.kitchen"] });
-    expect(voiceAssistantSpeakerGroupIntent(card, "play jazz")).toBe(null);
+    await speak(card, "transfer the queue from Computer to Kitchen");
+    expect(card._transferQueueBetween).toHaveBeenLastCalledWith("media_player.computer", "media_player.kitchen", { silent: true });
+    await speak(card, "send the queue to kitchen");
+    expect(card._transferQueueBetween).toHaveBeenLastCalledWith("media_player.computer", "media_player.kitchen", { silent: true });
+    await speak(card, "kitchen queue");
+    expect(card._transferQueueBetween).toHaveBeenCalledTimes(2);
+    expect(card._callHomeAssistantWs).toHaveBeenLastCalledWith(expect.objectContaining({ text: "kitchen queue" }));
+    await speak(card, "ungroup all speakers");
+    expect(card._disconnectPlayerGroups).toHaveBeenCalledWith({ silent: true });
+    await speak(card, "ungroup the kitchen");
+    expect(card._clearSpeakerGroupFor).toHaveBeenCalledWith("media_player.kitchen");
+    await speak(card, "group computer with kitchen");
+    expect(card._applySpeakerGroupFor).toHaveBeenLastCalledWith("media_player.computer", ["media_player.kitchen"]);
+    await speak(card, "join the kitchen");
+    expect(card._applySpeakerGroupFor).toHaveBeenLastCalledWith("media_player.computer", ["media_player.kitchen"]);
+    await speak(card, "play jazz");
+    expect(card._applySpeakerGroupFor).toHaveBeenCalledTimes(2);
+    expect(card._search).toHaveBeenCalledWith("jazz");
   });
-  it("routes transport words and music requests", () => {
+  it("routes transport words and music requests", async () => {
+    vi.useFakeTimers();
     const { card } = stubCard();
-    const type = (text, options) => voiceAssistantCommandIntent(card, text, card._getSelectedPlayer(), options).type;
-    expect(type("next song")).toBe("next");
-    expect(type("go back")).toBe("previous");
-    expect(type("pause")).toBe("pause");
-    expect(type("stop")).toBe("stop");
-    expect(type("resume playing")).toBe("resume");
-    expect(type("what time is it")).toBe("unknown");
-    expect(type("")).toBe("unknown");
-    const music = voiceAssistantCommandIntent(card, "play imagine on the computer", card._getSelectedPlayer());
-    expect(music.type).toBe("music");
-    expect(music.query).toContain("imagine");
-    expect(music.query).not.toContain("computer");
-    expect(voiceAssistantCommandIntent(card, "imagine", null, { forceMusic: true })).toEqual({ type: "music", query: "imagine" });
+    await speak(card, "next song");
+    expect(card._playerCmdFor).toHaveBeenLastCalledWith("media_player.computer", "next");
+    await speak(card, "go back");
+    expect(card._playerCmdFor).toHaveBeenLastCalledWith("media_player.computer", "previous");
+    await speak(card, "pause");
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenLastCalledWith("media_player.computer", "pause");
+    await speak(card, "stop");
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenLastCalledWith("media_player.computer", "stop");
+    await speak(card, "resume playing");
+    expect(card._callMaverickEnginePlayerCommand).toHaveBeenLastCalledWith("media_player.computer", "play");
+    await speak(card, "what time is it");
+    expect(card._callHomeAssistantWs).toHaveBeenCalledWith(expect.objectContaining({ text: "what time is it" }));
+    await speak(card, "play imagine on the computer");
+    expect(card._search).toHaveBeenLastCalledWith(expect.stringContaining("imagine"));
+    expect(card._search.mock.lastCall[0]).not.toContain("computer");
+    card._state.voiceAssistantMode = "music";
+    await speak(card, "imagine");
+    expect(card._search).toHaveBeenLastCalledWith("imagine");
   });
 });
 
 describe("music playback", () => {
   const track = (uri, name, artist) => ({ uri, media_type: "track", name, artist });
-  it("picks the best matching candidate and rejects unrelated results", () => {
+  it("plays the candidate that matches the spoken title and artist over unrelated results", async () => {
+    vi.useFakeTimers();
     const { card } = stubCard();
-    const results = { tracks: [track("spotify://track/wrong", "Middle of the Night", "Stam"), track("spotify://track/michelle", "Michelle", "Noam Bettan")] };
-    expect(voiceAssistantBestCandidate(card, results, "play the song michelle by noam bettan")?.uri).toBe("spotify://track/michelle");
-    expect(voiceAssistantBestCandidate(card, { tracks: [results.tracks[0]] }, "the song michelle by noam bettan")).toBe(null);
+    card._search.mockResolvedValue({ ...empty(), tracks: [track("spotify://track/wrong", "Middle of the Night", "Stam"), track("spotify://track/michelle", "Michelle", "Noam Bettan")] });
+    expect((await speak(card, "play the song michelle by noam bettan")).ok).toBe(true);
+    expect(card._playMediaOnPlayer).toHaveBeenCalledWith("media_player.computer", "spotify://track/michelle", "track", "play", { label: "Michelle", silent: true });
   });
   it("falls back to a focused search through the card service and selects the target player", async () => {
-    const { card } = stubCard();
+    vi.useFakeTimers();
+    // With nothing selected, the playing kitchen is the target and gets selected for the playback.
+    const { card } = stubCard({ selectedPlayer: "" });
     card._callService.mockResolvedValueOnce({ ...empty(), playlists: [{ uri: "spotify://playlist/shlomo", media_type: "playlist", name: "This Is Shlomo Artzi" }] });
-    const result = await playVoiceAssistantMusic(card, "playlist by shlomo artzi", card._state.players[1]);
-    expect(result).toMatchObject({ ok: true, autoCloseMs: 1400 });
+    const result = await speak(card, "play playlist by shlomo artzi");
+    expect(result).toEqual({ ok: true, message: "ui.voice_playing_result:This Is Shlomo Artzi" });
     expect(card._search).toHaveBeenCalledWith("playlist by shlomo artzi");
     expect(card._callService).toHaveBeenCalledWith("search", { name: "playlist shlomo artzi", query: "playlist shlomo artzi", limit: 30, media_type: ["playlist"] });
     expect(card._selectPlayer).toHaveBeenCalledWith("media_player.kitchen", true);
     expect(card._playMediaOnPlayer).toHaveBeenCalledWith("media_player.kitchen", "spotify://playlist/shlomo", "playlist", "play", { label: "This Is Shlomo Artzi", silent: true });
-    expect(card._state.voiceAssistantResponse).toBe("ui.voice_starting_playback:This Is Shlomo Artzi");
+    vi.advanceTimersByTime(1399);
+    expect(card._state.voiceAssistantDialogOpen).toBe(true);
+    vi.advanceTimersByTime(1);
+    expect(card._state.voiceAssistantDialogOpen).toBe(false);
   });
-  it("reports missing players, empty queries and no matches", async () => {
-    const { card } = stubCard({ selectedPlayer: "" });
-    expect((await playVoiceAssistantMusic(card, "jazz")).ok).toBe(false);
+  it("reports a missing player and no matches", async () => {
+    vi.useFakeTimers();
+    const { card } = stubCard({ players: [], selectedPlayer: "" });
+    expect(await speak(card, "play jazz")).toEqual({ ok: false, message: "ui.voice_command_no_player" });
     expect(card._toastError).toHaveBeenLastCalledWith("ui.voice_command_no_player");
-    expect((await playVoiceAssistantMusic(card, "  ", card._state.players[0])).message).toBe("ui.voice_command_not_understood");
-    card._search.mockRejectedValueOnce(new Error("offline"));
-    expect((await playVoiceAssistantMusic(card, "jazz", card._state.players[0])).message).toBe("ui.no_matching_content_was_found");
-    expect(card._playMediaOnPlayer).not.toHaveBeenCalled();
+    const other = stubCard();
+    other.card._search.mockRejectedValueOnce(new Error("offline"));
+    expect(await speak(other.card, "play jazz")).toEqual({ ok: false, message: "ui.no_matching_content_was_found" });
+    expect(other.card._playMediaOnPlayer).not.toHaveBeenCalled();
   });
 });
 
 describe("transcript routing", () => {
   it("runs media commands, player management and the Assist bridge by mode", async () => {
+    vi.useFakeTimers();
     const { card } = stubCard();
-    expect(await handleVoiceAssistantTranscript(card, "pause")).toMatchObject({ ok: true, autoCloseMs: 1200, message: "ui.voice_command_completed_action:pause" });
+    expect(await speak(card, "pause")).toEqual({ ok: true, message: "ui.voice_command_completed_action:pause" });
     expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledWith("media_player.computer", "pause");
-    expect(await handleVoiceAssistantTranscript(card, "skip on kitchen")).toMatchObject({ ok: true });
+    vi.advanceTimersByTime(1199);
+    expect(card._state.voiceAssistantDialogOpen).toBe(true);
+    vi.advanceTimersByTime(1);
+    expect(card._state.voiceAssistantDialogOpen).toBe(false);
+    expect((await speak(card, "skip on kitchen")).ok).toBe(true);
     expect(card._playerCmdFor).toHaveBeenCalledWith("media_player.kitchen", "next");
     expect(card._selectPlayer).toHaveBeenCalledWith("media_player.kitchen", true);
     card._state.selectedPlayer = "media_player.computer";
-    expect(await handleVoiceAssistantTranscript(card, "transfer the queue from computer to kitchen")).toMatchObject({ ok: true, message: "ui.voice_queue_transferred_between:computer,kitchen" });
+    expect(await speak(card, "transfer the queue from computer to kitchen")).toEqual({ ok: true, message: "ui.voice_queue_transferred_between:computer,kitchen" });
     expect(card._transferQueueBetween).toHaveBeenCalledWith("media_player.computer", "media_player.kitchen", { silent: true });
-    expect(await handleVoiceAssistantTranscript(card, "ungroup all speakers")).toMatchObject({ ok: true, message: "ui.all_player_groups_disconnected" });
+    expect(await speak(card, "ungroup all speakers")).toEqual({ ok: true, message: "ui.all_player_groups_disconnected" });
     card._state.voiceAssistantAgentId = "conversation.home";
-    expect(await handleVoiceAssistantTranscript(card, "turn on the lights")).toEqual({ handled: true, ok: true, message: "Lights are on" });
+    expect(await speak(card, "turn on the lights")).toEqual({ ok: true, message: "Lights are on" });
     expect(card._callHomeAssistantWs).toHaveBeenCalledWith({ type: "conversation/process", text: "turn on the lights", language: "en", agent_id: "conversation.home" });
     expect(card._toast).toHaveBeenCalledWith("Lights are on", "info", { duration: 6500 });
     card._state.voiceAssistantMode = "music";
-    expect(await handleVoiceAssistantTranscript(card, "turn on the lights")).toMatchObject({ ok: false, message: "ui.no_matching_content_was_found" });
+    expect(await speak(card, "turn on the lights")).toEqual({ ok: false, message: "ui.no_matching_content_was_found" });
     expect(card._callHomeAssistantWs).toHaveBeenCalledTimes(1);
     card._state.voiceAssistantMode = "assist";
-    await handleVoiceAssistantTranscript(card, "pause");
+    await speak(card, "pause");
     expect(card._callHomeAssistantWs).toHaveBeenLastCalledWith(expect.objectContaining({ text: "pause" }));
     expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledTimes(1);
-    expect((await handleVoiceAssistantTranscript(card, "  ")).message).toBe("ui.no_speech_was_captured");
   });
 });
 
@@ -377,7 +409,8 @@ describe("assistant dialog", () => {
     expect(root.querySelector("#voiceAssistantDialogIconSlot").dataset.iconName).toBe("close");
     root.querySelector("#voiceAssistantDialogRetry").click();
     expect(FakeRecognition.instances).toHaveLength(4);
-    closeVoiceAssistantDialog(card);
+    root.querySelector("#voiceAssistantDialogCloseSecondary").click();
+    expect(card._state.voiceAssistantListening).toBe(false);
     expect(root.querySelector("#voiceAssistantDialog").innerHTML).toBe("");
   });
   it("renders the mic buttons and binds the empty-state one", () => {

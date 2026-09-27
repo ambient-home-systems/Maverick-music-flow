@@ -1,11 +1,18 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import {
-  playVoiceAssistantMusic,
-  voiceAssistantBestCandidate,
-  voiceAssistantCommandIntent,
-  voiceAssistantQueueIntent,
-  voiceAssistantSpeakerGroupIntent,
-} from "../src/core/media/voice.js";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { startVoiceAssistantCommand } from "../src/core/media/voice.js";
+import { voiceAssistantBestCandidate } from "../src/core/voice-assistant-matching.js";
+
+class FakeRecognition {
+  static last = null;
+  constructor() { FakeRecognition.last = this; }
+  start() {}
+  abort() {}
+  result(transcript) {
+    const alternative = [{ transcript }];
+    alternative.isFinal = true;
+    this.onresult?.({ results: [alternative] });
+  }
+}
 
 let MaverickMusicFlowCard;
 const originalGlobals = {
@@ -69,22 +76,50 @@ function withPlayers(card, players) {
   return card;
 }
 
+// Speaks one command to the Flow Assistant on a real card, with the player and
+// Home Assistant calls stubbed so the test observes which command was chosen.
+async function speak(card, transcript) {
+  globalThis.window.SpeechRecognition = FakeRecognition;
+  card.classList ||= { add() {}, remove() {}, toggle() {}, contains() { return false; } };
+  card._state.voiceAssistantEnabled = true;
+  card._toast = () => {};
+  card._toastError = () => {};
+  card._toastSuccess = () => {};
+  card._selectPlayer = () => {};
+  startVoiceAssistantCommand(card);
+  FakeRecognition.last.result(transcript);
+  await vi.waitFor(() => expect(card._state.voiceAssistantDialogStatus).not.toBe("processing"));
+  return { ok: card._state.voiceAssistantDialogStatus === "success", message: card._state.voiceAssistantResponse };
+}
+
 describe("command routing", () => {
   it.each([
-    ["next song", "next"], ["previous track", "previous"],
-    ["pause", "pause"], ["stop", "stop"], ["resume playing", "resume"],
-  ])("routes %s to %s", (text, type) => {
+    ["next song", ["transport", "next"]], ["previous track", ["transport", "previous"]],
+    ["pause", ["engine", "pause"]], ["stop", ["engine", "stop"]], ["resume playing", ["engine", "play"]],
+  ])("routes %s to %s", async (text, expected) => {
     const card = createCard();
-    expect(voiceAssistantCommandIntent(card, text).type).toBe(type);
+    withPlayers(card, [["media_player.computer", "Computer"]]);
+    card._state.selectedPlayer = "media_player.computer";
+    const calls = [];
+    card._playerCmdFor = async (entityId, command) => calls.push(["transport", command, entityId]);
+    card._callMaverickEnginePlayerCommand = async (entityId, command) => calls.push(["engine", command, entityId]);
+    expect((await speak(card, text)).ok).toBe(true);
+    expect(calls).toEqual([[...expected, "media_player.computer"]]);
   });
-  it("recognizes a queue transfer without changing player order", () => {
+  it("recognizes a queue transfer without changing player order", async () => {
     const card = createCard();
     withPlayers(card, [["media_player.computer", "Computer"], ["media_player.kitchen", "Kitchen"]]);
-    expect(voiceAssistantQueueIntent(card, "transfer the queue from Computer to Kitchen")).toEqual({ type: "queue_transfer", sourcePlayerId: "media_player.computer", targetPlayerId: "media_player.kitchen" });
+    const transfers = [];
+    card._transferQueueBetween = async (source, target) => transfers.push([source, target]);
+    await speak(card, "transfer the queue from Computer to Kitchen");
+    expect(transfers).toEqual([["media_player.computer", "media_player.kitchen"]]);
   });
-  it("recognizes explicit group disconnection", () => {
+  it("recognizes explicit group disconnection", async () => {
     const card = createCard();
-    expect(voiceAssistantSpeakerGroupIntent(card, "ungroup all speakers")).toEqual({ type: "group_disconnect_all" });
+    let disconnected = 0;
+    card._disconnectPlayerGroups = async () => { disconnected += 1; return { ok: true, count: 1 }; };
+    expect((await speak(card, "ungroup all speakers")).ok).toBe(true);
+    expect(disconnected).toBe(1);
   });
 });
 
@@ -367,46 +402,30 @@ describe("now playing subtitle", () => {
 
 describe("voice assistant music matching", () => {
   it("rejects unrelated search results instead of auto-playing by media type only", () => {
-    const card = createCard();
-    const result = voiceAssistantBestCandidate(card, {
-      tracks: [
-        {
-          uri: "spotify://track/wrong",
-          media_type: "track",
-          name: "Middle of the Night",
-          artist: "Stam and Goody",
-        },
-      ],
-    }, "the song michelle by noam bettan");
+    const result = voiceAssistantBestCandidate([
+      { uri: "spotify://track/wrong", media_type: "track", name: "Middle of the Night", artist: "Stam and Goody" },
+    ], "the song michelle by noam bettan");
 
     expect(result).toBe(null);
   });
 
   it("prefers the song and artist that match the spoken request", () => {
-    const card = createCard();
-    const result = voiceAssistantBestCandidate(card, {
-      tracks: [
-        {
-          uri: "spotify://track/wrong",
-          media_type: "track",
-          name: "Middle of the Night",
-          artist: "Stam and Goody",
-        },
-        {
-          uri: "spotify://track/michelle",
-          media_type: "track",
-          name: "Michelle",
-          artist: "Noam Bettan",
-        },
-      ],
-    }, "play the song michelle by noam bettan");
+    const result = voiceAssistantBestCandidate([
+      { uri: "spotify://track/wrong", media_type: "track", name: "Middle of the Night", artist: "Stam and Goody" },
+      { uri: "spotify://track/michelle", media_type: "track", name: "Michelle", artist: "Noam Bettan" },
+    ], "play the song michelle by noam bettan");
 
     expect(result?.uri).toBe("spotify://track/michelle");
   });
 
-  it("accepts natural artist-only requests such as songs by an artist", () => {
+  it("accepts natural artist-only requests such as songs by an artist", async () => {
     const card = createCard();
-    const result = voiceAssistantBestCandidate(card, {
+    const player = { entity_id: "media_player.office" };
+    let played = null;
+    card._state.selectedPlayer = player.entity_id;
+    card._getSelectedPlayer = () => player;
+    card._search = async () => ({
+      ...card._emptySearchResults(),
       tracks: [
         {
           uri: "spotify://track/idan",
@@ -417,9 +436,14 @@ describe("voice assistant music matching", () => {
           },
         },
       ],
-    }, "play songs by idan raichel");
+    });
+    card._playMediaOnPlayer = async (entityId, uri, mediaType) => {
+      played = { entityId, uri, mediaType };
+      return true;
+    };
 
-    expect(result?.uri).toBe("spotify://track/idan");
+    expect((await speak(card, "play songs by idan raichel")).ok).toBe(true);
+    expect(played).toEqual({ entityId: "media_player.office", uri: "spotify://track/idan", mediaType: "track" });
   });
 
   it("uses focused playlist search for natural playlist-by-artist requests", async () => {
@@ -430,8 +454,6 @@ describe("voice assistant music matching", () => {
     card._state.selectedPlayer = player.entity_id;
     card._getSelectedPlayer = () => player;
     card._i18n = (key, params = {}) => params.title || params.query || key;
-    card._toast = () => {};
-    card._toastError = () => {};
     card._search = async (query) => {
       calls.push(["global", query]);
       return card._emptySearchResults();
@@ -455,9 +477,10 @@ describe("voice assistant music matching", () => {
       return true;
     };
 
-    const result = await playVoiceAssistantMusic(card, "playlist by shlomo artzi", player);
+    const result = await speak(card, "play playlist by shlomo artzi");
 
     expect(result.ok).toBe(true);
+    expect(calls).toContainEqual(["global", "playlist by shlomo artzi"]);
     expect(calls).toContainEqual(["focused", "playlist shlomo artzi", "playlist"]);
     expect(played).toEqual({
       entityId: "media_player.office",
@@ -473,8 +496,6 @@ describe("voice assistant music matching", () => {
     card._state.selectedPlayer = player.entity_id;
     card._getSelectedPlayer = () => player;
     card._i18n = (key, params = {}) => params.title || params.query || key;
-    card._toast = () => {};
-    card._toastError = () => {};
     card._debugLog = () => {};
     card._search = async () => {
       throw new Error("global search unavailable");
@@ -495,7 +516,7 @@ describe("voice assistant music matching", () => {
       return true;
     };
 
-    const result = await playVoiceAssistantMusic(card, "playlist by shlomo artzi", player);
+    const result = await speak(card, "play playlist by shlomo artzi");
 
     expect(result.ok).toBe(true);
     expect(played).toEqual({
@@ -506,32 +527,17 @@ describe("voice assistant music matching", () => {
   });
 
   it("accepts a title match even when artist metadata is missing from the search result", () => {
-    const card = createCard();
-    const result = voiceAssistantBestCandidate(card, {
-      tracks: [
-        {
-          uri: "spotify://track/michelle-no-artist",
-          media_type: "track",
-          name: "Michelle",
-        },
-      ],
-    }, "play the song michelle by noam bettan");
+    const result = voiceAssistantBestCandidate([
+      { uri: "spotify://track/michelle-no-artist", media_type: "track", name: "Michelle", artist: "" },
+    ], "play the song michelle by noam bettan");
 
     expect(result?.uri).toBe("spotify://track/michelle-no-artist");
   });
 
   it("still accepts a clear one-word title match", () => {
-    const card = createCard();
-    const result = voiceAssistantBestCandidate(card, {
-      tracks: [
-        {
-          uri: "spotify://track/imagine",
-          media_type: "track",
-          name: "Imagine",
-          artist: "John Lennon",
-        },
-      ],
-    }, "play imagine");
+    const result = voiceAssistantBestCandidate([
+      { uri: "spotify://track/imagine", media_type: "track", name: "Imagine", artist: "John Lennon" },
+    ], "play imagine");
 
     expect(result?.uri).toBe("spotify://track/imagine");
   });
