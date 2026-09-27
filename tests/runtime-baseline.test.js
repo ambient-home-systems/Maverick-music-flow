@@ -8,7 +8,7 @@ import { extractCardVersion } from "../src/core/version-utils.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } from "../src/core/engine-client.js";
 import { normalizeScheduledStartSchedule } from "../src/core/media/timers.js";
 import { openTabletLyricsScreensaver, screensaverBlocked, screensaverControlButtonHtml, screensaverControlButtons, screensaverEnabled, showScreensaver, hideScreensaver, syncScreensaverLyricsUi } from "../src/core/media/screensaver.js";
-import { currentLyricsTrackKey, fetchLyricsForCurrentTrack, syncLyricsForCurrentTrack } from "../src/core/media/lyrics.js";
+import { syncLyricsForCurrentTrack } from "../src/core/media/lyrics.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -248,6 +248,21 @@ function expectMaverickRuntimeRegistered(packageVersion) {
       description: expect.stringContaining(`v${packageVersion}`),
     }),
   ]);
+}
+
+// Runs the lyrics refresh for a screensaver lyrics session, which fetches without rendering a modal.
+// Synced lyrics schedule their first highlight on a frame, which this environment does not provide.
+async function refreshLyricsWithoutModal(card) {
+  const hadFrame = typeof globalThis.requestAnimationFrame === "function";
+  if (!hadFrame) globalThis.requestAnimationFrame = () => 0;
+  card._state.screensaverLyricsOpen = true;
+  try {
+    syncLyricsForCurrentTrack(card, { force: true });
+    await card._lyricsRefreshPromise;
+  } finally {
+    card._state.screensaverLyricsOpen = false;
+    if (!hadFrame) delete globalThis.requestAnimationFrame;
+  }
 }
 
 function createClassList() {
@@ -3537,7 +3552,8 @@ describe("runtime baseline", () => {
     card.getBoundingClientRect = () => ({ width: 900, height: 700 });
     card._ensureQueueSnapshot = async () => {};
     card._state.maQueueState = { current_item: { media_item: { uri: "library://track/1" } } };
-    card._state.lyricsTrackKey = currentLyricsTrackKey(card);
+    // A lyrics session that already refreshed for this track keeps its text through the hand-off.
+    await refreshLyricsWithoutModal(card);
     card._state.lyricsOpen = true;
     card._state.lyricsText = "Current lyric";
 
@@ -4088,19 +4104,20 @@ describe("runtime baseline", () => {
     localCard._state.maQueueState = { current_item: { media_item: { lrc_lyrics: "[00:01.00]Local line" } } };
     globalThis.fetch = vi.fn();
 
-    const embedded = await fetchLyricsForCurrentTrack(localCard);
+    await refreshLyricsWithoutModal(localCard);
 
-    expect(embedded.source).toBe("metadata");
-    expect(embedded.text).toContain("Local line");
+    expect(localCard._cache.lyrics.get("local").source).toBe("metadata");
+    expect(localCard._state.lyricsText).toContain("Local line");
     expect(globalThis.fetch).not.toHaveBeenCalled();
 
     const disabledCard = new CardCtor();
     disabledCard._config = {};
     disabledCard._currentTrackInfo = () => ({ key: "disabled", title: "Private Song", artist: "Private Artist" });
 
-    const disabled = await fetchLyricsForCurrentTrack(disabledCard);
+    await refreshLyricsWithoutModal(disabledCard);
 
-    expect(disabled.source).toBe("disabled");
+    expect(disabledCard._cache.lyrics.has("disabled")).toBe(false);
+    expect(disabledCard._state).toMatchObject({ lyricsLoading: false, lyricsText: "" });
     expect(globalThis.fetch).not.toHaveBeenCalled();
 
     const optedInCard = new CardCtor();
@@ -4117,9 +4134,10 @@ describe("runtime baseline", () => {
       json: async () => ({ plainLyrics: "External line" }),
     });
 
-    const external = await fetchLyricsForCurrentTrack(optedInCard);
+    await refreshLyricsWithoutModal(optedInCard);
 
-    expect(external.source).toBe("lrclib");
+    expect(optedInCard._cache.lyrics.get("external").source).toBe("lrclib");
+    expect(optedInCard._state.lyricsText).toBe("External line");
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
     expect(String(globalThis.fetch.mock.calls[0][0])).toContain("https://lrclib.net/api/get?");
     expect(String(globalThis.fetch.mock.calls[0][0])).toContain("track_name=External+Song");

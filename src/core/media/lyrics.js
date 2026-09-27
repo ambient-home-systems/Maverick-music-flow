@@ -15,7 +15,7 @@ const FONT_SCALE_MAX = 1.4;
 // ---------------------------------------------------------------------------
 // Session
 
-export function currentLyricsTrackKey(card) {
+function currentLyricsTrackKey(card) {
   const info = card._currentTrackInfo();
   const queueItem = card._state.maQueueState?.current_item || null;
   const player = card._getSelectedPlayer();
@@ -42,7 +42,7 @@ export function clearLyricsState(card) {
   card._lyricsRefreshQueued = false;
 }
 
-export async function fetchLyricsForCurrentTrack(card, { singleflight = false } = {}) {
+async function fetchLyricsForCurrentTrack(card, { singleflight = false } = {}) {
   const info = card._currentTrackInfo();
   if (!info.title) return { text: "", source: "" };
   const cacheKey = info.key || info.title;
@@ -133,7 +133,7 @@ function lyricsSyncOffsetLabel(card) {
   return `${seconds > 0 ? "+" : ""}${seconds.toFixed(1)}s`;
 }
 
-export function setLyricsSyncOffset(card, offsetMs = 0) {
+function setLyricsSyncOffset(card, offsetMs = 0) {
   card._state.mobileLyricsSyncOffsetMs = Math.max(-OFFSET_LIMIT_MS, Math.min(OFFSET_LIMIT_MS, Number(offsetMs || 0) || 0));
   card._persistMobileAppearance();
   const label = card.shadowRoot?.querySelector("#lyricsOffsetResetBtn");
@@ -141,7 +141,7 @@ export function setLyricsSyncOffset(card, offsetMs = 0) {
   syncLyricsHighlight(card, true);
 }
 
-export function nudgeLyricsSyncOffset(card, deltaMs = 0) {
+function nudgeLyricsSyncOffset(card, deltaMs = 0) {
   setLyricsSyncOffset(card, lyricsSyncOffsetMs(card) + (Number(deltaMs || 0) || 0));
 }
 
@@ -153,7 +153,7 @@ function lyricsFontScaleLabel(card) {
   return `${Math.round(lyricsFontScale(card) * 100)}%`;
 }
 
-export function setLyricsFontScale(card, value = 1) {
+function setLyricsFontScale(card, value = 1) {
   card._state.mobileLyricsFontScale = Math.max(FONT_SCALE_MIN, Math.min(FONT_SCALE_MAX, Number(value || 1) || 1));
   card._persistMobileAppearance();
   const sheet = card.shadowRoot?.querySelector(".lyrics-sheet");
@@ -182,7 +182,7 @@ export function toggleLyricsSyncEnabled(card) {
 // ---------------------------------------------------------------------------
 // Karaoke highlight
 
-export function currentLyricsActiveIndex(card, lines = []) {
+function currentLyricsActiveIndex(card, lines = []) {
   const list = Array.isArray(lines) ? lines : [];
   if (!list.length) return -1;
   if (card._state.mobileLyricsSyncEnabled === false) return -1;
@@ -195,7 +195,7 @@ export function currentLyricsActiveIndex(card, lines = []) {
   return activeIndex;
 }
 
-export function syncLyricsHighlight(card, force = false) {
+function syncLyricsHighlight(card, force = false) {
   if (!card._state.lyricsOpen) return;
   const lines = Array.isArray(card._state.lyricsLines) ? card._state.lyricsLines : [];
   if (!lines.length) return;
@@ -405,7 +405,7 @@ function lyricsTimelineHtml(card, lines = []) {
         </div>`;
 }
 
-export async function renderLyricsModalForCurrentTrack(card, { force = false } = {}) {
+async function renderLyricsModalForCurrentTrack(card, { force = false } = {}) {
   if (!lyricsSessionActive(card)) return;
   const info = card._currentTrackInfo();
   const trackKey = currentLyricsTrackKey(card) || info.key || info.title || "";
