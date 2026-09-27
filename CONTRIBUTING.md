@@ -90,7 +90,7 @@ Before a release-oriented pull request is merged, confirm:
 
 - `npm run build` completes successfully.
 - `dist/maverick-music.js` exists, is minified, starts with the license banner, and imports nothing from sibling paths (`npm test` runs `tests/dist-bundle.test.js` for this).
-- `dist/` contains nothing besides the bundle and the two brand images; `npm run build` must leave `git status` clean.
+- `dist/` contains nothing besides the bundle and the three brand images; `npm run build` must leave `git status` clean.
 - `dist/maverick-music-flow-logo.png` exists.
 - `hacs.json` still points to `maverick-music.js`.
 - The card type remains:

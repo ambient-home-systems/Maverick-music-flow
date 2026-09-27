@@ -79,5 +79,6 @@ jobs:
             dist/maverick-music.js \
             dist/maverick-music-flow-icon.png \
             dist/maverick-music-flow-logo.png \
+            dist/maverick-music-flow-logo-dark.png \
             --repo "$GITHUB_REPOSITORY" --clobber
 

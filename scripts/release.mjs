@@ -22,6 +22,7 @@ const sourceMainPath = path.join(rootDir, "src", "maverick-music.js");
 const brandDir = path.join(rootDir, "docs", "brand");
 const brandAssets = [
   "maverick-music-flow-logo.png",
+  "maverick-music-flow-logo-dark.png",
   "maverick-music-flow-icon.png",
 ];
 
