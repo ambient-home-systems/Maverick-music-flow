@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { extractCardVersion } from "../src/core/version-utils.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } from "../src/core/engine-client.js";
-import { normalizeScheduledStartSchedule, scheduledStartEnginePayload } from "../src/core/media/timers.js";
+import { normalizeScheduledStartSchedule } from "../src/core/media/timers.js";
 import { openTabletLyricsScreensaver, screensaverBlocked, screensaverControlButtonHtml, screensaverControlButtons, screensaverEnabled, showScreensaver, hideScreensaver, syncScreensaverLyricsUi } from "../src/core/media/screensaver.js";
 import { currentLyricsTrackKey, fetchLyricsForCurrentTrack, syncLyricsForCurrentTrack } from "../src/core/media/lyrics.js";
 
@@ -445,24 +445,6 @@ describe("runtime baseline", () => {
       instance_id: "main",
       profile_id: "kitchen",
       player: "media_player.kitchen",
-    }));
-    expect(scheduledStartEnginePayload(card, { id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).toEqual(expect.objectContaining({
-      kind: "wake_playback",
-      schedule_id: "488",
-      player: "media_player.kitchen",
-      media_id: "library://playlist/1",
-      playlist: "library://playlist/1",
-      media_mode: "selected",
-    }));
-    expect(scheduledStartEnginePayload(card, { id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).not.toHaveProperty("fallback_action");
-    expect(scheduledStartEnginePayload(card, { id: 488, player: "media_player.kitchen", playlist: "library://playlist/1" })).not.toHaveProperty("id");
-    expect(scheduledStartEnginePayload(card, { id: "wake_random", player: "media_player.kitchen", playlist: "" })).toEqual(expect.objectContaining({
-      schedule_id: "wake_random",
-      player: "media_player.kitchen",
-      media_id: "",
-      media_mode: "random_playlist",
-      selection_mode: "random_playlist",
-      media_type: "playlist",
     }));
     expect(card._maverickEngineMessage("timers/set", {
       timer_id: "sleep_media_player_kitchen",

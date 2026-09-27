@@ -1,30 +1,36 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   clearSleepTimer,
-  confirmSleepTimerInEngine,
-  hydrateSleepTimerFromEngine,
-  saveSleepTimerState,
+  renderTimersPage,
+  setSleepTimerMinutes,
   syncSleepTimerChip,
 } from "../src/core/media/timers.js";
 
+const NOW = Date.parse("2026-09-27T20:00:00Z");
 const state = () => ({ mobileSleepTimerEndsAt: Date.now() + 600000, mobileSleepTimerPlayer: "media_player.computer", mobileSleepTimerOrigin: "night", mobileNightMode: "off", mobileNightRenderedActive: false, mobileNightRenderedMode: "off" });
 const confirming = (target) => ({ timers: [{ id: "sleep_media_player_computer", player: "media_player.computer", ends_at: new Date(target).toISOString() }] });
 function context() {
   return {
     _state: state(), _config: {}, shadowRoot: null, $: () => null,
     _maverickEngineRequired: () => true, _maverickEngineEnabled: () => true, _maverickEngineReadyForPersistence: async () => true,
-    _maverickEngineTimeoutMs: () => 5000, _getSelectedPlayer: () => null, _mobileQuickActions: () => [],
+    _maverickEngineTimeoutMs: () => 5000, _getSelectedPlayer: () => ({ entity_id: "media_player.computer" }), _mobileQuickActions: () => [],
     _maverickEngineSetTimer: vi.fn(async () => ({ ok: true })), _maverickEngineGetTimers: vi.fn(async () => ({ timers: [] })),
-    _maverickEngineDeleteTimer: vi.fn(async () => ({ ok: true })),
+    _maverickEngineDeleteTimer: vi.fn(async () => ({ ok: true })), _maverickEngineGetSchedules: vi.fn(async () => ({ schedules: [] })),
+    _fetchLibrary: vi.fn(async () => []), _normalizeMediaItem: (item) => item, _loadingStateHtml: () => "", _writeSchedulesToLocalStorage: vi.fn(),
     _rebuildMobileUi: vi.fn(), _syncTabletAutoFitUi: vi.fn(), _persistMobileAppearance: vi.fn(),
-    _toastError: vi.fn(), _toast: vi.fn(), _m: (text) => text,
+    _toastError: vi.fn(), _toastSuccess: vi.fn(), _toast: vi.fn(), _m: (text) => text, _i18n: (key) => key,
   };
 }
+// Hydration runs when the timers page is rendered; the page itself is never built here.
+const hydrate = (card) => renderTimersPage(card, { innerHTML: "" }, () => false);
+
 describe("confirmed sleep timer persistence", () => {
+  beforeEach(() => { vi.useFakeTimers({ now: NOW, toFake: ["Date"] }); });
+  afterEach(() => { vi.useRealTimers(); });
   it("does not resurrect a timer removed from the authoritative Engine", async () => {
     const card = context();
     card._state.selectedPlayer = "media_player.computer";
-    await hydrateSleepTimerFromEngine(card);
+    await hydrate(card);
     expect(card._state.mobileSleepTimerEndsAt).toBe(0);
     expect(card._maverickEngineSetTimer).not.toHaveBeenCalled();
   });
@@ -32,22 +38,24 @@ describe("confirmed sleep timer persistence", () => {
     const card = context();
     const before = { ...card._state };
     card._maverickEngineGetTimers = vi.fn(async () => undefined);
-    await hydrateSleepTimerFromEngine(card);
-    expect(card._state).toEqual(before);
+    await hydrate(card);
+    expect(card._state).toMatchObject(before);
+    expect(card._persistMobileAppearance).not.toHaveBeenCalled();
   });
   it("rolls back an unconfirmed timer without persisting a false active timer", async () => {
     const card = context();
     const before = { ...card._state };
-    expect(await saveSleepTimerState(card, { mobileSleepTimerEndsAt: Date.now() + 1800000 }, 30, "night")).toBe(false);
+    expect(await setSleepTimerMinutes(card, 30, "night")).toBe(false);
     expect(card._maverickEngineSetTimer).toHaveBeenCalledOnce();
     expect(card._state).toEqual(before);
     expect(card._persistMobileAppearance).not.toHaveBeenCalled();
+    expect(card._toastSuccess).not.toHaveBeenCalled();
   });
   it("restores state and unlocks controls after an unexpected persistence exception", async () => {
     const card = context();
     const before = { ...card._state };
     card._maverickEngineSetTimer.mockRejectedValue(new Error("offline"));
-    await saveSleepTimerState(card, { mobileSleepTimerEndsAt: Date.now() + 1800000 }, 30, "night");
+    expect(await setSleepTimerMinutes(card, 30, "night")).toBe(false);
     expect(card._state).toEqual(before);
     expect(card._sleepTimerSavePending).toBe(false);
     expect(card._toastError).toHaveBeenCalledWith("offline");
@@ -56,14 +64,19 @@ describe("confirmed sleep timer persistence", () => {
     const card = context();
     const target = Date.now() + 1800000;
     card._maverickEngineGetTimers = vi.fn(async () => confirming(target));
-    expect(await saveSleepTimerState(card, { mobileSleepTimerEndsAt: target }, 30, "night")).toEqual({ ok: true, engineSaved: true });
-    expect(card._state.mobileSleepTimerEndsAt).toBe(target);
+    expect(await setSleepTimerMinutes(card, 30, "night")).toEqual({ ok: true, engineSaved: true });
+    expect(card._state).toMatchObject({ mobileSleepTimerEndsAt: target, mobileSleepTimerPlayer: "media_player.computer", mobileSleepTimerOrigin: "night", mobileSleepTimerMenuOpen: false });
+    expect(card._maverickEngineSetTimer).toHaveBeenCalledWith(expect.objectContaining({ timer_id: "sleep_media_player_computer", minutes: 30, ends_at: new Date(target).toISOString() }), { required: true });
     expect(card._persistMobileAppearance).toHaveBeenCalledOnce();
+    expect(card._toastSuccess).toHaveBeenCalledWith("ui.sleep_timer_set_minutes");
   });
   it("does not accept the old timer as confirmation of a changed deadline", async () => {
     const card = context();
-    card._maverickEngineGetTimers = vi.fn(async () => confirming(Date.now() + 600000));
-    expect(await confirmSleepTimerInEngine(card, "sleep_computer", "media_player.computer", Date.now() + 1800000)).toBe(false);
+    const before = { ...card._state };
+    card._maverickEngineGetTimers = vi.fn(async () => confirming(before.mobileSleepTimerEndsAt));
+    expect(await setSleepTimerMinutes(card, 30, "night")).toBe(false);
+    expect(card._state).toEqual(before);
+    expect(card._toastError).toHaveBeenCalledWith("Maverick Music Engine accepted the timer write, but it was not found when reading it back.");
   });
   it("keeps the displayed timer when cancellation is not confirmed", async () => {
     const card = context();
