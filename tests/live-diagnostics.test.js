@@ -1,12 +1,15 @@
 // @vitest-environment jsdom
 import {it,expect,vi} from 'vitest';
-import {liveDiagnosticRows,mountLiveDiagnostics} from '../src/core/media/live-diagnostics.js';
+import {mountLiveDiagnostics} from '../src/core/media/live-diagnostics.js';
 const {document}=globalThis;
-it('does not report stale MA health as healthy when Engine is unavailable',()=>{
- const card={_state:{engineRequiredConnections:{music_assistant:{ok:true}}},_m:a=>a};
- const rows=liveDiagnosticRows(card,{available:false},true);
+it('does not report stale MA health as healthy when Engine is unavailable',async()=>{
+ const body=document.createElement('div');document.body.append(body);
+ const card={_state:{menuPage:'diagnostics',engineRequiredConnections:{music_assistant:{ok:true}}},_m:a=>a,_esc:String,_diagnosticRowHtml:row=>`<p>${row.title}</p>`,_refreshMaverickEngineContext:vi.fn(async()=>({available:false}))};
+ mountLiveDiagnostics(card,body);await Promise.resolve();await Promise.resolve();
+ const rows=card._state.diagnosticsItems;
  expect(rows.find(row=>row.title==='Flow Engine').status).toBe('fail');
  expect(rows.find(row=>row.title==='Music Assistant').status).toBe('info');
+ card._stopLiveDiagnostics();body.remove();
 });
 it('loads on entry without a run button and stops polling after navigation',async()=>{
  vi.useFakeTimers();const body=document.createElement('div');document.body.append(body);

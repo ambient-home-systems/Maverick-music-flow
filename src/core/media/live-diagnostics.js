@@ -1,6 +1,6 @@
 import { isPlayerAvailable } from "../state/players.js";
 
-export function liveDiagnosticRows(card, context = null, refreshed = false) {
+function liveDiagnosticRows(card, context = null, refreshed = false) {
   const rows = [];
   const add = (status, en, detail = "") => rows.push({status,title:card._m(en),detail});
   const status = value => value === true ? "ok" : value === false ? "fail" : "info";
