@@ -2,7 +2,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   bindNightQuickRow,
-  cycleNightMode,
   handleNightFormChange,
   handleNightSettingsClick,
   isNightModeActive,
@@ -12,7 +11,6 @@ import {
   nightModeWindow,
   nightQuickRowHtml,
   nightTabHtml,
-  playNightMix,
   syncNightModeUi,
 } from "../src/core/media/night-mode.js";
 import { saveNightPreferences } from "../src/core/media/listening-tools.js";
@@ -52,6 +50,16 @@ function stubCard(state = {}) {
   return { card, root };
 }
 
+// Renders and binds the quick row, and returns a presser for one of its buttons that waits for the action to settle.
+function quickRow(card, root) {
+  root.querySelector("#playerRow").innerHTML = nightQuickRowHtml(card);
+  bindNightQuickRow(card);
+  return async (id) => {
+    root.querySelector(`#${id}`).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  };
+}
+
 afterEach(() => { document.body.innerHTML = ""; vi.clearAllMocks(); vi.restoreAllMocks(); });
 
 describe("readers", () => {
@@ -82,40 +90,42 @@ describe("readers", () => {
 });
 
 describe("actions", () => {
-  it("cycles auto, on, off and rebuilds around the open menu", () => {
-    const { card } = stubCard({ menuOpen: true, menuPage: "settings", controlRoomOpen: true });
-    cycleNightMode(card);
+  it("cycles auto, on, off from the quick button and rebuilds around the open menu", async () => {
+    const { card, root } = stubCard({ menuOpen: true, menuPage: "settings", controlRoomOpen: true });
+    const press = quickRow(card, root);
+    await press("nightModeQuickBtn");
     expect(card._state.mobileNightMode).toBe("on");
     expect(card._rebuildMobileUi).toHaveBeenLastCalledWith({ reopenPage: "settings", reopenStudio: true });
     card._state.menuOpen = false;
-    cycleNightMode(card);
+    await press("nightModeQuickBtn");
     expect(card._state.mobileNightMode).toBe("off");
     expect(card._rebuildMobileUi).toHaveBeenLastCalledWith({ reopenPage: "", reopenStudio: true });
-    cycleNightMode(card);
+    await press("nightModeQuickBtn");
     expect(card._state.mobileNightMode).toBe("auto");
     expect(card._persistMobileAppearance).toHaveBeenCalledTimes(3);
   });
-  it("plays a chill playlist, preferring keyword matches, with fallbacks", async () => {
+  it("plays a chill playlist from the quick button, preferring keyword matches, with fallbacks", async () => {
     vi.spyOn(Math, "random").mockReturnValue(0);
-    const { card } = stubCard();
+    const { card, root } = stubCard({ mobileNightMode: "on" });
+    const press = quickRow(card, root);
     card._fetchLibrary.mockImplementation(async (_type, _sort, _limit, liked) => (liked
       ? [{ uri: "lib://playlist/2", name: "Late Night Lo-Fi" }]
       : [{ uri: "lib://playlist/1", name: "Workout" }, { uri: "lib://playlist/2", name: "Late Night Lo-Fi" }]));
-    await playNightMix(card);
+    await press("nightChillBtn");
     expect(card._fetchLibrary.mock.calls).toEqual([["playlist", "sort_name", 500, false], ["playlist", "sort_name", 220, true]]);
     expect(card._playMedia).toHaveBeenCalledWith("lib://playlist/2", "playlist", "play", { label: "Late Night Lo-Fi", silent: true });
     expect(card._toastSuccess).toHaveBeenCalledWith("ui.starting_a_chill_mix");
     card._fetchLibrary.mockResolvedValue([{ uri: "lib://playlist/1", name: "Workout", media_type: "playlist" }]);
     card._playMedia.mockResolvedValueOnce(false);
-    await playNightMix(card);
+    await press("nightChillBtn");
     expect(card._playMedia).toHaveBeenLastCalledWith("lib://playlist/1", "playlist", "play", { label: "Workout", silent: true });
     expect(card._toastSuccess).toHaveBeenCalledTimes(1);
     card._fetchLibrary.mockResolvedValue([]);
-    await playNightMix(card);
+    await press("nightChillBtn");
     expect(card._playRandomFromPlaylists).toHaveBeenCalledTimes(1);
     card._fetchLibrary.mockRejectedValue(new Error("offline"));
     card._playRandomFromPlaylists.mockRejectedValueOnce(new Error("no library"));
-    await playNightMix(card);
+    await press("nightChillBtn");
     expect(card._toastError).toHaveBeenCalledWith("no library");
   });
 });

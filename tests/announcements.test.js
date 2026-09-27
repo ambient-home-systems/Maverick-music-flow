@@ -1,18 +1,14 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  announcementRestoreDelayMs,
-  announcementTargetValue,
   announcementsPageHtml,
   announcementsSettingsSectionHtml,
-  announcementTtsEntity,
   handleAnnouncementFormChange,
   handleAnnouncementMenuClick,
   handleStudioAnnouncementInput,
   isDefaultAnnouncementPresetSet,
   normalizeAnnouncementLanguage,
   sendControlRoomAnnouncement,
-  startAnnouncementDictation,
   studioAnnouncePanelHtml,
 } from "../src/core/media/announcements.js";
 import { controlRoomPrimaryPlayerId, controlRoomSelectedPlayerIds } from "../src/core/media/control-room.js";
@@ -81,14 +77,16 @@ describe("announcement settings", () => {
   });
   it("falls back to the selected player and the first TTS entity", () => {
     const { card } = stubCard();
-    expect(announcementTargetValue(card)).toBe("media_player.bedroom");
+    const selectedTarget = () => announcementsPageHtml(card).match(/<option value="([^"]*)" selected>/)[1];
+    expect(selectedTarget()).toBe("media_player.bedroom");
     card._state.mobileAnnouncementTarget = "media_player.offline";
-    expect(announcementTargetValue(card)).toBe("media_player.bedroom");
+    expect(selectedTarget()).toBe("media_player.bedroom");
     card._state.mobileAnnouncementTarget = "all";
-    expect(announcementTargetValue(card)).toBe("all");
-    expect(announcementTtsEntity(card)).toBe("tts.cloud");
+    expect(selectedTarget()).toBe("all");
+    const ttsEntity = () => announcementsSettingsSectionHtml(card).match(/id="mobileAnnouncementTtsEntity" type="text" value="([^"]*)"/)[1];
+    expect(ttsEntity()).toBe("tts.cloud");
     card._state.mobileAnnouncementTtsEntity = "tts.piper";
-    expect(announcementTtsEntity(card)).toBe("tts.piper");
+    expect(ttsEntity()).toBe("tts.piper");
   });
 });
 
@@ -181,22 +179,26 @@ describe("announcement bind", () => {
     expect(room.querySelector(".announcement-volume-field .settings-value").textContent).toBe("+20%");
     expect(handleStudioAnnouncementInput(card, { target: document.createElement("input") })).toBe(false);
   });
-  it("uses the browser speech API with the configured language", () => {
-    const { card } = stubCard({ mobileAnnouncementTtsLanguage: "en-GB" });
+  it("uses the browser speech API with the configured language", async () => {
+    const { card, root } = stubCard({ mobileAnnouncementTtsLanguage: "en-GB" });
+    const body = root.querySelector("#mobileMenuBody");
+    body.innerHTML = announcementsPageHtml(card);
     const started = vi.fn();
     class FakeRecognition { start() { started(this); } }
     speechRecognitionCtor.mockReturnValue(FakeRecognition);
-    startAnnouncementDictation(card);
+    const dictate = () => clickOn(card, body.querySelector("[data-announcement-voice]"));
+    expect(await dictate()).toBe(true);
     const recognition = card._voiceRecognition;
     expect(recognition).toBeInstanceOf(FakeRecognition);
     expect(recognition.lang).toBe("en-GB");
     expect(started).toHaveBeenCalledOnce();
     recognition.onresult({ results: [[{ transcript: "hello there" }]] });
     expect(card._state.mobileAnnouncementText).toBe("hello there");
+    expect(body.querySelector("#mobileAnnouncementText").value).toBe("hello there");
     recognition.onend();
     expect(card._voiceRecognition).toBeNull();
     card._state.mobileAnnouncementTtsLanguage = "auto";
-    startAnnouncementDictation(card);
+    await dictate();
     expect(card._voiceRecognition.lang).toBe("de-DE");
   });
 });
@@ -217,7 +219,7 @@ describe("studio announcement send", () => {
     expect(card._maverickEngineAnnounce).toHaveBeenNthCalledWith(2, expect.objectContaining({ players: ["media_player.bedroom"], volume: 80 }));
     expect(card._state).toMatchObject({ mobileAnnouncementText: "keep me", mobileAnnouncementTarget: "all", mobileAnnouncementVolume: 25 });
     expect(card._announcementVolumeRestoreTimers.size).toBe(2);
-    expect(announcementRestoreDelayMs("Studio message")).toBe(5000);
+    // A short message restores after the five-second floor, in three passes 4.5 seconds apart.
     await vi.advanceTimersByTimeAsync(5000 + 9000 - 1);
     expect(card._callMaverickEnginePlayerCommand).toHaveBeenCalledTimes(4);
     await vi.advanceTimersByTimeAsync(1);

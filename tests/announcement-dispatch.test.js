@@ -1,5 +1,14 @@
+// @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import { sendMobileAnnouncement } from "../src/core/media/announcements.js";
+import { handleAnnouncementMenuClick } from "../src/core/media/announcements.js";
+
+const { document, MouseEvent } = globalThis;
+// Presses the Announce page's send button; the dispatch itself is internal to the module.
+function sendMobileAnnouncement(card) {
+  const button = document.createElement("button");
+  button.setAttribute("data-announcement-send", "");
+  return handleAnnouncementMenuClick(card, new MouseEvent("click", { cancelable: true }), button);
+}
 
 const players = ["Computer", "Kitchen"].map((name) => ({ entity_id: name, state: "playing", attributes: { friendly_name: name } }));
 function context() {
@@ -7,7 +16,7 @@ function context() {
     _state: { mobileAnnouncementText: "Test", mobileAnnouncementTarget: "all", mobileAnnouncementVolume: 20, mobileAnnouncementTtsEntity: "tts.test", mobileAnnouncementTtsLanguage: "en-US", players },
     _config: {}, _hass: { states: {} },
     _playerVolumeLevel: () => 0.2,
-    _hapticTap: vi.fn(), _i18n: (key, data) => `${key} ${JSON.stringify(data || {})}`,
+    _hapticTap: vi.fn(), _flashInteraction: vi.fn(), _i18n: (key, data) => `${key} ${JSON.stringify(data || {})}`,
     _m: (text) => text, _toast: vi.fn(), _toastError: vi.fn(), _toastSuccess: vi.fn(),
     _callMaverickEnginePlayerCommand: vi.fn(async () => true),
     _maverickEngineAnnounce: vi.fn(async () => ({ ok: true, results: [{ player: "Computer", ok: true }, { player: "Kitchen", ok: true }] })),

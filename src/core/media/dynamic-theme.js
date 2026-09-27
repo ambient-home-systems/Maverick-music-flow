@@ -116,7 +116,7 @@ export function applyDynamicThemeStyles(card) {
   });
 }
 
-export function applyDynamicThemeRenderState(card, artworkKey = "", artUrl = "") {
+function applyDynamicThemeRenderState(card, artworkKey = "", artUrl = "") {
   const signature = styleSignature(card, artworkKey, artUrl);
   if (signature === card._mobileDynamicThemeAppliedSignature) return false;
   card._mobileDynamicThemeAppliedSignature = signature;
@@ -129,7 +129,7 @@ export function applyDynamicThemeRenderState(card, artworkKey = "", artUrl = "")
 // ---------------------------------------------------------------------------
 // Palette sources
 
-export function currentServerDynamicThemePalette(card) {
+function currentServerDynamicThemePalette(card) {
   const player = card._getSelectedPlayer?.() || null;
   const attrs = player?.attributes || {};
   const currentQueueItem = card._state.maQueueState?.current_item || null;
@@ -185,7 +185,7 @@ function libraryDetailServerPalette(card, detail = {}) {
   return null;
 }
 
-export async function extractDynamicThemePalette(card, artUrl = "") {
+async function extractDynamicThemePalette(card, artUrl = "") {
   const normalizedArt = String(artUrl || "").trim();
   const cacheKey = `${mobileDynamicThemeMode(card)}:${normalizedArt}`;
   if (!normalizedArt) return null;
@@ -311,7 +311,7 @@ export function resetDynamicThemeArtwork(card) {
 // ---------------------------------------------------------------------------
 // Library detail menu
 
-export function setMenuDetailPalette(card, menu = null, palette = null) {
+function setMenuDetailPalette(card, menu = null, palette = null) {
   if (!menu) return;
   const keys = [
     "--menu-detail-accent-rgb",

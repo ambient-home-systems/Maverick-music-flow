@@ -4,9 +4,6 @@ import { syncDynamicThemeArtwork } from "./dynamic-theme.js";
 import { flowAssistantLabel, startVoiceAssistantCommand, syncVoiceAssistantDialog, voiceAssistantEnabled } from "./voice.js";
 import { clearLyricsState, closeLyricsModal, lyricsSessionActive, nudgeLyricsFontScale, syncLyricsForCurrentTrack, syncScreensaverLyricsUi, toggleLyricsSyncEnabled } from "./lyrics.js";
 
-// The screensaver's lyrics mode is rendered by the lyrics module, which owns the session state it reads.
-export { syncScreensaverLyricsUi } from "./lyrics.js";
-
 // Screensaver: the inactivity timer, the overlay with clock, artwork, next-up
 // and optional controls, and the lyrics mode that mirrors the lyrics modal.
 // Timers and visibility flags live on the card instance (card._screensaver*),
@@ -58,7 +55,7 @@ export function screensaverAutoLyricsWhenPlaying(card) {
   return card._state.screensaverAutoLyricsWhenPlaying === true;
 }
 
-export function maybeOpenScreensaverLyricsForPlayback(card, player = card._getSelectedPlayer()) {
+function maybeOpenScreensaverLyricsForPlayback(card, player = card._getSelectedPlayer()) {
   if (!screensaverAutoLyricsWhenPlaying(card)) return false;
   if (card._state.lyricsOpen || card._state.screensaverLyricsOpen) return false;
   if (player?.state !== "playing") return false;
@@ -89,7 +86,7 @@ function controlButtonOptions(card) {
   ];
 }
 
-export function screensaverControlButtonHtml(card, value = "") {
+function screensaverControlButtonHtml(card, value = "") {
   const option = controlButtonOptions(card).find((item) => item.value === value);
   if (!option) return "";
   if (value === "voice" && !voiceAssistantEnabled(card)) return "";
@@ -231,7 +228,7 @@ export function resetScreensaverTimer(card, { hide = false, delayMs = null, acti
 // ---------------------------------------------------------------------------
 // Open and close
 
-export function screensaverBlocked(card) {
+function screensaverBlocked(card) {
   return !!(
     screensaverSuppressedByEditor(card)
     || card._state.menuOpen
@@ -247,7 +244,7 @@ export function screensaverBlocked(card) {
   );
 }
 
-export function showScreensaver(card, options = {}) {
+function showScreensaver(card, options = {}) {
   const force = options?.force === true;
   if (screensaverSuppressedByEditor(card)) {
     hideScreensaver(card);
