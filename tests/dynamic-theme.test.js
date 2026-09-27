@@ -3,19 +3,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   activeAccentColor,
   activeAccentRgb,
-  applyDynamicThemeRenderState,
   applyDynamicThemeStyles,
   applyMenuDetailTheme,
   applyMenuLibraryThemeFromItems,
   clearMenuDetailTheme,
-  currentServerDynamicThemePalette,
   dynamicThemePalette,
   dynamicThemeSettingsPillsHtml,
-  extractDynamicThemePalette,
   handleDynamicThemeSettingsClick,
   mobileDynamicThemeMode,
   resetDynamicThemeArtwork,
-  setMenuDetailPalette,
   syncDynamicThemeArtwork,
 } from "../src/core/media/dynamic-theme.js";
 import { syncControlRoomUi } from "../src/core/media/control-room.js";
@@ -91,16 +87,19 @@ describe("readers", () => {
     expect(dynamicThemePalette(card)).toBe(null);
     expect(activeAccentColor(card)).toBe("#f5a623");
   });
-  it("reads the server palette from the player and queue in priority order", () => {
+  it("takes the server palette from the player and queue before sampling the artwork", async () => {
+    const loads = fakeImages([200, 40, 40]);
     const { card } = stubCard();
-    expect(currentServerDynamicThemePalette(card)).toBe(null);
+    await syncDynamicThemeArtwork(card, "https://art/a.jpg");
+    expect(loads).toHaveLength(1);
     card._state.maQueueState = { current_item: { media_item: { metadata: { palette: { primary: "#336699" } } } } };
-    const fromMedia = currentServerDynamicThemePalette(card);
-    expect(fromMedia).toMatchObject({ accent: expect.stringMatching(/^#/), accent_rgb: expect.any(String), surface_rgb: expect.any(String), glow_rgb: expect.any(String) });
+    await syncDynamicThemeArtwork(card, "https://art/b.jpg");
+    expect(card._state.mobileDynamicThemePalette).toMatchObject({ accent: expect.stringMatching(/^#/), accent_rgb: expect.any(String), surface_rgb: expect.any(String), glow_rgb: expect.any(String) });
+    expect(loads).toHaveLength(1);
     card._getSelectedPlayer = () => ({ attributes: { media_palette: READY } });
-    expect(currentServerDynamicThemePalette(card)).toBe(READY);
-    card._state.mobileDynamicThemeMode = "off";
-    expect(currentServerDynamicThemePalette(card)).toBe(READY);
+    await syncDynamicThemeArtwork(card, "https://art/c.jpg");
+    expect(card._state.mobileDynamicThemePalette).toBe(READY);
+    expect(loads).toHaveLength(1);
   });
 });
 
@@ -130,16 +129,20 @@ describe("applying styles", () => {
     expect(card.style.getPropertyValue("--dynamic-art-url")).toBe("");
     expect(surface.style.getPropertyValue("--ma-accent")).toBe("#f5a623");
   });
-  it("re-applies only when the render signature changes", () => {
+  it("re-applies only when the render signature changes", async () => {
+    fakeImages([200, 40, 40]);
     const { card } = stubCard();
-    expect(applyDynamicThemeRenderState(card, "auto:a", "a")).toBe(true);
+    await syncDynamicThemeArtwork(card, "https://art/a.jpg");
     expect(card._applyBackgroundMotionStyles).toHaveBeenCalledTimes(1);
-    expect(card._syncCurrentArtworkBackgrounds).toHaveBeenCalledWith("a");
-    expect(applyDynamicThemeRenderState(card, "auto:a", "a")).toBe(false);
+    expect(card._syncCurrentArtworkBackgrounds).toHaveBeenCalledWith("https://art/a.jpg");
+    await syncDynamicThemeArtwork(card, "https://art/a.jpg");
+    expect(card._applyBackgroundMotionStyles).toHaveBeenCalledTimes(1);
     card._state.mobileDynamicThemePalette = READY;
-    expect(applyDynamicThemeRenderState(card, "auto:a", "a")).toBe(true);
+    await syncDynamicThemeArtwork(card, "https://art/a.jpg");
+    expect(card._applyBackgroundMotionStyles).toHaveBeenCalledTimes(2);
     card._isHotelMode = () => true;
-    expect(applyDynamicThemeRenderState(card, "auto:a", "a")).toBe(true);
+    await syncDynamicThemeArtwork(card, "https://art/a.jpg");
+    expect(card._applyBackgroundMotionStyles).toHaveBeenCalledTimes(3);
     expect(card._syncCurrentArtworkBackgrounds).toHaveBeenCalledTimes(3);
   });
 });
@@ -147,29 +150,41 @@ describe("applying styles", () => {
 describe("extraction and artwork sync", () => {
   it("samples the artwork once per mode and url, sharing the in-flight promise", async () => {
     const loads = fakeImages([200, 40, 40]);
-    const { card } = stubCard();
-    expect(await extractDynamicThemePalette(card, "")).toBe(null);
-    const [first, second] = await Promise.all([extractDynamicThemePalette(card, "https://art/a.jpg"), extractDynamicThemePalette(card, "https://art/a.jpg")]);
-    expect(first).toBe(second);
+    const { card, menu } = stubCard();
+    // The player theme and the detail menu ask for the same artwork at once.
+    const pending = syncDynamicThemeArtwork(card, "https://art/a.jpg");
+    applyMenuDetailTheme(card, menu, "https://art/a.jpg", {});
+    await pending;
+    await vi.waitFor(() => expect(menu.classList.contains("has-menu-detail-palette")).toBe(true));
+    const first = card._state.mobileDynamicThemePalette;
     expect(first).toMatchObject({ accent: expect.stringMatching(/^#/), accent_rgb: expect.any(String) });
+    expect(menu.style.getPropertyValue("--ma-accent")).toBe(first.accent);
     expect(loads).toHaveLength(1);
     expect(loads[0].crossOrigin).toBe("anonymous");
-    expect(await extractDynamicThemePalette(card, "https://art/a.jpg")).toBe(first);
+    expect(card._mobileDynamicThemePaletteCache.size).toBe(1);
+    resetDynamicThemeArtwork(card);
+    await syncDynamicThemeArtwork(card, "https://art/a.jpg");
+    expect(card._state.mobileDynamicThemePalette).toBe(first);
+    expect(loads).toHaveLength(1);
     card._state.mobileDynamicThemeMode = "strong";
-    const strong = await extractDynamicThemePalette(card, "https://art/a.jpg");
+    await syncDynamicThemeArtwork(card, "https://art/a.jpg");
     expect(loads).toHaveLength(2);
-    expect(strong).not.toBe(first);
+    expect(card._state.mobileDynamicThemePalette).not.toBe(first);
     expect(card._mobileDynamicThemePaletteCache.size).toBe(2);
   });
-  it("resolves null on decode failure or a missing canvas context", async () => {
+  it("leaves the theme unset on decode failure or a missing canvas context", async () => {
     fakeImages([1, 2, 3], { fail: true });
-    const { card } = stubCard();
-    expect(await extractDynamicThemePalette(card, "https://art/bad.jpg")).toBe(null);
+    const { card, surface } = stubCard();
+    await syncDynamicThemeArtwork(card, "https://art/bad.jpg");
+    expect(card._state.mobileDynamicThemePalette).toBe(null);
+    expect(surface.classList.contains("dynamic-theme")).toBe(false);
+    expect(card._syncAmbientLightForCurrentMedia).toHaveBeenLastCalledWith("theme-palette");
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     fakeImages([1, 2, 3]);
     HTMLCanvasElement.prototype.getContext.mockReturnValue(null);
-    expect(await extractDynamicThemePalette(card, "https://art/none.jpg")).toBe(null);
+    await syncDynamicThemeArtwork(card, "https://art/none.jpg");
+    expect(card._state.mobileDynamicThemePalette).toBe(null);
   });
   it("syncs the artwork palette with the off, cached and fresh paths and a stale-token guard", async () => {
     fakeImages([30, 120, 200]);
@@ -209,17 +224,20 @@ describe("extraction and artwork sync", () => {
 describe("library detail menu", () => {
   it("sets and clears the detail palette and theme class", () => {
     const { card, menu } = stubCard();
-    setMenuDetailPalette(card, menu, { accent: "#123456" });
-    expect(menu.style.getPropertyValue("--menu-detail-accent-rgb")).toBe("245 166 35");
-    expect(menu.style.getPropertyValue("--ma-accent")).toBe("#123456");
+    applyMenuDetailTheme(card, menu, "", { palette: { primary: "#123456" } });
+    expect(menu.style.getPropertyValue("--menu-detail-accent-rgb")).toMatch(/^\d+ \d+ \d+$/);
+    expect(menu.style.getPropertyValue("--ma-accent")).toMatch(/^#/);
     expect(menu.classList.contains("has-menu-detail-palette")).toBe(true);
-    setMenuDetailPalette(card, menu, READY);
+    applyMenuDetailTheme(card, menu, "", { palette: READY });
     expect(menu.style.getPropertyValue("--menu-detail-surface-rgb")).toBe("1 2 3");
-    menu.classList.add("has-menu-detail-theme");
+    expect(menu.style.getPropertyValue("--menu-detail-accent-rgb")).toBe("17 34 51");
+    expect(menu.style.getPropertyValue("--ma-accent")).toBe("#112233");
+    expect(menu.classList.contains("has-menu-detail-theme")).toBe(true);
+    const token = card._menuDetailThemeToken;
     clearMenuDetailTheme(card, menu);
     expect(menu.className).toBe("");
     expect(menu.style.getPropertyValue("--ma-accent")).toBe("");
-    expect(card._menuDetailThemeToken).toBe(1);
+    expect(card._menuDetailThemeToken).toBe(token + 1);
     expect(() => clearMenuDetailTheme(card, null)).not.toThrow();
   });
   it("applies a server palette immediately and an extracted one only while the page stays open", async () => {
