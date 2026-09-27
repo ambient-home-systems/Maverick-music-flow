@@ -7,8 +7,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { extractCardVersion } from "../src/core/version-utils.js";
 import { ENGINE_ARTWORK_PATH, ENGINE_COMMAND_PREFIX, ENGINE_REST_COMMAND_PATH } from "../src/core/engine-client.js";
 import { normalizeScheduledStartSchedule } from "../src/core/media/timers.js";
-import { openTabletLyricsScreensaver, screensaverBlocked, screensaverControlButtonHtml, screensaverControlButtons, screensaverEnabled, showScreensaver, hideScreensaver, syncScreensaverLyricsUi } from "../src/core/media/screensaver.js";
-import { syncLyricsForCurrentTrack } from "../src/core/media/lyrics.js";
+import { openTabletLyricsScreensaver, resetScreensaverTimer, screensaverEnabled, screensaverOverlayHtml, hideScreensaver } from "../src/core/media/screensaver.js";
+import { syncLyricsForCurrentTrack, syncScreensaverLyricsUi } from "../src/core/media/lyrics.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -248,6 +248,17 @@ function expectMaverickRuntimeRegistered(packageVersion) {
       description: expect.stringContaining(`v${packageVersion}`),
     }),
   ]);
+}
+
+// Arms the idle timer on a card wide enough for the screensaver and lets it fire once; the
+// overlay opens unless something on the card blocks it. The advance is synchronous so the
+// caller sees the state exactly as the timer left it, before any follow-up work settles.
+function letScreensaverFire(card) {
+  card.isConnected = true;
+  card._state.screensaverEnabled = true;
+  card.getBoundingClientRect = () => ({ width: 900, height: 700 });
+  resetScreensaverTimer(card, { delayMs: 500 });
+  vi.advanceTimersByTime(500);
 }
 
 // Runs the lyrics refresh for a screensaver lyrics session, which fetches without rendering a modal.
@@ -3469,9 +3480,14 @@ describe("runtime baseline", () => {
 
     const CardCtor = globalThis.customElements.get("maverick-music");
     const card = new CardCtor();
+    card.$ = () => null;
+    card.shadowRoot = { querySelector: () => null };
     card._state.lyricsOpen = true;
 
-    expect(screensaverBlocked(card)).toBe(true);
+    letScreensaverFire(card);
+
+    expect(card._state.screensaverOpen).toBe(false);
+    expect(card._screensaverTimer).toBeTruthy();
   });
 
   it("blocks the screensaver for a visible player picker but allows a hidden picker", async () => {
@@ -3486,9 +3502,11 @@ describe("runtime baseline", () => {
     card.shadowRoot = {
       querySelector: (selector) => visible && selector.includes(".player-picker-fan:not([hidden])") ? {} : null,
     };
-    expect(screensaverBlocked(card)).toBe(true);
+    letScreensaverFire(card);
+    expect(card._state.screensaverOpen).toBe(false);
     visible = false;
-    expect(screensaverBlocked(card)).toBe(false);
+    letScreensaverFire(card);
+    expect(card._state.screensaverOpen).toBe(true);
   });
 
   it("suppresses the screensaver while the card is open in the visual editor", async () => {
@@ -3512,9 +3530,9 @@ describe("runtime baseline", () => {
     card.editMode = true;
 
     expect(screensaverEnabled(card)).toBe(true);
-    expect(screensaverBlocked(card)).toBe(true);
-    showScreensaver(card, { force: true });
+    letScreensaverFire(card);
     expect(card._state.screensaverOpen).toBe(false);
+    expect(card._screensaverTimer).toBeNull();
   });
 
   it("moves an open lyrics modal into screensaver lyrics without leaving the modal behind", async () => {
@@ -3554,10 +3572,12 @@ describe("runtime baseline", () => {
     card._state.maQueueState = { current_item: { media_item: { uri: "library://track/1" } } };
     // A lyrics session that already refreshed for this track keeps its text through the hand-off.
     await refreshLyricsWithoutModal(card);
+    card._layoutModeConfig = () => "tablet";
+    card._getSelectedPlayer = () => ({ entity_id: "media_player.main", state: "playing", attributes: {} });
     card._state.lyricsOpen = true;
     card._state.lyricsText = "Current lyric";
 
-    showScreensaver(card, { force: true });
+    expect(openTabletLyricsScreensaver(card)).toBe(true);
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.lyricsOpen).toBe(false);
@@ -3595,7 +3615,7 @@ describe("runtime baseline", () => {
     card._state.screensaverAutoLyricsWhenPlaying = true;
     card._getSelectedPlayer = () => ({ entity_id: "media_player.office", state: "playing", attributes: {} });
 
-    showScreensaver(card);
+    letScreensaverFire(card);
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.screensaverLyricsOpen).toBe(true);
@@ -3606,7 +3626,7 @@ describe("runtime baseline", () => {
     hideScreensaver(card);
     card._getSelectedPlayer = () => ({ entity_id: "media_player.office", state: "idle", attributes: {} });
 
-    showScreensaver(card);
+    letScreensaverFire(card);
 
     expect(card._state.screensaverOpen).toBe(true);
     expect(card._state.screensaverLyricsOpen).toBe(false);
@@ -3719,9 +3739,7 @@ describe("runtime baseline", () => {
     const card = new CardCtor();
     card._state.screensaverControlsEnabled = true;
     card._state.screensaverControlButtons = ["lyrics", "lyrics_sync", "lyrics_font_minus", "lyrics_font_plus"];
-    const html = screensaverControlButtons(card)
-      .map((value) => screensaverControlButtonHtml(card, value))
-      .join("");
+    const html = screensaverOverlayHtml(card);
     const source = await readCardPresentationSource();
     const moduleSource = await readProjectFile("src", "core", "media", "screensaver.js");
 

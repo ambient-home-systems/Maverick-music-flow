@@ -7,18 +7,16 @@ import {
   markScreensaverPageEntry,
   resetScreensaverTimer,
   restoreScreensaverIfOpen,
-  screensaverBlocked,
   screensaverClockSize,
   screensaverControlButtons,
   screensaverEnabled,
   screensaverOverlayHtml,
   screensaverSettingsPillsHtml,
   screensaverTimeoutSeconds,
-  showScreensaver,
   syncScreensaverClockVars,
-  syncScreensaverLyricsUi,
   syncScreensaverUi,
 } from "../src/core/media/screensaver.js";
+import { syncScreensaverLyricsUi } from "../src/core/media/lyrics.js";
 
 // The screensaver only forwards to the lyrics module; keep those calls observable and inert here.
 vi.mock("../src/core/media/dynamic-theme.js", () => ({ syncDynamicThemeArtwork: vi.fn(async () => {}) }));
@@ -169,13 +167,14 @@ describe("screensaver bind and timer", () => {
     markScreensaverPageEntry(card, "connected");
     expect(card._screensaverPageEntryPending).toBe(true);
     await vi.advanceTimersByTimeAsync(29_000);
-    showScreensaver(card);
+    // A timer that fires inside the entry window re-arms for the remainder instead of opening.
+    resetScreensaverTimer(card, { delayMs: 500 });
+    await vi.advanceTimersByTimeAsync(500);
     expect(card._state.screensaverOpen).toBe(false);
-    await vi.advanceTimersByTimeAsync(1_100);
+    await vi.advanceTimersByTimeAsync(600);
     expect(card._state.screensaverOpen).toBe(true);
     hideScreensaver(card);
     card._state.menuOpen = true;
-    expect(screensaverBlocked(card)).toBe(true);
     resetScreensaverTimer(card, { delayMs: 500 });
     await vi.advanceTimersByTimeAsync(500);
     expect(card._state.screensaverOpen).toBe(false);
