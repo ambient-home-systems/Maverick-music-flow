@@ -13,7 +13,7 @@ export function playerVolumeControlsHtml(card, player, { inline = false } = {}) 
   </div>`;
 }
 
-export function syncGroupVolumeReadouts(card) {
+function syncGroupVolumeReadouts(card) {
   card.shadowRoot?.querySelectorAll("[data-group-volume-wheel]").forEach(button=>{
     const player=card._playerByEntityId(button.dataset.groupVolumeWheel);
     const value=card._groupAverageVolume(player);
