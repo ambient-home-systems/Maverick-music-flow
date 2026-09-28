@@ -1,25 +1,33 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
-import { screenActions, syncScreenDock } from "../src/core/media/screen-dock.js";
+import { syncScreenDock } from "../src/core/media/screen-dock.js";
 import { setSleepTimerMinutes } from "../src/core/media/timers.js";
 vi.mock("../src/core/media/timers.js", async (importOriginal) => ({ ...(await importOriginal()), setSleepTimerMinutes: vi.fn(async () => {}) }));
 const { document } = globalThis;
+// Opens the dock's wheel unless it is already open; the wheel renders the page's actions on opening.
+const openWheel=(sheet)=>{const toggle=sheet.querySelector('[data-screen-wheel]');if(toggle.getAttribute('aria-expanded')!=='true')toggle.click();};
+// The wheel's action buttons for the current page, in order, optionally limited to an id prefix.
+const wheelButtons=(sheet,prefix="")=>[...sheet.querySelectorAll('.screen-dock .immersive-fan-actions [data-immersive-action]')].filter(button=>button.dataset.immersiveAction.startsWith(prefix));
 
 describe("context screen wheel", () => {
   it('keeps queue playback preferences accessible and shows their confirmed state', () => {
     const body=document.createElement('div');
     body.innerHTML='<div class="queue-playback-options"><button data-menu-action="toggle_autoplay" aria-label="Autoplay" aria-pressed="true"><svg></svg></button><button data-menu-action="toggle_crossfade" aria-label="Crossfade" aria-pressed="false"><svg></svg></button></div>';
-    const card={_m:a=>a,$:()=>body,_state:{},_getNowPlayingQueueItems:()=>[]};
-    const actions=screenActions(card,'queue');
-    expect(actions.find(a=>a.id==='control:queue:toggle_autoplay')).toMatchObject({label:'Autoplay',selected:true});
-    expect(actions.find(a=>a.id==='control:queue:toggle_crossfade')).toMatchObject({label:'Crossfade',selected:false});
+    const sheet=document.createElement('div');document.body.append(sheet);
+    const card={_m:a=>a,_esc:String,_iconSvg:()=>'<svg></svg>',shadowRoot:sheet,$:()=>body,_state:{},_getNowPlayingQueueItems:()=>[]};
+    syncScreenDock(card,sheet,'queue');openWheel(sheet);
+    const [autoplay]=wheelButtons(sheet,'control:queue:toggle_autoplay');
+    expect(autoplay.getAttribute('aria-label')).toBe('Autoplay');expect(autoplay.getAttribute('aria-pressed')).toBe('true');
+    const [crossfade]=wheelButtons(sheet,'control:queue:toggle_crossfade');
+    expect(crossfade.getAttribute('aria-label')).toBe('Crossfade');expect(crossfade.getAttribute('aria-pressed')).toBe('false');
+    sheet.remove();
   });
   it("applies AI hosts through the existing command button and rejects stale queue choices", async () => {
     const sheet=document.createElement('div');document.body.append(sheet);
     sheet.innerHTML='<select data-ai-host><option value="">Off</option><option value="dj">My DJ</option></select><button data-ai-apply>Apply</button>';
     const card={_m:a=>a,_esc:String,_iconSvg:()=>'<svg></svg>',shadowRoot:sheet,$:()=>sheet,_state:{selectedPlayer:'computer',maQueueState:{queue_id:'q1'}}};
     const apply=vi.fn();sheet.querySelector('button').onclick=apply;
-    syncScreenDock(card,sheet,'ai_radio');const id=screenActions(card,'ai_radio')[1].id;
+    syncScreenDock(card,sheet,'ai_radio');openWheel(sheet);const id=wheelButtons(sheet,'ai-host:')[1].dataset.immersiveAction;
     await sheet.querySelector('.screen-dock')._dispatchAction(id);expect(apply).toHaveBeenCalledOnce();expect(sheet.querySelector('select').value).toBe('dj');
     card._state.maQueueState.queue_id='q2';await sheet.querySelector('.screen-dock')._dispatchAction(id);expect(apply).toHaveBeenCalledOnce();sheet.remove();
   });
@@ -28,11 +36,11 @@ describe("context screen wheel", () => {
     sheet.innerHTML='<div class="group-player-card"><span class="player-premium-name">Computer</span><input type="checkbox" data-menu-group-player="computer" data-group-owner="true" checked></div><div class="group-player-card"><span class="player-premium-name">Kitchen</span><input type="checkbox" data-menu-group-player="kitchen"></div><input data-menu-group-player="offline" disabled><button data-menu-action="apply_group">Connect</button>';
     const card={_m:a=>a,_esc:String,_iconSvg:()=>'<svg></svg>',shadowRoot:sheet,$:()=>sheet,_state:{}};
     const changed=vi.fn();sheet.querySelector('[data-menu-group-player="kitchen"]').onchange=changed;
-    syncScreenDock(card,sheet,'group');
-    expect(screenActions(card,'group').map(a=>a.label)).toEqual(['Computer','Kitchen','Connect']);
-    expect(screenActions(card,'group')[0].leader).toBe(true);
+    syncScreenDock(card,sheet,'group');openWheel(sheet);
+    expect(wheelButtons(sheet,'control:group:').map(button=>button.getAttribute('aria-label'))).toEqual(['Computer','Kitchen','Connect']);
+    expect(wheelButtons(sheet,'control:group:')[0].querySelector('.fan-player-art').classList.contains('leader')).toBe(true);
     await sheet.querySelector('.screen-dock')._dispatchAction('control:group:kitchen');
-    expect(changed).toHaveBeenCalledOnce();expect(screenActions(card,'group')[1].selected).toBe(true);
+    expect(changed).toHaveBeenCalledOnce();expect(wheelButtons(sheet,'control:group:')[1].getAttribute('aria-pressed')).toBe('true');
     sheet.remove();
   });
   it("shows only actual transfer destinations and uses their existing handler", async () => {
@@ -40,7 +48,7 @@ describe("context screen wheel", () => {
     sheet.innerHTML='<button data-menu-transfer="kitchen"><span class="player-premium-name">Kitchen</span></button><button data-menu-player="computer">Computer</button>';
     const card={_m:a=>a,_esc:String,_iconSvg:()=>'<svg></svg>',shadowRoot:sheet,$:()=>sheet,_state:{}};
     const transfer=vi.fn();sheet.querySelector('[data-menu-transfer]').onclick=transfer;
-    syncScreenDock(card,sheet,'transfer');expect(screenActions(card,'transfer')).toHaveLength(1);
+    syncScreenDock(card,sheet,'transfer');openWheel(sheet);expect(wheelButtons(sheet,'control:transfer:')).toHaveLength(1);
     await sheet.querySelector('.screen-dock')._dispatchAction('control:transfer:kitchen');expect(transfer).toHaveBeenCalledOnce();sheet.remove();
   });
   it("keeps the side drawer light and avoids duplicating the persistent player dock", () => {
@@ -48,17 +56,24 @@ describe("context screen wheel", () => {
     sheet.innerHTML='<button data-history-tab="recent">Recent</button><button data-history-tab="recommendations">Recommendations</button><button data-history-index="0" data-history-key="recent:track1"><img src="cover.jpg"><span class="history-chip-title">Song name</span><span>Artist</span></button>';
     const card={_m:a=>a,_esc:String,_iconSvg:()=>"<svg></svg>",_imgHtml:src=>`<img src="${src}">`,shadowRoot:sheet,$:id=>id==="historyDrawer"?sheet:null,_state:{},_config:{action_menu_labels:false}};
     syncScreenDock(card,sheet,"history");
-    expect(screenActions(card,"history").map(a=>a.label)).toEqual(['Recent','Recommendations','Song name']);
-    expect(screenActions(card,"history")[2]).toMatchObject({image:'cover.jpg',artwork:true});
     expect(sheet.querySelector('.screen-dock')).toBeNull();
     expect(sheet.classList.contains('has-screen-dock')).toBe(false);
-    sheet.remove();
+    // The drawer's actions still reach a dock hosted outside it, with the artwork of the song row.
+    const host=document.createElement("div");document.body.append(host);
+    syncScreenDock(card,host,"history");openWheel(host);
+    expect(wheelButtons(host,'control:history:').map(button=>button.getAttribute('aria-label'))).toEqual(['Recent','Recommendations','Song name']);
+    expect(wheelButtons(host,'control:history:')[2].querySelector('.fan-player-art img').getAttribute('src')).toBe('cover.jpg');
+    sheet.remove();host.remove();
   });
   it("hides karaoke without timed lyrics and keeps its microphone symbol when available", () => {
     const sheet=document.createElement('div');sheet.innerHTML='<div class="lyrics-head-actions"><button id="lyricsSyncBtn" hidden title="Karaoke"><svg data-icon="karaoke"></svg></button></div>';
-    const card={$:()=>sheet};expect(screenActions(card,'lyrics')).toHaveLength(0);
-    sheet.querySelector('button').hidden=false;
-    expect(screenActions(card,'lyrics')[0].icon).toBe('karaoke');
+    const host=document.createElement('div');document.body.append(host);
+    const card={_m:a=>a,_esc:String,_iconSvg:()=>'<svg></svg>',shadowRoot:host,$:()=>sheet,_state:{}};
+    syncScreenDock(card,host,'lyrics');openWheel(host);expect(wheelButtons(host,'control:lyrics:')).toHaveLength(0);
+    sheet.querySelector('button').hidden=false;syncScreenDock(card,host,'lyrics');
+    expect(wheelButtons(host,'control:lyrics:')[0].title).toBe('Karaoke');
+    expect(wheelButtons(host,'control:lyrics:')[0].querySelector('svg').dataset.icon).toBe('karaoke');
+    host.remove();
   });
   it("keeps all-actions focus across refreshes and returns focus when the action disappears", async () => {
     const sheet=document.createElement("div");document.body.append(sheet);
@@ -80,13 +95,13 @@ describe("context screen wheel", () => {
     sheet.innerHTML='<div id="room"><button class="control-room-panel-action" data-room-transfer>Transfer</button><button class="control-room-panel-action" data-room-clear-queue="kitchen">Clear</button></div>';
     const card={_m:a=>a,_esc:String,_iconSvg:()=>"<svg></svg>",shadowRoot:sheet,$:id=>id==="controlRoomBody"?sheet.querySelector('#room'):null,_state:{}};
     syncScreenDock(card,sheet,"studio");sheet.querySelector('[data-screen-wheel]').click();
-    const action=screenActions(card,"studio")[0];
-    const original=action.control;const transfer=vi.fn();original.onclick=transfer;
+    const id=wheelButtons(sheet,'control:studio:')[0].dataset.immersiveAction;
+    const original=sheet.querySelector('[data-room-transfer]');const transfer=vi.fn();original.onclick=transfer;
     const room=sheet.querySelector('#room');room.append(original);
-    await sheet.querySelector('.screen-dock')._dispatchAction(action.id);
+    await sheet.querySelector('.screen-dock')._dispatchAction(id);
     expect(transfer).toHaveBeenCalledOnce();
     original.remove();
-    await sheet.querySelector('.screen-dock')._dispatchAction(action.id);
+    await sheet.querySelector('.screen-dock')._dispatchAction(id);
     expect(transfer).toHaveBeenCalledOnce();
     sheet.remove();
   });
@@ -154,9 +169,10 @@ describe("context screen wheel", () => {
     const sheet=document.createElement("div");
     const card={_m:a=>a,_esc:String,_iconSvg:()=>"<svg></svg>",shadowRoot:sheet,$:()=>null,
       _openMobileMenu:vi.fn(),_backMobileMenu:vi.fn(),_state:{}};
-    expect(screenActions(card,"players").map(action=>action.id)).toEqual(["transfer","group","local_device","player_preferences","stop_all"]);
     syncScreenDock(card,sheet,"players");
     sheet.querySelector('[data-screen-wheel]').click();
+    // The wheel applies the shared default ranking, so compare the scoped set rather than the order.
+    expect(wheelButtons(sheet).map(button=>button.dataset.immersiveAction).sort()).toEqual(["group","local_device","player_preferences","stop_all","transfer"]);
     sheet.querySelector('[data-immersive-action="more"]').click(); await Promise.resolve();
     expect(card._openMobileMenu).not.toHaveBeenCalled();
     expect(sheet.querySelectorAll('.screen-all-actions [data-catalogue-action]')).toHaveLength(5);

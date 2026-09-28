@@ -107,7 +107,7 @@ export function syncImmersivePlayer(card) {
   if (live) live.hidden = type !== "radio" || duration > 0;
 }
 
-export function immersiveActionPages(card) {
+function immersiveActionPages(card) {
   const player = card._getSelectedPlayer();
   const available = isPlayerAvailable(player);
   const current = card._state.maQueueState?.current_item?.media_item || {};
@@ -174,7 +174,7 @@ export function immersivePlayerDock(card, edgeHtml = "") {
 }
 
 // Presentation only: all actions use the same card commands as the classic player.
-export function playerWheelActions(card) {
+function playerWheelActions(card) {
   return (card._state.players || []).filter(isPlayerAvailable).map(player => ({
     id:`control:players:${player.entity_id}`, player:true, icon:"speaker", image:card._playerArtworkUrl?.(player,100) || "",
     label:card._playerDisplayName?.(player,card._state.players) || player.attributes?.friendly_name || player.entity_id,

@@ -1,13 +1,13 @@
 import { parseMediaReference } from "../state/media-queue.js";
 
 // MA audio_analysis/wave_form returns normalized RMS bins. Never invent missing analysis.
-export function normalizeWaveform(value) {
+function normalizeWaveform(value) {
   if (!Array.isArray(value) || value.length < 2 || value.length > 20000) return null;
   if (value.some((bin) => typeof bin !== "number" || !Number.isFinite(bin))) return null;
   return value.map((bin) => Math.max(0, Math.min(1, bin)));
 }
 
-export function waveformPath(bins, width) {
+function waveformPath(bins, width) {
   const count = Math.max(24, Math.min(160, Math.floor(width / 5)));
   const step = 720 / count;
   return Array.from({ length: count }, (_, index) => {

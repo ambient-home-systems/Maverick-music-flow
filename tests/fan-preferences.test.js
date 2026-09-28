@@ -1,15 +1,35 @@
 // @vitest-environment jsdom
 import {afterEach,expect,it,vi} from "vitest";
-import {orderedFanActions,openFanCatalogue,preferredFanPages,fanActionCategory} from "../src/core/media/fan-preferences.js";
+import {openFanCatalogue,preferredFanPages} from "../src/core/media/fan-preferences.js";
 const {document,localStorage,Event} = globalThis;
 afterEach(()=>{document.body.replaceChildren();localStorage.clear();});
 const actions=[{id:"a",label:"Alpha",icon:"play"},{id:"b",label:"Beta",icon:"stop"}];
 function setup(){const host=document.createElement("div");document.body.append(host);const card={_lsKey:()=>"test-wheel",_m:a=>a,_esc:String,_iconSvg:()=>"<svg></svg>",_toastError:vi.fn(),_mediaControlFailureMessage:e=>e.message};return {host,card};}
+// Stores a wheel preference for the main context the way the catalogue saves it for this device.
+const remember=(preference)=>{if(preference)localStorage.setItem("test-wheel",JSON.stringify({main:preference}));else localStorage.removeItem("test-wheel");};
+// The catalogue in edit mode lists every action in its resolved order, hidden ones included.
+function catalogueOrder(card,host,items,preference){
+ remember(preference);
+ const panel=openFanCatalogue(card,host,"main",()=>items,vi.fn());
+ panel.querySelector("[data-catalogue-edit]").click();
+ const ids=[...panel.querySelectorAll("[data-catalogue-id]")].map(row=>row.dataset.catalogueId);
+ panel.querySelector("[data-catalogue-back]").click();
+ return ids;
+}
+// The heading the catalogue files an action under.
+function categoryOf(card,host,action){
+ const panel=openFanCatalogue(card,host,"main",()=>[action],vi.fn());
+ const heading=panel.querySelector(".fan-catalogue-category").textContent;
+ panel.querySelector("[data-catalogue-back]").click();
+ return heading;
+}
 it("hides only wheel shortcuts, keeps new capabilities and restores returning actions in order",()=>{
+ const {host,card}=setup();
  const preference={hidden:["a"],order:["b","a"]};
- expect(orderedFanActions(actions,preference,true).map(a=>a.id)).toEqual(["b"]);
- expect(orderedFanActions(actions,preference).map(a=>a.id)).toEqual(["b","a"]);
- expect(orderedFanActions([...actions,{id:"c"}],preference,true).map(a=>a.id)).toEqual(["b","c"]);
+ remember(preference);
+ expect(preferredFanPages(card,"main",[actions]).flat().map(a=>a.id)).toEqual(["b"]);
+ expect(catalogueOrder(card,host,actions,preference)).toEqual(["b","a"]);
+ expect(preferredFanPages(card,"main",[[...actions,{id:"c"}]]).flat().map(a=>a.id)).toEqual(["b","c"]);
 });
 it("saves checked shortcuts only on confirmation and complete catalogue still dispatches hidden actions",async()=>{
  const {host,card}=setup(),dispatch=vi.fn();
@@ -31,18 +51,20 @@ it("cancel discards edits and keyboard reorder persists",()=>{
 });
 
 it("orders defaults logically while preserving saved ordering",()=>{
+ const {host,card}=setup();
  const items=[{id:'settings'},{id:'repeat'},{id:'players'},{id:'queue'}];
- expect(orderedFanActions(items).map(a=>a.id)).toEqual(['queue','repeat','players','settings']);
- expect(orderedFanActions(items,{order:['settings','players']}).map(a=>a.id)).toEqual(['settings','players','queue','repeat']);
+ expect(catalogueOrder(card,host,items)).toEqual(['queue','repeat','players','settings']);
+ expect(catalogueOrder(card,host,items,{order:['settings','players']})).toEqual(['settings','players','queue','repeat']);
 });
 it("keeps player choices beside group commands and preserves an explicit custom order",()=>{
+ const {host,card}=setup();
  const items=[{id:'settings'},{id:'group'},{id:'room',player:true},{id:'players'}];
- expect(orderedFanActions(items).map(a=>a.id)).toEqual(['players','room','group','settings']);
- expect(orderedFanActions(items,{order:['settings','group','room']}).map(a=>a.id)).toEqual(['settings','group','room','players']);
- expect(fanActionCategory({id:'control:group:disconnect'})).toBe('players');
- expect(fanActionCategory({id:'control:sleep_timer:cancel'})).toBe('smart');
- expect(fanActionCategory({id:'control:lighting:enable'})).toBe('smart');
- expect(fanActionCategory({id:'control:library_albums:filter'})).toBe('library');
+ expect(catalogueOrder(card,host,items)).toEqual(['players','room','group','settings']);
+ expect(catalogueOrder(card,host,items,{order:['settings','group','room']})).toEqual(['settings','group','room','players']);
+ expect(categoryOf(card,host,{id:'control:group:disconnect'})).toBe('Players & groups');
+ expect(categoryOf(card,host,{id:'control:sleep_timer:cancel'})).toBe('Smart listening');
+ expect(categoryOf(card,host,{id:'control:lighting:enable'})).toBe('Smart listening');
+ expect(categoryOf(card,host,{id:'control:library_albums:filter'})).toBe('Browse music');
 });
 it("persists user scope through Engine and removes the device override",async()=>{
  const {host,card}=setup();card._state={engineCapabilities:{wheel_preferences:true}};

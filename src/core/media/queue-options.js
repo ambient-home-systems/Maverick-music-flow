@@ -1,7 +1,7 @@
 // Queue playback controls use authoritative MA state through the existing Engine.
 import { actionIconSvg } from "./action-menu.js";
 
-export function playbackSpeedHtml(card) {
+function playbackSpeedHtml(card) {
   const queue = card._state.maQueueState;
   const type = queue?.current_item?.media_item?.media_type;
   if (!card._state.engineCapabilities?.queue_playback_speed || !queue?.queue_id || !["podcast_episode", "audiobook"].includes(type)) return "";

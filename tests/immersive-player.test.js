@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { immersiveActionPages, immersivePlayerEnabled, immersivePlayerDock, bindImmersivePlayer, syncImmersivePlayer, commitImmersiveSwipe, reconcileImmersiveCovers } from "../src/core/media/immersive-player.js";
+import { immersivePlayerEnabled, immersivePlayerDock, bindImmersivePlayer, syncImmersivePlayer, commitImmersiveSwipe, reconcileImmersiveCovers } from "../src/core/media/immersive-player.js";
 import { validateMobileCardEditorConfig } from "../src/config/validators.js";
 vi.mock("../src/core/media/lyrics.js", async (importOriginal) => ({ ...(await importOriginal()), openLyricsModal: vi.fn() }));
 vi.mock("../src/core/media/control-room.js", () => ({ controlRoomEnabled: vi.fn(() => false), openControlRoom: vi.fn() }));
@@ -57,11 +57,11 @@ describe("optional immersive player", () => {
     expect(root.querySelector('[data-immersive-action="repeat"]').getAttribute("aria-pressed")).toBe("false");
   });
   it("opens configured home and studio shortcuts through their existing handlers", () => {
-    const {card,root,open}=fixture();
-    expect(immersiveActionPages(card).flat().some(item=>item.id==='home')).toBe(false);
+    const {card,root,open}=fixture(); open();
+    expect(root.querySelector('[data-immersive-action="home"]')).toBeNull();
     card._mobileHomeShortcutEnabled=()=>true; card._goHomeAssistantDashboard=vi.fn();
     controlRoomEnabled.mockReturnValue(true);
-    open(); root.querySelector('[data-immersive-action="home"]').click();
+    syncImmersivePlayer(card); root.querySelector('[data-immersive-action="home"]').click();
     expect(card._goHomeAssistantDashboard).toHaveBeenCalledOnce();
     open(); root.querySelector('[data-immersive-action="studio"]').click();
     expect(openControlRoom).toHaveBeenCalledOnce();
@@ -142,13 +142,17 @@ describe("optional immersive player", () => {
     expect(() => validateMobileCardEditorConfig({ player_design: "invalid" })).toThrow();
   });
   it("removes lyrics for radio and playback actions for unavailable players", () => {
-    const { card, player } = fixture();
-    expect(immersiveActionPages(card).flat().some((a) => a.id === "lyrics")).toBe(true);
+    const { card, player, root, open } = fixture(); open();
+    const ids = () => [...root.querySelectorAll('#immersiveActionFan .immersive-fan-actions [data-immersive-action]')].map((button) => button.dataset.immersiveAction);
+    expect(ids()).toContain("lyrics");
     card._state.maQueueState.current_item.media_item.media_type = "radio";
-    expect(immersiveActionPages(card).flat().some((a) => a.id === "lyrics")).toBe(false);
+    syncImmersivePlayer(card);
+    expect(ids()).not.toContain("lyrics");
     player.state = "unavailable";
-    expect(immersiveActionPages(card).flat().map((a) => a.id)).not.toContain("transfer");
-    expect(immersiveActionPages(card)[0].map((a) => a.id)).toEqual(["players"]);
+    syncImmersivePlayer(card);
+    expect(ids()).not.toContain("transfer");
+    // Of the playback actions only the player chooser survives an unavailable player.
+    expect(ids().filter((id) => ["queue", "lyrics", "track_radio", "like", "players", "timer"].includes(id))).toEqual(["players"]);
   });
   it("keeps all actions reachable and supports pager buttons and Escape", () => {
     const { card, root, open } = fixture(); open();
@@ -239,9 +243,9 @@ describe("optional immersive player", () => {
     expect(card._toggleLikeCurrentMedia).not.toHaveBeenCalled();
   });
   it("opens AI radio from the fan only with Engine capability", () => {
-    const { card, root, open } = fixture();
-    expect(immersiveActionPages(card).flat().some((item) => item.id === "ai_radio")).toBe(false);
-    card._state.engineCapabilities.ai_radio_dj = true; open();
+    const { card, root, open } = fixture(); open();
+    expect(root.querySelector('[data-immersive-action="ai_radio"]')).toBeNull();
+    card._state.engineCapabilities.ai_radio_dj = true; syncImmersivePlayer(card);
     root.querySelector('[data-immersive-action="ai_radio"]').click();
     expect(card._openMobileMenu).toHaveBeenCalledWith("ai_radio");
   });

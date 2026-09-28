@@ -5,7 +5,7 @@ import { openLyricsModal } from "./lyrics.js";
 import { openControlRoom, toggleControlRoomPanel } from "./control-room.js";
 
 // The same wheel interaction as the player, with screen-specific commands.
-export function screenActions(card, page) {
+function screenActions(card, page) {
   const nav = (id, icon, en) => ({ id, icon, label:card._m(en) });
   const visual = button => {
     if (button.hasAttribute("data-history-tab")) return {icon:button.dataset.historyTab === "recent" ? "history" : "compass", selected:button.getAttribute("aria-selected") === "true"};
