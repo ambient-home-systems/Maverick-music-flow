@@ -2,13 +2,13 @@ import { actionSymbolHtml, actionIconSvg } from "./action-menu.js";
 
 const storageKey = card => card._lsKey?.("maverick_music_fan_preferences") || "maverick_music_fan_preferences";
 const sharedKey = card => `${card._state?.engineInstanceId || ""}:${card._state?.engineProfileId || ""}:${card._hass?.user?.id || ""}`;
-export function fanPreference(card, context) {
+function fanPreference(card, context) {
   const shared = card._fanSharedPreferences || {};
   let local = {};
   try { local = JSON.parse(localStorage.getItem(storageKey(card)) || "{}" ); } catch { /* Storage may be disabled. */ }
   return local[context] || shared.user?.[context] || shared.global?.[context] || {};
 }
-export async function loadFanPreferences(card) {
+async function loadFanPreferences(card) {
   const identity = sharedKey(card);
   if (card._fanPreferencesIdentity !== identity) {
     card._fanPreferencesIdentity = identity; card._fanSharedPreferences = {}; card._fanPreferencesLoadedAt = 0;
@@ -24,7 +24,7 @@ export async function loadFanPreferences(card) {
   } catch { card._fanPreferencesLoadedAt = Date.now(); }
   finally { card._fanPreferencesLoading = false; }
 }
-export function fanActionCategory(action) {
+function fanActionCategory(action) {
   const context = String(action.id || "").startsWith("control:") ? action.id.split(":")[1] : "";
   if (["players","players_active","group","group_volume","transfer"].includes(context)) return "players";
   if (["sleep_timer","announcements","lighting","smart","playback_stats","volume_rules","night_preferences","system_screensaver"].includes(context)) return "smart";
@@ -44,12 +44,12 @@ const defaultOrder = ["play","pause","queue","lyrics","like","shuffle","repeat",
   "quick_search","library_search","recommendations","history","discovery","music_flow","favorite_radios",
   "library_playlists","library_albums","library_artists","library_tracks","library_radio","library_podcasts","library_liked",
   "smart","announcements","timer","sleep_timer","lighting","playback_stats","studio","home","preferences","queue_settings","settings"];
-export function defaultFanRank(action) {
+function defaultFanRank(action) {
   if (action.player) return defaultOrder.indexOf("players") + 0.5;
   const index = defaultOrder.indexOf(action.id);
   return index < 0 ? 50 : index;
 }
-export function orderedFanActions(actions, preference = {}, selectedOnly = false) {
+function orderedFanActions(actions, preference = {}, selectedOnly = false) {
   const unique = [...new Map(actions.map(action => [action.id, action])).values()];
   const order = Array.isArray(preference.order) ? preference.order : [];
   const rank = new Map(order.map((id, index) => [id, index]));
