@@ -23,7 +23,7 @@ const optionLabels = {
   smart_crossfade: "Smart Fades",
 };
 
-export function queueSettingsHtml(card, view) {
+function queueSettingsHtml(card, view) {
   const { entries = {}, playlists = [], can_edit: editable = false } = view;
   const esc = (v) => card._esc(String(v ?? ""));
   const field = (key) => {
@@ -84,7 +84,7 @@ export async function loadQueueSettings(card, body, isCurrent) {
   }
 }
 
-export function queueSettingsChanges(form, entries) {
+function queueSettingsChanges(form, entries) {
   const changes = {};
   for (const input of form.querySelectorAll("[data-queue-setting]")) {
     const key = input.dataset.queueSetting;
